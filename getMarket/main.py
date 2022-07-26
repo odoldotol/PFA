@@ -1,3 +1,4 @@
+from ast import Return
 from fastapi import FastAPI
 
 import yfinance as yf
@@ -11,10 +12,10 @@ async def read_root():
     return {"Hello": "Welcome to the PFA's Get Market API"}
 
 
-@app.post("/yf")
-async def getData(ticker: str):
+@app.get("/yf/info")
+async def getInfo(ticker: str):
     """
-    ticker 로 yf 에서 info 가져와 성공하면 MongoDB 에 저장하고 info 는 그대로 응답한다.
+    ticker 로 yf 에서 info 가져와 응답.
     """
 
     ticker = ticker.upper()
@@ -29,3 +30,15 @@ async def getData(ticker: str):
         result = {"error": "Ticker is not found"}
     
     return result
+
+
+@app.get("/yf/price")
+async def getPrice(ticker: str):
+    """
+    ticker 로 yf 에서 최근 가격 가져와서 응답.
+    """
+
+    ticker = ticker.upper()
+    price = yf.Ticker(ticker).history(period="1d")['Close'][0]
+
+    return {"price": price}
