@@ -79,6 +79,6 @@ async def get_price_by_list(ticker_list: list[str]):
             price = yf.Ticker(ticker).history(period="1d")['Close'][0]
             result[ticker] = price
         except:
-            result[ticker] = {"error": "could not get price from yfinance"}
+            result[ticker] = {"error": "Could not get price from yfinance"}
 
     return result
