@@ -44,13 +44,13 @@ async def read_root():
 
 
 @app.post("/yf/info")
-async def getInfoByList(tickerList: list[str]):
+async def get_info_by_list(ticker_list: list[str]):
     """
-    tickerList 안에 각 ticker 로 yf 에서 info 가져와 응답.
+    ticker_list 안에 각 ticker 로 yf 에서 info 가져와 응답.
     """
 
     result = {}
-    for ticker in tickerList:
+    for ticker in ticker_list:
         ticker = ticker.upper()
         info = yf.Ticker(ticker).info
 
@@ -66,13 +66,13 @@ async def getInfoByList(tickerList: list[str]):
 
 
 @app.post("/yf/price")
-async def getPriceByList(tickerList: list[str]):
+async def get_price_by_list(ticker_list: list[str]):
     """
-    tickerList 안에 각 ticker 로 yf 에서 최근 가격 가져와 응답.
+    ticker_list 안에 각 ticker 로 yf 에서 최근 가격 가져와 응답.
     """
 
     result = {}
-    for ticker in tickerList:
+    for ticker in ticker_list:
         ticker = ticker.upper()
 
         try:
