@@ -51,10 +51,11 @@ async def get_info_by_list(ticker_list: list[str]):
 
     result = {}
     for ticker in ticker_list:
-        ticker = ticker.upper()
-        info = yf.Ticker(ticker).info
+        # ticker = ticker.upper()
 
         try:
+            info = yf.Ticker(ticker).info
+
             if info['symbol'] == ticker:
                 result[ticker] = info
             else:
@@ -73,11 +74,11 @@ async def get_price_by_list(ticker_list: list[str]):
 
     result = {}
     for ticker in ticker_list:
-        ticker = ticker.upper()
 
         try:
             price = yf.Ticker(ticker).history(period="1d")['Close'][0]
-            result[ticker] = price
+
+            result[ticker.upper()] = price
         except:
             result[ticker] = {"error": "Could not get price from yfinance"}
 
