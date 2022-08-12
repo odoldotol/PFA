@@ -1,4 +1,4 @@
-import { Body, Controller, Post, Put } from '@nestjs/common';
+import { Body, Controller, Delete, Patch, Post, Put } from '@nestjs/common';
 import { ManagerService } from './manager.service';
 
 @Controller('manager')
@@ -16,4 +16,14 @@ export class ManagerController {
         return this.managerService.updateByTickerList(tickerList);
     }
 
+    @Delete('yf')
+    async deleteByTickerList(@Body() tickerList: string[]) {
+        return this.managerService.deleteByTickerList(tickerList);
+    }
+
+    @Patch('yf/modify')
+    async actionAboutPatch() {}
+
+    @Put('yf/modify')
+    async actionAboutPut() {}
 }

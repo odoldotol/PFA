@@ -3,6 +3,10 @@ import { Injectable } from '@nestjs/common';
 @Injectable()
 export class ManagerService {
 
+    async getInfoByTickerList(tickerList: string[]) {
+        return tickerList;
+    }
+
     async createByTickerList(tickerList: string[]) {
         let priceList = await this.getInfoByTickerList(tickerList);
         return tickerList;
@@ -12,7 +16,7 @@ export class ManagerService {
         return tickerList;
     }
 
-    async getInfoByTickerList(tickerList: string[]) {
+    async deleteByTickerList(tickerList: string[]) {
         return tickerList;
     }
 }
