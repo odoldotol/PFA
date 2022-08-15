@@ -1,3 +1,5 @@
+import { HttpModule } from '@nestjs/axios';
+import { ConfigModule } from '@nestjs/config';
 import { Test, TestingModule } from '@nestjs/testing';
 import { ManagerController } from './manager.controller';
 import { ManagerService } from './manager.service';
@@ -7,6 +9,13 @@ describe('ManagerController', () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
+      imports: [
+        ConfigModule.forRoot({
+          isGlobal: true,
+          envFilePath: ".env.development.local"
+        }),
+        HttpModule
+      ],
       controllers: [ManagerController],
       providers: [ManagerService]
     }).compile();
