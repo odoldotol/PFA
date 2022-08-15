@@ -1,6 +1,7 @@
 import { HttpModule } from '@nestjs/axios';
 import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { MongooseModule } from '@nestjs/mongoose';
 import { AppController } from './app/app.controller';
 import { AppService } from './app/app.service';
 
@@ -12,6 +13,13 @@ import { UpdaterModule } from './updater/updater.module';
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: ".env.development.local"
+    }),
+    MongooseModule.forRootAsync({
+      imports: [ConfigModule],
+      useFactory: (configService: ConfigService) => ({
+        uri: `${configService.get('MONGO_URL')}${configService.get('MONGO_database')}${configService.get('MONGO_Query')}`
+      }),
+      inject: [ConfigService],
     }),
     HttpModule,
     ManagerModule, // market data 에 대한 CRUD 가 주 목적

@@ -1,14 +1,17 @@
 import { HttpService } from '@nestjs/axios';
 import { ConfigService } from '@nestjs/config';
+import { getModelToken } from '@nestjs/mongoose';
 import { Test, TestingModule } from '@nestjs/testing';
 import { AxiosResponse } from 'axios'
 import { of } from 'rxjs';
+import { Yf_info } from '../schema/yf_info.schema';
 import { ManagerService } from './manager.service';
 
 describe('ManagerService', () => {
   let service: ManagerService;
   let mockHttpService: HttpService;
   let configService: ConfigService;
+  const yf_infoModel = jest.fn();
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -19,7 +22,11 @@ describe('ManagerService', () => {
           provide: HttpService,
           useValue: {
             post: jest.fn(),
-          },
+          }
+        },
+        {
+          provide: getModelToken(Yf_info.name),
+          useValue: yf_infoModel,
         }
       ],
     }).compile();

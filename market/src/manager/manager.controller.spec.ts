@@ -1,23 +1,32 @@
-import { HttpModule } from '@nestjs/axios';
-import { ConfigModule } from '@nestjs/config';
+import { HttpService } from '@nestjs/axios';
+import { ConfigService } from '@nestjs/config';
+import { getModelToken } from '@nestjs/mongoose';
 import { Test, TestingModule } from '@nestjs/testing';
+import { Yf_info } from '../schema/yf_info.schema';
 import { ManagerController } from './manager.controller';
 import { ManagerService } from './manager.service';
 
 describe('ManagerController', () => {
   let controller: ManagerController;
+  const yf_infoModel = jest.fn();
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      imports: [
-        ConfigModule.forRoot({
-          isGlobal: true,
-          envFilePath: ".env.development.local"
-        }),
-        HttpModule
-      ],
       controllers: [ManagerController],
-      providers: [ManagerService]
+      providers: [
+        ManagerService,
+        ConfigService,
+        {
+          provide: HttpService,
+          useValue: {
+            post: jest.fn(),
+          }
+        },
+        {
+          provide: getModelToken(Yf_info.name),
+          useValue: yf_infoModel,
+        }
+      ]
     }).compile();
 
     controller = module.get<ManagerController>(ManagerController);
