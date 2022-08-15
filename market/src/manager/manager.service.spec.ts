@@ -55,12 +55,6 @@ describe('ManagerService', () => {
       const expected = service.getInfoByTickerList(tickerArr);
 
       expect(expected).resolves.toEqual(resData);
-
-      // 아래처럼 실제로 하려하니 테스트 시간초과가 떠버림.
-      // const tickerArr = ["AAPL", "MSFT"]
-      // const result = await service.getInfoByTickerList(tickerArr)
-      // expect(result[0].symbol).toEqual(tickerArr[0])
-      // expect(result[1].symbol).toEqual(tickerArr[1])
     })
     
     it('잘못된 응답', () => {})
