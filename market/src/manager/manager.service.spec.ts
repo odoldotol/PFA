@@ -1,5 +1,5 @@
 import { HttpService } from '@nestjs/axios';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigService } from '@nestjs/config';
 import { Test, TestingModule } from '@nestjs/testing';
 import { AxiosResponse } from 'axios'
 import { of } from 'rxjs';
@@ -8,17 +8,13 @@ import { ManagerService } from './manager.service';
 describe('ManagerService', () => {
   let service: ManagerService;
   let mockHttpService: HttpService;
+  let configService: ConfigService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      imports: [
-        ConfigModule.forRoot({
-          isGlobal: true,
-          envFilePath: ".env.development.local"
-        })
-      ],
       providers: [
         ManagerService,
+        ConfigService,
         {
           provide: HttpService,
           useValue: {
@@ -30,6 +26,7 @@ describe('ManagerService', () => {
 
     service = module.get<ManagerService>(ManagerService);
     mockHttpService = module.get(HttpService);
+    configService = module.get(ConfigService);
   });
 
   it('should be defined', () => {
@@ -41,18 +38,22 @@ describe('ManagerService', () => {
     it('getMArket 서버로 요청을 보내 info 객체 배열을 받아와 리턴해야함', async () => {
       
       const resData = info.aaplmsft;
-      const axiosRes: AxiosResponse<any,any> = {
+      const axiosRes: AxiosResponse = {
         data: resData,
         status: 200,
         statusText: 'OK',
         headers: {},
         config: {},
       }
+      
+      const testTickerArr = ["AAPL", "MSFT"]
 
-      jest.spyOn(mockHttpService, 'post').mockReturnValueOnce(of(axiosRes));
+      jest.spyOn(mockHttpService, 'post').mockImplementation((url, tickerArr) => 
+        tickerArr === testTickerArr && url === `${configService.get('GETMARKET_URL')}yf/info`
+          ? of(axiosRes)
+          : of(null));
 
-      const tickerArr = ["AAPL", "MSFT"]
-      const expected = service.getInfoByTickerList(tickerArr);
+      const expected = service.getInfoByTickerList(testTickerArr);
 
       expect(expected).resolves.toEqual(resData);
     })
