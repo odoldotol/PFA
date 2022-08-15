@@ -49,7 +49,7 @@ async def get_info_by_list(ticker_list: list[str]):
     ticker_list 안에 각 ticker 로 yf 에서 info 가져와 응답.
     """
 
-    result = {}
+    result = []
     for ticker in ticker_list:
         # ticker = ticker.upper()
 
@@ -57,11 +57,11 @@ async def get_info_by_list(ticker_list: list[str]):
             info = yf.Ticker(ticker).info
 
             if info['symbol'] == ticker:
-                result[ticker] = info
+                result.append(info)
             else:
-                result[ticker] = {"error": "Symbol is not equal to a ticker"}
+                result.append({"error": "Symbol is not equal to a ticker"})
         except:
-            result[ticker] = {"error": "Ticker is not found"}
+            result.append({"error": "Ticker is not found"})
 
     return result
 
@@ -72,14 +72,14 @@ async def get_price_by_list(ticker_list: list[str]):
     ticker_list 안에 각 ticker 로 yf 에서 최근 가격 가져와 응답.
     """
 
-    result = {}
+    result = []
     for ticker in ticker_list:
 
         try:
             price = yf.Ticker(ticker).history(period="1d")['Close'][0]
 
-            result[ticker.upper()] = price
+            result.append(price)
         except:
-            result[ticker] = {"error": "Could not get price from yfinance"}
+            result.append({"error": "Could not get price from yfinance"})
 
     return result
