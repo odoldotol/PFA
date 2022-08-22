@@ -3,7 +3,10 @@ import { Document } from "mongoose";
 
 export type Yf_infoDocument = Yf_info & Document;
 
-@Schema()
+@Schema({
+    timestamps: true,
+    strict: false // 다 때려 넣을 수 있도록ㅋㅋㅋ
+ })
 export class Yf_info {
     @Prop({
         required: true,

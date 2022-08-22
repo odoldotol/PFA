@@ -58,7 +58,8 @@ describe('ManagerService', () => {
       jest.spyOn(mockHttpService, 'post').mockImplementation((url, tickerArr) => 
         tickerArr === testTickerArr && url === `${configService.get('GETMARKET_URL')}yf/info`
           ? of(axiosRes)
-          : of(null));
+          : of(null)
+      );
 
       const expected = service.getInfoByTickerList(testTickerArr);
 
@@ -76,8 +77,11 @@ describe('ManagerService', () => {
 
     })
 
-    it('이미 존재하는 데이터 확인 처리', () => {})
+    it('error info 가 포함된 경우에는 error info를 제외하고 데이터를 생성해야 함', () => {})
+    it('error info 가 포함된 경우에는 정상 응답에 error 가 포함되어야 함', () => {})
+    // it('error info 가 포함된 경우에는 error 들의 인덱스를 배열에 담에 반환해야함', () => {})
     it('데이터생성 실패', () => {})
+    it('이미 존재하는 심볼 확인 처리', () => {})
     it('info객체 받아오기 실패', () => {})
     it('잘못된 info객체 받아옴', () => {})
     it('info 객체 응답 시간', () => {})
