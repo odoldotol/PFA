@@ -7,18 +7,18 @@ export class ManagerController {
     constructor(private readonly managerService: ManagerService) {}
 
     @Post('yf')
-    async createByTickerList(@Body() tickerList: string[]) {
-        return this.managerService.createByTickerList(tickerList);
+    async createByTickerArr(@Body() tickerArr: string[]) {
+        return this.managerService.createByTickerArr(tickerArr);
     }
 
     @Put('yf')
-    async updateByTickerList(@Body() tickerList: string[]) {
-        return this.managerService.updateByTickerList(tickerList);
+    async updateByTickerArr(@Body() tickerArr: string[]) {
+        return this.managerService.updateByTickerArr(tickerArr);
     }
 
     @Delete('yf')
-    async deleteByTickerList(@Body() tickerList: string[]) {
-        return this.managerService.deleteByTickerList(tickerList);
+    async deleteByTickerArr(@Body() tickerArr: string[]) {
+        return this.managerService.deleteByTickerArr(tickerArr);
     }
 
     @Patch('yf/modify')
