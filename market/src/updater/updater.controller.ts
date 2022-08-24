@@ -1,8 +1,6 @@
 import { Body, Controller, Param, Patch, Post, Query } from '@nestjs/common';
 import { UpdaterService } from './updater.service';
 
-type Option = 'timeZone' | 'exchange' | 'city';
-
 @Controller('updater')
 export class UpdaterController {
 
@@ -23,8 +21,8 @@ export class UpdaterController {
         return this.updaterService.getPriceByTickerArr(tickerArr);
     }
 
-    @Patch('yf/price/:by')
-    async updatePriceByOption(@Param('by') option: Option, @Body() optionArr: string[]) {
-        return this.updaterService.updatePriceByOption(option, optionArr);
+    @Patch('yf/price/filters')
+    async updatePriceByFilters(@Body() filterArr: object[]) {
+        return this.updaterService.updatePriceByFilters(filterArr);
     }
 }

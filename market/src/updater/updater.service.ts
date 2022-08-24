@@ -26,7 +26,7 @@ export class UpdaterService {
 
         // 디비 업데이트
         let result = {success: [], failure: []};
-        let updatePromiseArr = tickerArr.map((ticker, idx) => {
+        let updatePromiseArr = tickerArr.map((ticker, idx) => { // map 의 콜백함수를 비동기 함수로 변환하면 void 함수로 만들어도 promise.all 에서 기다리면서 처리가 된다
             if (priceArr[idx]["error"]) {result.failure.push(priceArr[idx]);}
             else {
                 return this.yf_infoModel.updateOne({ symbol: ticker }, { regularMarketPrice: priceArr[idx] }).exec()
@@ -60,8 +60,19 @@ export class UpdaterService {
         return result;
     }
 
-    async updatePriceByOption(option, optionArr) {
-
+    async updatePriceByFilters(filterArr: object[]) {
+        // db 에서 각 filter 들로 find 한 documents 들의 symbol 배열들을 만들어서 각각 updatePriceByTickerArr(symbol배열) 을 실행시켜!
+        return Promise.all(filterArr.map(async (filter) => {
+            return await this.yf_infoModel.find(filter, 'symbol').exec()
+                .then(async (res) => {
+                    const symbolArr = res.map(ele=>ele.symbol) // await this.updatePriceByTickerArr(res.map(ele=>ele.symbol)); <- 요로케 하면 안되요!
+                    return await this.updatePriceByTickerArr(symbolArr);
+                })
+                .catch((err) => {
+                    // console.log(err);
+                    return {findError: err};
+                })
+        }))
     }
 
     // async updatePriceAll(each: number) {
