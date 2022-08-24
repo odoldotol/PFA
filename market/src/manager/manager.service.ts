@@ -50,7 +50,7 @@ export class ManagerService {
         .then((res)=>{
             result.success = res;
         })
-        .catch((err)=>{
+        .catch((err)=>{ // 몽고 에러 응답에서 아래 키들이 사라질리는 없을것 같음. 응답 형태를 보니 중복 부분이 있는걸로 보아 개선해도 아마 삭제하지는 않는것같음.
             result.failure = result.failure.concat(err.writeErrors);
             result.success = result.success.concat(err.insertedDocs);
         })
