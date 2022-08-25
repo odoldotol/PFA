@@ -47,7 +47,7 @@ export class UpdaterService {
                             ) /* 예외 케이스가 발견됨에 따라 수정해야항 수도 있음 */ {
                             result.success.push(ticker);
                         } else {
-                            result.failure.push(ticker, res);
+                            result.failure.push({error: "updateOne error", ticker, res});
                         }
                     })
                     .catch((err)=>{

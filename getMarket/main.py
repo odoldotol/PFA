@@ -59,9 +59,16 @@ async def get_info_by_list(ticker_list: list[str]):
             if info['symbol'] == ticker:
                 result.append(info)
             else:
-                result.append({"error": "Symbol is not equal to a ticker"})
+                result.append({
+                    "error": "Symbol is not equal to a ticker",
+                    "ticker": ticker,
+                    "symbol": info['symbol']
+                    })
         except:
-            result.append({"error": "Ticker is not found"})
+            result.append({
+                "error": "Ticker is not found",
+                "ticker": ticker
+                })
 
     return result
 
@@ -80,6 +87,9 @@ async def get_price_by_list(ticker_list: list[str]):
 
             result.append(price)
         except:
-            result.append({"error": "Could not get price from yfinance"})
+            result.append({
+                "error": "Could not get price from yfinance",
+                "ticker": ticker
+                })
 
     return result
