@@ -65,7 +65,7 @@ export class UpdaterService {
         return Promise.all(filterArr.map(async (filter) => {
             return await this.yf_infoModel.find(filter, 'symbol').exec()
                 .then(async (res) => {
-                    const symbolArr = res.map(ele=>ele.symbol) // await this.updatePriceByTickerArr(res.map(ele=>ele.symbol)); <- 요로케 하면 안되요!
+                    const symbolArr = res.map(ele=>ele.symbol) // await this.updatePriceByTickerArr(res.map(ele=>ele.symbol)); <- 요로케 하면 안되요! // 내가 그냥 함수를 넣어버린게 되는건가? 그렇다면, 즉시실행함수형태로 하면 될거같은데?
                     return await this.updatePriceByTickerArr(symbolArr);
                 })
                 .catch((err) => {
