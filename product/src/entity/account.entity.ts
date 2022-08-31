@@ -1,14 +1,15 @@
 import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, ManyToOne } from 'typeorm';
 
 @Entity()
-export class Account { // 일단은 입력 하든가 말든가 로 가지만, 그래도 진실되게(계죄의 정보는 달라도 실제 존재하는 계좌를 입력하고 그 안에 자산들도) 입력해야 다양한 서비스에서 더욱 도움을 받을 수 있다는 안내해주기. 추후에 수정이 어려울 수 있다는 점도 안내
+export class Account {
+
     @PrimaryGeneratedColumn()
     id: number;
 
     @Column("varchar", { length: 100 })
     originalAccountId: string; // not required
 
-    // 계좌 브랜드? 타이블? 분류? 종류? ex) 신한은행, 
+    // 계좌 브랜드? 타이틀? 분류? 종류? ex) 신한은행, 
 
     @Column("varchar", { length: 50 })
     originalAccountName: string; // not required
@@ -30,7 +31,19 @@ export class Account { // 일단은 입력 하든가 말든가 로 가지만, �
 
     // 포트폴리오 종속 many to many
 
-    // 유저 종속 many to one
+    // 유저 종속 many to one // required
     // @ManyToOne(() => User, (user) => user.accounts)
     // user: User;
+
+
+
+    // -------------------------------------------------- lapiki
+    // # 필터
+    // a = models.BooleanField(default=False, help_text="stocks, etf,,, exchange traded financial instruments")
+    // b = models.BooleanField(default=False, help_text="crypto")
+    // c = models.BooleanField(default=False, help_text="cash")
+    // s = models.BooleanField(default=False, help_text="savings")
+    // p = models.BooleanField(default=False, help_text="pension, retire, insurance, annuity,,,")
+    // r = models.BooleanField(default=False, help_text="real estate")
+    // z = models.BooleanField(default=False, help_text="painting, goods etc")
 }
