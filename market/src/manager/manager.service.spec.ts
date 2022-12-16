@@ -4,7 +4,7 @@ import { getModelToken } from '@nestjs/mongoose';
 import { Test, TestingModule } from '@nestjs/testing';
 import { AxiosResponse } from 'axios'
 import { of } from 'rxjs';
-import { Yf_info } from '../schema/yf_info.schema';
+import { Yf_info } from '../mongodb/schema/yf_info.schema';
 import { ManagerService } from './manager.service';
 
 describe('ManagerService', () => {

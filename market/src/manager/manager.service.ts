@@ -3,8 +3,8 @@ import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { firstValueFrom } from 'rxjs';
-import { Yf_info, Yf_infoDocument } from '../schema/yf_info.schema';
+import { Yf_info, Yf_infoDocument } from '../mongodb/schema/yf_info.schema';
+import { YahoofinanceService } from 'src/yahoofinance/yahoofinance.service';
 
 @Injectable()
 export class ManagerService {
@@ -12,45 +12,37 @@ export class ManagerService {
     constructor(
         private readonly configService: ConfigService,
         private readonly httpService: HttpService,
-        @InjectModel(Yf_info.name) private yf_infoModel: Model<Yf_infoDocument>
+        @InjectModel(Yf_info.name) private yf_infoModel: Model<Yf_infoDocument>,
+        private readonly yahoofinanceService: YahoofinanceService,
     ) {}
 
-    async getInfoByTickerArr(tickerArr: string[]): Promise<object[]> {
-        return (await firstValueFrom(this.httpService.post(`${this.configService.get('GETMARKET_URL')}yf/info`, tickerArr))).data;
-    }
-
+    /**
+     * ### mongoDB 에 신규 자산 생성하기
+     */
     async createByTickerArr(tickerArr: string[]) {
-        let infoArr = await this.getInfoByTickerArr(tickerArr);
-        
-        // const resultArr = infoArr.map(async <T>(info: T) => {
-        //     try {
-        //         if (info["error"]) {return info;}
-        //         else {
-        //             const newInfo = new this.yf_infoModel(info);
-        //             await newInfo.save();
-        //             return newInfo;
-        //         }
-        //     } catch(err) {
-        //         info["create_error"] = err;
-        //         return info;
-        //     }
-        // })
-        // return await Promise.all(resultArr);
+        let result = {success: [], failure: []}; // 응답
 
-        let result = {success: [], failure: []};
+        // info 가져오기
+        let infoArr = await this.yahoofinanceService.getInfoByTickerArr(tickerArr);
+        
+        // info 분류 (성공,실패)
         let insertArr = [];
         infoArr.forEach((info)=>{
             if (info["error"]) {result.failure.push(info);}
             else {insertArr.push(info);}
-        })
+        });
+
+        // mongoDB 에 저장
         await this.yf_infoModel.insertMany(insertArr, {
-            ordered: false,
-            limit: 100
+            ordered: false, // 오류발견해도 중지하지말고 전부 삽입하고 나중에 보고
+            // limit: 100
         })
         .then((res)=>{
             result.success = res;
+            // 신규 exchange 발견시 추가하기
+            
         })
-        .catch((err)=>{ // 몽고 에러 응답에서 아래 키들이 사라질리는 없을것 같음. 응답 형태를 보니 중복 부분이 있는걸로 보아 개선해도 아마 삭제하지는 않는것같음.
+        .catch((err)=>{
             result.failure = result.failure.concat(err.writeErrors);
             result.success = result.success.concat(err.insertedDocs);
         })

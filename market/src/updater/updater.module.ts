@@ -1,14 +1,15 @@
 import { HttpModule } from '@nestjs/axios';
 import { Module } from '@nestjs/common';
-import { MongooseModule } from '@nestjs/mongoose';
-import { Yf_info, Yf_infoSchema } from 'src/schema/yf_info.schema';
 import { UpdaterController } from './updater.controller';
 import { UpdaterService } from './updater.service';
+import { YahoofinanceModule } from 'src/yahoofinance/yahoofinance.module';
+import { MongodbModule } from 'src/mongodb/mongodb.module';
 
 @Module({
   imports: [
+    YahoofinanceModule,
     HttpModule,
-    MongooseModule.forFeature([{ name: Yf_info.name, schema: Yf_infoSchema }])
+    MongodbModule
 ],
   controllers: [UpdaterController],
   providers: [UpdaterService]

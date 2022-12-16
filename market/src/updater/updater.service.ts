@@ -3,8 +3,8 @@ import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { firstValueFrom } from 'rxjs';
-import { Yf_info, Yf_infoDocument } from 'src/schema/yf_info.schema';
+import { Yf_info, Yf_infoDocument } from 'src/mongodb/schema/yf_info.schema';
+import { YahoofinanceService } from 'src/yahoofinance/yahoofinance.service';
 // import isEqual from 'lodash.isequal';
 
 @Injectable()
@@ -13,20 +13,17 @@ export class UpdaterService {
     constructor(
         private readonly configService: ConfigService,
         private readonly httpService: HttpService,
-        @InjectModel(Yf_info.name) private yf_infoModel: Model<Yf_infoDocument>
+        @InjectModel(Yf_info.name) private yf_infoModel: Model<Yf_infoDocument>,
+        private readonly yahoofinanceService: YahoofinanceService,
     ) {}
-
-    async getPriceByTickerArr(tickerArr: string[]): Promise<object[]> {
-        return (await firstValueFrom(this.httpService.post(`${this.configService.get('GETMARKET_URL')}yf/price`, tickerArr))).data;
-    }
     
     async updatePriceByTickerArr(tickerArr: string[]) {
         // 가격 배열 가져오기
-        const priceArr = await this.getPriceByTickerArr(tickerArr);
+        const priceArr = await this.yahoofinanceService.getPriceByTickerArr(tickerArr);
 
         // 디비 업데이트
         let result = {success: [], failure: []};
-        let updatePromiseArr = tickerArr.map((ticker, idx) => { // map 의 콜백함수를 비동기 함수로 변환하면 void 함수로 만들어도 promise.all 에서 기다리면서 처리가 된다
+        let updatePromiseArr = tickerArr.map((ticker, idx) => { // map 의 콜백을 (비동기)void함수 로 테스트해보기
             if (priceArr[idx]["error"]) {result.failure.push(priceArr[idx]);}
             else {
                 return this.yf_infoModel.updateOne({ symbol: ticker }, { regularMarketPrice: priceArr[idx] }).exec()

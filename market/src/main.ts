@@ -3,7 +3,13 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule)
+  .then(app => {
+    console.log(`MongoDB Connected on ${process.env.MONGO_database}`);
+    return app;
+  });
+
+  app.enableCors();
 
   app.useGlobalPipes(new ValidationPipe({
     transform: true,
@@ -11,6 +17,8 @@ async function bootstrap() {
     forbidNonWhitelisted: true,
   }));
 
-  await app.listen(6000);
+  await app.listen(process.env.PORT || 6000, () => {
+    console.log(`Server is running on port ${process.env.PORT || 6000}`);
+  });
 }
 bootstrap();

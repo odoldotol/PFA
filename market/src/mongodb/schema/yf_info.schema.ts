@@ -5,14 +5,14 @@ export type Yf_infoDocument = Yf_info & Document;
 
 @Schema({
     timestamps: true,
-    strict: false // 다 때려 넣을 수 있도록ㅋㅋㅋ
+    strict: false //
  })
 export class Yf_info {
     @Prop({
         required: true,
         unique: true
     })
-    symbol: string; // 거의 id 역할
+    symbol: string; // 거의 id 역할 가능
 
     /* 
         중요한 공통 props (100% 신뢰할 수는 없다)
