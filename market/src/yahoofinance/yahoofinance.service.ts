@@ -3,6 +3,7 @@ import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { firstValueFrom } from 'rxjs';
 import { spawn } from 'child_process';
+import isoToYfTimezone from './isoToYfTimezone';
 
 @Injectable()
 export class YahoofinanceService {
@@ -28,7 +29,7 @@ export class YahoofinanceService {
         // 하나의 프로세스가 10초정도 걸리기때문에 벙열처리필수 + result 에 담기는 순서가 보장되기를 바람
         await tickerArr.reduce(async (acc, ticker) => {
             // childProcess
-            const cp = spawn('python3', ['getInfoByTickerArr.py', ticker], {cwd: 'src/yahoofinance'}) // 주의(절대경로 src)
+            const cp = spawn('python3', ['getInfoByTicker.py', ticker], {cwd: 'src/yahoofinance'}) // 주의(절대경로 src)
             const info = await new Promise(resolve => {
                 cp.stdout.on('data', (data) => {
                     resolve(JSON.parse(data.toString()));
@@ -60,5 +61,12 @@ export class YahoofinanceService {
         } catch(err) {
             throw new InternalServerErrorException(err)
         };
+    }
+
+    /**
+     * ### ISO code 를 yahoofinance exchangeTimezoneName 로 변환 혹은 그 반대를 수행
+     */
+    isoToYfTimezone(code: string): string | undefined {
+        return isoToYfTimezone[code];
     }
 }

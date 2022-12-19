@@ -2,7 +2,7 @@ import yfinance as yf
 import sys
 import json
 
-def getInfoByTickerArr(ticker):
+def get_info_by_ticker(ticker):
     try:
         info = yf.Ticker(ticker).info
         if info['symbol'] == ticker:
@@ -23,4 +23,4 @@ def getInfoByTickerArr(ticker):
         }))
 
 if __name__ == "__main__":
-    getInfoByTickerArr(sys.argv[1])
+    get_info_by_ticker(sys.argv[1])
