@@ -1,3 +1,6 @@
+# python 3.10.4
+# yfinance 
+
 import yfinance as yf
 import sys
 import json
@@ -18,7 +21,7 @@ def get_info_by_ticker(ticker):
             'error': {
                 'doc': e.__doc__,
                 "ticker": ticker,
-                'args':e.args
+                # 'args':e.args
             }
         }))
 

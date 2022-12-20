@@ -36,7 +36,7 @@ export class ManagerService {
         };
 
         // info 가져오기
-        let infoArr = await this.yahoofinanceService.getInfoByTickerArr(tickerArr);
+        let infoArr = await this.yahoofinanceService.getSomethingByTickerArr(tickerArr, "Info");
         // info 분류 (성공,실패)
         let insertArr = [];
         infoArr.forEach((info)=>{
@@ -59,7 +59,7 @@ export class ManagerService {
         // 신규 exchangeTimezoneName 발견시 추가하기
         await Promise.all(result.success.info.map(async info => {
             const yf_exchangeTimezoneName = info.exchangeTimezoneName;
-            const oldOne = await this.status_priceModel.exists({ yf_exchangeTimezoneName })
+            const oldOne = await this.status_priceModel.exists({ yf_exchangeTimezoneName }).exec();
             if (oldOne === null) { // 신규 exchangeTimezoneName!
                 const ISO_Code = this.yahoofinanceService.isoToYfTimezone(yf_exchangeTimezoneName)
                 if (ISO_Code === undefined) { // ISO_Code 를 못찾은 경우 실패처리

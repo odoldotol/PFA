@@ -1,10 +1,11 @@
 import { HttpService } from '@nestjs/axios';
-import { Injectable } from '@nestjs/common';
+import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Yf_info, Yf_infoDocument } from 'src/mongodb/schema/yf_info.schema';
 import { YahoofinanceService } from 'src/yahoofinance/yahoofinance.service';
+import { Status_price, Status_priceDocument } from 'src/mongodb/schema/status_price.schema';
 // import isEqual from 'lodash.isequal';
 
 @Injectable()
@@ -14,14 +15,77 @@ export class UpdaterService {
         private readonly configService: ConfigService,
         private readonly httpService: HttpService,
         @InjectModel(Yf_info.name) private yf_infoModel: Model<Yf_infoDocument>,
+        @InjectModel(Status_price.name) private status_priceModel: Model<Status_priceDocument>,
         private readonly yahoofinanceService: YahoofinanceService,
     ) {}
     
+    /**
+     * ISO code 로 Status_price 에서 Doc 가져오기
+     */
+    getStatusPriceDocByISOcode(ISO_Code: string) {
+        return this.status_priceModel.findOne({ISO_Code}).exec()
+        .then((doc)=>{
+            return doc;
+        })
+        .catch((err)=>{
+            throw new InternalServerErrorException(err);
+        })
+    }
+
+    /**
+     * ### ISO code 로 session 의 something 알아내기
+     */
+    async getSessionSomethingByISOcode(ISO_Code: string, something?: "previous_open" | "previous_close" | "next_open" | "next_close" | "last_market_date") {
+        try {
+            return something ? await this.yahoofinanceService.getMarketSessionByISOcode(ISO_Code)[something]
+                : await this.yahoofinanceService.getMarketSessionByISOcode(ISO_Code);
+        } catch (err) {
+            throw new InternalServerErrorException(err);
+        }
+    }
+
+    /**
+     * ### ISO code 로 price status 가 최신인지 알아내기
+     */
+    async isPriceStatusUpToDate(ISO_Code: string) {
+        try {
+            const spDoc = await this.getStatusPriceDocByISOcode(ISO_Code)
+            const lastMarketDate = await this.getSessionSomethingByISOcode(ISO_Code, "last_market_date")
+            return spDoc.lastMarketDate === lastMarketDate ? true : false
+        } catch (err) {
+            throw new InternalServerErrorException(err);
+        }
+    }
+
+    /**
+     * ### ISO code 로 장중이 아닌지 알아내기
+     * - 장중이 아니면 true, 장중이면 false
+     */
+    async isNotMarketOpen(ISO_Code: string) {
+        try {
+            const session = await this.getSessionSomethingByISOcode(ISO_Code)
+            const previous_open = new Date(session["previous_open"])
+            const previous_close = new Date(session["previous_close"])
+            const next_open = new Date(session["next_open"])
+            const next_close = new Date(session["next_close"])
+            if (previous_open > previous_close && next_open > next_close) { // 장중
+                return false;
+            }
+            return true;
+        } catch (err) {
+            throw new InternalServerErrorException(err);
+        }
+    }
+
+    /**
+     * 
+     */
     async updatePriceByTickerArr(tickerArr: string[]) {
         // 가격 배열 가져오기
-        const priceArr = await this.yahoofinanceService.getPriceByTickerArr(tickerArr);
+        const priceArr = await this.yahoofinanceService.getSomethingByTickerArr(tickerArr, "Price");
 
         // 디비 업데이트
+        // 수정할것 = (이왕이면, regularMarketPreviousClose = regularMarketPrice 후에 업댓하자)
         let result = {success: [], failure: []};
         let updatePromiseArr = tickerArr.map((ticker, idx) => { // map 의 콜백을 (비동기)void함수 로 테스트해보기
             if (priceArr[idx]["error"]) {result.failure.push(priceArr[idx]);}
