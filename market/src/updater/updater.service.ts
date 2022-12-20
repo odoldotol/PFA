@@ -35,7 +35,7 @@ export class UpdaterService {
     /**
      * ### ISO code 로 session 의 something 알아내기
      */
-    async getSessionSomethingByISOcode(ISO_Code: string, something?: "previous_open" | "previous_close" | "next_open" | "next_close" | "last_market_date") {
+    async getSessionSomethingByISOcode(ISO_Code: string, something?: "previous_open" | "previous_close" | "next_open" | "next_close") {
         try {
             return something ? await this.yahoofinanceService.getMarketSessionByISOcode(ISO_Code)[something]
                 : await this.yahoofinanceService.getMarketSessionByISOcode(ISO_Code);
@@ -50,7 +50,7 @@ export class UpdaterService {
     async isPriceStatusUpToDate(ISO_Code: string) {
         try {
             const spDoc = await this.getStatusPriceDocByISOcode(ISO_Code)
-            const lastMarketDate = await this.getSessionSomethingByISOcode(ISO_Code, "last_market_date")
+            const lastMarketDate = await this.getSessionSomethingByISOcode(ISO_Code, "previous_open")
             return spDoc.lastMarketDate === lastMarketDate ? true : false
         } catch (err) {
             throw new InternalServerErrorException(err);
