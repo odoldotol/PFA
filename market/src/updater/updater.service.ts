@@ -87,8 +87,11 @@ export class UpdaterService {
         // 디비 업데이트
         // 수정할것 = (이왕이면, regularMarketPreviousClose = regularMarketPrice 후에 업댓하자)
         let result = {success: [], failure: []};
-        let updatePromiseArr = tickerArr.map((ticker, idx) => { // map 의 콜백을 (비동기)void함수 로 테스트해보기
-            if (priceArr[idx]["error"]) {result.failure.push(priceArr[idx]);}
+        let updatePromiseArr = tickerArr.map((ticker, idx) => { // map 의 콜백에서 return 없어도 Promise<void> 가 리턴되도록? 차이는?
+            if (priceArr[idx]["error"]) {
+                priceArr[idx]['ticker'] = ticker;
+                result.failure.push(priceArr[idx]);
+            }
             else {
                 return this.yf_infoModel.updateOne({ symbol: ticker }, { regularMarketPrice: priceArr[idx] }).exec()
                     .then((res)=>{
@@ -111,9 +114,8 @@ export class UpdaterService {
                             result.failure.push({error: "updateOne error", ticker, res});
                         }
                     })
-                    .catch((err)=>{
-                        // console.log(err);
-                        result.failure.push({ticker, err});
+                    .catch(error => {
+                        result.failure.push({error, ticker});
                     })
             }
         })
