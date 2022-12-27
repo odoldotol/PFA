@@ -40,7 +40,9 @@ export class YahoofinanceService {
      */
     async getMarketSessionByISOcode(ISO_Code: string) {
         const cp = this.getPyChildProcess(['getSessionByISOcode.py', ISO_Code]);
-        const result = await this.getStdoutByChildProcess(cp);
+        const result = await this.getStdoutByChildProcess(cp)
+            .then(res => res)
+            .catch(error => {return {error: error}});
         return result;
     }
 
@@ -48,7 +50,7 @@ export class YahoofinanceService {
      * ### 파이썬 ChildProcess 만들기
      */
     getPyChildProcess(args: string[]): ChildProcessWithoutNullStreams {
-        return spawn('python3', args, {cwd: 'src/yahoofinance', timeout: 6000}); // 1분 제한
+        return spawn('python3', args, {cwd: 'src/yahoofinance', timeout: 60000}); // 1분 제한
     }
 
     /**
@@ -65,10 +67,12 @@ export class YahoofinanceService {
                 reject(new InternalServerErrorException(err))
             });
             cp.stderr.on('data', (data) => {
-                reject(new InternalServerErrorException(JSON.parse(data.toString())))
+                reject(new InternalServerErrorException(data.toString()))
             });
             cp.on('close', (code, signal) => {
+                // console.log(`ChildProcess closed with code: ${code} and signal: ${signal}`);
                 if (code === null && signal === "SIGTERM") { // timeout
+                    // console.log("ChildProcess closed by Timeout!");
                     reject(new InternalServerErrorException({msg: "ChildProcess closed by Timeout!", code, signal}))
                 }
             });
