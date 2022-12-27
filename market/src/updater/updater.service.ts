@@ -1,5 +1,5 @@
 import { HttpService } from '@nestjs/axios';
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import { Injectable, InternalServerErrorException, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
@@ -13,6 +13,8 @@ import { CronJob } from 'cron';
 
 @Injectable()
 export class UpdaterService {
+
+    private readonly logger = new Logger(UpdaterService.name);
 
     constructor(
         private readonly configService: ConfigService,
@@ -37,6 +39,7 @@ export class UpdaterService {
      *      - 장중이면 "다음마감시간에 업데이트스케줄 생성하기"
      */
     async initiator() {
+        this.logger.log("initiator() called!!!");
         const spDocArr = await this.status_priceModel.find().exec()
         await Promise.all(spDocArr.map(async (spDoc) => {
             const ISO_Code = spDoc.ISO_Code
@@ -45,10 +48,12 @@ export class UpdaterService {
             const isUpToDate = await this.isPriceStatusUpToDate(ISO_Code, marketSession)
             if (isUpToDate) { // 최신이면
                 // 다음마감시간에 업데이트스케줄 생성하기
+                this.logger.verbose(`${ISO_Code} : UpToDate`)
                 this.schedulerForPrice(ISO_Code, marketSession["next_close"])
             } else { // 최신 아니면
                 const isNotMarketOpen = await this.isNotMarketOpen(marketSession)
                 if (isNotMarketOpen) { // 장중이아니면
+                    this.logger.verbose(`${ISO_Code} : Not UpToDate`)
                     // 가격 업데이트하기
                     const updateResult = await this.updatePriceByStatusPriceDocAndPreviousopen(spDoc, marketSession["previous_open"])
                     if (updateResult["error"]) {}
@@ -57,6 +62,7 @@ export class UpdaterService {
                     // 다음마감시간에 업데이트스케줄 생성하기
                     this.schedulerForPrice(ISO_Code, marketSession["next_close"])
                 } else { // 장중이면
+                    this.logger.verbose(`${ISO_Code} : Market Is Open`)
                     // 다음마감시간에 업데이트스케줄 생성하기
                     this.schedulerForPrice(ISO_Code, marketSession["next_close"])
                 }
@@ -77,10 +83,7 @@ export class UpdaterService {
         
         this.schedulerRegistry.addCronJob(ISO_Code, newUpdateSchedule);
         newUpdateSchedule.start();
-        
-        // this.logger.warn(
-        //   `job ${name} added for each minute at ${seconds} seconds!`,
-        // );
+        this.logger.warn(`${ISO_Code} : scheduled ${nextCloseDate.toLocaleString()}`,);
     }
 
     /**
@@ -100,6 +103,7 @@ export class UpdaterService {
      */
     async updatePriceByStatusPriceDocAndPreviousopen(statusPriceDoc: Status_priceDocument, previous_open: string) {
         try {
+            this.logger.warn(`${statusPriceDoc.ISO_Code} : Updater Run!!!`)
             const startTime = new Date().toISOString()
             // 가격 업데이트
             const updatePriceResult = this.updatePriceByFilters([{exchangeTimezoneName: statusPriceDoc.yf_exchangeTimezoneName}])
@@ -113,6 +117,7 @@ export class UpdaterService {
             await Promise.all([updatePriceResult, updatetSatusPriceResult])
             
             const endTime = new Date().toISOString()
+            this.logger.warn(`${statusPriceDoc.ISO_Code} : Updater End!!!`)
 
             return {
                 updatePriceResult,

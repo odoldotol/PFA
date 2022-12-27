@@ -10,7 +10,7 @@ export class Log_priceUpdate {
 
     @Prop({
         required: true,
-        type: String
+        type: String // "initiator" | "scheduler" | "admin" | "product"
     }) // 업데이트 주체
     launcher: "initiator" | "scheduler" | "admin" | "product"
     
@@ -22,7 +22,7 @@ export class Log_priceUpdate {
 
     @Prop({
         required: true,
-        type: mongoose.Schema.Types.Mixed
+        type: mongoose.Schema.Types.Mixed // string | Array<string | Object>
     }) // 업데이트 키 (ISO code | 필터[] | 티커[] | etc...)
     key: string | Array<string | Object>
 
