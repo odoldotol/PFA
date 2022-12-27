@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
+import { ScheduleModule } from '@nestjs/schedule';
 import { AppController } from './app/app.controller';
 import { AppService } from './app/app.service';
 
@@ -20,6 +21,7 @@ import { UpdaterModule } from './updater/updater.module';
       }),
       inject: [ConfigService],
     }),
+    ScheduleModule.forRoot(),
     ManagerModule, // market data 에 대한 CRUD 가 주 목적
     UpdaterModule // market data 를 의미있게 사용하기 위한 지속적인 업데이트가 목적
   ],
