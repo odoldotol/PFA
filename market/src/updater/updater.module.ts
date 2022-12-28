@@ -12,6 +12,7 @@ import { MongodbModule } from 'src/mongodb/mongodb.module';
     MongodbModule
 ],
   controllers: [UpdaterController],
-  providers: [UpdaterService]
+  providers: [UpdaterService],
+  exports: [UpdaterService]
 })
 export class UpdaterModule {}

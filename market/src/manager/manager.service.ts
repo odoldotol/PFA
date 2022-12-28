@@ -4,8 +4,9 @@ import { ConfigService } from '@nestjs/config';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Yf_info, Yf_infoDocument } from '../mongodb/schema/yf_info.schema';
-import { YahoofinanceService } from 'src/yahoofinance/yahoofinance.service';
-import { Status_price, Status_priceDocument } from 'src/mongodb/schema/status_price.schema';
+import { YahoofinanceService } from '../yahoofinance/yahoofinance.service';
+import { UpdaterService } from '../updater/updater.service';
+import { Status_price, Status_priceDocument } from '../mongodb/schema/status_price.schema';
 
 @Injectable()
 export class ManagerService {
@@ -16,6 +17,7 @@ export class ManagerService {
         @InjectModel(Yf_info.name) private yf_infoModel: Model<Yf_infoDocument>,
         @InjectModel(Status_price.name) private status_priceModel: Model<Status_priceDocument>,
         private readonly yahoofinanceService: YahoofinanceService,
+        private readonly updaterService: UpdaterService,
     ) {}
 
     /**
@@ -76,8 +78,11 @@ export class ManagerService {
                     yf_exchangeTimezoneName,
                 });
                 await newOne.save()
-                .then((res)=>{
+                .then(async (res)=>{
                     result.success.status_price.push(res);
+                    // 다음마감 업데이트스케줄 생성해주기
+                    const nextClose = await this.updaterService.getSessionSomethingByISOcode(ISO_Code, "next_close");
+                    this.updaterService.schedulerForPrice(ISO_Code, nextClose)
                 })
                 .catch((err)=>{
                     result.failure.status_price.push({

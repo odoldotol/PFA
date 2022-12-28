@@ -94,25 +94,26 @@ export class UpdaterService {
      */
     async initiateForUTC(spDoc) {
         const ISO_Code = spDoc.ISO_Code
+        const nextClose = await this.getSessionSomethingByISOcode(ISO_Code, "next_close")
 
+        // UTC 는 예외적으로 previous_open 에 현재시간을 넣어서 PriceStatus 를 저장.
         const updateResult = await this.updatePriceByStatusPriceDocAndPreviousopen(spDoc, new Date().toISOString())
         this.createLogPriceUpdateDoc("initiator", updateResult, ISO_Code)
 
-        const now = new Date()
-        const year = now.getUTCFullYear()
-        const month = now.getUTCMonth()+1
-        const date = now.getUTCDate()+1
-        const nextClose = new Date(`${year}-${month}-${date}`).toISOString()
         this.schedulerForPrice(ISO_Code, nextClose)
     }
 
     /**
      * ### ISO code 와 next_close 로 다음마감시간에 업데이트스케줄 생성|시간수정 하기
-     * - 15 분의 안전마진
+     * - 15 분의 안전마진 (UTC 는 1 초)
      */
     async schedulerForPrice(ISO_Code: string, next_close: string) {
         const nextCloseDate = new Date(next_close)
-        nextCloseDate.setMinutes(nextCloseDate.getMinutes() + 15) // 15분 안전마진
+        if (ISO_Code === "XUTC") {
+            nextCloseDate.setSeconds(nextCloseDate.getSeconds() + 1) // 1초 안전마진
+        } else {
+            nextCloseDate.setMinutes(nextCloseDate.getMinutes() + 15) // 15분 안전마진
+        }
 
         try {
             const schedule = this.schedulerRegistry.getCronJob(ISO_Code)
@@ -210,10 +211,28 @@ export class UpdaterService {
 
     /**
      * ### ISO code 로 session 의 something 알아내기
+     * - UTC 케이스 특이사항
      */
     async getSessionSomethingByISOcode(ISO_Code: string, something?: "previous_open" | "previous_close" | "next_open" | "next_close") {
         try {
-            const marketSession = await this.yahoofinanceService.getMarketSessionByISOcode(ISO_Code)
+            let marketSession
+            if (ISO_Code === "XUTC") {
+                const now = new Date()
+                const year = now.getUTCFullYear()
+                const month = now.getUTCMonth()
+                const date = now.getUTCDate()
+                const previous_open = new Date(`${year}-${month+1}-${date-1}`).toISOString()
+                const previous_close = new Date(`${year}-${month+1}-${date}`).toISOString()
+                const next = new Date(`${year}-${month+1}-${date+1}`).toISOString()
+                marketSession = {
+                    previous_open,
+                    previous_close,
+                    next_open: next,
+                    next_close: next,
+                }
+            } else {
+                marketSession = await this.yahoofinanceService.getMarketSessionByISOcode(ISO_Code)
+            }
             if (marketSession.error) {
                 console.log("ERROR: ", marketSession.error)
                 throw marketSession.error
