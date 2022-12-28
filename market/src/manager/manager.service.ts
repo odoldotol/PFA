@@ -61,7 +61,7 @@ export class ManagerService {
             const yf_exchangeTimezoneName = info.exchangeTimezoneName;
             const oldOne = await this.status_priceModel.exists({ yf_exchangeTimezoneName }).exec();
             if (oldOne === null) { // 신규 exchangeTimezoneName!
-                const ISO_Code = this.yahoofinanceService.isoToYfTimezone(yf_exchangeTimezoneName)
+                const ISO_Code = yf_exchangeTimezoneName === "UTC" ? "XUTC" : this.yahoofinanceService.isoToYfTimezone(yf_exchangeTimezoneName) // 불필요?
                 if (ISO_Code === undefined) { // ISO_Code 를 못찾은 경우 실패처리
                     result.failure.status_price.push({
                         msg: "Could not find ISO_Code",
