@@ -2,8 +2,8 @@ import { HttpModule } from '@nestjs/axios';
 import { Module } from '@nestjs/common';
 import { UpdaterController } from './updater.controller';
 import { UpdaterService } from './updater.service';
-import { YahoofinanceModule } from 'src/yahoofinance/yahoofinance.module';
-import { MongodbModule } from 'src/mongodb/mongodb.module';
+import { YahoofinanceModule } from '../yahoofinance/yahoofinance.module';
+import { MongodbModule } from '../mongodb/mongodb.module';
 
 @Module({
   imports: [

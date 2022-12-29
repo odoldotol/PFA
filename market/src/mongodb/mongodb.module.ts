@@ -1,8 +1,8 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Yf_info, Yf_infoSchema } from './schema/yf_info.schema';
-import { Status_price, Status_priceSchema } from 'src/mongodb/schema/status_price.schema';
-import { Log_priceUpdate, Log_priceUpdateSchema } from 'src/mongodb/schema/log_priceUpdate.schema';
+import { Status_price, Status_priceSchema } from './schema/status_price.schema';
+import { Log_priceUpdate, Log_priceUpdateSchema } from './schema/log_priceUpdate.schema';
 
 @Module({
     imports: [

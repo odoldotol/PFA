@@ -11,18 +11,18 @@ export class UpdaterController {
     //     return this.updaterService.updatePriceAll(each);
     // }
 
-    @Patch('yf/price')
-    async updatePriceByTickerArr(@Body(new ParseArrayPipe({items:String})) tickerArr: string[]) {
-        return this.updaterService.updatePriceByTickerArr(tickerArr);
-    }
+    // @Patch('yf/price')
+    // async updatePriceByTickerArr(@Body(new ParseArrayPipe({items:String})) tickerArr: string[]) {
+    //     return this.updaterService.updatePriceByTickerArr(tickerArr);
+    // }
 
     // @Post('yf/price')
     // async getPriceByTickerArr(@Body(new ParseArrayPipe({items:String})) tickerArr: string[]) {
     //     return this.updaterService.getPriceByTickerArr(tickerArr);
     // }
 
-    @Patch('yf/price/filters')
-    async updatePriceByFilters(@Body(new ParseArrayPipe({items:Object})) filterArr: object[]) {
-        return this.updaterService.updatePriceByFilters(filterArr);
-    }
+    // @Patch('yf/price/filters')
+    // async updatePriceByFilters(@Body(new ParseArrayPipe({items:Object})) filterArr: object[]) {
+    //     return this.updaterService.updatePriceByFilters(filterArr);
+    // }
 }

@@ -3,7 +3,7 @@ import { Injectable, InternalServerErrorException } from '@nestjs/common';
 // import { ConfigService } from '@nestjs/config';
 // import { firstValueFrom } from 'rxjs';
 import { ChildProcessWithoutNullStreams, spawn } from 'child_process';
-import isoToYfTimezone from './isoToYfTimezone';
+import isoCodeToTimezone from './isoCodeToTimezone';
 
 @Injectable()
 export class YahoofinanceService {
@@ -18,20 +18,24 @@ export class YahoofinanceService {
      * - python 라이브러리 yfinance 사용
      */
     async getSomethingByTickerArr(tickerArr: string[], something: "Info" | "Price"): Promise<object[]> {
-        const resultArr = [];
-        // 하나의 프로세스가 2~10초정도 걸리기때문에 벙열처리필수 + result 에 담기는 순서가 보장되기를 바람
-        await tickerArr.reduce(async (acc, ticker) => {
-            const cp = this.getPyChildProcess([`get${something}ByTicker.py`, ticker]);
-            const result = await this.getStdoutByChildProcess(cp)
-                .then(res => res)
-                .catch(error => {return {error: error}});
-            await acc; // 이전순서 result 대기
-            return new Promise(resolve => { // result 를 기다리는 프로미스
-                resultArr.push(result);
-                resolve();
-            });
-        }, Promise.resolve());
-        return resultArr;
+        try {
+            const resultArr = [];
+            // 하나의 프로세스가 2~10초정도 걸리기때문에 벙열처리필수 + result 에 담기는 순서가 보장되기를 바람
+            await tickerArr.reduce(async (acc, ticker) => {
+                const cp = this.getPyChildProcess([`get${something}ByTicker.py`, ticker]);
+                const result = await this.getStdoutByChildProcess(cp)
+                    .then(res => res)
+                    .catch(error => {return {error: error}});
+                await acc; // 이전순서 result 대기
+                return new Promise(resolve => { // result 를 기다리는 프로미스
+                    resultArr.push(result);
+                    resolve();
+                });
+            }, Promise.resolve());
+            return resultArr;
+        } catch (error) {
+            throw error;
+        };
     }
 
     /**
@@ -39,11 +43,15 @@ export class YahoofinanceService {
      * - python 라이브러리 exchange_calendars 사용
      */
     async getMarketSessionByISOcode(ISO_Code: string) {
-        const cp = this.getPyChildProcess(['getSessionByISOcode.py', ISO_Code]);
-        const result = await this.getStdoutByChildProcess(cp)
-            .then(res => res)
-            .catch(error => {return {error: error}});
-        return result;
+        try {
+            const cp = this.getPyChildProcess(['getSessionByISOcode.py', ISO_Code]);
+            const result = await this.getStdoutByChildProcess(cp)
+                .then(res => res)
+                .catch(error => {return {error: error}});
+            return result;
+        } catch (error) {
+            throw error;
+        };
     }
 
     /**
@@ -106,7 +114,7 @@ export class YahoofinanceService {
     /**
      * ### ISO code 를 yahoofinance exchangeTimezoneName 로 변환 혹은 그 반대를 수행
      */
-    isoToYfTimezone(code: string): string | undefined {
-        return isoToYfTimezone[code];
+    isoCodeToTimezone(code: string): string | undefined {
+        return isoCodeToTimezone[code];
     }
 }
