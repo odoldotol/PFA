@@ -38,11 +38,7 @@ export class UpdaterService {
             /* logger */this.logger.warn("Initiator Run!!!");
             const spDocArr = await this.status_priceModel.find().exec()
             await Promise.all(spDocArr.map(async (spDoc) => {
-                if (spDoc.ISO_Code === "XUTC") {
-                    await this.initiateForUTC(spDoc)
-                } else {
-                    await this.generalInitiate(spDoc)
-                };
+                await this.generalInitiate(spDoc)
             }))
             .then(() => {
                 /* logger */this.logger.warn("Initiator End!!!");
@@ -80,7 +76,6 @@ export class UpdaterService {
                     /* logger */this.logger.verbose(`${ISO_Code} : Not UpToDate`)
                     // 가격 업데이트하기
                     const updateResult = await this.updatePriceByStatusPriceDocAndPreviousopen(spDoc, marketSession["previous_open"])
-                    if (updateResult["error"]) {}
                     // log_priceUpdate Doc 생성
                     this.createLogPriceUpdateDoc("initiator", updateResult, ISO_Code)
                     // 다음마감시간에 업데이트스케줄 생성하기
@@ -91,25 +86,6 @@ export class UpdaterService {
                     this.schedulerForPrice(ISO_Code, marketSession["next_close"])
                 }
             }
-        } catch (err) {
-            throw err
-        };
-    }
-
-    /**
-     * ### UTC 에 대한 초기실행
-     * 당장 UTC 가격 업데이트 하고, 다음 00:00:00 에 업데이트스케줄 생성하기
-     */
-    async initiateForUTC(spDoc) {
-        try {
-            const ISO_Code = spDoc.ISO_Code
-            const nextClose = await this.getSessionSomethingByISOcode(ISO_Code, "next_close")
-
-            // UTC 는 예외적으로 previous_open 에 현재시간을 넣어서 PriceStatus 를 저장.
-            const updateResult = await this.updatePriceByStatusPriceDocAndPreviousopen(spDoc, new Date().toISOString())
-            this.createLogPriceUpdateDoc("initiator", updateResult, ISO_Code)
-
-            this.schedulerForPrice(ISO_Code, nextClose)
         } catch (err) {
             throw err
         };
@@ -256,12 +232,12 @@ export class UpdaterService {
                 const year = now.getUTCFullYear()
                 const month = now.getUTCMonth()
                 const date = now.getUTCDate()
-                const previous_open = new Date(`${year}-${month+1}-${date-1}`).toISOString()
-                const previous_close = new Date(`${year}-${month+1}-${date}`).toISOString()
+                // const previous_open = new Date(`${year}-${month+1}-${date-1}`).toISOString()
+                const previous = new Date(`${year}-${month+1}-${date}`).toISOString()
                 const next = new Date(`${year}-${month+1}-${date+1}`).toISOString()
                 marketSession = {
-                    previous_open,
-                    previous_close,
+                    previous_open: previous,
+                    previous_close: previous,
                     next_open: next,
                     next_close: next,
                 }

@@ -17,7 +17,8 @@ export class Status_price {
 
     @Prop({
         required: true,
-        type: String // ISO String
+        type: String, // ISO String
+        default: "init"
     })
     lastMarketDate: string
 

@@ -78,7 +78,7 @@ export class ManagerService {
                     };
                     const newOne = new this.status_priceModel({
                         ISO_Code,
-                        lastMarketDate: "init",
+                        // lastMarketDate: "init",
                         yf_exchangeTimezoneName,
                     });
                     await newOne.save()
