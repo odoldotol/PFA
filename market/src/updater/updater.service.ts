@@ -244,7 +244,7 @@ export class UpdaterService {
                 const month = now.getUTCMonth()
                 const date = now.getUTCDate()
                 const previous = new Date(`${year}-${month+1}-${date}`)
-                const next = previous
+                const next = new Date(previous)
                 next.setUTCDate(next.getUTCDate() + 1)
                 marketSession = {
                     previous_open: previous.toISOString(),
