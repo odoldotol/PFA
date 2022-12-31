@@ -36,7 +36,7 @@ export class UpdaterService {
     async initiator() {
         try {
             /* logger */this.logger.warn("Initiator Run!!!");
-            const spDocArr = await this.status_priceModel.find().exec()
+            const spDocArr = await this.getAllStatusPriceDoc();
             await Promise.all(spDocArr.map(async (spDoc) => {
                 await this.generalInitiate(spDoc)
             }))
@@ -217,7 +217,18 @@ export class UpdaterService {
             return this.status_priceModel.findOne({ ISO_Code }).exec();
         } catch (err) {
             throw err
-        }
+        };
+    }
+
+    /**
+     * ###
+     */
+    getAllStatusPriceDoc() {
+        try {
+            return this.status_priceModel.find().exec();
+        } catch (err) {
+            throw err
+        };
     }
 
     /**
@@ -296,7 +307,6 @@ export class UpdaterService {
             const priceArr = await this.yahoofinanceService.getSomethingByTickerArr(tickerArr, "Price");
 
             // 디비 업데이트
-            // 수정할것 = (이왕이면, regularMarketPreviousClose = regularMarketPrice 후에 업댓하자)
             let result = {success: [], failure: []};
             let updatePromiseArr = tickerArr.map((ticker, idx) => { // map 의 콜백에서 return 없어도 Promise<void> 가 리턴되도록? 차이는?
                 if (priceArr[idx]["error"]) {
@@ -346,7 +356,7 @@ export class UpdaterService {
             return Promise.all(filterArr.map(async (filter) => {
                 return await this.yf_infoModel.find(filter, 'symbol').exec()
                     .then(async (res) => {
-                        const symbolArr = res.map(ele=>ele.symbol) // await this.updatePriceByTickerArr(res.map(ele=>ele.symbol)); <- 요로케 하면 안되요! // 내가 그냥 함수를 넣어버린게 되는건가? 그렇다면, 즉시실행함수형태로 하면 될거같은데?
+                        const symbolArr = res.map(ele=>ele.symbol)
                         return await this.updatePriceByTickerArr(symbolArr);
                     })
                     .catch((error) => {
