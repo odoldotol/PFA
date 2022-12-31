@@ -232,14 +232,14 @@ export class UpdaterService {
                 const year = now.getUTCFullYear()
                 const month = now.getUTCMonth()
                 const date = now.getUTCDate()
-                // const previous_open = new Date(`${year}-${month+1}-${date-1}`).toISOString()
-                const previous = new Date(`${year}-${month+1}-${date}`).toISOString()
-                const next = new Date(`${year}-${month+1}-${date+1}`).toISOString()
+                const previous = new Date(`${year}-${month+1}-${date}`)
+                const next = previous
+                next.setUTCDate(next.getUTCDate() + 1)
                 marketSession = {
-                    previous_open: previous,
-                    previous_close: previous,
-                    next_open: next,
-                    next_close: next,
+                    previous_open: previous.toISOString(),
+                    previous_close: previous.toISOString(),
+                    next_open: next.toISOString(),
+                    next_close: next.toISOString(),
                 }
             } else {
                 marketSession = await this.yahoofinanceService.getMarketSessionByISOcode(ISO_Code)
