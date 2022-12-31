@@ -66,7 +66,7 @@ export class ManagerService {
                 const yf_exchangeTimezoneName = info.exchangeTimezoneName;
                 const oldOne = await this.status_priceModel.exists({ yf_exchangeTimezoneName }).exec();
                 if (oldOne === null) { // 신규 exchangeTimezoneName!
-                    const ISO_Code = yf_exchangeTimezoneName === "UTC" ? "XUTC" : this.yahoofinanceService.isoCodeToTimezone(yf_exchangeTimezoneName) // 불필요?
+                    const ISO_Code = this.yahoofinanceService.isoCodeToTimezone(yf_exchangeTimezoneName) // 불필요?
                     if (ISO_Code === undefined) { // ISO_Code 를 못찾은 경우 실패처리
                         result.failure.status_price.push({
                             msg: "Could not find ISO_Code",
@@ -102,6 +102,19 @@ export class ManagerService {
         } catch (error) {
             throw error;
         }
+    }
+
+    /**
+     * ### ISO_Code 로 조회 => [ticker, price][]
+     */
+    async getPriceByISOcode(ISO_Code) {
+        const result = [];
+        const timezone = this.yahoofinanceService.isoCodeToTimezone(ISO_Code);
+        const priceArr = await this.yf_infoModel.find({exchangeTimezoneName: timezone}, "symbol regularMarketPrice").exec()
+        priceArr.forEach((price)=>{
+            result.push([price.symbol, price.regularMarketPrice]);
+        })
+        return result;
     }
 
     // async updateByTickerArr(tickerArr: string[]) {

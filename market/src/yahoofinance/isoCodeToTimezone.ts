@@ -50,5 +50,7 @@ export default {
     // "XTKS": "",
     // "XTSE": "",
     // "XWAR": "",
-    // "XWBO": ""
+    // "XWBO": "",
+
+    "XUTC" : "UTC", "UTC" : "XUTC", // yf 식 암호화폐
 }

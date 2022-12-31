@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, HttpCode, ParseArrayPipe, Patch, Post, Put } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpCode, ParseArrayPipe, Patch, Post, Put, Query } from '@nestjs/common';
 import { ManagerService } from './manager.service';
 import { UpdaterService } from '../updater/updater.service';
 
@@ -26,6 +26,17 @@ export class ManagerController {
     async getAllStatusPrice() {
         return this.updaterService.getAllStatusPriceDoc();
     }
+
+    /**
+     * ### price 조회
+     * - ISO_Code 로 조회 => [ticker, price][]
+     */
+    @Get('price')
+    async getPrice(@Query('ISO_Code') ISO_Code: string) {
+        return this.managerService.getPriceByISOcode(ISO_Code);
+    }
+
+
     // @Put('yf')
     // async updateByTickerArr(@Body(new ParseArrayPipe({items:String})) tickerArr: string[]) {
     //     return this.managerService.updateByTickerArr(tickerArr);

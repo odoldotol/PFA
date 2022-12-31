@@ -10,7 +10,8 @@ export type Yf_infoDocument = Yf_info & Document;
 export class Yf_info {
     @Prop({
         required: true,
-        unique: true
+        unique: true,
+        type: String,
     })
     symbol: string; // 거의 id 역할 가능
 
@@ -32,6 +33,18 @@ export class Yf_info {
         regularMarketPreviousClose : 장중= 직전마켓 종가** | 장후= 직전마켓-1일 마켓의 종가
         regularMarketPrice : 장중= 현재가 | 장후= 직전마켓의 종가**
     */
+
+    @Prop({
+        required: true,
+        type: String,
+    })
+    exchangeTimezoneName: string;
+
+    @Prop({
+        required: true,
+        type: Number,
+    })
+    regularMarketPrice: number;
 }
 
 export const Yf_infoSchema = SchemaFactory.createForClass(Yf_info);

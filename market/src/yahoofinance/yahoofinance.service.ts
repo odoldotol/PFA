@@ -114,7 +114,7 @@ export class YahoofinanceService {
     /**
      * ### ISO code 를 yahoofinance exchangeTimezoneName 로 변환 혹은 그 반대를 수행
      */
-    isoCodeToTimezone(code: string): string | undefined {
-        return isoCodeToTimezone[code];
+    isoCodeToTimezone(something: string): string | undefined {
+        return isoCodeToTimezone[something];
     }
 }
