@@ -1,4 +1,6 @@
 import { Module } from '@nestjs/common';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+
 import { AppController } from './app/app.controller';
 import { AppService } from './app/app.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -6,9 +8,14 @@ import { AuthModule } from './auth/auth.module';
 import { PortfolioModule } from './portfolio/portfolio.module';
 import { AaaManagerModule } from './aaa-manager/aaa-manager.module';
 import { DataSource } from 'typeorm';
+import { MarketModule } from './market/market.module';
 
 @Module({
   imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+      envFilePath: ".env.development.local"
+    }),
     TypeOrmModule.forRootAsync({
       imports: [],
       useFactory: () => ({
@@ -19,7 +26,7 @@ import { DataSource } from 'typeorm';
         password: '',
         database: 'pfa_dev',
         entities: [], //
-        synchronize: true, // 앱 실행할때마다 자동으로 동기화함. 개발할때 편한기능, 배포버젼에서는 위험한기능.
+        synchronize: true, //
         // logging: true, //
         autoLoadEntities: true, //
       }),
@@ -27,7 +34,8 @@ import { DataSource } from 'typeorm';
     }),
     AuthModule,
     PortfolioModule,
-    AaaManagerModule
+    AaaManagerModule,
+    MarketModule
   ],
   controllers: [AppController],
   providers: [AppService],
