@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, HttpCode, ParseArrayPipe, Patch, Post, Put, Query } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Delete, Get, HttpCode, ParseArrayPipe, Patch, Post, Put, Query } from '@nestjs/common';
 import { ManagerService } from './manager.service';
 import { UpdaterService } from '../updater/updater.service';
 
@@ -30,10 +30,17 @@ export class ManagerController {
     /**
      * ### price 조회
      * - ISO_Code 로 조회 => [ticker, price][]
+     * - ticker 로 조회 => price
      */
     @Get('price')
-    async getPrice(@Query('ISO_Code') ISO_Code: string) {
-        return this.managerService.getPriceByISOcode(ISO_Code);
+    async getPrice(@Query('ISO_Code') ISO_Code?: string, @Query('ticker') ticker?: string) {
+        if (ISO_Code && !ticker) {
+            return this.managerService.getPriceByISOcode(ISO_Code);
+        } else if (ticker && !ISO_Code) {
+            return this.managerService.getPriceByTicker(ticker);
+        } else {
+            throw new BadRequestException('ISO_Code or ticker must be provided')
+        }
     }
 
 

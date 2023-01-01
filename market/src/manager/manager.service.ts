@@ -108,13 +108,33 @@ export class ManagerService {
      * ### ISO_Code 로 조회 => [ticker, price][]
      */
     async getPriceByISOcode(ISO_Code) {
-        const result = [];
-        const timezone = this.yahoofinanceService.isoCodeToTimezone(ISO_Code);
-        const priceArr = await this.yf_infoModel.find({exchangeTimezoneName: timezone}, "symbol regularMarketPrice").exec()
-        priceArr.forEach((price)=>{
-            result.push([price.symbol, price.regularMarketPrice]);
-        })
-        return result;
+        try {
+            const result = [];
+            const timezone = this.yahoofinanceService.isoCodeToTimezone(ISO_Code);
+            const priceArr = await this.yf_infoModel.find({exchangeTimezoneName: timezone}, "symbol regularMarketPrice").exec()
+            priceArr.forEach((price)=>{
+                result.push([price.symbol, price.regularMarketPrice]);
+            })
+            return result;
+        } catch (error) {
+            throw error;
+        };
+    }
+
+    /**
+     * ### ticker 로 조회 => price
+     */
+    async getPriceByTicker(ticker: string) {
+        try {
+            return this.yf_infoModel.findOne({symbol: ticker}, "regularMarketPrice exchangeTimezoneName").exec()
+                .then(res => {
+                    const ISOcode = this.yahoofinanceService.isoCodeToTimezone(res.exchangeTimezoneName);
+                    return {price: res.regularMarketPrice, ISOcode};
+                })
+
+        } catch (error) {
+            throw error;
+        };
     }
 
     // async updateByTickerArr(tickerArr: string[]) {
