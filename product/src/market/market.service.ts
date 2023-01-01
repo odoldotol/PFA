@@ -26,6 +26,12 @@ export class MarketService {
             /* logger */this.logger.warn("Initiator Run!!!");
             await this.cacheManager.reset();
             await this.initiatePriceCache();
+
+            // await this.cacheManager.del("AAPL"); // 없을경우 테스트용
+            // const priceObj = await this.cacheManager.get("AAPL"); // marketDate 불일치 테스트용
+            // priceObj["marketDate"] = "2022-12-28" // marketDate 불일치 테스트용
+            // await this.cacheManager.set("AAPL", priceObj); // marketDate 불일치 테스트용
+
             /* logger */this.logger.warn("Initiator End!!!");
         } catch (error) {
             throw error;
@@ -49,12 +55,7 @@ export class MarketService {
                 const marketDate = spDoc.lastMarketDate.slice(0, 10);
                 await this.cacheManager.set(ISO_Code, marketDate, 0);
                 // 가격 캐싱 (이전 캐싱리스트를 가지고있다가 그것만 캐싱하도록 할까? 일단은 전체캐싱)
-                const priceArrs = (await firstValueFrom(
-                    this.httpService.get(`${this.MARKET_URL}manager/price?ISO_Code=${ISO_Code}`)
-                    .pipe(catchError(error => {
-                        throw error;
-                    }))
-                )).data;
+                const priceArrs = await this.getPriceFromMarket(ISO_Code, "ISO_Code");
                 await Promise.all(priceArrs.map(async priceArr => {
                     const value = {
                         price: priceArr[1],
@@ -66,6 +67,68 @@ export class MarketService {
                 }));
                 /* logger */this.logger.warn(`${ISO_Code} : Price Cache Initiated`);
             }));
+        } catch (error) {
+            throw error;
+        };
+    }
+
+    /**
+     * ### 가격 조회
+     * 캐시에서 조회
+     * - 있으면 marketDate 일치 확인
+     *      - 일치하면 조회 [logger 11]
+     *      - 불일치하면 마켓업데이터에 조회요청, 캐시업뎃 [logger 10]
+     * - 없으면 마켓업데이터에 조회요청, 케싱 [logger 00]
+     */
+    async getPriceByTicker(ticker: string) {
+        try {
+            const priceObj = await this.cacheManager.get(ticker);
+            if (priceObj) { // 캐시에 있으면 마켓업데이트 일치 확인
+                // count + 1
+                priceObj["count"]++;
+                await this.cacheManager.set(ticker, priceObj);
+                const marketDate = await this.cacheManager.get(priceObj["ISOcode"]);
+                if (marketDate === priceObj["marketDate"]) { // marketDate 일치하면 조회
+                    /* logger */this.logger.verbose(`${ticker} : 11`);
+                    return priceObj;
+                } else { // marketDate 불일치하면 마켓업데이터에 조회요청, 캐시업뎃 [logger 10]
+                    const priceByTicker = await this.getPriceFromMarket(ticker, "ticker");
+                    priceObj["price"] = priceByTicker["price"];
+                    priceObj["marketDate"] = await this.cacheManager.get(priceObj["ISOcode"]);
+                    /* logger */this.logger.verbose(`${ticker} : 10`);
+                    return await this.cacheManager.set(ticker, priceObj);
+                };
+            } else { // 캐시에 없으면 마켓업데이터에 조회요청, 케싱 [logger 00]
+                const priceByTicker = await this.getPriceFromMarket(ticker, "ticker");
+                priceByTicker["marketDate"] = await this.cacheManager.get(priceByTicker["ISOcode"]);
+                priceByTicker["count"] = 1;
+                // set 직전에 캐시에서 가격조회 다시 해야할것같다(그 사이 생성됬을수도 있으니) // 쓸모없는 고민일까?
+                const priceObjFC = await this.cacheManager.get(ticker);
+                if (priceObjFC) {
+                    // count + 1
+                    priceObjFC["count"]++;
+                    return await this.cacheManager.set(ticker, priceObjFC);
+                } else {
+                    /* logger */this.logger.verbose(`${ticker} : 00`);
+                    return await this.cacheManager.set(ticker, priceByTicker);
+                };
+            };
+        } catch (error) {
+            throw error;
+        };
+    }
+
+    /**
+     * ### Market 서버에 가격조회 요청하기
+     */
+    async getPriceFromMarket(query_value: string, query_name: "ISO_Code" | "ticker") {
+        try {
+            return (await firstValueFrom(
+                this.httpService.get(`${this.MARKET_URL}manager/price?${query_name}=${query_value}`)
+                .pipe(catchError(error => {
+                    throw error;
+                }))
+            )).data;
         } catch (error) {
             throw error;
         };
