@@ -239,18 +239,17 @@ export class UpdaterService {
         try {
             let marketSession
             if (ISO_Code === "XUTC") {
-                const now = new Date()
-                const year = now.getUTCFullYear()
-                const month = now.getUTCMonth()
-                const date = now.getUTCDate()
-                const previous = new Date(`${year}-${month+1}-${date}`)
-                const next = new Date(previous)
-                next.setUTCDate(next.getUTCDate() + 1)
+                const previous = new Date(
+                    new Date().toISOString().slice(0, 10)/*+"T00:00:00.000Z"*/
+                ).toISOString()
+                const nextDate = new Date(previous)
+                nextDate.setUTCDate(nextDate.getUTCDate() + 1)
+                const next = nextDate.toISOString()
                 marketSession = {
-                    previous_open: previous.toISOString(),
-                    previous_close: previous.toISOString(),
-                    next_open: next.toISOString(),
-                    next_close: next.toISOString(),
+                    previous_open: previous,
+                    previous_close: previous,
+                    next_open: next,
+                    next_close: next
                 }
             } else {
                 marketSession = await this.yahoofinanceService.getMarketSessionByISOcode(ISO_Code)
