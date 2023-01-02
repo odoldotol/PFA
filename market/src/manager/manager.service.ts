@@ -83,6 +83,7 @@ export class ManagerService {
                     });
                     await newOne.save()
                     .then(async (res)=>{
+                        /* logger */this.logger.verbose(`${ISO_Code} : Created new status_price`);
                         result.success.status_price.push(res);
                         // 다음마감 업데이트스케줄 생성해주기
                         const nextClose = await this.updaterService.getSessionSomethingByISOcode(ISO_Code, "next_close");
@@ -123,15 +124,26 @@ export class ManagerService {
 
     /**
      * ### ticker 로 조회 => price
+     * - 없는건 생성해서 알려준다
      */
     async getPriceByTicker(ticker: string) {
         try {
-            return this.yf_infoModel.findOne({symbol: ticker}, "regularMarketPrice exchangeTimezoneName").exec()
-                .then(res => {
-                    const ISOcode = this.yahoofinanceService.isoCodeToTimezone(res.exchangeTimezoneName);
-                    return {price: res.regularMarketPrice, ISOcode};
-                })
-
+            const info = await this.yf_infoModel.findOne({symbol: ticker}, "regularMarketPrice exchangeTimezoneName").exec()
+                .then(async res => {
+                    if (res === null) {
+                        const createResult = await this.createByTickerArr([ticker])
+                        if (createResult.failure.info.length > 0) {
+                            throw new Error("ceaateByTickerArr failed");
+                        }
+                        return createResult.success.info[0]
+                    } else {
+                        return res;
+                    }
+                }).catch(err => {
+                    throw err;
+                });
+            const ISOcode = this.yahoofinanceService.isoCodeToTimezone(info.exchangeTimezoneName);
+            return {price: info.regularMarketPrice, ISOcode};
         } catch (error) {
             throw error;
         };
