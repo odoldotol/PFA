@@ -45,7 +45,7 @@ export class ManagerService {
             const infoArr = await this.yahoofinanceService.getSomethingByTickerArr(tickerArr, "Info");
             // info 분류 (가져오기 성공,실패) + regularMarketLastClose
             const insertArr = [];
-            infoArr.forEach(async (info)=>{
+            await Promise.all(infoArr.map(async (info) => {
                 if (info["error"]) {result.failure.info.push(info);}
                 else {
                     const ISO_Code = this.yahoofinanceService.isoCodeToTimezone(info["exchangeTimezoneName"]);
@@ -66,8 +66,8 @@ export class ManagerService {
                         }
                         insertArr.push(info);
                     }
-                }
-            });
+                };
+            }));
             // info 를 mongoDB 에 저장
             await this.yf_infoModel.insertMany(insertArr, {
                 ordered: false, // 오류발견해도 중지하지말고 전부 삽입하고 나중에 보고
@@ -96,7 +96,7 @@ export class ManagerService {
                         /* logger */this.logger.warn(`${info.symbol} : Could not find ISO_Code for ${yf_exchangeTimezoneName}`);
                         return;
                     };
-                    const lastMarketDate = await this.updaterService.getSessionSomethingByISOcode(ISO_Code, "previous_close");
+                    const lastMarketDate = new Date(await this.updaterService.getSessionSomethingByISOcode(ISO_Code, "previous_close")).toISOString();
                     const newOne = new this.status_priceModel({
                         ISO_Code,
                         lastMarketDate,
@@ -149,6 +149,7 @@ export class ManagerService {
      */
     async getPriceByTicker(ticker: string) {
         try {
+            let status_price = undefined;
             const info = await this.yf_infoModel.findOne({symbol: ticker}, "regularMarketLastClose exchangeTimezoneName").exec()
                 .then(async res => {
                     if (res === null) {
@@ -156,6 +157,7 @@ export class ManagerService {
                         if (createResult.failure.info.length > 0) {
                             throw new Error("ceaateByTickerArr failed");
                         }
+                        status_price = createResult.success.status_price[0]
                         return createResult.success.info[0]
                     } else {
                         return res;
@@ -164,7 +166,7 @@ export class ManagerService {
                     throw err;
                 });
             const ISOcode = this.yahoofinanceService.isoCodeToTimezone(info.exchangeTimezoneName);
-            return {price: info.regularMarketLastClose, ISOcode};
+            return {price: info.regularMarketLastClose, ISOcode, status_price};
         } catch (error) {
             throw error;
         };
