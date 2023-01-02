@@ -102,6 +102,10 @@ export class MarketService {
                 };
             } else { // 캐시에 없으면 마켓업데이터에 조회요청, 케싱 [logger 00]
                 const priceByTicker = await this.getPriceFromMarket(ticker, "ticker");
+                if (priceByTicker.status_price) {
+                    await this.cacheManager.set(priceByTicker.status_price.ISO_Code, priceByTicker.status_price.lastMarketDate.slice(0,10), 0);
+                    priceByTicker.status_price = undefined;
+                };
                 priceByTicker["marketDate"] = await this.cacheManager.get(priceByTicker["ISOcode"]);
                 priceByTicker["count"] = 1;
                 // set 직전에 캐시에서 가격조회 다시 해야할것같다(그 사이 생성됬을수도 있으니) // 쓸모없는 고민일까?
