@@ -156,6 +156,7 @@ export class MarketService {
                     };
                 };
             }));
+            /* logger */this.logger.verbose(`${ISO_Code} : Regular Updated`);
         } catch (error) {
             throw error;
         };
