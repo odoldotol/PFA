@@ -26,6 +26,7 @@ export class ManagerService {
      * ### mongoDB 에 신규 자산 생성해보고 그 작업의 결과를 반환
      * - Yf_info 생성
      * - 필요시 Status_price 도 생성
+     * - 누더기되서 비효율적임. 리팩토링 필요
      */
     async createByTickerArr(tickerArr: string[]) {
         try {
@@ -42,11 +43,30 @@ export class ManagerService {
 
             // info 가져오기
             const infoArr = await this.yahoofinanceService.getSomethingByTickerArr(tickerArr, "Info");
-            // info 분류 (가져오기 성공,실패)
+            // info 분류 (가져오기 성공,실패) + regularMarketLastClose
             const insertArr = [];
-            infoArr.forEach((info)=>{
+            infoArr.forEach(async (info)=>{
                 if (info["error"]) {result.failure.info.push(info);}
-                else {insertArr.push(info);}
+                else {
+                    const ISO_Code = this.yahoofinanceService.isoCodeToTimezone(info["exchangeTimezoneName"]);
+                    if (ISO_Code === undefined) { // ISO_Code 를 못찾은 경우 실패처리
+                        result.failure.info.push({
+                            msg: "Could not find ISO_Code",
+                            yf_exchangeTimezoneName: info["exchangeTimezoneName"],
+                            yfSymbol: info["symbol"]
+                        })
+                    } else {
+                        // regularMarketLastClose
+                        const marketSession = await this.updaterService.getSessionSomethingByISOcode(ISO_Code);
+                        const isNotMarketOpen = this.updaterService.isNotMarketOpen(marketSession, ISO_Code)
+                        if (isNotMarketOpen) {
+                            info["regularMarketLastClose"] = info["regularMarketPrice"];
+                        } else {
+                            info["regularMarketLastClose"] = info["regularMarketPreviousClose"];
+                        }
+                        insertArr.push(info);
+                    }
+                }
             });
             // info 를 mongoDB 에 저장
             await this.yf_infoModel.insertMany(insertArr, {
@@ -76,9 +96,10 @@ export class ManagerService {
                         /* logger */this.logger.warn(`${info.symbol} : Could not find ISO_Code for ${yf_exchangeTimezoneName}`);
                         return;
                     };
+                    const lastMarketDate = await this.updaterService.getSessionSomethingByISOcode(ISO_Code, "previous_close");
                     const newOne = new this.status_priceModel({
                         ISO_Code,
-                        // lastMarketDate: "init",
+                        lastMarketDate,
                         yf_exchangeTimezoneName,
                     });
                     await newOne.save()
@@ -108,13 +129,13 @@ export class ManagerService {
     /**
      * ### ISO_Code 로 조회 => [ticker, price][]
      */
-    async getPriceByISOcode(ISO_Code) {
+    async getPriceByISOcode(ISO_Code: string) {
         try {
             const result = [];
             const timezone = this.yahoofinanceService.isoCodeToTimezone(ISO_Code);
-            const priceArr = await this.yf_infoModel.find({exchangeTimezoneName: timezone}, "symbol regularMarketPrice").exec()
+            const priceArr = await this.yf_infoModel.find({exchangeTimezoneName: timezone}, "symbol regularMarketLastClose").exec()
             priceArr.forEach((price)=>{
-                result.push([price.symbol, price.regularMarketPrice]);
+                result.push([price.symbol, price.regularMarketLastClose]);
             })
             return result;
         } catch (error) {
@@ -128,7 +149,7 @@ export class ManagerService {
      */
     async getPriceByTicker(ticker: string) {
         try {
-            const info = await this.yf_infoModel.findOne({symbol: ticker}, "regularMarketPrice exchangeTimezoneName").exec()
+            const info = await this.yf_infoModel.findOne({symbol: ticker}, "regularMarketLastClose exchangeTimezoneName").exec()
                 .then(async res => {
                     if (res === null) {
                         const createResult = await this.createByTickerArr([ticker])
@@ -143,7 +164,7 @@ export class ManagerService {
                     throw err;
                 });
             const ISOcode = this.yahoofinanceService.isoCodeToTimezone(info.exchangeTimezoneName);
-            return {price: info.regularMarketPrice, ISOcode};
+            return {price: info.regularMarketLastClose, ISOcode};
         } catch (error) {
             throw error;
         };

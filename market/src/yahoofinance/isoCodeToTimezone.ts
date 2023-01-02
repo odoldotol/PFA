@@ -1,7 +1,7 @@
 export default {
     // "AIXK": "",
     // "ASEX": "",
-    // "BVMF": "",
+    "BVMF": "America/Sao_Paulo", "America/Sao_Paulo": "BVMF", // BMF Bovespa, Brazil, http://www.b3.com.br/en_us/
     // "CMES": "",
     // "IEPA": "",
     // "XAMS": "",
@@ -17,9 +17,9 @@ export default {
     // "XCSE": "",
     // "XDUB": "",
     // "XETR": "",
-    // "XFRA": "",
+    "XFRA": "Europe/Berlin", "Europe/Berlin": "XFRA", // Frankfurt Stock Exchange, Germany, http://en.boerse-frankfurt.de/
     // "XHEL": "",
-    // "XHKG": "",
+    "XHKG": "Asia/Hong_Kong", "Asia/Hong_Kong": "XHKG", // Hong Kong Stock Exchange, Hong Kong, https://www.hkex.com.hk/?sc_lang=en
     // "XICE": "",
     // "XIDX": "",
     // "XIST": "",
@@ -42,13 +42,13 @@ export default {
     // "XPRA": "",
     // "XSES": "",
     // "XSGO": "",
-    // "XSHG": "",
+    "XSHG": "Asia/Shanghai", "Asia/Shanghai": "XSHG", // Shanghai Stock Exchange, China, http://www.sse.com.cn/
     // "XSTO": "",
     // "XSWX": "",
     // "XTAE": "",
     // "XTAI": "",
-    // "XTKS": "",
-    // "XTSE": "",
+    "XTKS": "Asia/Tokyo", "Asia/Tokyo": "XTKS", // Tokyo Stock Exchange, Japan, https://www.jpx.co.jp/english/
+    "XTSE": "America/Toronto", "America/Toronto": "XTSE", // Toronto Stock Exchange, Canada, https://www.tsx.com/
     // "XWAR": "",
     // "XWBO": "",
 

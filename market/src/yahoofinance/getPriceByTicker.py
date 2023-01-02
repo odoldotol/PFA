@@ -7,7 +7,13 @@ import json
 
 def get_price_by_ticker(ticker):
     try:
-        price = yf.Ticker(ticker).history(period="1d")['Close'][0]
+        priceChart = yf.Ticker(ticker).history(period="2d")
+        regularMarketPrice = priceChart['Close'][1]
+        regularMarketPreviousClose = priceChart['Close'][0]
+        price = {
+            "regularMarketPrice": regularMarketPrice,
+            "regularMarketPreviousClose": regularMarketPreviousClose
+        }
         print(json.dumps(price)) # 성공하면 price 출력
     except Exception as e:
         print(json.dumps({ # 실패하면 error 객체 만들어서 출력

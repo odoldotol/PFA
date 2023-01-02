@@ -72,24 +72,20 @@ export class UpdaterService {
                 // 다음마감시간에 업데이트스케줄 생성하기
                 /* logger */this.logger.verbose(`${ISO_Code} : UpToDate`)
                 this.schedulerForPrice(ISO_Code, marketSession["next_close"])
-            } else { // 최신 아니면
-                const isNotMarketOpen = await this.isNotMarketOpen(marketSession)
-                if (isNotMarketOpen) { // 장중이아니면
-                    /* logger */this.logger.verbose(`${ISO_Code} : Not UpToDate`)
-                    // 가격 업데이트하기
-                    const updateResult = await this.updatePriceByStatusPriceDocAndPreviousopen(spDoc, marketSession["previous_open"])
-                    // log_priceUpdate Doc 생성
-                    this.createLogPriceUpdateDoc("initiator", updateResult, ISO_Code)
-                    // 다음마감시간에 업데이트스케줄 생성하기
-                    this.schedulerForPrice(ISO_Code, marketSession["next_close"])
-                    // Product 애 regularUpdater 요청하기
-                    this.requestRegularUpdaterToProduct(ISO_Code, marketSession["previous_open"], updateResult)
-                } else { // 장중이면
-                    /* logger */this.logger.verbose(`${ISO_Code} : Market Is Open`)
-                    // 다음마감시간에 업데이트스케줄 생성하기
-                    this.schedulerForPrice(ISO_Code, marketSession["next_close"])
-                }
-            }
+            } else { // 최신 아니면 // XUTC 는 항상 현재가로 초기화 되는점 알기 (isNotMarketOpen)
+                const isNotMarketOpen = this.isNotMarketOpen(marketSession, ISO_Code)
+                isNotMarketOpen ?
+                /* logger */this.logger.verbose(`${ISO_Code} : Not UpToDate`) :
+                /* logger */this.logger.verbose(`${ISO_Code} : Not UpToDate & Market Is Open`)
+                // 가격 업데이트하기
+                const updateResult = await this.updatePriceByStatusPriceDocAndPreviousclose(spDoc, marketSession["previous_close"], isNotMarketOpen)
+                // log_priceUpdate Doc 생성
+                this.createLogPriceUpdateDoc("initiator", updateResult, ISO_Code)
+                // 다음마감시간에 업데이트스케줄 생성하기
+                this.schedulerForPrice(ISO_Code, marketSession["next_close"])
+                // Product 애 regularUpdater 요청하기
+                this.requestRegularUpdaterToProduct(ISO_Code, marketSession["previous_close"], updateResult)
+            };
         } catch (err) {
             throw err
         };
@@ -137,30 +133,30 @@ export class UpdaterService {
         try {
             const statusPriceDoc = await this.getStatusPriceDocByISOcode(ISO_Code)
             const marketSession = await this.getSessionSomethingByISOcode(ISO_Code)
-            const updateResult = await this.updatePriceByStatusPriceDocAndPreviousopen(statusPriceDoc, marketSession["previous_open"])
+            const updateResult = await this.updatePriceByStatusPriceDocAndPreviousclose(statusPriceDoc, marketSession["previous_close"], true)
             this.createLogPriceUpdateDoc("scheduler", updateResult, ISO_Code)
             this.schedulerForPrice(ISO_Code, marketSession["next_close"])
-            this.requestRegularUpdaterToProduct(ISO_Code, marketSession["previous_open"], updateResult)
+            this.requestRegularUpdaterToProduct(ISO_Code, marketSession["previous_close"], updateResult)
         } catch (err) {
             throw err
         };
     }
 
     /**
-     * ### Status_priceDoc 와 previous_open 로 가격 업데이트하기
+     * ### Status_priceDoc 와 previous_close 로 가격 업데이트하기
      * - 업데이트 시작 종료 logger
      * - 가격 업데이트
      * - status 업뎃
      */
-    async updatePriceByStatusPriceDocAndPreviousopen(statusPriceDoc: Status_priceDocument, previous_open: string) {
+    async updatePriceByStatusPriceDocAndPreviousclose(statusPriceDoc: Status_priceDocument, previous_close: string, isNotMarketOpen: boolean) {
         try {
             /* logger */this.logger.warn(`${statusPriceDoc.ISO_Code} : Updater Run!!!`)
             const startTime = new Date().toISOString()
             // 가격 업데이트
-            const updatePriceResult = await this.updatePriceByFilters([{exchangeTimezoneName: statusPriceDoc.yf_exchangeTimezoneName}])
+            const updatePriceResult = await this.updatePriceByFilters([{exchangeTimezoneName: statusPriceDoc.yf_exchangeTimezoneName}], true, isNotMarketOpen)
 
             // status 업뎃
-            statusPriceDoc.lastMarketDate = new Date(previous_open).toISOString()
+            statusPriceDoc.lastMarketDate = new Date(previous_close).toISOString()
             const updatetSatusPriceResult = await statusPriceDoc.save()
                 .then(doc => doc)
                 .catch((error) => {return {error}})
@@ -217,9 +213,13 @@ export class UpdaterService {
     /**
      * ### Product 애 regularUpdater 요청하기
      */
-    async requestRegularUpdaterToProduct(ISO_Code: string, previous_open: string, updateResult) {
-        const marketDate = previous_open.slice(0, 10);
-        const priceArrs = updateResult.updatePriceResult["success"];
+    async requestRegularUpdaterToProduct(ISO_Code: string, previous_close: string, updateResult) {
+        const marketDate = previous_close.slice(0, 10);
+        let priceArrs = updateResult.updatePriceResult["success"];
+        priceArrs = priceArrs.map((priceArr) => {
+            const regularMarketLastClose = priceArr[1].regularMarketLastClose;
+            return [priceArr[0], regularMarketLastClose]
+        })
         const result = (await firstValueFrom(
             this.httpService.post(`${this.PRODUCT_URL}market/updater/${ISO_Code}`, {marketDate, priceArrs})
             .pipe(catchError(error => {
@@ -292,8 +292,8 @@ export class UpdaterService {
     async isPriceStatusUpToDate(ISO_Code: string, marketSession: object) {
         try {
             const spDoc = await this.getStatusPriceDocByISOcode(ISO_Code)
-            const previousOpen = new Date(marketSession['previous_open']).toISOString()
-            return spDoc.lastMarketDate === previousOpen ? true : false
+            const previousClose = new Date(marketSession['previous_close']).toISOString()
+            return spDoc.lastMarketDate === previousClose ? true : false
         } catch (err) {
             throw err
         };
@@ -302,9 +302,13 @@ export class UpdaterService {
     /**
      * ### 세션 정보 로 장중이 아닌지 알아내기
      * - 장중이 아니면 true, 장중이면 false
+     * - XUTC 는 항상 true 반환중
      */
-    async isNotMarketOpen(marketSession: object) {
+    isNotMarketOpen(marketSession: object, ISO_Code: string) {
         try {
+            // if (ISO_Code === "XUTC") { // 뭐가 옳은지, 뭐가 더 정확할지?
+            //     return false;
+            // };
             const previous_open = new Date(marketSession["previous_open"])
             const previous_close = new Date(marketSession["previous_close"])
             const next_open = new Date(marketSession["next_open"])
@@ -320,21 +324,25 @@ export class UpdaterService {
 
     /**
      * 티커배열로 가격 업데이트하기
+     * - 가격 업뎃 구조 리팩터 필요
      */
-    async updatePriceByTickerArr(tickerArr: string[]) {
+    async updatePriceByTickerArr(tickerArr: string[], lastClose?: "regularMarketPreviousClose" | "regularMarketPrice") {
         try {
             // 가격 배열 가져오기
             const priceArr = await this.yahoofinanceService.getSomethingByTickerArr(tickerArr, "Price");
 
             // 디비 업데이트
-            let result = {success: [], failure: []};
-            let updatePromiseArr = tickerArr.map((ticker, idx) => { // map 의 콜백에서 return 없어도 Promise<void> 가 리턴되도록? 차이는?
+            const result = {success: [], failure: []};
+            const updatePromiseArr = tickerArr.map((ticker, idx) => { // map 의 콜백에서 return 없어도 Promise<void> 가 리턴되도록? 차이는?
                 if (priceArr[idx]["error"]) {
                     priceArr[idx]['ticker'] = ticker;
                     result.failure.push(priceArr[idx]);
-                }
-                else {
-                    return this.yf_infoModel.updateOne({ symbol: ticker }, { regularMarketPrice: priceArr[idx] }).exec()
+                } else {
+                    const regularMarketPreviousClose = priceArr[idx]["regularMarketPreviousClose"];
+                    const regularMarketPrice = priceArr[idx]["regularMarketPrice"];
+                    const regularMarketLastClose = priceArr[idx][lastClose]
+                    priceArr[idx]["regularMarketLastClose"] = regularMarketLastClose
+                    return this.yf_infoModel.updateOne({ symbol: ticker }, { regularMarketPreviousClose, regularMarketPrice, regularMarketLastClose }).exec()
                         .then((res)=>{
                             // const successRes = {
                             //     acknowledged: true,
@@ -369,15 +377,22 @@ export class UpdaterService {
 
     /**
      * ### 필터배열로 ticker 배열들 뽑아서 각각 updatePriceByTickerArr 실행
+     * - 가격 업뎃 구조 리팩터 필요
      */
-    async updatePriceByFilters(filterArr: object[]) {
+    async updatePriceByFilters(filterArr: object[], isStandard: boolean, isNotMarketOpen: boolean) {
         try {
             // db 에서 각 filter 들로 find 한 documents 들의 symbol 배열들을 만들어서 각각 updatePriceByTickerArr(symbol배열) 을 실행시켜!
             return Promise.all(filterArr.map(async (filter) => {
                 return await this.yf_infoModel.find(filter, 'symbol').exec()
                     .then(async (res) => {
                         const symbolArr = res.map(ele=>ele.symbol)
-                        return await this.updatePriceByTickerArr(symbolArr);
+                        if (isStandard && isNotMarketOpen) {
+                            return await this.updatePriceByTickerArr(symbolArr, "regularMarketPrice");
+                        } else if (isStandard && !isNotMarketOpen) {
+                            return await this.updatePriceByTickerArr(symbolArr, "regularMarketPreviousClose");
+                        } else {
+                            return await this.updatePriceByTickerArr(symbolArr);
+                        }
                     })
                     .catch((error) => {
                         // console.log(err);
