@@ -3,12 +3,14 @@ import { HttpService } from '@nestjs/axios';
 import { ConfigService } from '@nestjs/config';
 import { Cache } from 'cache-manager';
 import { catchError, firstValueFrom } from 'rxjs';
+import { RegularUpdateForPriceBodyDto } from './dto/regularUpdateForPriceBody.dto';
 
 @Injectable()
 export class MarketService {
 
     private readonly logger = new Logger(MarketService.name);
     private readonly MARKET_URL = this.configService.get('MARKET_URL');
+    private readonly priceCacheCount = 1; //
 
     constructor(
         private readonly configService: ConfigService,
@@ -129,6 +131,31 @@ export class MarketService {
                     throw error;
                 }))
             )).data;
+        } catch (error) {
+            throw error;
+        };
+    }
+
+    /**
+     * ###
+     * ISO_Code marketDate 수정
+     * price 조회하면서 카운트 기준 미만은 캐시에서 삭제하고 기준이상은 price, marketDate 업뎃
+     */
+    async regularUpdaterForPrice(ISO_Code: string, body: RegularUpdateForPriceBodyDto) {
+        try {
+            await this.cacheManager.set(ISO_Code, body.marketDate, 0);
+            await Promise.all(body.priceArrs.map(async priceArr => {
+                const priceObj = await this.cacheManager.get(priceArr[0]);
+                if (priceObj) {
+                    if (priceObj["count"] < this.priceCacheCount) {
+                        await this.cacheManager.del(priceArr[0]);
+                    } else {
+                        priceObj["price"] = priceArr[1];
+                        priceObj["marketDate"] = body.marketDate;
+                        await this.cacheManager.set(priceArr[0], priceObj);
+                    };
+                };
+            }));
         } catch (error) {
             throw error;
         };
