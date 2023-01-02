@@ -105,15 +105,15 @@ export class MarketService {
                 priceByTicker["marketDate"] = await this.cacheManager.get(priceByTicker["ISOcode"]);
                 priceByTicker["count"] = 1;
                 // set 직전에 캐시에서 가격조회 다시 해야할것같다(그 사이 생성됬을수도 있으니) // 쓸모없는 고민일까?
-                const priceObjFC = await this.cacheManager.get(ticker);
-                if (priceObjFC) {
-                    // count + 1
-                    priceObjFC["count"]++;
-                    return await this.cacheManager.set(ticker, priceObjFC);
-                } else {
+                // const priceObjFC = await this.cacheManager.get(ticker);
+                // if (priceObjFC) {
+                //     // count + 1
+                //     priceObjFC["count"]++;
+                //     return await this.cacheManager.set(ticker, priceObjFC);
+                // } else {
                     /* logger */this.logger.verbose(`${ticker} : 00`);
                     return await this.cacheManager.set(ticker, priceByTicker);
-                };
+                // };
             };
         } catch (error) {
             throw error;
