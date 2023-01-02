@@ -17,8 +17,8 @@ export class Log_priceUpdate {
     @Prop({
         required: true,
         type: Boolean
-    }) // 레귤러 업뎃인가 아닌가? (레귤러는 현제 ISO code 를 의미)
-    isRegular: boolean
+    }) // 표준 업뎃인가 아닌가? (표준은 현제 ISO code 를 의미)
+    isStandard: boolean
 
     @Prop({
         required: true,
@@ -26,11 +26,11 @@ export class Log_priceUpdate {
     }) // 업데이트 키 (ISO code | 필터[] | 티커[] | etc...)
     key: string | Array<string | Object>
 
-    @Prop(Array<String>)
-    successTickerArr: string[]
+    @Prop(Array<[String, Number]>)
+    success: [string, number][]
 
     @Prop(Array<String>)
-    failTickerArr: string[]
+    failure: string[]
 
     @Prop({
         type: mongoose.Schema.Types.Mixed

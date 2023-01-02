@@ -9,12 +9,14 @@ import { Status_price, Status_priceDocument } from '../mongodb/schema/status_pri
 import { Log_priceUpdate, Log_priceUpdateDocument } from '../mongodb/schema/log_priceUpdate.schema';
 import { SchedulerRegistry } from '@nestjs/schedule';
 import { CronJob, CronTime } from 'cron';
+import { catchError, firstValueFrom } from 'rxjs';
 // import isEqual from 'lodash.isequal';
 
 @Injectable()
 export class UpdaterService {
 
     private readonly logger = new Logger(UpdaterService.name);
+    private readonly PRODUCT_URL = this.configService.get('PRODUCT_URL');
 
     constructor(
         private readonly configService: ConfigService,
@@ -80,6 +82,8 @@ export class UpdaterService {
                     this.createLogPriceUpdateDoc("initiator", updateResult, ISO_Code)
                     // 다음마감시간에 업데이트스케줄 생성하기
                     this.schedulerForPrice(ISO_Code, marketSession["next_close"])
+                    // Product 애 regularUpdater 요청하기
+                    this.requestRegularUpdaterToProduct(ISO_Code, marketSession["previous_open"], updateResult)
                 } else { // 장중이면
                     /* logger */this.logger.verbose(`${ISO_Code} : Market Is Open`)
                     // 다음마감시간에 업데이트스케줄 생성하기
@@ -136,6 +140,7 @@ export class UpdaterService {
             const updateResult = await this.updatePriceByStatusPriceDocAndPreviousopen(statusPriceDoc, marketSession["previous_open"])
             this.createLogPriceUpdateDoc("scheduler", updateResult, ISO_Code)
             this.schedulerForPrice(ISO_Code, marketSession["next_close"])
+            this.requestRegularUpdaterToProduct(ISO_Code, marketSession["previous_open"], updateResult)
         } catch (err) {
             throw err
         };
@@ -184,7 +189,7 @@ export class UpdaterService {
             const {startTime, endTime} = updateResult
             const newLog = new this.log_priceUpdateModel({
                 launcher,
-                isRegular: true,
+                isStandard: true, //
                 key,
                 successTickerArr: updateResult.updatePriceResult["success"],
                 failTickerArr: updateResult.updatePriceResult["failure"],
@@ -207,6 +212,22 @@ export class UpdaterService {
         } catch (err) {
             throw err
         };
+    }
+
+    /**
+     * ### Product 애 regularUpdater 요청하기
+     */
+    async requestRegularUpdaterToProduct(ISO_Code: string, previous_open: string, updateResult) {
+        const marketDate = previous_open.slice(0, 10);
+        const priceArrs = updateResult.updatePriceResult["success"];
+        const result = (await firstValueFrom(
+            this.httpService.post(`${this.PRODUCT_URL}market/updater/${ISO_Code}`, {marketDate, priceArrs})
+            .pipe(catchError(error => {
+                throw error;
+            }))
+        )).status;
+        /* logger */this.logger.verbose(`${ISO_Code} : Product RegularUpdater Response: ${result}`,);
+        // return result;
     }
 
     /**
@@ -329,7 +350,7 @@ export class UpdaterService {
                                 res.upsertedCount === 0 &&
                                 res.matchedCount === 1
                                 ) /* 예외 케이스가 발견됨에 따라 수정해야항 수도 있음 */ {
-                                result.success.push(ticker);
+                                result.success.push([ticker, priceArr[idx]]);
                             } else {
                                 result.failure.push({error: "updateOne error", ticker, res});
                             }
