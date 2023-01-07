@@ -1,4 +1,4 @@
-import { CACHE_MANAGER, Inject, Injectable, Logger } from '@nestjs/common';
+import { CACHE_MANAGER, Inject, Injectable, InternalServerErrorException, Logger } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { ConfigService } from '@nestjs/config';
 import { Cache } from 'cache-manager';
@@ -70,7 +70,8 @@ export class MarketService {
                 /* logger */this.logger.warn(`${ISO_Code} : Price Cache Initiated`);
             }));
         } catch (error) {
-            throw error;
+            /* logger */this.logger.error(error);
+            /* logger */this.logger.warn(`Failed to initiate price cache`);
         };
     }
 
@@ -120,7 +121,7 @@ export class MarketService {
                 // };
             };
         } catch (error) {
-            throw error;
+            throw new InternalServerErrorException(error);
         };
     }
 
@@ -163,7 +164,7 @@ export class MarketService {
             }));
             /* logger */this.logger.verbose(`${ISO_Code} : Regular Updated`);
         } catch (error) {
-            throw error;
+            throw new InternalServerErrorException(error);
         };
     }
 

@@ -214,20 +214,24 @@ export class UpdaterService {
      * ### Product 애 regularUpdater 요청하기
      */
     async requestRegularUpdaterToProduct(ISO_Code: string, previous_close: string, updateResult) {
-        const marketDate = previous_close.slice(0, 10);
-        let priceArrs = updateResult.updatePriceResult["success"];
-        priceArrs = priceArrs.map((priceArr) => {
-            const regularMarketLastClose = priceArr[1].regularMarketLastClose;
-            return [priceArr[0], regularMarketLastClose]
-        })
-        const result = (await firstValueFrom(
-            this.httpService.post(`${this.PRODUCT_URL}market/updater/${ISO_Code}`, {marketDate, priceArrs})
-            .pipe(catchError(error => {
-                throw error;
-            }))
-        )).status;
-        /* logger */this.logger.verbose(`${ISO_Code} : Product RegularUpdater Response: ${result}`,);
-        // return result;
+        try {
+            const marketDate = previous_close.slice(0, 10);
+            let priceArrs = updateResult.updatePriceResult["success"];
+            priceArrs = priceArrs.map((priceArr) => {
+                const regularMarketLastClose = priceArr[1].regularMarketLastClose;
+                return [priceArr[0], regularMarketLastClose]
+            })
+            const result = (await firstValueFrom(
+                this.httpService.post(`${this.PRODUCT_URL}market/updater/${ISO_Code}`, {marketDate, priceArrs})
+                .pipe(catchError(error => {
+                    throw error;
+                }))
+            )).status;
+            /* logger */this.logger.verbose(`${ISO_Code} : Product RegularUpdater Response status ${result}`,);
+        } catch (error) {
+            /* logger */this.logger.error(error);
+            /* logger */this.logger.verbose(`${ISO_Code} : Product RegularUpdater Request Failed!`,);
+        }
     }
 
     /**
