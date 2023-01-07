@@ -143,7 +143,7 @@ export class MarketService {
     /**
      * ###
      * ISO_Code marketDate 수정
-     * price 조회하면서 카운트 기준 미만은 캐시에서 삭제하고 기준이상은 price, marketDate 업뎃
+     * price 조회하면서 카운트 기준 미만은 캐시에서 삭제하고 기준이상은 price, marketDate 업뎃, count = 0
      */
     async regularUpdaterForPrice(ISO_Code: string, body: RegularUpdateForPriceBodyDto) {
         try {
@@ -156,6 +156,7 @@ export class MarketService {
                     } else {
                         priceObj["price"] = priceArr[1];
                         priceObj["marketDate"] = body.marketDate;
+                        priceObj["count"] = 0;
                         await this.cacheManager.set(priceArr[0], priceObj);
                     };
                 };
