@@ -187,9 +187,9 @@ export class UpdaterService {
                 launcher,
                 isStandard: true, //
                 key,
-                successTickerArr: updateResult.updatePriceResult["success"],
-                failTickerArr: updateResult.updatePriceResult["failure"],
-                error: updateResult["error"] | updateResult.updatePriceResult["error"],
+                success: updateResult.updatePriceResult["success"],
+                failure: updateResult.updatePriceResult["failure"],
+                error: updateResult["error"] || updateResult.updatePriceResult["error"],
                 startTime,
                 endTime,
                 duration: new Date(endTime).getTime() - new Date(startTime).getTime()
@@ -395,7 +395,7 @@ export class UpdaterService {
                         }
                     })
                     .catch((error) => {
-                        // console.log(err);
+                        // console.log(error);
                         return {error, filter};
                     })
             }));

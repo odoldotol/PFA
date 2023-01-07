@@ -26,11 +26,15 @@ export class Log_priceUpdate {
     }) // 업데이트 키 (ISO code | 필터[] | 티커[] | etc...)
     key: string | Array<string | Object>
 
-    @Prop(Array<[String, Number]>)
-    success: [string, number][]
+    @Prop({
+        type: mongoose.Schema.Types.Mixed // Array<[String, Object]>
+    })
+    success: [string, object][]
 
-    @Prop(Array<String>)
-    failure: string[]
+    @Prop({
+        type: mongoose.Schema.Types.Mixed
+    })
+    failure: any[]
 
     @Prop({
         type: mongoose.Schema.Types.Mixed
