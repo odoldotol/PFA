@@ -1,5 +1,5 @@
 import { HttpService } from '@nestjs/axios';
-import { Injectable, Logger } from '@nestjs/common';
+import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
@@ -110,12 +110,13 @@ export class ManagerService {
                         const nextClose = await this.updaterService.getSessionSomethingByISOcode(ISO_Code, "next_close");
                         this.updaterService.schedulerForPrice(ISO_Code, nextClose)
                     })
-                    .catch((err)=>{
+                    .catch((error)=>{
                         result.failure.status_price.push({
-                            err,
+                            error,
                             yf_exchangeTimezoneName,
                             yfSymbol: info.symbol
                         });
+                        /* logger */this.logger.warn(`${info.symbol} : Could not find ISO_Code for ${yf_exchangeTimezoneName}`);
                     })
                 }
             }));
@@ -155,7 +156,10 @@ export class ManagerService {
                     if (res === null) {
                         const createResult = await this.createByTickerArr([ticker])
                         if (createResult.failure.info.length > 0) {
-                            throw new Error("ceaateByTickerArr failed");
+                            if (createResult.failure.info[0].error.doc === "Mapping key not found.") {
+                                throw new BadRequestException(`Could not find Ticker: ${createResult.failure.info[0].error.ticker}`);
+                            }
+                            throw new Error(createResult.failure.info[0].error.doc);
                         }
                         status_price = createResult.success.status_price[0]
                         return createResult.success.info[0]

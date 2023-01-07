@@ -1,4 +1,4 @@
-import { CACHE_MANAGER, Inject, Injectable, InternalServerErrorException, Logger } from '@nestjs/common';
+import { BadRequestException, CACHE_MANAGER, Inject, Injectable, InternalServerErrorException, Logger } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { ConfigService } from '@nestjs/config';
 import { Cache } from 'cache-manager';
@@ -121,7 +121,7 @@ export class MarketService {
                 // };
             };
         } catch (error) {
-            throw new InternalServerErrorException(error);
+            throw error;
         };
     }
 
@@ -137,7 +137,15 @@ export class MarketService {
                 }))
             )).data;
         } catch (error) {
-            throw error;
+            if (error.response) {
+                if (error.response.data.error === "Bad Request") {
+                    throw new BadRequestException(error.response.data);
+                } else {
+                    throw new InternalServerErrorException(error.response.data);
+                };
+            } else {
+                throw new InternalServerErrorException(error);
+            };
         };
     }
 
