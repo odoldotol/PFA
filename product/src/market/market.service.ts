@@ -4,6 +4,7 @@ import { ConfigService } from '@nestjs/config';
 import { Cache } from 'cache-manager';
 import { catchError, firstValueFrom } from 'rxjs';
 import { RegularUpdateForPriceBodyDto } from './dto/regularUpdateForPriceBody.dto';
+import { ChildProcessWithoutNullStreams, spawn } from 'child_process';
 
 @Injectable()
 export class MarketService {
@@ -21,10 +22,50 @@ export class MarketService {
     }
 
     /**
+     * ### 차일드프로세스로 Market 서버 실행하고 이니시에이터 완료되면 resolve 반환하는 프로미스 리턴
+     * - MARKET 로그는 \<MARKET\> ... \</MARKET\> 사이에 출력
+     * - 에러는 그대로 출력
+     * - close 이벤트시 code 와 signal 을 담은 메세지 출력
+     */
+    async runMarket() {
+        try {
+            return new Promise<void>((resolve, reject) => {
+                const marketCp = spawn('npm', ["run", "start:prod"], {cwd: '../market/'});
+                marketCp.stdout.on('data', (data) => {
+                    const dataArr = data.toString().split('\x1B');
+                    const str = dataArr[dataArr.length - 2]
+                    if (str !== undefined && str.slice(-16) === 'Initiator End!!!') {
+                        resolve();
+                    };
+                    // 출력
+                    dataArr.pop()
+                    if (dataArr.length === 0) {
+                        console.log("<MARKET>", data.toString(), "</MARKET>");
+                    } else {
+                        console.log("\x1B[39m<MARKET>", dataArr.join('\x1B'), "\x1B[39m</MARKET>");
+                    };
+                });
+                marketCp.on('error', (err) => {
+                    console.log(err);
+                });
+                marketCp.stderr.on('data', (data) => {
+                    console.log(data.toString());
+                });
+                marketCp.on('close', (code, signal) => {
+                    console.log(`MarketCp closed with code: ${code} and signal: ${signal}`);
+                });
+            });
+        } catch (error) {
+            throw error;
+        }
+    }
+
+    /**
      * 
      */
     async initiator() {
         try {
+            await this.runMarket(); // 마켓 서버를 차일드프로세스로 실행
             /* logger */this.logger.warn("Initiator Run!!!");
             await this.cacheManager.reset();
             await this.initiatePriceCache();

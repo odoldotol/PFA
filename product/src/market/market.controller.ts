@@ -13,7 +13,7 @@ export class MarketController {
      * ### DEV
      */
     @Get('dev/:ticker')
-    async devGetPrice(@Param('ticker') ticker: string) {
+    devGetPrice(@Param('ticker') ticker: string) {
         return this.marketService.getPriceByTicker(ticker);
     }
 
@@ -21,7 +21,7 @@ export class MarketController {
      * ### 
      */
     @Post('updater/:ISO_Code')
-    async regularUpdaterForPrice(@Param('ISO_Code') ISO_Code: string, @Body() body: RegularUpdateForPriceBodyDto) {
+    regularUpdaterForPrice(@Param('ISO_Code') ISO_Code: string, @Body() body: RegularUpdateForPriceBodyDto) {
         return this.marketService.regularUpdaterForPrice(ISO_Code, body);
     }
 

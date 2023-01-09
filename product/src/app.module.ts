@@ -32,9 +32,9 @@ import { MarketModule } from './market/market.module';
       }),
       inject: [],
     }),
-    AuthModule,
-    PortfolioModule,
-    AaaManagerModule,
+    // AuthModule,
+    // PortfolioModule,
+    // AaaManagerModule,
     MarketModule
   ],
   controllers: [AppController],
