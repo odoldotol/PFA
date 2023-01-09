@@ -1,4 +1,4 @@
-import { BadRequestException, Body, Controller, Delete, Get, HttpCode, ParseArrayPipe, Patch, Post, Put, Query } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Delete, Get, HttpCode, Param, ParseArrayPipe, Patch, Post, Put, Query } from '@nestjs/common';
 import { ManagerService } from './manager.service';
 import { UpdaterService } from '../updater/updater.service';
 
@@ -15,7 +15,7 @@ export class ManagerController {
      */
     @Post('yf_info')
     @HttpCode(200)
-    async createByTickerArr(@Body(new ParseArrayPipe({items:String})) tickerArr: string[]): Promise<object> {
+    createByTickerArr(@Body(new ParseArrayPipe({items:String})) tickerArr: string[]): Promise<object> {
         return this.managerService.createByTickerArr(tickerArr);
     }
 
@@ -23,7 +23,7 @@ export class ManagerController {
      * ### status_price doc 모두 조회
      */
     @Get('status_price')
-    async getAllStatusPrice() {
+    getAllStatusPrice() {
         return this.updaterService.getAllStatusPriceDoc();
     }
 
@@ -33,7 +33,7 @@ export class ManagerController {
      * - ticker 로 조회 => price
      */
     @Get('price')
-    async getPrice(@Query('ISO_Code') ISO_Code?: string, @Query('ticker') ticker?: string) {
+    getPrice(@Query('ISO_Code') ISO_Code?: string, @Query('ticker') ticker?: string) {
         if (ISO_Code && !ticker) {
             return this.managerService.getPriceByISOcode(ISO_Code);
         } else if (ticker && !ISO_Code) {
@@ -41,6 +41,22 @@ export class ManagerController {
         } else {
             throw new BadRequestException('ISO_Code or ticker must be provided')
         }
+    }
+
+    /**
+     * ### run initator
+     */
+    @Post('updater/initiate')
+    Initiator() {
+        return this.updaterService.initiator();
+    }
+
+    /**
+     * ### tester
+     */
+    @Post('dev/updater/test_generalInitiate/:ISO_Code')
+    testInitiator(@Param('ISO_Code') ISO_Code: string) {
+        return this.updaterService.testGeneralInitiate(ISO_Code);
     }
 
 
