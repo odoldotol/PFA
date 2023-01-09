@@ -139,17 +139,8 @@ export class UpdaterService {
      */
     schedulerForPrice(ISO_Code: string, marketSession: object) {
         try {
-            const previousCloseDate = new Date(marketSession["previous_close"])
-            const nextCloseDate = new Date(marketSession["next_close"])
-            if (ISO_Code === "XUTC") {
-                // 1초 안전마진
-                previousCloseDate.setSeconds(previousCloseDate.getSeconds() + 1)
-                nextCloseDate.setSeconds(nextCloseDate.getSeconds() + 1)
-            } else {
-                // 15분 안전마진
-                previousCloseDate.setMinutes(previousCloseDate.getMinutes() + 15)
-                nextCloseDate.setMinutes(nextCloseDate.getMinutes() + 15)
-            }
+            // 마진 적용
+            const {previousCloseDate, nextCloseDate} = this.yahoofinanceService.getMarginClose(ISO_Code, marketSession);
             // 마진적용한 직전 마감이 현재 시간보다 늦으면 직전마감이 다음 스케쥴시간이어야 한다
             // 이 경우 업데이트도 하지 않는게 옳지만, 이렇게 마진구간에서 이 함수가 실행되는 경우는 이니시에어터가 동작하는 등의 특별한 상황일것이므로 무시한다.
             const scheduleDate = previousCloseDate > new Date() ? previousCloseDate : nextCloseDate

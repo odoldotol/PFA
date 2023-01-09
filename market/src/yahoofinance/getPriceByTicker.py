@@ -7,9 +7,9 @@ import json
 
 def get_price_by_ticker(ticker):
     try:
-        priceChart = yf.Ticker(ticker).history(period="2d")
-        regularMarketPrice = priceChart['Close'][1]
-        regularMarketPreviousClose = priceChart['Close'][0]
+        priceChart = yf.Ticker(ticker).history(period="7d") # BTC-USD 등 에서 누락되는 경우 발견, 안전하게 7일치 가져와서 마지막 2일을 담자
+        regularMarketPrice = priceChart['Close'][-1]
+        regularMarketPreviousClose = priceChart['Close'][-2]
         price = {
             "regularMarketPrice": regularMarketPrice,
             "regularMarketPreviousClose": regularMarketPreviousClose
@@ -20,7 +20,7 @@ def get_price_by_ticker(ticker):
             'error': {
                 'doc': e.__doc__,
                 "ticker": ticker,
-                # 'args':e.args
+                'args':e.args
             }
         }))
 

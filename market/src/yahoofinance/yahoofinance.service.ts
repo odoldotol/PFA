@@ -117,4 +117,22 @@ export class YahoofinanceService {
     isoCodeToTimezone(something: string): string | undefined {
         return isoCodeToTimezone[something];
     }
+
+    /**
+     * ### ISO_Code 와 marketSession 으로 직전 장 종료, 다음 장 종료에 yf 에서의 가격 딜레이 고려한 시간마진을 적용하여 반환
+     */
+    getMarginClose(ISO_Code: string, marketSession) {
+        const previousCloseDate = new Date(marketSession["previous_close"])
+        const nextCloseDate = new Date(marketSession["next_close"])
+        const marginMinute = isoCodeToTimezone[ISO_Code+"_MARGIN"];
+        if (marginMinute === 0) {
+            previousCloseDate.setSeconds(previousCloseDate.getSeconds() + 1)
+            nextCloseDate.setSeconds(nextCloseDate.getSeconds() + 1)
+        } else {
+            previousCloseDate.setMinutes(previousCloseDate.getMinutes() + marginMinute)
+            nextCloseDate.setMinutes(nextCloseDate.getMinutes() + marginMinute)
+        };
+        return {previousCloseDate, nextCloseDate};
+    }
+
 }
