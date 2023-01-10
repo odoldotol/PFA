@@ -106,7 +106,7 @@ export class MarketService {
                         marketDate: marketDate,
                         count: 0
                     };
-                    await this.cacheManager.set(`${priceArr[0]}`, value);
+                    await this.cacheManager.set(priceArr[0], value);
                 }));
                 /* logger */this.logger.warn(`${ISO_Code} : Price Cache Initiated`);
             }));
