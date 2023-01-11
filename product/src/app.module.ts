@@ -16,22 +16,22 @@ import { MarketModule } from './market/market.module';
       isGlobal: true,
       envFilePath: ".env.development.local"
     }),
-    TypeOrmModule.forRootAsync({
-      imports: [],
-      useFactory: () => ({
-        type: 'postgres',
-        host: 'localhost',
-        port: 5432,
-        username: 'gyu',
-        password: '',
-        database: 'pfa_dev',
-        entities: [], //
-        synchronize: true, //
-        // logging: true, //
-        autoLoadEntities: true, //
-      }),
-      inject: [],
-    }),
+    // TypeOrmModule.forRootAsync({
+    //   imports: [],
+    //   useFactory: () => ({
+    //     type: 'postgres',
+    //     host: 'localhost',
+    //     port: 5432,
+    //     username: 'gyu',
+    //     password: '',
+    //     database: 'pfa_dev',
+    //     entities: [], //
+    //     synchronize: true, //
+    //     // logging: true, //
+    //     autoLoadEntities: true, //
+    //   }),
+    //   inject: [],
+    // }),
     // AuthModule,
     // PortfolioModule,
     // AaaManagerModule,
@@ -41,5 +41,5 @@ import { MarketModule } from './market/market.module';
   providers: [AppService],
 })
 export class AppModule {
-  constructor(private dataSource: DataSource) {}
+  // constructor(private dataSource: DataSource) {}
 }

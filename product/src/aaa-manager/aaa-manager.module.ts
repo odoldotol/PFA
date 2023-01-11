@@ -5,7 +5,7 @@ import { AaaManagerController } from './aaa-manager.controller';
 import { AaaManagerService } from './aaa-manager.service';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Account])],
+  // imports: [TypeOrmModule.forFeature([Account])],
   controllers: [AaaManagerController],
   providers: [AaaManagerService]
 })
