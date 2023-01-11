@@ -58,7 +58,7 @@ export class YahoofinanceService {
      * ### 파이썬 ChildProcess 만들기
      */
     getPyChildProcess(args: string[]): ChildProcessWithoutNullStreams {
-        return spawn('python3', args, {cwd: 'src/yahoofinance', timeout: 60000}); // 1분 제한
+        return spawn('python', args, {cwd: 'src/yahoofinance', timeout: 60000}); // 1분 제한
     }
 
     /**
