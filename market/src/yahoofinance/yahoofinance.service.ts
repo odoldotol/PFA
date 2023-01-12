@@ -1,16 +1,19 @@
-// import { HttpService } from '@nestjs/axios';
+import { HttpService } from '@nestjs/axios';
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
-// import { ConfigService } from '@nestjs/config';
-// import { firstValueFrom } from 'rxjs';
+import { ConfigService } from '@nestjs/config';
+import { catchError, firstValueFrom } from 'rxjs';
 import { ChildProcessWithoutNullStreams, spawn } from 'child_process';
 import isoCodeToTimezone from './isoCodeToTimezone';
 
 @Injectable()
 export class YahoofinanceService {
 
+    // GETMARKET_URL 가 undefined 면 child_process 방식으로 동작함
+    private readonly GETMARKET_URL = this.configService.get('GETMARKET_URL');
+
     constructor(
-        // private readonly configService: ConfigService,
-        // private readonly httpService: HttpService,
+        private readonly configService: ConfigService,
+        private readonly httpService: HttpService,
     ) {}
 
     /**
@@ -22,10 +25,20 @@ export class YahoofinanceService {
             const resultArr = [];
             // 하나의 프로세스가 2~10초정도 걸리기때문에 벙열처리필수 + result 에 담기는 순서가 보장되기를 바람
             await tickerArr.reduce(async (acc, ticker) => {
-                const cp = this.getPyChildProcess([`get${something}ByTicker.py`, ticker]);
-                const result = await this.getStdoutByChildProcess(cp)
-                    .then(res => res)
-                    .catch(error => {return {error: error}});
+                let result
+                if (this.GETMARKET_URL) { // getMarket 이용
+                    result = (await firstValueFrom(
+                        this.httpService.get(`${this.GETMARKET_URL}yf/${something.toLowerCase()}?ticker=${ticker}`)
+                        .pipe(catchError(error => {
+                            throw error; //[Todo] 에러 핸들링
+                        }))
+                    )).data;
+                } else { // child_process 이용
+                    const cp = this.getPyChildProcess([`get${something}ByTicker.py`, ticker]);
+                    result = await this.getStdoutByChildProcess(cp)
+                        .then(res => res)
+                        .catch(error => {return {error: error}});
+                };
                 await acc; // 이전순서 result 대기
                 return new Promise(resolve => { // result 를 기다리는 프로미스
                     resultArr.push(result);
@@ -44,11 +57,19 @@ export class YahoofinanceService {
      */
     async getMarketSessionByISOcode(ISO_Code: string) {
         try {
-            const cp = this.getPyChildProcess(['getSessionByISOcode.py', ISO_Code]);
-            const result = await this.getStdoutByChildProcess(cp)
-                .then(res => res)
-                .catch(error => {return {error: error}});
-            return result;
+            if (this.GETMARKET_URL) { // getMarket 이용
+                return (await firstValueFrom(
+                    this.httpService.get(`${this.GETMARKET_URL}ec/session?ISO_Code=${ISO_Code}`)
+                    .pipe(catchError(error => {
+                        throw error; //[Todo] 에러 핸들링
+                    }))
+                )).data;
+            } else { // child_process 이용
+                const cp = this.getPyChildProcess(['getSessionByISOcode.py', ISO_Code]);
+                return await this.getStdoutByChildProcess(cp)
+                    .then(res => res)
+                    .catch(error => {return {error: error}});
+            };
         } catch (error) {
             throw error;
         };
@@ -113,26 +134,10 @@ export class YahoofinanceService {
 
     /**
      * ### ISO code 를 yahoofinance exchangeTimezoneName 로 변환 혹은 그 반대를 수행
+     * - 시간 마진 정보 얻기 isoCodeToTimezone(ISO_Code+"_MARGIN");
      */
-    isoCodeToTimezone(something: string): string | undefined {
+    isoCodeToTimezone(something: string) {
         return isoCodeToTimezone[something];
-    }
-
-    /**
-     * ### ISO_Code 와 marketSession 으로 직전 장 종료, 다음 장 종료에 yf 에서의 가격 딜레이 고려한 시간마진을 적용하여 반환
-     */
-    getMarginClose(ISO_Code: string, marketSession) {
-        const previousCloseDate = new Date(marketSession["previous_close"])
-        const nextCloseDate = new Date(marketSession["next_close"])
-        const marginMinute = isoCodeToTimezone[ISO_Code+"_MARGIN"];
-        if (marginMinute === 0) {
-            previousCloseDate.setSeconds(previousCloseDate.getSeconds() + 1)
-            nextCloseDate.setSeconds(nextCloseDate.getSeconds() + 1)
-        } else {
-            previousCloseDate.setMinutes(previousCloseDate.getMinutes() + marginMinute)
-            nextCloseDate.setMinutes(nextCloseDate.getMinutes() + marginMinute)
-        };
-        return {previousCloseDate, nextCloseDate};
     }
 
 }
