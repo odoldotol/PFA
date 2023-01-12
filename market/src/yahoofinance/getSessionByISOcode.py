@@ -1,4 +1,4 @@
-# python 3.10.4
+# python 3.8.15
 # exchange_calendars 4.2.4 (Latest)
 
 import exchange_calendars as xcals

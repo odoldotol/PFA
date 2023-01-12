@@ -1,4 +1,4 @@
-# python 3.10.4
+# python 3.8.15
 # yfinance 0.2.3 (Latest)
 
 import yfinance as yf
