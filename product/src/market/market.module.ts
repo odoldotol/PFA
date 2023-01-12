@@ -10,7 +10,7 @@ import { MarketController } from './market.controller';
       ttl: 60 * 60 * 24 * 5, // 5 days
     }),
     HttpModule.register({
-      timeout: 9000,
+      timeout: 90000,
     }),
   ],
   controllers: [MarketController],

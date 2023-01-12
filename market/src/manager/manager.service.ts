@@ -1,6 +1,6 @@
-import { HttpService } from '@nestjs/axios';
+// import { HttpService } from '@nestjs/axios';
 import { BadRequestException, Injectable, Logger } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
+// import { ConfigService } from '@nestjs/config';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Yf_info, Yf_infoDocument } from '../mongodb/schema/yf_info.schema';
@@ -14,8 +14,8 @@ export class ManagerService {
     private readonly logger = new Logger(UpdaterService.name);
 
     constructor(
-        private readonly configService: ConfigService,
-        private readonly httpService: HttpService,
+        // private readonly configService: ConfigService,
+        // private readonly httpService: HttpService,
         @InjectModel(Yf_info.name) private yf_infoModel: Model<Yf_infoDocument>,
         @InjectModel(Status_price.name) private status_priceModel: Model<Status_priceDocument>,
         private readonly yahoofinanceService: YahoofinanceService,

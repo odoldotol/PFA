@@ -7,7 +7,9 @@ import { MongodbModule } from '../mongodb/mongodb.module';
 @Module({
   imports: [
     YahoofinanceModule,
-    HttpModule,
+    HttpModule.register({
+      timeout: 90000,
+    }),
     MongodbModule
 ],
   providers: [UpdaterService],

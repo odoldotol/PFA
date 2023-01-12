@@ -1,4 +1,4 @@
-import { HttpModule } from '@nestjs/axios';
+// import { HttpModule } from '@nestjs/axios';
 import { Module } from '@nestjs/common';
 import { ManagerController } from './manager.controller';
 import { ManagerService } from './manager.service';
@@ -10,7 +10,9 @@ import { UpdaterModule } from '../updater/updater.module';
     imports: [
         UpdaterModule,
         YahoofinanceModule,
-        HttpModule,
+        // HttpModule.register({
+        //     timeout: 90000,
+        // }),
         MongodbModule
     ],
     controllers: [ManagerController],
