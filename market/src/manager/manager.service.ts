@@ -96,7 +96,8 @@ export class ManagerService {
                         /* logger */this.logger.warn(`${info.symbol} : Could not find ISO_Code for ${yf_exchangeTimezoneName}`);
                         return;
                     };
-                    const lastMarketDate = new Date(await this.updaterService.getSessionSomethingByISOcode(ISO_Code, "previous_close")).toISOString();
+                    const marketSession = await this.updaterService.getSessionSomethingByISOcode(ISO_Code);
+                    const lastMarketDate = new Date(marketSession["previous_close"]).toISOString();
                     const newOne = new this.status_priceModel({
                         ISO_Code,
                         lastMarketDate,
@@ -107,8 +108,7 @@ export class ManagerService {
                         /* logger */this.logger.verbose(`${ISO_Code} : Created new status_price`);
                         result.success.status_price.push(res);
                         // 다음마감 업데이트스케줄 생성해주기
-                        const nextClose = await this.updaterService.getSessionSomethingByISOcode(ISO_Code, "next_close");
-                        this.updaterService.schedulerForPrice(ISO_Code, nextClose)
+                        this.updaterService.schedulerForPrice(ISO_Code, marketSession)
                     })
                     .catch((error)=>{
                         result.failure.status_price.push({
