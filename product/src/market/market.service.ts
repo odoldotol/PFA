@@ -65,7 +65,7 @@ export class MarketService {
      */
     async initiator() {
         try {
-            await this.runMarket(); // 마켓 서버를 차일드프로세스로 실행
+            // await this.runMarket(); // 마켓 서버를 차일드프로세스로 실행
             /* logger */this.logger.warn("Initiator Run!!!");
             await this.cacheManager.reset();
             await this.initiatePriceCache();
