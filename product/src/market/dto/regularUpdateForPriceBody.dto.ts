@@ -10,6 +10,7 @@ export class RegularUpdateForPriceBodyDto {
     @IsArray()
     readonly priceArrs: [string, number][];
 
+    @IsNotEmpty()
     readonly key: string;
 
 };

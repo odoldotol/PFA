@@ -289,7 +289,7 @@ export class UpdaterService {
             )).status;
             /* logger */this.logger.verbose(`${ISO_Code} : Product RegularUpdater Response status ${result}`,);
         } catch (error) {
-            /* logger */this.logger.error(error);
+            /* logger */this.logger.error(error.response.data);
             /* logger */this.logger.verbose(`${ISO_Code} : Product RegularUpdater Request Failed!`,);
         }
     }
