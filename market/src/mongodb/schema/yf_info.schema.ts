@@ -16,7 +16,7 @@ export class Yf_info {
     symbol: string; // 거의 id 역할 가능
 
     /* 
-        중요한 공통 props (100% 신뢰할 수는 없다)
+        중요한 공통 props (99% 신뢰)
         
         quoteType : 카테고리 역할
 
@@ -32,6 +32,14 @@ export class Yf_info {
 
         regularMarketPreviousClose : 장중= 직전마켓 종가** | 장후= 직전마켓-1일 마켓의 종가
         regularMarketPrice : 장중= 현재가 | 장후= 직전마켓의 종가**
+    */
+
+    /*
+        공통은 아니지만 사용성 있는 props
+        
+        longName : 이름으로 사용할놈 (환율이나 크립토 등 특별한 이름이 없는 항목에 없음)
+
+        다양한 정보 및 금융 데이터들
     */
 
     @Prop({

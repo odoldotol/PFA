@@ -17,6 +17,7 @@ export class UpdaterService {
 
     private readonly logger = new Logger(UpdaterService.name);
     private readonly PRODUCT_URL = this.configService.get('PRODUCT_URL');
+    private readonly TEMP_KEY = this.configService.get('TEMP_KEY');
 
     constructor(
         private readonly configService: ConfigService,
@@ -281,7 +282,7 @@ export class UpdaterService {
                 return [priceArr[0], regularMarketLastClose]
             })
             const result = (await firstValueFrom(
-                this.httpService.post(`${this.PRODUCT_URL}market/updater/${ISO_Code}`, {marketDate, priceArrs})
+                this.httpService.post(`${this.PRODUCT_URL}market/updater/${ISO_Code}`, {marketDate, priceArrs, key: this.TEMP_KEY})
                 .pipe(catchError(error => {
                     throw error;
                 }))

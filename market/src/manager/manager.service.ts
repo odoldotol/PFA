@@ -1,5 +1,5 @@
 // import { HttpService } from '@nestjs/axios';
-import { BadRequestException, Injectable, Logger } from '@nestjs/common';
+import { BadRequestException, Injectable, InternalServerErrorException, Logger } from '@nestjs/common';
 // import { ConfigService } from '@nestjs/config';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
@@ -159,7 +159,7 @@ export class ManagerService {
                             if (createResult.failure.info[0].error.doc === "Mapping key not found.") {
                                 throw new BadRequestException(`Could not find Ticker: ${createResult.failure.info[0].error.ticker}`);
                             }
-                            throw new Error(createResult.failure.info[0].error.doc);
+                            throw new InternalServerErrorException(createResult.failure.info[0]);
                         }
                         status_price = createResult.success.status_price[0]
                         return createResult.success.info[0]
@@ -176,11 +176,15 @@ export class ManagerService {
         };
     }
 
-    // async updateByTickerArr(tickerArr: string[]) {
-    //     return [];
-    // }
-
-    // async deleteByTickerArr(tickerArr: string[]) {
-    //     return [];
-    // }
+    /**
+     * ### yf_info 조회
+     * 
+     */
+    getYfInfoDoc() {
+        try {
+            return this.yf_infoModel.find({}, "-_id symbol shortName longName quoteType currency market exchange exchangeTimezoneName exchangeTimezoneShortName").exec();
+        } catch (error) {
+            throw error;
+        }
+    }
 }

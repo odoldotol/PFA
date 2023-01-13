@@ -87,18 +87,13 @@ export class MarketService {
     async initiatePriceCache() {
         try {
             // status_price 캐싱
-            const spDocArr = (await firstValueFrom(
-                this.httpService.get(`${this.MARKET_URL}manager/status_price`)
-                .pipe(catchError(error => {
-                    throw error;
-                }))
-            )).data;
+            const spDocArr = await this.requestSpDocArrToMarket();
             await Promise.all(spDocArr.map(async spDoc => {
                 const ISO_Code = spDoc.ISO_Code;
                 const marketDate = spDoc.lastMarketDate.slice(0, 10);
                 await this.cacheManager.set(ISO_Code, marketDate, 0);
                 // 가격 캐싱 (이전 캐싱리스트를 가지고있다가 그것만 캐싱하도록 할까? 일단은 전체캐싱)
-                const priceArrs = await this.getPriceFromMarket(ISO_Code, "ISO_Code");
+                const priceArrs = await this.requestPriceToMarket(ISO_Code, "ISO_Code");
                 await Promise.all(priceArrs.map(async priceArr => {
                     const value = {
                         price: priceArr[1],
@@ -136,14 +131,14 @@ export class MarketService {
                     /* logger */this.logger.verbose(`${ticker} : 11`);
                     return priceObj;
                 } else { // marketDate 불일치하면 마켓업데이터에 조회요청, 캐시업뎃 [logger 10]
-                    const priceByTicker = await this.getPriceFromMarket(ticker, "ticker");
+                    const priceByTicker = await this.requestPriceToMarket(ticker, "ticker");
                     priceObj["price"] = priceByTicker["price"];
                     priceObj["marketDate"] = await this.cacheManager.get(priceObj["ISOcode"]);
                     /* logger */this.logger.verbose(`${ticker} : 10`);
                     return await this.cacheManager.set(ticker, priceObj);
                 };
             } else { // 캐시에 없으면 마켓업데이터에 조회요청, 케싱 [logger 00]
-                const priceByTicker = await this.getPriceFromMarket(ticker, "ticker");
+                const priceByTicker = await this.requestPriceToMarket(ticker, "ticker");
                 if (priceByTicker.status_price) {
                     await this.cacheManager.set(priceByTicker.status_price.ISO_Code, priceByTicker.status_price.lastMarketDate.slice(0,10), 0);
                     priceByTicker.status_price = undefined;
@@ -169,7 +164,7 @@ export class MarketService {
     /**
      * ### Market 서버에 가격조회 요청하기
      */
-    async getPriceFromMarket(query_value: string, query_name: "ISO_Code" | "ticker") {
+    async requestPriceToMarket(query_value: string, query_name: "ISO_Code" | "ticker") {
         try {
             return (await firstValueFrom(
                 this.httpService.get(`${this.MARKET_URL}manager/price?${query_name}=${query_value}`)
@@ -214,6 +209,95 @@ export class MarketService {
             /* logger */this.logger.verbose(`${ISO_Code} : Regular Updated`);
         } catch (error) {
             throw new InternalServerErrorException(error);
+        };
+    }
+
+    /**
+     * ### 거래소별 상태를 리턴
+     * - cache : 캐시상태
+     * - market : 마켓서버상태
+     */
+    async getMarketPriceStatus(where: "cache" | "market") {
+        try {
+            const spDocArr = await this.requestSpDocArrToMarket();
+            if (where === "market") {
+                // return spDocArr
+                return spDocArr.map((spDoc) => {
+                    return {
+                        ISO_Code: spDoc.ISO_Code,
+                        priceStatus: spDoc.lastMarketDate.slice(0,10),
+                        exchangeTimezoneName: spDoc.yf_exchangeTimezoneName,
+                    };
+                })
+            } else if (where === "cache") {
+                const result = {};
+                await Promise.all(spDocArr.map(async (spDoc) => {
+                    result[spDoc.ISO_Code] = await this.cacheManager.get(spDoc.ISO_Code);
+                }));
+                return result;
+            };
+        } catch (error) {
+            throw new InternalServerErrorException(error);
+        };
+    }
+
+    /**
+     * ### request spDocArr to Market
+     */
+    async requestSpDocArrToMarket() {
+        try {
+            return (await firstValueFrom(
+                this.httpService.get(`${this.MARKET_URL}manager/status_price`)
+                .pipe(catchError(error => {
+                    throw error;
+                }))
+            )).data;
+        } catch (error) {
+            throw error;
+        };
+    }
+
+    /**
+     * ### assets 조회
+     * - cache : 캐시에서
+     * - market : 마켓서버에서
+     */
+    async getAssets(where: "cache" | "market") {
+        try {
+            if (where === "cache") {
+                return await this.cacheManager.store.keys();
+            } else if (where === "market") {
+                const result = {};
+                const yf_infoArr = (await firstValueFrom(
+                    this.httpService.get(`${this.MARKET_URL}manager/yf_info`)
+                    .pipe(catchError(error => {
+                        throw error;
+                    }))
+                )).data;
+                yf_infoArr.forEach(yf_info => {
+                    result[yf_info.symbol] = yf_info;
+                    delete yf_info.symbol;
+                });
+                return result;
+            };
+        } catch (error) {
+            throw error;
+        };
+    }
+
+    /**
+     * ### request createByTickerArr to Market
+     */
+    async requestCreateByTickerArrToMarket(tickerArr: string[]) {
+        try {
+            return (await firstValueFrom(
+                this.httpService.post(`${this.MARKET_URL}manager/yf_info`, tickerArr)
+                .pipe(catchError(error => {
+                    throw error;
+                }))
+            )).data;
+        } catch (error) {
+            throw error;
         };
     }
 

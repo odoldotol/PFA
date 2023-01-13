@@ -20,6 +20,14 @@ export class ManagerController {
     }
 
     /**
+     * ### yf_info 조회
+     */
+    @Get('yf_info')
+    getYfInfo() {
+        return this.managerService.getYfInfoDoc();
+    }
+
+    /**
      * ### status_price doc 모두 조회
      */
     @Get('status_price')
@@ -59,20 +67,4 @@ export class ManagerController {
         return this.updaterService.testGeneralInitiate(ISO_Code);
     }
 
-
-    // @Put('yf')
-    // async updateByTickerArr(@Body(new ParseArrayPipe({items:String})) tickerArr: string[]) {
-    //     return this.managerService.updateByTickerArr(tickerArr);
-    // }
-
-    // @Delete('yf')
-    // async deleteByTickerArr(@Body(new ParseArrayPipe({items:String})) tickerArr: string[]) {
-    //     return this.managerService.deleteByTickerArr(tickerArr);
-    // }
-
-    // @Patch('yf/modify')
-    // async actionAboutPatch() {}
-
-    // @Put('yf/modify')
-    // async actionAboutPut() {}
 }
