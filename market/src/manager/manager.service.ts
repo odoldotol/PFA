@@ -41,8 +41,26 @@ export class ManagerService {
                 }
             };
 
+            // 이미 존재하는거 걸러내기 // 서비스할때는 불필요한 작업. 초기에 대량으로 asset 추가할때 성능올리려고 추가 ------------------------
+            const confirmedTickerArr = [];
+            await Promise.all(tickerArr.map(async (ticker) => {
+                const exists = await this.yf_infoModel.exists({symbol: ticker})
+                if (exists === null) {
+                    confirmedTickerArr.push(ticker);
+                } else {
+                    result.failure.info.push({
+                        msg: "Already exists",
+                        ticker
+                    })
+                };
+            }))
+            if (confirmedTickerArr.length === 0) {
+                return result;
+            };
+            // ---------------------------------------------------------------------------------------------------------
+
             // info 가져오기
-            const infoArr = await this.yahoofinanceService.getSomethingByTickerArr(tickerArr, "Info");
+            const infoArr = await this.yahoofinanceService.getSomethingByTickerArr(confirmedTickerArr/*tickerArr*/, "Info");
             // info 분류 (가져오기 성공,실패) + regularMarketLastClose
             const insertArr = [];
             await Promise.all(infoArr.map(async (info) => {
