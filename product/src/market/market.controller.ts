@@ -15,11 +15,11 @@ export class MarketController {
      * ### 마켓서버로부터의 레귤러업데이트
      */
     @Post('updater/:ISO_Code')
-    regularUpdaterForPrice(@Param('ISO_Code') ISO_Code: string, @Body() body: RegularUpdateForPriceBodyDto) {
+    async regularUpdaterForPrice(@Param('ISO_Code') ISO_Code: string, @Body() body: RegularUpdateForPriceBodyDto) {
         if (body.key !== this.configService.get('TEMP_KEY')) {
             throw new UnauthorizedException();
         };
-        return this.marketService.regularUpdaterForPrice(ISO_Code, body);
+        return await this.marketService.regularUpdaterForPrice(ISO_Code, body);
     }
 
 
@@ -29,8 +29,8 @@ export class MarketController {
      * ### 가격조회
      */
     @Get('dev')
-    devGetPrice(@Query('ticker') ticker: string) {
-        return this.marketService.getPriceByTicker(ticker);
+    async devGetPrice(@Query('ticker') ticker: string) {
+        return await this.marketService.getPriceByTicker(ticker);
     }
 
     /**
@@ -39,8 +39,8 @@ export class MarketController {
      * - market: 마켓서버의 상태
      */
     @Get('dev/price_status/:where')
-    devGetMarketPriceStatus(@Param('where') where: "cache" | "market") {
-        return this.marketService.getMarketPriceStatus(where);
+    async devGetMarketPriceStatus(@Param('where') where: "cache" | "market") {
+        return await this.marketService.getMarketPriceStatus(where);
     }
 
     /**
@@ -49,8 +49,8 @@ export class MarketController {
      * - market: 마켓서버에서
      */
     @Get('dev/assets/:where')
-    devGetAssets(@Param('where') where: "cache" | "market") {
-        return this.marketService.getAssets(where);
+    async devGetAssets(@Param('where') where: "cache" | "market") {
+        return await this.marketService.getAssets(where);
     }
 
 
@@ -61,11 +61,11 @@ export class MarketController {
      */
     @Post('market_server/create_by_ticker_arr')
     @HttpCode(200)
-    requestCreateByTickerArrToMarket(@Body() body: {key: string, tickerArr: string[]}): Promise<object> {
+    async requestCreateByTickerArrToMarket(@Body() body: {key: string, tickerArr: string[]}): Promise<object> {
         if (body.key !== this.configService.get('TEMP_KEY')) {
             throw new UnauthorizedException();
         };
-        return this.marketService.requestCreateByTickerArrToMarket(body.tickerArr);
+        return await this.marketService.requestCreateByTickerArrToMarket(body.tickerArr);
     }
 
 }

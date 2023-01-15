@@ -15,24 +15,24 @@ export class ManagerController {
      */
     @Post('yf_info')
     @HttpCode(200)
-    createByTickerArr(@Body(new ParseArrayPipe({items:String})) tickerArr: string[]): Promise<object> {
-        return this.managerService.createByTickerArr(tickerArr);
+    async createByTickerArr(@Body(new ParseArrayPipe({items:String})) tickerArr: string[]): Promise<object> {
+        return await this.managerService.createByTickerArr(tickerArr);
     }
 
     /**
      * ### yf_info 조회
      */
     @Get('yf_info')
-    getYfInfo() {
-        return this.managerService.getYfInfoDoc();
+    async getYfInfo() {
+        return await this.managerService.getYfInfoDoc();
     }
 
     /**
      * ### status_price doc 모두 조회
      */
     @Get('status_price')
-    getAllStatusPrice() {
-        return this.updaterService.getAllStatusPriceDoc();
+    async getAllStatusPrice() {
+        return await this.updaterService.getAllStatusPriceDoc();
     }
 
     /**
@@ -41,11 +41,11 @@ export class ManagerController {
      * - ticker 로 조회 => price
      */
     @Get('price')
-    getPrice(@Query('ISO_Code') ISO_Code?: string, @Query('ticker') ticker?: string) {
+    async getPrice(@Query('ISO_Code') ISO_Code?: string, @Query('ticker') ticker?: string) {
         if (ISO_Code && !ticker) {
-            return this.managerService.getPriceByISOcode(ISO_Code);
+            return await this.managerService.getPriceByISOcode(ISO_Code);
         } else if (ticker && !ISO_Code) {
-            return this.managerService.getPriceByTicker(ticker);
+            return await this.managerService.getPriceByTicker(ticker);
         } else {
             throw new BadRequestException('ISO_Code or ticker must be provided')
         }
@@ -55,16 +55,16 @@ export class ManagerController {
      * ### run initator
      */
     @Post('updater/initiate')
-    Initiator() {
-        return this.updaterService.initiator();
+    async Initiator() {
+        return await this.updaterService.initiator();
     }
 
     /**
      * ### tester
      */
     @Post('dev/updater/test_generalInitiate/:ISO_Code')
-    testInitiator(@Param('ISO_Code') ISO_Code: string) {
-        return this.updaterService.testGeneralInitiate(ISO_Code);
+    async testInitiator(@Param('ISO_Code') ISO_Code: string) {
+        return await this.updaterService.testGeneralInitiate(ISO_Code);
     }
 
 }

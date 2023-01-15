@@ -11,11 +11,11 @@ app = FastAPI()
 
 
 @app.get("/")
-def read_root():
+async def read_root():
     return {"Hello": "Welcome to the PFA's Get Market API"}
 
 @app.get("/yf/info")
-def get_info_by_ticker(ticker):
+async def get_info_by_ticker(ticker):
     try:
         info = yf.Ticker(ticker).info
         if info['symbol'] == ticker:
@@ -36,7 +36,7 @@ def get_info_by_ticker(ticker):
         }
 
 @app.get("/yf/price")
-def get_price_by_ticker(ticker):
+async def get_price_by_ticker(ticker):
     try:
         priceChart = yf.Ticker(ticker).history(period="7d") # BTC-USD 등 에서 누락되는 경우 발견, 안전하게 7일치 가져와서 마지막 2일을 담자
         regularMarketPrice = priceChart['Close'][-1]
@@ -56,7 +56,7 @@ def get_price_by_ticker(ticker):
         }
 
 @app.get("/ec/session")
-def get_session_by_ISOcode(ISO_Code):
+async def get_session_by_ISOcode(ISO_Code):
     try:
         cd = xcals.get_calendar(ISO_Code)
         return { # 성공하면 아래 dic 출력
