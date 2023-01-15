@@ -1,5 +1,5 @@
 # python 3.8.15
-# exchange_calendars 4.2.4 (Latest)
+# exchange_calendars lts
 
 import exchange_calendars as xcals
 import sys

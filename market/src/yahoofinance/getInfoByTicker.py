@@ -1,5 +1,5 @@
 # python 3.8.15
-# yfinance 0.2.3 (Latest)
+# yfinance lts
 
 import yfinance as yf
 import sys

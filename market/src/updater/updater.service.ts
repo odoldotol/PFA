@@ -39,6 +39,7 @@ export class UpdaterService {
     async initiator() {
         try {
             /* logger */this.logger.warn("Initiator Run!!!");
+            this.initiatePyLibChecker();
             const spDocArr = await this.getAllStatusPriceDoc();
             await Promise.all(spDocArr.map(async (spDoc) => {
                 await this.generalInitiate(spDoc)
@@ -167,6 +168,30 @@ export class UpdaterService {
     }
 
     /**
+     * ### PyLibChecker initiate
+     */
+    async initiatePyLibChecker() {
+        try {
+            this.yahoofinanceService.isPyLibVerUptodate();
+            try {
+                const pyLibChecker = this.schedulerRegistry.getCronJob("pyLibChecker")
+                /* logger */this.logger.log(`pyLibChecker : ${(new Date(pyLibChecker.nextDate().toString())).toLocaleString()}`);
+            } catch (error) {
+                if (error.message.slice(0, 56) === `No Cron Job was found with the given name (pyLibChecker)`) {
+                    const pyLibChecker = new CronJob("0 0 6 * * *", this.yahoofinanceService.isPyLibVerUptodate.bind(this));
+                    this.schedulerRegistry.addCronJob("pyLibChecker", pyLibChecker);
+                    pyLibChecker.start();
+                    /* logger */this.logger.log(`PyLibChecker : [New]scheduled ${(new Date(pyLibChecker.nextDate().toString())).toLocaleString()}`);
+                } else {
+                    /* logger */this.logger.error(error)
+                }
+            }
+        } catch (error) {
+            throw error;
+        };
+    }
+
+    /**
      * ### ISO_Code 와 marketSession 으로 직전 장 종료, 다음 장 종료에 yf 에서의 가격 딜레이 고려한 시간마진을 적용하여 반환
      */
     getMarginClose(ISO_Code: string, marketSession) {
@@ -289,7 +314,9 @@ export class UpdaterService {
             )).status;
             /* logger */this.logger.verbose(`${ISO_Code} : Product RegularUpdater Response status ${result}`,);
         } catch (error) {
-            /* logger */this.logger.error(error.response.data);
+            if (error.response) {
+                /* logger */this.logger.error(error.response.data);
+            };
             /* logger */this.logger.verbose(`${ISO_Code} : Product RegularUpdater Request Failed!`,);
         }
     }

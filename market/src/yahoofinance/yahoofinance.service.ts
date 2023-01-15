@@ -1,5 +1,5 @@
 import { HttpService } from '@nestjs/axios';
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import { Injectable, InternalServerErrorException, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { catchError, firstValueFrom } from 'rxjs';
 import { ChildProcessWithoutNullStreams, spawn } from 'child_process';
@@ -10,6 +10,8 @@ export class YahoofinanceService {
 
     // GETMARKET_URL 가 undefined 면 child_process 방식으로 동작함
     private readonly GETMARKET_URL = this.configService.get('GETMARKET_URL');
+    private readonly PIP_COMMAND = this.configService.get('PIP_COMMAND');
+    private readonly logger = new Logger(YahoofinanceService.name);
 
     constructor(
         private readonly configService: ConfigService,
@@ -109,35 +111,46 @@ export class YahoofinanceService {
     }
 
     /**
-     * ### yahoo finance 에서 자산정보 가져오기
-     */
-    // async getInfoByTickerArr(tickerArr: string[]): Promise<object[]> {
-    //     // fastAPI 서버에 요청
-    //     try {
-    //        return (await firstValueFrom(this.httpService.post(`${this.configService.get('GETMARKET_URL')}yf/info`, tickerArr))).data;
-    //     } catch(err) {
-    //         throw new InternalServerErrorException(err)
-    //     };
-    // }
-
-    /**
-     * ### yahoo finance 에서 자산의 가격정보 가져오기
-     */
-    // async getPriceByTickerArr(tickerArr: string[]): Promise<object[]> {
-    //     // fastAPI 서버에 요청
-    //     try {
-    //         return (await firstValueFrom(this.httpService.post(`${this.configService.get('GETMARKET_URL')}yf/price`, tickerArr))).data;
-    //     } catch(err) {
-    //         throw new InternalServerErrorException(err)
-    //     };
-    // }
-
-    /**
      * ### ISO code 를 yahoofinance exchangeTimezoneName 로 변환 혹은 그 반대를 수행
      * - 시간 마진 정보 얻기 isoCodeToTimezone(ISO_Code+"_MARGIN");
      */
     isoCodeToTimezone(something: string) {
         return isoCodeToTimezone[something];
+    }
+
+    /**
+     * ### 파이썬 라이브러리 버젼 최신인지 확인
+     * - yfinance
+     * - exchange_calendars
+     */
+    isPyLibVerUptodate() {
+        const result = {yfinance: "OutDated!!!", exchange_calendars: "OutDated!!!"};
+        const cp = spawn(`${this.PIP_COMMAND}`, ['list', '--uptodate'], {timeout: 60000})
+        cp.stdout.on('data', (data) => {
+            const str = data.toString();
+            if (/yfinance/.test(str)) {
+                result.yfinance = "UpToDate";
+            };
+            if (/exchange-calendars/.test(str)) {
+                result.exchange_calendars = "UpToDate";
+            };
+        });
+        cp.on('error', (err) => {
+            this.logger.error(err);
+        });
+        cp.stderr.on('data', (data) => {
+            this.logger.error(data.toString());
+        });
+        cp.on('close', (code, signal) => {
+            if (code === 0 && signal === null) { // success
+                    this.logger.verbose(`yfinance : ${result.yfinance}`);
+                    this.logger.verbose(`exchange_calendars : ${result.exchange_calendars}`);
+            } else if (code === null && signal === "SIGTERM") { // timeout
+                this.logger.warn(`PyLibVerChecker is closed by Timeout!\nCode: ${code}\nSignal: ${signal}`);
+            } else {
+                this.logger.warn(`PyLibVerChecker is closed with code: ${code} and signal: ${signal}`);
+            };
+        });
     }
 
 }
