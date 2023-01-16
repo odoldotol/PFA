@@ -172,13 +172,12 @@ export class UpdaterService {
      */
     async initiatePyLibChecker() {
         try {
-            this.yahoofinanceService.isPyLibVerUptodate();
+            await this.yahoofinanceService.isPyLibVerUptodate();
             try {
-                const pyLibChecker = this.schedulerRegistry.getCronJob("pyLibChecker")
-                /* logger */this.logger.log(`pyLibChecker : ${(new Date(pyLibChecker.nextDate().toString())).toLocaleString()}`);
+                this.logPyCronJob();
             } catch (error) {
                 if (error.message.slice(0, 56) === `No Cron Job was found with the given name (pyLibChecker)`) {
-                    const pyLibChecker = new CronJob("0 0 6 * * *", this.yahoofinanceService.isPyLibVerUptodate.bind(this));
+                    const pyLibChecker = new CronJob("0 0 6 * * *", this.pyLibChecker.bind(this));
                     this.schedulerRegistry.addCronJob("pyLibChecker", pyLibChecker);
                     pyLibChecker.start();
                     /* logger */this.logger.log(`PyLibChecker : [New]scheduled ${(new Date(pyLibChecker.nextDate().toString())).toLocaleString()}`);
@@ -189,6 +188,30 @@ export class UpdaterService {
         } catch (error) {
             throw error;
         };
+    }
+
+    /**
+     * ###
+     */
+    async pyLibChecker() {
+        try {
+            await this.yahoofinanceService.isPyLibVerUptodate();
+            this.logPyCronJob();
+        } catch (error) {
+            throw error;
+        }
+    }
+
+    /**
+     * ###
+     */
+    logPyCronJob() {
+        try {
+            const pyLibChecker = this.schedulerRegistry.getCronJob("pyLibChecker")
+            /* logger */this.logger.log(`pyLibChecker : ${(new Date(pyLibChecker.nextDate().toString())).toLocaleString()}`);
+        } catch (error) {
+            throw error;
+        }
     }
 
     /**

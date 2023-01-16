@@ -123,33 +123,38 @@ export class YahoofinanceService {
      * - yfinance
      * - exchange_calendars
      */
-    isPyLibVerUptodate() {
-        const result = {yfinance: "OutDated!!!", exchange_calendars: "OutDated!!!"};
-        const cp = spawn(`${this.PIP_COMMAND}`, ['list', '--uptodate'], {timeout: 60000})
-        cp.stdout.on('data', (data) => {
-            const str = data.toString();
-            if (/yfinance/.test(str)) {
-                result.yfinance = "UpToDate";
-            };
-            if (/exchange-calendars/.test(str)) {
-                result.exchange_calendars = "UpToDate";
-            };
-        });
-        cp.on('error', (err) => {
-            this.logger.error(err);
-        });
-        cp.stderr.on('data', (data) => {
-            this.logger.error(data.toString());
-        });
-        cp.on('close', (code, signal) => {
-            if (code === 0 && signal === null) { // success
-                    this.logger.verbose(`yfinance : ${result.yfinance}`);
-                    this.logger.verbose(`exchange_calendars : ${result.exchange_calendars}`);
-            } else if (code === null && signal === "SIGTERM") { // timeout
-                this.logger.warn(`PyLibVerChecker is closed by Timeout!\nCode: ${code}\nSignal: ${signal}`);
-            } else {
-                this.logger.warn(`PyLibVerChecker is closed with code: ${code} and signal: ${signal}`);
-            };
+    async isPyLibVerUptodate() {
+        return new Promise<void>((resolve, reject) => {
+            const result = {yfinance: "OutDated!!!", exchange_calendars: "OutDated!!!"};
+            const cp = spawn(`${this.PIP_COMMAND}`, ['list', '--uptodate'], {timeout: 60000})
+            cp.stdout.on('data', (data) => {
+                const str = data.toString();
+                if (/yfinance/.test(str)) {
+                    result.yfinance = "UpToDate";
+                };
+                if (/exchange-calendars/.test(str)) {
+                    result.exchange_calendars = "UpToDate";
+                };
+            });
+            cp.on('error', (err) => {
+                this.logger.error(err);
+            });
+            cp.stderr.on('data', (data) => {
+                this.logger.error(data.toString());
+            });
+            cp.on('close', (code, signal) => {
+                if (code === 0 && signal === null) { // success
+                        this.logger.verbose(`yfinance : ${result.yfinance}`);
+                        this.logger.verbose(`exchange_calendars : ${result.exchange_calendars}`);
+                        resolve();
+                } else if (code === null && signal === "SIGTERM") { // timeout
+                    this.logger.warn(`PyLibVerChecker is closed by Timeout!\nCode: ${code}\nSignal: ${signal}`);
+                    reject();
+                } else {
+                    this.logger.warn(`PyLibVerChecker is closed with code: ${code} and signal: ${signal}`);
+                    reject();
+                };
+            });
         });
     }
 
