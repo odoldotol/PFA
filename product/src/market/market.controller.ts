@@ -68,4 +68,14 @@ export class MarketController {
         return await this.marketService.requestCreateByTickerArrToMarket(body.tickerArr);
     }
 
+    /**
+     * ### POST MarketServer/manager/config_exchange
+     */
+    @Post('market_server/create_config_exchange')
+    async requestCreateConfigExchangeToMarket(@Body() body: {key: string, configExchange: object}): Promise<object> {
+        if (body.key !== this.configService.get('TEMP_KEY')) {
+            throw new UnauthorizedException();
+        };
+        return await this.marketService.requestCreateConfigExchangeToMarket(body.configExchange);
+    }
 }

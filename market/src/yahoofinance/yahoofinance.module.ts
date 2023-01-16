@@ -1,9 +1,14 @@
 import { HttpModule } from '@nestjs/axios';
-import { Module } from '@nestjs/common';
+import { CacheModule, Module } from '@nestjs/common';
 import { YahoofinanceService } from './yahoofinance.service';
+import { MongodbModule } from '../mongodb/mongodb.module';
 
 @Module({
   imports: [
+    CacheModule.register({
+      ttl: 0,
+    }),
+    MongodbModule,
     HttpModule.register({
       timeout: 90000,
     }),

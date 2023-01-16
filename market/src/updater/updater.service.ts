@@ -10,6 +10,7 @@ import { Log_priceUpdate, Log_priceUpdateDocument } from '../mongodb/schema/log_
 import { SchedulerRegistry } from '@nestjs/schedule';
 import { CronJob, CronTime } from 'cron';
 import { catchError, firstValueFrom } from 'rxjs';
+import { Config_exchange, Config_exchangeDocument } from '../mongodb/schema/config_exchange.schema';
 // import isEqual from 'lodash.isequal';
 
 @Injectable()
@@ -18,6 +19,8 @@ export class UpdaterService {
     private readonly logger = new Logger(UpdaterService.name);
     private readonly PRODUCT_URL = this.configService.get('PRODUCT_URL');
     private readonly TEMP_KEY = this.configService.get('TEMP_KEY');
+    private readonly DE_UP_MARGIN: number = this.configService.get('DefaultUpdateMarginMilliseconds');
+    private readonly yfCCC_ISO_Code = this.configService.get('YahooFinance_CCC_ISO_Code');
 
     constructor(
         private readonly configService: ConfigService,
@@ -26,6 +29,7 @@ export class UpdaterService {
         @InjectModel(Yf_info.name) private yf_infoModel: Model<Yf_infoDocument>,
         @InjectModel(Status_price.name) private status_priceModel: Model<Status_priceDocument>,
         @InjectModel(Log_priceUpdate.name) private log_priceUpdateModel: Model<Log_priceUpdateDocument>,
+        @InjectModel(Config_exchange.name) private config_exchangeModel: Model<Config_exchangeDocument>,
         private readonly yahoofinanceService: YahoofinanceService,
     ) {
         this.initiator();
@@ -39,6 +43,7 @@ export class UpdaterService {
     async initiator() {
         try {
             /* logger */this.logger.warn("Initiator Run!!!");
+            await this.yahoofinanceService.setIsoCodeToTimezone();
             this.initiatePyLibChecker();
             const spDocArr = await this.getAllStatusPriceDoc();
             await Promise.all(spDocArr.map(async (spDoc) => {
@@ -73,8 +78,8 @@ export class UpdaterService {
             if (isUpToDate) { // 최신이면
                 // 다음마감시간에 업데이트스케줄 생성하기
                 /* logger */this.logger.verbose(`${ISO_Code} : UpToDate`)
-                this.schedulerForPrice(ISO_Code, marketSession)
-            } else { // 최신 아니면 // XUTC 는 항상 현재가로 초기화 되는점 알기 (isNotMarketOpen)
+                await this.schedulerForPrice(ISO_Code, marketSession)
+            } else { // 최신 아니면 // Yf_CCC 는 항상 현재가로 초기화 되는점 알기 (isNotMarketOpen)
                 const isNotMarketOpen = this.isNotMarketOpen(marketSession, ISO_Code)
                 isNotMarketOpen ?
                 /* logger */this.logger.verbose(`${ISO_Code} : Not UpToDate`) :
@@ -83,10 +88,10 @@ export class UpdaterService {
                 const updateResult = await this.updatePriceByStatusPriceDocAndPreviousclose(spDoc, marketSession["previous_close"], isNotMarketOpen)
                 // log_priceUpdate Doc 생성
                 this.createLogPriceUpdateDoc("initiator", updateResult, ISO_Code)
-                // 다음마감시간에 업데이트스케줄 생성하기
-                this.schedulerForPrice(ISO_Code, marketSession)
                 // Product 애 regularUpdater 요청하기
                 this.requestRegularUpdaterToProduct(ISO_Code, marketSession["previous_close"], updateResult)
+                // 다음마감시간에 업데이트스케줄 생성하기
+                await this.schedulerForPrice(ISO_Code, marketSession)
             };
         } catch (err) {
             throw err
@@ -115,8 +120,8 @@ export class UpdaterService {
             // if (isUpToDate) { // 최신이면
                 // 다음마감시간에 업데이트스케줄 생성하기
                 // /* logger */this.logger.verbose(`${ISO_Code} : UpToDate`)
-                // this.schedulerForPrice(ISO_Code, marketSession)
-            // } else { // 최신 아니면 // XUTC 는 항상 현재가로 초기화 되는점 알기 (isNotMarketOpen)
+                // await this.schedulerForPrice(ISO_Code, marketSession)
+            // } else { // 최신 아니면 // Yf_CCC 는 항상 현재가로 초기화 되는점 알기 (isNotMarketOpen)
                 // const isNotMarketOpen = this.isNotMarketOpen(marketSession, ISO_Code)
                 // isNotMarketOpen ?
                 // /* logger */this.logger.verbose(`${ISO_Code} : Not UpToDate`) :
@@ -125,10 +130,10 @@ export class UpdaterService {
                 // const updateResult = await this.updatePriceByStatusPriceDocAndPreviousclose(spDoc, marketSession["previous_close"], isNotMarketOpen)
                 // log_priceUpdate Doc 생성
                 // this.createLogPriceUpdateDoc("initiator", updateResult, ISO_Code)
-                // 다음마감시간에 업데이트스케줄 생성하기
-                // this.schedulerForPrice(ISO_Code, marketSession)
                 // Product 애 regularUpdater 요청하기
                 // this.requestRegularUpdaterToProduct(ISO_Code, marketSession["previous_close"], updateResult)
+                // 다음마감시간에 업데이트스케줄 생성하기
+                // await this.schedulerForPrice(ISO_Code, marketSession)
             // };
         } catch (err) {
             throw err
@@ -137,12 +142,11 @@ export class UpdaterService {
 
     /**
      * ### ISO code 와 marketSession 로 다음마감시간에 업데이트스케줄 생성|시간수정 하기
-     * - 15 분의 안전마진 (UTC 는 1 초)
      */
-    schedulerForPrice(ISO_Code: string, marketSession: object) {
+    async schedulerForPrice(ISO_Code: string, marketSession: object) {
         try {
             // 마진 적용
-            const {previousCloseDate, nextCloseDate} = this.getMarginClose(ISO_Code, marketSession);
+            const {previousCloseDate, nextCloseDate} = await this.getMarginClose(ISO_Code, marketSession);
             // 마진적용한 직전 마감이 현재 시간보다 늦으면 직전마감이 다음 스케쥴시간이어야 한다
             // 이 경우 업데이트도 하지 않는게 옳지만, 이렇게 마진구간에서 이 함수가 실행되는 경우는 이니시에어터가 동작하는 등의 특별한 상황일것이므로 무시한다.
             const scheduleDate = previousCloseDate > new Date() ? previousCloseDate : nextCloseDate
@@ -217,17 +221,18 @@ export class UpdaterService {
     /**
      * ### ISO_Code 와 marketSession 으로 직전 장 종료, 다음 장 종료에 yf 에서의 가격 딜레이 고려한 시간마진을 적용하여 반환
      */
-    getMarginClose(ISO_Code: string, marketSession) {
+    async getMarginClose(ISO_Code: string, marketSession) {
         const previousCloseDate = new Date(marketSession["previous_close"])
         const nextCloseDate = new Date(marketSession["next_close"])
-        const marginMinute: number = this.yahoofinanceService.isoCodeToTimezone(ISO_Code+"_MARGIN");
-        if (marginMinute === 0) {
-            previousCloseDate.setSeconds(previousCloseDate.getSeconds() + 1)
-            nextCloseDate.setSeconds(nextCloseDate.getSeconds() + 1)
-        } else {
-            previousCloseDate.setMinutes(previousCloseDate.getMinutes() + marginMinute)
-            nextCloseDate.setMinutes(nextCloseDate.getMinutes() + marginMinute)
+        let marginMilliseconds: number = await this.config_exchangeModel.findOne({ISO_Code}, "-_id update_margin_milliseconds").lean().exec()
+            .then((doc) => doc["update_margin_milliseconds"]);
+        if (marginMilliseconds === undefined) {
+            marginMilliseconds = this.DE_UP_MARGIN
         };
+
+        previousCloseDate.setMilliseconds(previousCloseDate.getMilliseconds() + marginMilliseconds);
+        nextCloseDate.setMilliseconds(nextCloseDate.getMilliseconds() + marginMilliseconds);
+
         return {previousCloseDate, nextCloseDate};
     }
 
@@ -243,8 +248,8 @@ export class UpdaterService {
             const marketSession = await this.getSessionSomethingByISOcode(ISO_Code)
             const updateResult = await this.updatePriceByStatusPriceDocAndPreviousclose(statusPriceDoc, marketSession["previous_close"], true)
             this.createLogPriceUpdateDoc("scheduler", updateResult, ISO_Code)
-            this.schedulerForPrice(ISO_Code, marketSession)
             this.requestRegularUpdaterToProduct(ISO_Code, marketSession["previous_close"], updateResult)
+            await this.schedulerForPrice(ISO_Code, marketSession)
         } catch (err) {
             throw err
         };
@@ -368,12 +373,12 @@ export class UpdaterService {
 
     /**
      * ### ISO code 로 session 의 something 알아내기
-     * - UTC 케이스 특이사항
+     * - Yf_CCC 케이스 특이사항
      */
     async getSessionSomethingByISOcode(ISO_Code: string, something?: "previous_open" | "previous_close" | "next_open" | "next_close") {
         try {
             let marketSession
-            if (ISO_Code === "XUTC") {
+            if (ISO_Code === this.yfCCC_ISO_Code) {
                 const previous = new Date(
                     new Date().toISOString().slice(0, 10)/*+"T00:00:00.000Z"*/
                 ).toISOString()
@@ -416,11 +421,11 @@ export class UpdaterService {
     /**
      * ### 세션 정보 로 장중이 아닌지 알아내기
      * - 장중이 아니면 true, 장중이면 false
-     * - XUTC 는 항상 true 반환중
+     * - Yf_CCC 는 항상 true 반환중
      */
     isNotMarketOpen(marketSession: object, ISO_Code: string) {
         try {
-            // if (ISO_Code === "XUTC") { // 뭐가 옳은지, 뭐가 더 정확할지?
+            // if (ISO_Code === "this.yfCCC_ISO_Code") { // 뭐가 옳은지, 뭐가 더 정확할지?
             //     return false;
             // };
             const previous_open = new Date(marketSession["previous_open"])

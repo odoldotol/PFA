@@ -169,19 +169,19 @@ export class MarketService {
             return (await firstValueFrom(
                 this.httpService.get(`${this.MARKET_URL}manager/price?${query_name}=${query_value}`)
                 .pipe(catchError(error => {
-                    throw error;
+                    if (error.response) {
+                        if (error.response.data.error === "Bad Request") {
+                            throw new BadRequestException(error.response.data);
+                        } else {
+                            throw new InternalServerErrorException(error.response.data);
+                        };
+                    } else {
+                        throw new InternalServerErrorException(error);
+                    };
                 }))
             )).data;
         } catch (error) {
-            if (error.response) {
-                if (error.response.data.error === "Bad Request") {
-                    throw new BadRequestException(error.response.data);
-                } else {
-                    throw new InternalServerErrorException(error.response.data);
-                };
-            } else {
-                throw new InternalServerErrorException(error);
-            };
+            throw error;
         };
     }
 
@@ -294,6 +294,30 @@ export class MarketService {
                 this.httpService.post(`${this.MARKET_URL}manager/yf_info`, tickerArr)
                 .pipe(catchError(error => {
                     throw error;
+                }))
+            )).data;
+        } catch (error) {
+            throw error;
+        };
+    }
+
+    /**
+     * ### request createConfigExchange to Market
+     */
+    async requestCreateConfigExchangeToMarket(configExchange) {
+        try {
+            return (await firstValueFrom(
+                this.httpService.post(`${this.MARKET_URL}manager/config_exchange`, configExchange)
+                .pipe(catchError(error => {
+                    if (error.response) {
+                        if (error.response.data.error === "Bad Request") {
+                            throw new BadRequestException(error.response.data);
+                        } else {
+                            throw new InternalServerErrorException(error.response.data);
+                        };
+                    } else {
+                        throw new InternalServerErrorException(error);
+                    };
                 }))
             )).data;
         } catch (error) {

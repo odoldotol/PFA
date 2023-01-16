@@ -1,9 +1,12 @@
 import { HttpService } from '@nestjs/axios';
-import { Injectable, InternalServerErrorException, Logger } from '@nestjs/common';
+import { CACHE_MANAGER, Inject, Injectable, InternalServerErrorException, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { catchError, firstValueFrom } from 'rxjs';
 import { ChildProcessWithoutNullStreams, spawn } from 'child_process';
-import isoCodeToTimezone from './isoCodeToTimezone';
+import { Cache } from 'cache-manager';
+import { Config_exchange, Config_exchangeDocument } from '../mongodb/schema/config_exchange.schema';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
 
 @Injectable()
 export class YahoofinanceService {
@@ -16,6 +19,8 @@ export class YahoofinanceService {
     constructor(
         private readonly configService: ConfigService,
         private readonly httpService: HttpService,
+        @Inject(CACHE_MANAGER) private cacheManager: Cache,
+        @InjectModel(Config_exchange.name) private config_exchangeModel: Model<Config_exchangeDocument>,
     ) {}
 
     /**
@@ -111,11 +116,21 @@ export class YahoofinanceService {
     }
 
     /**
-     * ### ISO code 를 yahoofinance exchangeTimezoneName 로 변환 혹은 그 반대를 수행
-     * - 시간 마진 정보 얻기 isoCodeToTimezone(ISO_Code+"_MARGIN");
+     * isoCodeToTimezone 갱신
      */
-    isoCodeToTimezone(something: string) {
-        return isoCodeToTimezone[something];
+    async setIsoCodeToTimezone() {
+        const isoCodeAndTimezoneArr = await this.config_exchangeModel.find({}, "-_id ISO_Code ISO_TimezoneName").lean().exec();
+        await Promise.all(isoCodeAndTimezoneArr.map(async isoCodeAndTimezone => {
+            await this.cacheManager.set(isoCodeAndTimezone.ISO_Code, isoCodeAndTimezone.ISO_TimezoneName);
+            await this.cacheManager.set(isoCodeAndTimezone.ISO_TimezoneName, isoCodeAndTimezone.ISO_Code);
+        }));
+    }
+
+    /**
+     * ### ISO code 를 yahoofinance exchangeTimezoneName 로 변환 혹은 그 반대를 수행
+     */
+    async isoCodeToTimezone(something: string): Promise<string> {
+        return await this.cacheManager.get(something);
     }
 
     /**

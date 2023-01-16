@@ -1,6 +1,7 @@
 import { BadRequestException, Body, Controller, Delete, Get, HttpCode, Param, ParseArrayPipe, Patch, Post, Put, Query } from '@nestjs/common';
 import { ManagerService } from './manager.service';
 import { UpdaterService } from '../updater/updater.service';
+import { ConfigExchangeDto } from './dto/configExchange.dto';
 
 @Controller('manager')
 export class ManagerController {
@@ -65,6 +66,14 @@ export class ManagerController {
     @Post('dev/updater/test_generalInitiate/:ISO_Code')
     async testInitiator(@Param('ISO_Code') ISO_Code: string) {
         return await this.updaterService.testGeneralInitiate(ISO_Code);
+    }
+
+    /**
+     * ### create config_exchange
+     */
+    @Post('config_exchange')
+    async createConfigExchange(@Body() body: ConfigExchangeDto) {
+        return await this.managerService.createConfigExchange(body);
     }
 
 }

@@ -1,4 +1,4 @@
-export default {
+const isoCodeToTimezone = {
     // "AIXK": "",
     // "ASEX": "",
     "BVMF": "America/Sao_Paulo", "America/Sao_Paulo": "BVMF", // BMF Bovespa, Brazil, http://www.b3.com.br/en_us/

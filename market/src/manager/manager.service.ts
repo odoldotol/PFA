@@ -7,6 +7,8 @@ import { Yf_info, Yf_infoDocument } from '../mongodb/schema/yf_info.schema';
 import { YahoofinanceService } from '../yahoofinance/yahoofinance.service';
 import { UpdaterService } from '../updater/updater.service';
 import { Status_price, Status_priceDocument } from '../mongodb/schema/status_price.schema';
+import { ConfigExchangeDto } from './dto/configExchange.dto';
+import { Config_exchange, Config_exchangeDocument } from '../mongodb/schema/config_exchange.schema';
 
 @Injectable()
 export class ManagerService {
@@ -18,6 +20,7 @@ export class ManagerService {
         // private readonly httpService: HttpService,
         @InjectModel(Yf_info.name) private yf_infoModel: Model<Yf_infoDocument>,
         @InjectModel(Status_price.name) private status_priceModel: Model<Status_priceDocument>,
+        @InjectModel(Config_exchange.name) private config_exchangeModel: Model<Config_exchangeDocument>,
         private readonly yahoofinanceService: YahoofinanceService,
         private readonly updaterService: UpdaterService,
     ) {}
@@ -66,7 +69,7 @@ export class ManagerService {
             await Promise.all(infoArr.map(async (info) => {
                 if (info["error"]) {result.failure.info.push(info);}
                 else {
-                    const ISO_Code = this.yahoofinanceService.isoCodeToTimezone(info["exchangeTimezoneName"]);
+                    const ISO_Code = await this.yahoofinanceService.isoCodeToTimezone(info["exchangeTimezoneName"]);
                     if (ISO_Code === undefined) { // ISO_Code 를 못찾은 경우 실패처리
                         result.failure.info.push({
                             msg: "Could not find ISO_Code",
@@ -104,7 +107,7 @@ export class ManagerService {
                 const yf_exchangeTimezoneName = info.exchangeTimezoneName;
                 const oldOne = await this.status_priceModel.exists({ yf_exchangeTimezoneName }).exec();
                 if (oldOne === null) { // 신규 exchangeTimezoneName!
-                    const ISO_Code = this.yahoofinanceService.isoCodeToTimezone(yf_exchangeTimezoneName) // 불필요?
+                    const ISO_Code = await this.yahoofinanceService.isoCodeToTimezone(yf_exchangeTimezoneName) // 불필요?
                     if (ISO_Code === undefined) { // ISO_Code 를 못찾은 경우 실패처리
                         result.failure.status_price.push({
                             msg: "Could not find ISO_Code",
@@ -151,7 +154,7 @@ export class ManagerService {
     async getPriceByISOcode(ISO_Code: string) {
         try {
             const result = [];
-            const timezone = this.yahoofinanceService.isoCodeToTimezone(ISO_Code);
+            const timezone = await this.yahoofinanceService.isoCodeToTimezone(ISO_Code);
             const priceArr = await this.yf_infoModel.find({exchangeTimezoneName: timezone}, "symbol regularMarketLastClose").exec()
             priceArr.forEach((price)=>{
                 result.push([price.symbol, price.regularMarketLastClose]);
@@ -187,7 +190,7 @@ export class ManagerService {
                 }).catch(err => {
                     throw err;
                 });
-            const ISOcode = this.yahoofinanceService.isoCodeToTimezone(info.exchangeTimezoneName);
+            const ISOcode = await this.yahoofinanceService.isoCodeToTimezone(info.exchangeTimezoneName);
             return {price: info.regularMarketLastClose, ISOcode, status_price};
         } catch (error) {
             throw error;
@@ -204,5 +207,17 @@ export class ManagerService {
         } catch (error) {
             throw error;
         }
+    }
+
+    /**
+     * ### createConfigExchange
+     */
+    async createConfigExchange(reqBody: ConfigExchangeDto) {
+        try {
+            const newOne = new this.config_exchangeModel(reqBody);
+            return await newOne.save();
+        } catch (error) {
+            throw error;
+        };
     }
 }
