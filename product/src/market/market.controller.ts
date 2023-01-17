@@ -6,6 +6,8 @@ import { ConfigService } from '@nestjs/config';
 @Controller('market')
 export class MarketController {
 
+    private readonly TEMP_KEY = this.configService.get('TEMP_KEY');
+
     constructor(
         private readonly configService: ConfigService,
         private readonly marketService: MarketService
@@ -16,7 +18,7 @@ export class MarketController {
      */
     @Post('updater/:ISO_Code')
     async regularUpdaterForPrice(@Param('ISO_Code') ISO_Code: string, @Body() body: RegularUpdateForPriceBodyDto) {
-        if (body.key !== this.configService.get('TEMP_KEY')) {
+        if (body.key !== this.TEMP_KEY) {
             throw new UnauthorizedException();
         };
         return await this.marketService.regularUpdaterForPrice(ISO_Code, body);
@@ -62,7 +64,7 @@ export class MarketController {
     @Post('market_server/create_by_ticker_arr')
     @HttpCode(200)
     async requestCreateByTickerArrToMarket(@Body() body: {key: string, tickerArr: string[]}): Promise<object> {
-        if (body.key !== this.configService.get('TEMP_KEY')) {
+        if (body.key !== this.TEMP_KEY) {
             throw new UnauthorizedException();
         };
         return await this.marketService.requestCreateByTickerArrToMarket(body.tickerArr);
@@ -73,7 +75,7 @@ export class MarketController {
      */
     @Post('market_server/create_config_exchange')
     async requestCreateConfigExchangeToMarket(@Body() body: {key: string, configExchange: object}): Promise<object> {
-        if (body.key !== this.configService.get('TEMP_KEY')) {
+        if (body.key !== this.TEMP_KEY) {
             throw new UnauthorizedException();
         };
         return await this.marketService.requestCreateConfigExchangeToMarket(body.configExchange);

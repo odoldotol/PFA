@@ -51,6 +51,10 @@ export class UpdaterService {
             }))
             .then(() => {
                 /* logger */this.logger.warn("Initiator End!!!");
+                if (process.send !== undefined) {
+                    process.send('ready');
+                    /* logger */this.logger.log("Send Ready to Parent Process");
+                };
             })
             .catch((err) => {
                 /* logger */this.logger.error(err)

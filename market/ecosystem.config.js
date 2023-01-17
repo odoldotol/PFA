@@ -4,8 +4,11 @@ module.exports = {
     {
       name: 'pfa_market',
       script: 'dist/main.js',
-      instances: 1, // 배포서버는 어차피 1코어. market 을 차일드로 돌리는 경우 멀티프로세스 불가능 주의
+      instances: 1,
       exec_mode: 'cluster',
+      wait_ready: true,
+      listen_timeout: 600000, // 10분
+      kill_timeout: 60000, // 1분
       watch: '.',
     },
     // {

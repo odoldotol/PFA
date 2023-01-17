@@ -1,4 +1,4 @@
-import { BadRequestException, CACHE_MANAGER, Inject, Injectable, InternalServerErrorException, Logger } from '@nestjs/common';
+import { BadRequestException, CACHE_MANAGER, Inject, Injectable, InternalServerErrorException, Logger, OnApplicationShutdown } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { ConfigService } from '@nestjs/config';
 import { Cache } from 'cache-manager';
@@ -7,7 +7,7 @@ import { RegularUpdateForPriceBodyDto } from './dto/regularUpdateForPriceBody.dt
 import { ChildProcessWithoutNullStreams, spawn } from 'child_process';
 
 @Injectable()
-export class MarketService {
+export class MarketService implements OnApplicationShutdown {
 
     private readonly logger = new Logger(MarketService.name);
     private readonly MARKET_URL = this.configService.get('MARKET_URL');
@@ -19,6 +19,20 @@ export class MarketService {
         @Inject(CACHE_MANAGER) private cacheManager: Cache
     ) {
         this.initiator();
+    }
+
+    async onApplicationShutdown(signal?: string) {
+        /* logger */this.logger.warn(`Cache Backup Start`);
+        const keyArr = await this.cacheManager.store.keys();
+        const BackupObj = {};
+        const cacheArr = await Promise.all(keyArr.map(async (key) => {
+            const cache = await this.cacheManager.get(key);
+            BackupObj[key] = cache['count'];
+        }));
+        // 대충 이렇게 구현하면 되겠다~
+        // [TODO] 완성시키기 (임시로 5초간 sleep)
+        await new Promise((resolve) => setTimeout(resolve, 5000));
+        /* logger */this.logger.warn(`Cache Backup End`);
     }
 
     /**
@@ -65,7 +79,7 @@ export class MarketService {
      */
     async initiator() {
         try {
-            // await this.runMarket(); // 마켓 서버를 차일드프로세스로 실행
+            // await this.runMarket(); // [주의]마켓 서버를 차일드프로세스로 실행
             /* logger */this.logger.warn("Initiator Run!!!");
             await this.cacheManager.reset();
             await this.initiatePriceCache();
@@ -76,6 +90,10 @@ export class MarketService {
             // await this.cacheManager.set("AAPL", priceObj); // marketDate 불일치 테스트용
 
             /* logger */this.logger.warn("Initiator End!!!");
+            if (process.send !== undefined) {
+                process.send('ready');
+                /* logger */this.logger.log("Send Ready to Parent Process");
+            };
         } catch (error) {
             throw error;
         }
@@ -262,7 +280,7 @@ export class MarketService {
      * - cache : 캐시에서
      * - market : 마켓서버에서
      */
-    async getAssets(where: "cache" | "market") {
+    async getAssets(where: "cache" | "market"): Promise<Array<string> | object> {
         try {
             if (where === "cache") {
                 return await this.cacheManager.store.keys();
