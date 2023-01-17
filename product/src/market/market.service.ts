@@ -91,7 +91,7 @@ export class MarketService {
             await Promise.all(spDocArr.map(async spDoc => {
                 const ISO_Code = spDoc.ISO_Code;
                 const marketDate = spDoc.lastMarketDate.slice(0, 10);
-                await this.cacheManager.set(ISO_Code, marketDate, 0);
+                await this.cacheManager.set(`${ISO_Code}_priceStatus`, marketDate, 0);
                 // 가격 캐싱 (이전 캐싱리스트를 가지고있다가 그것만 캐싱하도록 할까? 일단은 전체캐싱)
                 const priceArrs = await this.requestPriceToMarket(ISO_Code, "ISO_Code");
                 await Promise.all(priceArrs.map(async priceArr => {
@@ -126,24 +126,24 @@ export class MarketService {
                 // count + 1
                 priceObj["count"]++;
                 await this.cacheManager.set(ticker, priceObj);
-                const marketDate = await this.cacheManager.get(priceObj["ISOcode"]);
+                const marketDate = await this.cacheManager.get(`${priceObj["ISOcode"]}_priceStatus`);
                 if (marketDate === priceObj["marketDate"]) { // marketDate 일치하면 조회
                     /* logger */this.logger.verbose(`${ticker} : 11`);
                     return priceObj;
                 } else { // marketDate 불일치하면 마켓업데이터에 조회요청, 캐시업뎃 [logger 10]
                     const priceByTicker = await this.requestPriceToMarket(ticker, "ticker");
                     priceObj["price"] = priceByTicker["price"];
-                    priceObj["marketDate"] = await this.cacheManager.get(priceObj["ISOcode"]);
+                    priceObj["marketDate"] = await this.cacheManager.get(`${priceObj["ISOcode"]}_priceStatus`);
                     /* logger */this.logger.verbose(`${ticker} : 10`);
                     return await this.cacheManager.set(ticker, priceObj);
                 };
             } else { // 캐시에 없으면 마켓업데이터에 조회요청, 케싱 [logger 00]
                 const priceByTicker = await this.requestPriceToMarket(ticker, "ticker");
                 if (priceByTicker.status_price) {
-                    await this.cacheManager.set(priceByTicker.status_price.ISO_Code, priceByTicker.status_price.lastMarketDate.slice(0,10), 0);
+                    await this.cacheManager.set(`${priceByTicker.status_price.ISO_Code}_priceStatus`, priceByTicker.status_price.lastMarketDate.slice(0,10), 0);
                     priceByTicker.status_price = undefined;
                 };
-                priceByTicker["marketDate"] = await this.cacheManager.get(priceByTicker["ISOcode"]);
+                priceByTicker["marketDate"] = await this.cacheManager.get(`${priceObj["ISOcode"]}_priceStatus`);
                 priceByTicker["count"] = 1;
                 // set 직전에 캐시에서 가격조회 다시 해야할것같다(그 사이 생성됬을수도 있으니) // 쓸모없는 고민일까?
                 // const priceObjFC = await this.cacheManager.get(ticker);
@@ -192,7 +192,7 @@ export class MarketService {
      */
     async regularUpdaterForPrice(ISO_Code: string, body: RegularUpdateForPriceBodyDto) {
         try {
-            await this.cacheManager.set(ISO_Code, body.marketDate, 0);
+            await this.cacheManager.set(`${ISO_Code}_priceStatus`, body.marketDate, 0);
             await Promise.all(body.priceArrs.map(async priceArr => {
                 const priceObj = await this.cacheManager.get(priceArr[0]);
                 if (priceObj) {
@@ -232,7 +232,7 @@ export class MarketService {
             } else if (where === "cache") {
                 const result = {};
                 await Promise.all(spDocArr.map(async (spDoc) => {
-                    result[spDoc.ISO_Code] = await this.cacheManager.get(spDoc.ISO_Code);
+                    result[spDoc.ISO_Code] = await this.cacheManager.get(`${spDoc.ISO_Code}_priceStatus`);
                 }));
                 return result;
             };
