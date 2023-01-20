@@ -161,7 +161,7 @@ export class MarketService implements OnApplicationShutdown {
                     await this.cacheManager.set(`${priceByTicker.status_price.ISO_Code}_priceStatus`, priceByTicker.status_price.lastMarketDate.slice(0,10), 0);
                     priceByTicker.status_price = undefined;
                 };
-                priceByTicker["marketDate"] = await this.cacheManager.get(`${priceObj["ISOcode"]}_priceStatus`);
+                priceByTicker["marketDate"] = await this.cacheManager.get(`${priceByTicker["ISOcode"]}_priceStatus`);
                 priceByTicker["count"] = 1;
                 // set 직전에 캐시에서 가격조회 다시 해야할것같다(그 사이 생성됬을수도 있으니) // 쓸모없는 고민일까?
                 // const priceObjFC = await this.cacheManager.get(ticker);

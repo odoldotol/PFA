@@ -128,9 +128,19 @@ export class YahoofinanceService {
 
     /**
      * ### ISO code 를 yahoofinance exchangeTimezoneName 로 변환 혹은 그 반대를 수행
+     * - 없으면 전체 갱신후 재시도
      */
     async isoCodeToTimezone(something: string): Promise<string> {
-        return await this.cacheManager.get(something);
+        try {
+            const result: string = await this.cacheManager.get(something);
+            if (!result) {
+                await this.setIsoCodeToTimezone();
+                return await this.cacheManager.get(something);
+            };
+            return result;
+        } catch (error) {
+            throw error;
+        };
     }
 
     /**
