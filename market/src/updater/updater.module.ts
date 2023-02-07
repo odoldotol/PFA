@@ -11,7 +11,7 @@ import { MongodbModule } from '../mongodb/mongodb.module';
       timeout: 90000,
     }),
     MongodbModule
-],
+  ],
   providers: [UpdaterService],
   exports: [UpdaterService]
 })

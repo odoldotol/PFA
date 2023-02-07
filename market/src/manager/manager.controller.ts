@@ -2,6 +2,9 @@ import { BadRequestException, Body, Controller, Delete, Get, HttpCode, Param, Pa
 import { ManagerService } from './manager.service';
 import { UpdaterService } from '../updater/updater.service';
 import { ConfigExchangeDto } from './dto/configExchange.dto';
+import { Status_priceRepository } from '../mongodb/repository/status_price.repository';
+import { Config_exchangeRepository } from '../mongodb/repository/config_exchane.repository';
+import { Yf_infoRepository } from '../mongodb/repository/yf-info.repository';
 
 @Controller('manager')
 export class ManagerController {
@@ -9,6 +12,9 @@ export class ManagerController {
     constructor(
         private readonly managerService: ManagerService,
         private readonly updaterService: UpdaterService,
+        private readonly yf_infoRepository: Yf_infoRepository,
+        private readonly status_priceRepository: Status_priceRepository,
+        private readonly config_exchangeRepository: Config_exchangeRepository,
         ) {}
 
     /**
@@ -24,8 +30,8 @@ export class ManagerController {
      * ### yf_info 조회
      */
     @Get('yf_info')
-    async getYfInfo() {
-        return await this.managerService.getYfInfoDoc();
+    async getAllYfInfo() {
+        return await this.yf_infoRepository.getAll();
     }
 
     /**
@@ -33,7 +39,7 @@ export class ManagerController {
      */
     @Get('status_price')
     async getAllStatusPrice() {
-        return await this.updaterService.getAllStatusPriceDoc();
+        return await this.status_priceRepository.findAll();
     }
 
     /**
@@ -73,7 +79,7 @@ export class ManagerController {
      */
     @Post('config_exchange')
     async createConfigExchange(@Body() body: ConfigExchangeDto) {
-        return await this.managerService.createConfigExchange(body);
+        return await this.config_exchangeRepository.create(body);
     }
 
 }

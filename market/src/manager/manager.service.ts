@@ -1,14 +1,10 @@
 // import { HttpService } from '@nestjs/axios';
 import { BadRequestException, Injectable, InternalServerErrorException, Logger } from '@nestjs/common';
 // import { ConfigService } from '@nestjs/config';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
-import { Yf_info, Yf_infoDocument } from '../mongodb/schema/yf_info.schema';
 import { YahoofinanceService } from '../yahoofinance/yahoofinance.service';
 import { UpdaterService } from '../updater/updater.service';
-import { Status_price, Status_priceDocument } from '../mongodb/schema/status_price.schema';
-import { ConfigExchangeDto } from './dto/configExchange.dto';
-import { Config_exchange, Config_exchangeDocument } from '../mongodb/schema/config_exchange.schema';
+import { Yf_infoRepository } from '../mongodb/repository/yf-info.repository';
+import { Status_priceRepository } from '../mongodb/repository/status_price.repository';
 
 @Injectable()
 export class ManagerService {
@@ -18,9 +14,8 @@ export class ManagerService {
     constructor(
         // private readonly configService: ConfigService,
         // private readonly httpService: HttpService,
-        @InjectModel(Yf_info.name) private yf_infoModel: Model<Yf_infoDocument>,
-        @InjectModel(Status_price.name) private status_priceModel: Model<Status_priceDocument>,
-        @InjectModel(Config_exchange.name) private config_exchangeModel: Model<Config_exchangeDocument>,
+        private readonly yf_infoRepository: Yf_infoRepository,
+        private readonly status_priceRepository: Status_priceRepository,
         private readonly yahoofinanceService: YahoofinanceService,
         private readonly updaterService: UpdaterService,
     ) {}
@@ -45,10 +40,11 @@ export class ManagerService {
             };
 
             // 이미 존재하는거 걸러내기 // 서비스할때는 불필요한 작업. 초기에 대량으로 asset 추가할때 성능올리려고 추가 ------------------------
+            // find 에 $in vs exists 둘중 어느것이 효과적일까?
+            // 추후에 단일 티커 솔루션을 따로 빼야한다.
             const confirmedTickerArr = [];
             await Promise.all(tickerArr.map(async (ticker) => {
-                const exists = await this.yf_infoModel.exists({symbol: ticker})
-                if (exists === null) {
+                if (await this.yf_infoRepository.existsByTicker(ticker) === null) {
                     confirmedTickerArr.push(ticker);
                 } else {
                     result.failure.info.push({
@@ -56,7 +52,8 @@ export class ManagerService {
                         ticker
                     })
                 };
-            }))
+            }));
+
             if (confirmedTickerArr.length === 0) {
                 return result;
             };
@@ -79,21 +76,15 @@ export class ManagerService {
                     } else {
                         // regularMarketLastClose
                         const marketSession = await this.updaterService.getSessionSomethingByISOcode(ISO_Code);
-                        const isNotMarketOpen = this.updaterService.isNotMarketOpen(marketSession, ISO_Code)
-                        if (isNotMarketOpen) {
-                            info["regularMarketLastClose"] = info["regularMarketPrice"];
-                        } else {
-                            info["regularMarketLastClose"] = info["regularMarketPreviousClose"];
-                        }
+                        this.updaterService.isNotMarketOpen(marketSession, ISO_Code)
+                        ? info["regularMarketLastClose"] = info["regularMarketPrice"]
+                        : info["regularMarketLastClose"] = info["regularMarketPreviousClose"];
                         insertArr.push(info);
-                    }
+                    };
                 };
             }));
             // info 를 mongoDB 에 저장
-            await this.yf_infoModel.insertMany(insertArr, {
-                ordered: false, // 오류발견해도 중지하지말고 전부 삽입하고 나중에 보고
-                // limit: 100
-            })
+            await this.yf_infoRepository.insertArr(insertArr)
             .then((res)=>{
                 result.success.info = res;
             })
@@ -105,8 +96,7 @@ export class ManagerService {
             // 신규 exchangeTimezoneName 발견시 추가하기
             await Promise.all(result.success.info.map(async info => {
                 const yf_exchangeTimezoneName = info.exchangeTimezoneName;
-                const oldOne = await this.status_priceModel.exists({ yf_exchangeTimezoneName }).exec();
-                if (oldOne === null) { // 신규 exchangeTimezoneName!
+                if (await this.status_priceRepository.exsits({ yf_exchangeTimezoneName }) === null) { // 신규 exchangeTimezoneName!
                     const ISO_Code = await this.yahoofinanceService.isoCodeToTimezone(yf_exchangeTimezoneName) // 불필요?
                     if (ISO_Code === undefined) { // ISO_Code 를 못찾은 경우 실패처리
                         result.failure.status_price.push({
@@ -117,19 +107,14 @@ export class ManagerService {
                         /* logger */this.logger.warn(`${info.symbol} : Could not find ISO_Code for ${yf_exchangeTimezoneName}`);
                         return;
                     };
+
                     const marketSession = await this.updaterService.getSessionSomethingByISOcode(ISO_Code);
-                    const lastMarketDate = new Date(marketSession["previous_close"]).toISOString();
-                    const newOne = new this.status_priceModel({
-                        ISO_Code,
-                        lastMarketDate,
-                        yf_exchangeTimezoneName,
-                    });
-                    await newOne.save()
+                    await this.status_priceRepository.create(ISO_Code, marketSession["previous_close"], yf_exchangeTimezoneName)
                     .then(async (res)=>{
                         /* logger */this.logger.verbose(`${ISO_Code} : Created new status_price`);
                         result.success.status_price.push(res);
                         // 다음마감 업데이트스케줄 생성해주기
-                        this.updaterService.schedulerForPrice(ISO_Code, marketSession)
+                        this.updaterService.schedulerForPrice(ISO_Code, yf_exchangeTimezoneName, marketSession)
                     })
                     .catch((error)=>{
                         result.failure.status_price.push({
@@ -138,8 +123,8 @@ export class ManagerService {
                             yfSymbol: info.symbol
                         });
                         /* logger */this.logger.warn(`${info.symbol} : Could not find ISO_Code for ${yf_exchangeTimezoneName}`);
-                    })
-                }
+                    });
+                };
             }));
 
             return result;
@@ -153,13 +138,8 @@ export class ManagerService {
      */
     async getPriceByISOcode(ISO_Code: string) {
         try {
-            const result = [];
-            const timezone = await this.yahoofinanceService.isoCodeToTimezone(ISO_Code);
-            const priceArr = await this.yf_infoModel.find({exchangeTimezoneName: timezone}, "symbol regularMarketLastClose").exec()
-            priceArr.forEach((price)=>{
-                result.push([price.symbol, price.regularMarketLastClose]);
-            })
-            return result;
+            return await this.yf_infoRepository.getPriceArr(await this.yahoofinanceService.isoCodeToTimezone(ISO_Code))
+            .then(arr => arr.map(ele => [ele.symbol, ele.regularMarketLastClose]));
         } catch (error) {
             throw error;
         };
@@ -172,7 +152,7 @@ export class ManagerService {
     async getPriceByTicker(ticker: string) {
         try {
             let status_price = undefined;
-            const info = await this.yf_infoModel.findOne({symbol: ticker}, "regularMarketLastClose exchangeTimezoneName").exec()
+            const info = await this.yf_infoRepository.getPrice(ticker)
                 .then(async res => {
                     if (res === null) {
                         const createResult = await this.createByTickerArr([ticker])
@@ -190,34 +170,11 @@ export class ManagerService {
                 }).catch(err => {
                     throw err;
                 });
-            const ISOcode = await this.yahoofinanceService.isoCodeToTimezone(info.exchangeTimezoneName);
+            const ISOcode = await this.yahoofinanceService.isoCodeToTimezone(info["exchangeTimezoneName"]);
             return {price: info.regularMarketLastClose, ISOcode, status_price};
         } catch (error) {
             throw error;
         };
     }
 
-    /**
-     * ### yf_info 조회
-     * 
-     */
-    getYfInfoDoc() {
-        try {
-            return this.yf_infoModel.find({}, "-_id symbol shortName longName quoteType currency market exchange exchangeTimezoneName exchangeTimezoneShortName").exec();
-        } catch (error) {
-            throw error;
-        }
-    }
-
-    /**
-     * ### createConfigExchange
-     */
-    async createConfigExchange(reqBody: ConfigExchangeDto) {
-        try {
-            const newOne = new this.config_exchangeModel(reqBody);
-            return await newOne.save();
-        } catch (error) {
-            throw error;
-        };
-    }
 }

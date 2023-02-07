@@ -4,9 +4,7 @@ import { ConfigService } from '@nestjs/config';
 import { catchError, firstValueFrom } from 'rxjs';
 import { ChildProcessWithoutNullStreams, spawn } from 'child_process';
 import { Cache } from 'cache-manager';
-import { Config_exchange, Config_exchangeDocument } from '../mongodb/schema/config_exchange.schema';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Config_exchangeRepository } from '../mongodb/repository/config_exchane.repository';
 
 @Injectable()
 export class YahoofinanceService {
@@ -20,7 +18,7 @@ export class YahoofinanceService {
         private readonly configService: ConfigService,
         private readonly httpService: HttpService,
         @Inject(CACHE_MANAGER) private cacheManager: Cache,
-        @InjectModel(Config_exchange.name) private config_exchangeModel: Model<Config_exchangeDocument>,
+        private readonly config_exchangeRepository: Config_exchangeRepository,
     ) {}
 
     /**
@@ -86,7 +84,7 @@ export class YahoofinanceService {
      * ### 파이썬 ChildProcess 만들기
      */
     getPyChildProcess(args: string[]): ChildProcessWithoutNullStreams {
-        return spawn('python', args, {cwd: 'src/yahoofinance', timeout: 60000}); // 1분 제한
+        return spawn('python', args, {cwd: 'src/yahoofinance/py', timeout: 60000}); // 1분 제한
     }
 
     /**
@@ -119,11 +117,14 @@ export class YahoofinanceService {
      * isoCodeToTimezone 갱신
      */
     async setIsoCodeToTimezone() {
-        const isoCodeAndTimezoneArr = await this.config_exchangeModel.find({}, "-_id ISO_Code ISO_TimezoneName").lean().exec();
-        await Promise.all(isoCodeAndTimezoneArr.map(async isoCodeAndTimezone => {
-            await this.cacheManager.set(isoCodeAndTimezone.ISO_Code, isoCodeAndTimezone.ISO_TimezoneName);
-            await this.cacheManager.set(isoCodeAndTimezone.ISO_TimezoneName, isoCodeAndTimezone.ISO_Code);
-        }));
+        try {
+            await Promise.all((await this.config_exchangeRepository.findAllIsoCodeAndTimezone()).map(async isoCodeAndTimezone => {
+                await this.cacheManager.set(isoCodeAndTimezone.ISO_Code, isoCodeAndTimezone.ISO_TimezoneName);
+                await this.cacheManager.set(isoCodeAndTimezone.ISO_TimezoneName, isoCodeAndTimezone.ISO_Code);
+            }));
+        } catch (error) {
+            throw error;
+        };
     }
 
     /**
