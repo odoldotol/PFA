@@ -25,11 +25,10 @@ import { Config_exchangeRepository } from './repository/config_exchane.repositor
         Config_exchangeRepository
     ],
     exports: [
-        MongooseModule,
         Yf_infoRepository,
         Status_priceRepository,
         Log_priceUpdateRepository,
         Config_exchangeRepository
     ]
 })
-export class MongodbModule {}
+export class MongoModule {}

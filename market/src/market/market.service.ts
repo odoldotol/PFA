@@ -1,10 +1,8 @@
 import { HttpService } from '@nestjs/axios';
-import { CACHE_MANAGER, Inject, Injectable, InternalServerErrorException, Logger } from '@nestjs/common';
+import { Injectable, InternalServerErrorException, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { catchError, firstValueFrom } from 'rxjs';
 import { ChildProcessWithoutNullStreams, spawn } from 'child_process';
-import { Cache } from 'cache-manager';
-import { Config_exchangeRepository } from '../database/mongodb/repository/config_exchane.repository';
 
 @Injectable()
 export class MarketService {
@@ -17,8 +15,6 @@ export class MarketService {
     constructor(
         private readonly configService: ConfigService,
         private readonly httpService: HttpService,
-        @Inject(CACHE_MANAGER) private cacheManager: Cache,
-        private readonly config_exchangeRepository: Config_exchangeRepository,
     ) {}
 
     /**
@@ -111,37 +107,6 @@ export class MarketService {
                 }
             });
         });
-    }
-
-    /**
-     * isoCodeToTimezone 갱신
-     */
-    async setIsoCodeToTimezone() {
-        try {
-            await Promise.all((await this.config_exchangeRepository.findAllIsoCodeAndTimezone()).map(async isoCodeAndTimezone => {
-                await this.cacheManager.set(isoCodeAndTimezone.ISO_Code, isoCodeAndTimezone.ISO_TimezoneName);
-                await this.cacheManager.set(isoCodeAndTimezone.ISO_TimezoneName, isoCodeAndTimezone.ISO_Code);
-            }));
-        } catch (error) {
-            throw error;
-        };
-    }
-
-    /**
-     * ### ISO code 를 yahoofinance exchangeTimezoneName 로 변환 혹은 그 반대를 수행
-     * - 없으면 전체 갱신후 재시도
-     */
-    async isoCodeToTimezone(something: string): Promise<string> {
-        try {
-            const result: string = await this.cacheManager.get(something);
-            if (!result) {
-                await this.setIsoCodeToTimezone();
-                return await this.cacheManager.get(something);
-            };
-            return result;
-        } catch (error) {
-            throw error;
-        };
     }
 
     /**

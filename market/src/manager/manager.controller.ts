@@ -2,9 +2,7 @@ import { BadRequestException, Body, Controller, Delete, Get, HttpCode, Param, Pa
 import { ManagerService } from './manager.service';
 import { UpdaterService } from '../updater/updater.service';
 import { ConfigExchangeDto } from '../dto/configExchange.dto';
-import { Status_priceRepository } from '../database/mongodb/repository/status_price.repository';
-import { Config_exchangeRepository } from '../database/mongodb/repository/config_exchane.repository';
-import { Yf_infoRepository } from '../database/mongodb/repository/yf-info.repository';
+import { DBRepository } from '../database/database.repository';
 
 @Controller('manager')
 export class ManagerController {
@@ -12,26 +10,24 @@ export class ManagerController {
     constructor(
         private readonly managerService: ManagerService,
         private readonly updaterService: UpdaterService,
-        private readonly yf_infoRepository: Yf_infoRepository,
-        private readonly status_priceRepository: Status_priceRepository,
-        private readonly config_exchangeRepository: Config_exchangeRepository,
-        ) {}
+        private readonly dbRepo: DBRepository,
+    ) {}
 
     /**
-     * ### DB 에 YF 식 심볼배열로 yf_info 생성해보고 그 작업의 결과를 알려주기
+     * ### tickerArr 로 Assets 생성해보고 그 작업의 결과 반환
      */
     @Post('yf_info')
     @HttpCode(200)
-    async createByTickerArr(@Body(new ParseArrayPipe({items:String})) tickerArr: string[]): Promise<object> {
-        return await this.managerService.createByTickerArr(tickerArr);
+    async createAssets(@Body(new ParseArrayPipe({items:String})) tickerArr: string[]): Promise<object> {
+        return await this.updaterService.createAssets(tickerArr);
     }
 
     /**
-     * ### yf_info 조회
+     * ###
      */
     @Get('yf_info')
-    async getAllYfInfo() {
-        return await this.yf_infoRepository.getAll();
+    async getAllAssetsInfo() {
+        return await this.dbRepo.getAllAssetsInfo();
     }
 
     /**
@@ -39,7 +35,7 @@ export class ManagerController {
      */
     @Get('status_price')
     async getAllStatusPrice() {
-        return await this.status_priceRepository.findAll();
+        return await this.dbRepo.getAllStatusPrice();
     }
 
     /**
@@ -50,7 +46,7 @@ export class ManagerController {
     @Get('price')
     async getPrice(@Query('ISO_Code') ISO_Code?: string, @Query('ticker') ticker?: string) {
         if (ISO_Code && !ticker) {
-            return await this.managerService.getPriceByISOcode(ISO_Code);
+            return await this.dbRepo.getPriceByISOcode(ISO_Code);
         } else if (ticker && !ISO_Code) {
             return await this.managerService.getPriceByTicker(ticker);
         } else {
@@ -79,7 +75,7 @@ export class ManagerController {
      */
     @Post('config_exchange')
     async createConfigExchange(@Body() body: ConfigExchangeDto) {
-        return await this.config_exchangeRepository.create(body);
+        return await this.dbRepo.createConfigExchange(body);
     }
 
 }

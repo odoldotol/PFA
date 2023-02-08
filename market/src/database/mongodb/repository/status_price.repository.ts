@@ -50,7 +50,7 @@ export class Status_priceRepository {
     /**
      * ###
      */
-    exsits(filter: object) {
+    exists(filter: object) {
         try {
             return this.status_priceModel.exists(filter).exec();
         } catch (err) {
@@ -61,14 +61,13 @@ export class Status_priceRepository {
     /**
      * ###
      */
-    create(ISO_Code: string, previous_close: string, yf_exchangeTimezoneName: string) {
+    createOne(ISO_Code: string, lastMarketDate: string, yf_exchangeTimezoneName: string) {
         try {
-            const newOne = new this.status_priceModel({
+            return new this.status_priceModel({
                 ISO_Code,
-                lastMarketDate: new Date(previous_close).toISOString(),
+                lastMarketDate,
                 yf_exchangeTimezoneName,
-            });
-            return newOne.save();
+            }).save();
         } catch (err) {
             throw err
         };

@@ -26,7 +26,7 @@ export class Config_exchangeRepository {
     /**
      * ###
      */
-    getMarginMilliseconds(ISO_Code: string) {
+    findMarginMilliseconds(ISO_Code: string) {
         return this.config_exchangeModel.findOne({ISO_Code}, "-_id update_margin_milliseconds").lean().exec()
         .then((obj) => obj["update_margin_milliseconds"]);
     }
@@ -34,7 +34,7 @@ export class Config_exchangeRepository {
     /**
      * ### 하나 생성
      */
-    create(reqBody: ConfigExchangeDto) {
+    createOne(reqBody: ConfigExchangeDto) {
         try {
             return this.config_exchangeModel.create(reqBody);
         } catch (error) {

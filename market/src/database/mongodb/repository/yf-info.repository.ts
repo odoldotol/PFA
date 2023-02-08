@@ -24,65 +24,10 @@ export class Yf_infoRepository {
 
     /**
      * ###
-     * - updater.service.updatePriceByTickerArr
      */
-    async updatePriceByArr(tickerArr: string[], priceArr: object[], lastClose: "regularMarketPreviousClose" | "regularMarketPrice") {
+    updatePrice(symbol: string, price: {regularMarketPreviousClose, regularMarketPrice, regularMarketLastClose}) {
         try {
-            const result = {success: [], failure: []};
-
-            await Promise.all(tickerArr.map((ticker, idx) => {
-                if (priceArr[idx]["error"]) {
-                    priceArr[idx]['ticker'] = ticker;
-                    result.failure.push(priceArr[idx]);
-                } else {
-                    const regularMarketPreviousClose = priceArr[idx]["regularMarketPreviousClose"];
-                    const regularMarketPrice = priceArr[idx]["regularMarketPrice"];
-                    const regularMarketLastClose = priceArr[idx][lastClose];
-                    priceArr[idx]["regularMarketLastClose"] = regularMarketLastClose;
-
-                    return this.yf_infoModel.updateOne(
-                        {symbol: ticker},
-                        {regularMarketPreviousClose, regularMarketPrice, regularMarketLastClose}
-                    ).exec()
-                    .then((res)=>{
-                        // const successRes = {
-                        //     acknowledged: true,
-                        //     modifiedCount: 1,
-                        //     upsertedId: null,
-                        //     upsertedCount: 0,
-                        //     matchedCount: 1
-                        // }
-                        if (
-                            res.acknowledged &&
-                            res.modifiedCount === 1 &&
-                            res.upsertedId === null &&
-                            res.upsertedCount === 0 &&
-                            res.matchedCount === 1
-                            ) /* 예외 케이스가 발견됨에 따라 수정해야항 수도 있음 */ {
-                            result.success.push([ticker, priceArr[idx]]);
-                        } else {
-                            result.failure.push({error: "updateOne error", ticker, res});
-                        }
-                    })
-                    .catch(error => {
-                        result.failure.push({error, ticker});
-                    });
-                };
-            }));
-            
-            return result;
-        } catch (error) {
-            throw error;
-        };
-    }
-
-    /**
-     * ###
-     * - updater.service.updatePriceByFilters
-     */
-    async getSymbolArr(filter: object) {
-        try {
-            return (await this.find(filter, '-_id symbol')).map(doc => doc.symbol);
+            return this.yf_infoModel.updateOne({symbol}, price).exec();
         } catch (error) {
             throw error;
         };
@@ -91,7 +36,7 @@ export class Yf_infoRepository {
     /**
      * ###
      */
-    existsByTicker(symbol: string) {
+    exists(symbol: string) {
         try {
             return this.yf_infoModel.exists({symbol}).exec();
         } catch (error) {
@@ -102,7 +47,7 @@ export class Yf_infoRepository {
     /**
      * ###
      */
-    insertArr(arr) {
+    insertMany(arr) {
         try {
             return this.yf_infoModel.insertMany(arr, { ordered: false });
         } catch (error) {
@@ -113,7 +58,7 @@ export class Yf_infoRepository {
     /**
      * ###
      */
-    getPriceArr(exchangeTimezoneName: string) {
+    findPricesByExchange(exchangeTimezoneName: string) {
         try {
             return this.find({exchangeTimezoneName}, "-_id symbol regularMarketLastClose");
         } catch (error) {
@@ -124,7 +69,7 @@ export class Yf_infoRepository {
     /**
      * ###
      */
-    getPrice(symbol: string) {
+    findPriceBySymbol(symbol: string) {
         try {
             return this.findOne({ symbol }, "-_id regularMarketLastClose");
         } catch (error) {
@@ -135,7 +80,7 @@ export class Yf_infoRepository {
     /**
      * ###
      */
-    getAll() {
+    findAll() {
         try {
             return this.find({}, "-_id symbol shortName longName quoteType currency market exchange exchangeTimezoneName exchangeTimezoneShortName");
         } catch (error) {
