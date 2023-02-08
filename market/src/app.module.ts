@@ -4,9 +4,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { ScheduleModule } from '@nestjs/schedule';
 import { AppController } from './app/app.controller';
 import { AppService } from './app/app.service';
-
 import { ManagerModule } from './manager/manager.module';
-import { UpdaterModule } from './updater/updater.module';
 
 @Module({
   imports: [
@@ -23,7 +21,6 @@ import { UpdaterModule } from './updater/updater.module';
     }),
     ScheduleModule.forRoot(),
     ManagerModule,
-    UpdaterModule
   ],
   controllers: [AppController],
   providers: [AppService],

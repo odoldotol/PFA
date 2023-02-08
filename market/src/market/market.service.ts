@@ -4,15 +4,15 @@ import { ConfigService } from '@nestjs/config';
 import { catchError, firstValueFrom } from 'rxjs';
 import { ChildProcessWithoutNullStreams, spawn } from 'child_process';
 import { Cache } from 'cache-manager';
-import { Config_exchangeRepository } from '../mongodb/repository/config_exchane.repository';
+import { Config_exchangeRepository } from '../database/mongodb/repository/config_exchane.repository';
 
 @Injectable()
-export class YahoofinanceService {
+export class MarketService {
 
     // GETMARKET_URL 가 undefined 면 child_process 방식으로 동작함
     private readonly GETMARKET_URL = this.configService.get('GETMARKET_URL');
     private readonly PIP_COMMAND = this.configService.get('PIP_COMMAND');
-    private readonly logger = new Logger(YahoofinanceService.name);
+    private readonly logger = new Logger(MarketService.name);
 
     constructor(
         private readonly configService: ConfigService,

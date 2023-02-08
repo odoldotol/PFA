@@ -1,10 +1,10 @@
 // import { HttpService } from '@nestjs/axios';
 import { BadRequestException, Injectable, InternalServerErrorException, Logger } from '@nestjs/common';
 // import { ConfigService } from '@nestjs/config';
-import { YahoofinanceService } from '../yahoofinance/yahoofinance.service';
+import { MarketService } from '../market/market.service';
 import { UpdaterService } from '../updater/updater.service';
-import { Yf_infoRepository } from '../mongodb/repository/yf-info.repository';
-import { Status_priceRepository } from '../mongodb/repository/status_price.repository';
+import { Yf_infoRepository } from '../database/mongodb/repository/yf-info.repository';
+import { Status_priceRepository } from '../database/mongodb/repository/status_price.repository';
 
 @Injectable()
 export class ManagerService {
@@ -16,7 +16,7 @@ export class ManagerService {
         // private readonly httpService: HttpService,
         private readonly yf_infoRepository: Yf_infoRepository,
         private readonly status_priceRepository: Status_priceRepository,
-        private readonly yahoofinanceService: YahoofinanceService,
+        private readonly marketService: MarketService,
         private readonly updaterService: UpdaterService,
     ) {}
 
@@ -60,13 +60,13 @@ export class ManagerService {
             // ---------------------------------------------------------------------------------------------------------
 
             // info 가져오기
-            const infoArr = await this.yahoofinanceService.getSomethingByTickerArr(confirmedTickerArr/*tickerArr*/, "Info");
+            const infoArr = await this.marketService.getSomethingByTickerArr(confirmedTickerArr/*tickerArr*/, "Info");
             // info 분류 (가져오기 성공,실패) + regularMarketLastClose
             const insertArr = [];
             await Promise.all(infoArr.map(async (info) => {
                 if (info["error"]) {result.failure.info.push(info);}
                 else {
-                    const ISO_Code = await this.yahoofinanceService.isoCodeToTimezone(info["exchangeTimezoneName"]);
+                    const ISO_Code = await this.marketService.isoCodeToTimezone(info["exchangeTimezoneName"]);
                     if (ISO_Code === undefined) { // ISO_Code 를 못찾은 경우 실패처리
                         result.failure.info.push({
                             msg: "Could not find ISO_Code",
@@ -97,7 +97,7 @@ export class ManagerService {
             await Promise.all(result.success.info.map(async info => {
                 const yf_exchangeTimezoneName = info.exchangeTimezoneName;
                 if (await this.status_priceRepository.exsits({ yf_exchangeTimezoneName }) === null) { // 신규 exchangeTimezoneName!
-                    const ISO_Code = await this.yahoofinanceService.isoCodeToTimezone(yf_exchangeTimezoneName) // 불필요?
+                    const ISO_Code = await this.marketService.isoCodeToTimezone(yf_exchangeTimezoneName) // 불필요?
                     if (ISO_Code === undefined) { // ISO_Code 를 못찾은 경우 실패처리
                         result.failure.status_price.push({
                             msg: "Could not find ISO_Code",
@@ -138,7 +138,7 @@ export class ManagerService {
      */
     async getPriceByISOcode(ISO_Code: string) {
         try {
-            return await this.yf_infoRepository.getPriceArr(await this.yahoofinanceService.isoCodeToTimezone(ISO_Code))
+            return await this.yf_infoRepository.getPriceArr(await this.marketService.isoCodeToTimezone(ISO_Code))
             .then(arr => arr.map(ele => [ele.symbol, ele.regularMarketLastClose]));
         } catch (error) {
             throw error;
@@ -170,7 +170,7 @@ export class ManagerService {
                 }).catch(err => {
                     throw err;
                 });
-            const ISOcode = await this.yahoofinanceService.isoCodeToTimezone(info["exchangeTimezoneName"]);
+            const ISOcode = await this.marketService.isoCodeToTimezone(info["exchangeTimezoneName"]);
             return {price: info.regularMarketLastClose, ISOcode, status_price};
         } catch (error) {
             throw error;

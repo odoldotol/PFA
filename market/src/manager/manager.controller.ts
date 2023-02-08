@@ -1,10 +1,10 @@
 import { BadRequestException, Body, Controller, Delete, Get, HttpCode, Param, ParseArrayPipe, Patch, Post, Put, Query } from '@nestjs/common';
 import { ManagerService } from './manager.service';
 import { UpdaterService } from '../updater/updater.service';
-import { ConfigExchangeDto } from './dto/configExchange.dto';
-import { Status_priceRepository } from '../mongodb/repository/status_price.repository';
-import { Config_exchangeRepository } from '../mongodb/repository/config_exchane.repository';
-import { Yf_infoRepository } from '../mongodb/repository/yf-info.repository';
+import { ConfigExchangeDto } from '../dto/configExchange.dto';
+import { Status_priceRepository } from '../database/mongodb/repository/status_price.repository';
+import { Config_exchangeRepository } from '../database/mongodb/repository/config_exchane.repository';
+import { Yf_infoRepository } from '../database/mongodb/repository/yf-info.repository';
 
 @Controller('manager')
 export class ManagerController {

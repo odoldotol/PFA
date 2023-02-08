@@ -1,7 +1,7 @@
 import { HttpModule } from '@nestjs/axios';
 import { CacheModule, Module } from '@nestjs/common';
-import { YahoofinanceService } from './yahoofinance.service';
-import { MongodbModule } from '../mongodb/mongodb.module';
+import { MarketService } from './market.service';
+import { MongodbModule } from '../database/mongodb/mongodb.module';
 
 @Module({
   imports: [
@@ -13,7 +13,7 @@ import { MongodbModule } from '../mongodb/mongodb.module';
       timeout: 90000,
     }),
   ],
-  providers: [YahoofinanceService],
-  exports: [YahoofinanceService]
+  providers: [MarketService],
+  exports: [MarketService]
 })
-export class YahoofinanceModule {}
+export class MarketModule {}

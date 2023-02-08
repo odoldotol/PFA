@@ -1,14 +1,14 @@
 import { HttpService } from '@nestjs/axios';
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { YahoofinanceService } from '../yahoofinance/yahoofinance.service';
+import { MarketService } from '../market/market.service';
 import { SchedulerRegistry } from '@nestjs/schedule';
 import { CronJob, CronTime } from 'cron';
 import { catchError, firstValueFrom } from 'rxjs';
-import { Yf_infoRepository } from '../mongodb/repository/yf-info.repository';
-import { Status_priceRepository } from '../mongodb/repository/status_price.repository';
-import { Log_priceUpdateRepository } from '../mongodb/repository/log_priceUpdate.repository';
-import { Config_exchangeRepository } from '../mongodb/repository/config_exchane.repository';
+import { Yf_infoRepository } from '../database/mongodb/repository/yf-info.repository';
+import { Status_priceRepository } from '../database/mongodb/repository/status_price.repository';
+import { Log_priceUpdateRepository } from '../database/mongodb/repository/log_priceUpdate.repository';
+import { Config_exchangeRepository } from '../database/mongodb/repository/config_exchane.repository';
 
 @Injectable()
 export class UpdaterService {
@@ -27,7 +27,7 @@ export class UpdaterService {
         private readonly status_priceRepository: Status_priceRepository,
         private readonly log_priceUpdateRepository: Log_priceUpdateRepository,
         private readonly config_exchangeRepository: Config_exchangeRepository,
-        private readonly yahoofinanceService: YahoofinanceService,
+        private readonly marketService: MarketService,
     ) {
         this.initiator();
     }
@@ -40,7 +40,7 @@ export class UpdaterService {
     async initiator() {
         try {
             /* logger */this.logger.warn("Initiator Run!!!");
-            await this.yahoofinanceService.setIsoCodeToTimezone();
+            await this.marketService.setIsoCodeToTimezone();
             this.initiatePyLibChecker();
             const spObjArr = await this.status_priceRepository.findAll();
             await Promise.all(spObjArr.map(async ({ISO_Code, lastMarketDate, yf_exchangeTimezoneName}) => {
@@ -108,7 +108,7 @@ export class UpdaterService {
                 isNotMarketOpen: this.isNotMarketOpen(marketSession, ISO_Code),
                 info,
                 updateLog: await this.log_priceUpdateRepository.testPickLastOne(ISO_Code),
-                [tickerArr[0]]: await this.yahoofinanceService.getSomethingByTickerArr(tickerArr, "Price")[0]
+                [tickerArr[0]]: await this.marketService.getSomethingByTickerArr(tickerArr, "Price")[0]
             }
             // if (isUpToDate) { // 최신이면
                 // 다음마감시간에 업데이트스케줄 생성하기
@@ -166,10 +166,11 @@ export class UpdaterService {
 
     /**
      * ### PyLibChecker initiate
+     * - [Market]
      */
     async initiatePyLibChecker() {
         try {
-            await this.yahoofinanceService.isPyLibVerUptodate();
+            await this.marketService.isPyLibVerUptodate();
             try {
                 this.logPyCronJob();
             } catch (error) {
@@ -189,10 +190,11 @@ export class UpdaterService {
 
     /**
      * ###
+     * - [Market]
      */
     async pyLibChecker() {
         try {
-            await this.yahoofinanceService.isPyLibVerUptodate();
+            await this.marketService.isPyLibVerUptodate();
             this.logPyCronJob();
         } catch (error) {
             throw error;
@@ -201,6 +203,7 @@ export class UpdaterService {
 
     /**
      * ###
+     * - [Market]
      */
     logPyCronJob() {
         try {
@@ -307,6 +310,7 @@ export class UpdaterService {
 
     /**
      * ### Product 애 regularUpdater 요청하기
+     * - [manager]
      */
     async requestRegularUpdaterToProduct(ISO_Code: string, previous_close: string, updateResult) {
         try {
@@ -334,6 +338,7 @@ export class UpdaterService {
     /**
      * ### ISO code 로 session 의 something 알아내기
      * - Yf_CCC 케이스 특이사항
+     * - [market]
      */
     async getSessionSomethingByISOcode(ISO_Code: string, something?: "previous_open" | "previous_close" | "next_open" | "next_close") {
         try {
@@ -352,7 +357,7 @@ export class UpdaterService {
                     next_close: next
                 }
             } else {
-                marketSession = await this.yahoofinanceService.getMarketSessionByISOcode(ISO_Code)
+                marketSession = await this.marketService.getMarketSessionByISOcode(ISO_Code)
             }
             if (marketSession.error) {
                 console.log("ERROR: ", marketSession.error)
@@ -367,6 +372,7 @@ export class UpdaterService {
 
     /**
      * ### 세션 정보 로 price status 가 최신인지 알아내기
+     * -[market]
      */
     isPriceStatusUpToDate(lastMarketDate: string, marketSession: object) {
         try {
@@ -381,6 +387,7 @@ export class UpdaterService {
      * ### 세션 정보 로 장중이 아닌지 알아내기
      * - 장중이 아니면 true, 장중이면 false
      * - Yf_CCC 는 항상 true 반환중
+     * - [market]
      */
     isNotMarketOpen(marketSession: object, ISO_Code: string) {
         try {
@@ -407,7 +414,7 @@ export class UpdaterService {
     async updatePriceByTickerArr(tickerArr: string[], lastClose: "regularMarketPreviousClose" | "regularMarketPrice") {
         try {
             // 가격 배열 가져오기
-            const priceArr = await this.yahoofinanceService.getSomethingByTickerArr(tickerArr, "Price");
+            const priceArr = await this.marketService.getSomethingByTickerArr(tickerArr, "Price");
 
             return this.yf_infoRepository.updatePriceByArr(tickerArr, priceArr, lastClose);
         } catch (error) {
