@@ -20,23 +20,23 @@ export class ManagerService {
         try {
             let status_price = undefined;
             const info = await this.dbRepo.getPriceByTicker(ticker)
-                .then(async res => {
-                    if (res === null) {
-                        const createResult = await this.updaterService.createAssets([ticker])
-                        if (createResult.failure.info.length > 0) {
-                            if (createResult.failure.info[0].error.doc === "Mapping key not found.") {
-                                throw new BadRequestException(`Could not find Ticker: ${createResult.failure.info[0].error.ticker}`);
-                            }
-                            throw new InternalServerErrorException(createResult.failure.info[0]);
+            .then(async res => {
+                if (res === null) {
+                    const createResult = await this.updaterService.createAssets([ticker])
+                    if (createResult.failure.info.length > 0) {
+                        if (createResult.failure.info[0].error.doc === "Mapping key not found.") {
+                            throw new BadRequestException(`Could not find Ticker: ${createResult.failure.info[0].error.ticker}`);
                         }
-                        status_price = createResult.success.status_price[0]
-                        return createResult.success.info[0]
-                    } else {
-                        return res;
+                        throw new InternalServerErrorException(createResult.failure.info[0]);
                     }
-                }).catch(err => {
-                    throw err;
-                });
+                    status_price = createResult.success.status_price[0]
+                    return createResult.success.info[0]
+                } else {
+                    return res;
+                }
+            }).catch(err => {
+                throw err;
+            });
             const ISOcode = await this.dbRepo.isoCodeToTimezone(info["exchangeTimezoneName"]);
             return {price: info.regularMarketLastClose, ISOcode, status_price};
         } catch (error) {
