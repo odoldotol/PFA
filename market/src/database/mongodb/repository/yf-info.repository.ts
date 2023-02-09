@@ -71,7 +71,7 @@ export class Yf_infoRepository {
      */
     findPriceBySymbol(symbol: string) {
         try {
-            return this.findOne({ symbol }, "-_id regularMarketLastClose");
+            return this.findOne({ symbol }, "-_id regularMarketLastClose exchangeTimezoneName");
         } catch (error) {
             throw error;
         };
