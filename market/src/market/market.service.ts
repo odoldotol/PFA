@@ -135,19 +135,13 @@ export class MarketService {
      * - 장중이 아니면 true, 장중이면 false
      * - Yf_CCC 는 항상 true 반환중
      */
-    isNotMarketOpen(marketSession: object, ISO_Code: string) {
+    isNotMarketOpen({previous_open, previous_close, next_open, next_close}: OkEcSession, ISO_Code: string) {
         try {
             // if (ISO_Code === "this.yfCCC_ISO_Code") { // 뭐가 옳은지, 뭐가 더 정확할지?
             //     return false;
             // };
-            const previous_open = new Date(marketSession["previous_open"])
-            const previous_close = new Date(marketSession["previous_close"])
-            const next_open = new Date(marketSession["next_open"])
-            const next_close = new Date(marketSession["next_close"])
-            if (previous_open > previous_close && next_open > next_close) { // 장중
-                return false;
-            }
-            return true;
+            return new Date(previous_open) > new Date(previous_close) && new Date(next_open) > new Date(next_close)
+            ? false : true
         } catch (error) {
             throw error;
         };

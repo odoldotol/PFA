@@ -8,6 +8,7 @@ import { catchError, firstValueFrom } from 'rxjs';
 import { DBRepository } from '../database/database.repository';
 import { OkEcSession } from '../interfaces/ecSession.interface';
 import { YfInfo } from '../interfaces/yfInfo.interface';
+import { YfPrice } from '../interfaces/yfPrice.interface';
 
 @Injectable()
 export class UpdaterService {
@@ -66,9 +67,10 @@ export class UpdaterService {
      */
     private async generalInitiate(ISO_Code: string, lastMarketDate: string, yf_exchangeTimezoneName: string) {
         try {
-            const marketSession: OkEcSession = await this.marketService.getMarketSessionByISOcode(ISO_Code)
+            const marketSession = await this.marketService.getMarketSessionByISOcode(ISO_Code);
+            const previous_close = marketSession.previous_close;
             // price status 가 최신인지 알아내기
-            if (this.isPriceStatusUpToDate(lastMarketDate, marketSession)) { // 최신이면
+            if (this.isPriceStatusUpToDate(lastMarketDate, previous_close)) { // 최신이면
                 /* logger */this.logger.verbose(`${ISO_Code} : UpToDate`)
             } else { // 최신 아니면 // Yf_CCC 는 항상 현재가로 초기화 되는점 알기 (isNotMarketOpen)
                 const isNotMarketOpen = this.marketService.isNotMarketOpen(marketSession, ISO_Code)
@@ -76,11 +78,11 @@ export class UpdaterService {
                 /* logger */this.logger.verbose(`${ISO_Code} : Not UpToDate`) :
                 /* logger */this.logger.verbose(`${ISO_Code} : Not UpToDate & Market Is Open`)
                 // 가격 업데이트하기
-                const updateResult = await this.updaterForPrice(ISO_Code, yf_exchangeTimezoneName, marketSession["previous_close"], isNotMarketOpen)
+                const updateResult = await this.updaterForPrice(ISO_Code, yf_exchangeTimezoneName, previous_close, isNotMarketOpen)
                 // log_priceUpdate Doc 생성
                 this.dbRepo.createLogPriceUpdate("initiator", updateResult, ISO_Code)
                 // Product 애 regularUpdater 요청하기
-                this.requestRegularUpdaterToProduct(ISO_Code, marketSession["previous_close"], updateResult)
+                this.requestRegularUpdaterToProduct(ISO_Code, previous_close, updateResult)
             };
             // 다음마감시간에 업데이트스케줄 생성하기
             await this.schedulerForPrice(ISO_Code, yf_exchangeTimezoneName, marketSession)
@@ -98,7 +100,7 @@ export class UpdaterService {
             return {
                 spObj,
                 marketSession,
-                isUpToDate: this.isPriceStatusUpToDate(spObj.lastMarketDate, marketSession),
+                isUpToDate: this.isPriceStatusUpToDate(spObj.lastMarketDate, marketSession.previous_close),
                 isNotMarketOpen: this.marketService.isNotMarketOpen(marketSession, ISO_Code),
                 info,
                 updateLog: await this.dbRepo.testPickLastUpdateLog(ISO_Code),
@@ -130,7 +132,7 @@ export class UpdaterService {
     /**
      * ### ISO code 와 marketSession 로 다음마감시간에 업데이트스케줄 생성|시간수정 하기
      */
-    private async schedulerForPrice(ISO_Code: string, yf_exchangeTimezoneName: string, marketSession: object) {
+    private async schedulerForPrice(ISO_Code: string, yf_exchangeTimezoneName: string, marketSession: OkEcSession) {
         try {
             // 마진 적용
             const {previousCloseDate, nextCloseDate} = await this.getMarginClose(ISO_Code, marketSession);
@@ -161,10 +163,10 @@ export class UpdaterService {
     /**
      * ### ISO_Code 와 marketSession 으로 직전 장 종료, 다음 장 종료에 yf 에서의 가격 딜레이 고려한 시간마진을 적용하여 반환
      */
-    private async getMarginClose(ISO_Code: string, marketSession) {
+    private async getMarginClose(ISO_Code: string, marketSession: OkEcSession) {
         try {
-            const previousCloseDate = new Date(marketSession["previous_close"])
-            const nextCloseDate = new Date(marketSession["next_close"])
+            const previousCloseDate = new Date(marketSession.previous_close)
+            const nextCloseDate = new Date(marketSession.next_close)
             let marginMilliseconds: number = await this.dbRepo.getMarginMilliseconds(ISO_Code);
             if (marginMilliseconds === undefined) {
                 marginMilliseconds = this.DE_UP_MARGIN
@@ -187,10 +189,11 @@ export class UpdaterService {
      */
     private async recusiveUpdaterForPrice(ISO_Code: string, yf_exchangeTimezoneName: string) {
         try {
-            const marketSession = await this.marketService.getMarketSessionByISOcode(ISO_Code)
-            const updateResult = await this.updaterForPrice(ISO_Code, yf_exchangeTimezoneName, marketSession["previous_close"], true)
+            const marketSession = await this.marketService.getMarketSessionByISOcode(ISO_Code);
+            const previous_close = marketSession.previous_close;
+            const updateResult = await this.updaterForPrice(ISO_Code, yf_exchangeTimezoneName, previous_close, true)
             this.dbRepo.createLogPriceUpdate("scheduler", updateResult, ISO_Code)
-            this.requestRegularUpdaterToProduct(ISO_Code, marketSession["previous_close"], updateResult)
+            this.requestRegularUpdaterToProduct(ISO_Code, previous_close, updateResult)
             await this.schedulerForPrice(ISO_Code, yf_exchangeTimezoneName, marketSession)
         } catch (error) {
             throw error
@@ -260,9 +263,9 @@ export class UpdaterService {
     /**
      * ### 세션 정보 로 price status 가 최신인지 알아내기
      */
-    private isPriceStatusUpToDate(lastMarketDate: string, marketSession: OkEcSession) {
+    private isPriceStatusUpToDate(lastMarketDate: string, previous_close: OkEcSession["previous_close"]) {
         try {
-            const previousClose = new Date(marketSession['previous_close']).toISOString()
+            const previousClose = new Date(previous_close).toISOString()
             return lastMarketDate === previousClose ? true : false
         } catch (error) {
             throw error
@@ -355,21 +358,21 @@ export class UpdaterService {
             // info 분류 (가져오기 성공,실패) + regularMarketLastClose
             const insertArr: YfInfo[] = [];
             await Promise.all(infoArr.map(async (info) => {
-                if (info["error"]) {result.failure.info.push(info);}
+                if (info.error) {result.failure.info.push(info);}
                 else {
-                    const ISO_Code = await this.dbRepo.isoCodeToTimezone(info["exchangeTimezoneName"]);
+                    const ISO_Code = await this.dbRepo.isoCodeToTimezone(info.exchangeTimezoneName);
                     if (ISO_Code === undefined) { // ISO_Code 를 못찾은 경우 실패처리
                         result.failure.info.push({
                             msg: "Could not find ISO_Code",
-                            yf_exchangeTimezoneName: info["exchangeTimezoneName"],
-                            yfSymbol: info["symbol"]
+                            yf_exchangeTimezoneName: info.exchangeTimezoneName,
+                            yfSymbol: info.symbol
                         })
                     } else {
                         // regularMarketLastClose
                         const marketSession = await this.marketService.getMarketSessionByISOcode(ISO_Code);
                         this.marketService.isNotMarketOpen(marketSession, ISO_Code)
-                        ? info["regularMarketLastClose"] = info["regularMarketPrice"]
-                        : info["regularMarketLastClose"] = info["regularMarketPreviousClose"];
+                        ? info["regularMarketLastClose"] = info.regularMarketPrice
+                        : info["regularMarketLastClose"] = info.regularMarketPreviousClose;
                         insertArr.push(info);
                     };
                 };
@@ -400,7 +403,7 @@ export class UpdaterService {
                     };
 
                     const marketSession = await this.marketService.getMarketSessionByISOcode(ISO_Code);
-                    await this.dbRepo.createStatusPrice(ISO_Code, marketSession["previous_close"], yf_exchangeTimezoneName)
+                    await this.dbRepo.createStatusPrice(ISO_Code, marketSession.previous_close, yf_exchangeTimezoneName)
                     .then(async (res)=>{
                         /* logger */this.logger.verbose(`${ISO_Code} : Created new status_price`);
                         result.success.status_price.push(res);

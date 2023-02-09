@@ -11,5 +11,7 @@ export interface YfInfo {
     regularMarketPrice: number
     longName?: string
 
+    error?: any
+
     [key: string]: string|number|null|boolean
 }

@@ -19,7 +19,7 @@ export class ManagerService {
     async getPriceByTicker(ticker: string) {
         try {
             let status_price = undefined;
-            const info = await this.dbRepo.getPriceByTicker(ticker)
+            const price = await this.dbRepo.getPriceByTicker(ticker)
             .then(async res => {
                 if (res === null) {
                     const createResult = await this.updaterService.createAssets([ticker])
@@ -37,8 +37,8 @@ export class ManagerService {
             }).catch(err => {
                 throw err;
             });
-            const ISOcode = await this.dbRepo.isoCodeToTimezone(info["exchangeTimezoneName"]);
-            return {price: info.regularMarketLastClose, ISOcode, status_price};
+            const ISOcode = await this.dbRepo.isoCodeToTimezone(price["exchangeTimezoneName"]);
+            return {price: price.regularMarketLastClose, ISOcode, status_price};
         } catch (error) {
             throw error;
         };
