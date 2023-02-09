@@ -21,7 +21,7 @@ def get_info_by_ticker(ticker):
             'error': {
                 'doc': e.__doc__,
                 "ticker": ticker,
-                # 'args':e.args
+                'args':e.args
             }
         }))
 

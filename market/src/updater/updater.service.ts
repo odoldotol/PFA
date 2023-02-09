@@ -94,17 +94,26 @@ export class UpdaterService {
     async testGeneralInitiate(ISO_Code: string) {
         try {
             const spObj = await this.dbRepo.getStatusPrice(ISO_Code)
+            const yf_exchangeTimezoneName = spObj.yf_exchangeTimezoneName;
             const marketSession = await this.marketService.getMarketSessionByISOcode(ISO_Code)
-            const info = await this.dbRepo.testPickAsset(spObj.yf_exchangeTimezoneName);
-            const tickerArr = [info.symbol]
+            const previous_close = marketSession.previous_close;
+            const isNotMarketOpen = this.marketService.isNotMarketOpen(marketSession, ISO_Code)
+            const updateResult = await this.updaterForPrice(ISO_Code, yf_exchangeTimezoneName, previous_close, isNotMarketOpen)
+            const updateLog = await this.dbRepo.createLogPriceUpdate("test", updateResult, ISO_Code)
+            this.requestRegularUpdaterToProduct(ISO_Code, previous_close, updateResult)
+            await this.schedulerForPrice(ISO_Code, yf_exchangeTimezoneName, marketSession)
+
+            // const info = await this.dbRepo.testPickAsset(yf_exchangeTimezoneName);
+            // const tickerArr = [info.symbol]
             return {
                 spObj,
                 marketSession,
-                isUpToDate: this.isPriceStatusUpToDate(spObj.lastMarketDate, marketSession.previous_close),
-                isNotMarketOpen: this.marketService.isNotMarketOpen(marketSession, ISO_Code),
-                info,
-                updateLog: await this.dbRepo.testPickLastUpdateLog(ISO_Code),
-                [tickerArr[0]]: await this.marketService.getPriceByTickerArr(tickerArr)[0]
+                isUpToDate: this.isPriceStatusUpToDate(spObj.lastMarketDate, previous_close),
+                isNotMarketOpen,
+                updateResult,
+                updateLog: updateLog ? updateLog : await this.dbRepo.testPickLastUpdateLog(ISO_Code),
+                // info,
+                // [tickerArr[0]]: (await this.marketService.getPriceByTickerArr(tickerArr))[0]
             }
             // if (isUpToDate) { // 최신이면
                 // 다음마감시간에 업데이트스케줄 생성하기

@@ -246,16 +246,18 @@ export class DBRepository {
      */
     createLogPriceUpdate(launcher: string, updateResult, key: string | Array<string | Object>) {
         try {
-            this.log_priceUpdateRepo.create(launcher, updateResult, key)
-            .then(() => {
+            return this.log_priceUpdateRepo.create(launcher, updateResult, key)
+            .then(doc => {
                 if (launcher === "scheduler" || launcher === "initiator") {
                     /* logger */this.logger.verbose(`${key} : Log_priceUpdate Doc Created`)
                 } else {
                     /* logger */this.logger.verbose(`Log_priceUpdate Doc Created : ${launcher}`)
                 }
+                return doc;
             })
             .catch((error) => {
                 /* logger */this.logger.error(error)
+                throw error;
             })
         } catch (error) {
             throw error

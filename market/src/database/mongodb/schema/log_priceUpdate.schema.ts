@@ -12,7 +12,7 @@ export class Log_priceUpdate {
         required: true,
         type: String // "initiator" | "scheduler" | "admin" | "product"
     }) // 업데이트 주체
-    launcher: "initiator" | "scheduler" | "admin" | "product"
+    launcher: "initiator" | "scheduler" | "admin" | "product" | "test"
     
     @Prop({
         required: true,
