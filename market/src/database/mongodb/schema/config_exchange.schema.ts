@@ -6,7 +6,7 @@ export type Config_exchangeDocument = Config_exchange & mongoose.Document;
 @Schema({
     timestamps: true
  })
-export class Config_exchange {
+export class Config_exchange implements ConfigExchange {
 
     /**
      * 참고

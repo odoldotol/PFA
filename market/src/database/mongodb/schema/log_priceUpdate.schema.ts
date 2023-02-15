@@ -6,13 +6,13 @@ export type Log_priceUpdateDocument = Log_priceUpdate & mongoose.Document;
 @Schema({
     timestamps: true
  })
-export class Log_priceUpdate {
+export class Log_priceUpdate implements LogPriceUpdate {
 
     @Prop({
         required: true,
         type: String // "initiator" | "scheduler" | "admin" | "product"
     }) // 업데이트 주체
-    launcher: "initiator" | "scheduler" | "admin" | "product"
+    launcher: "initiator" | "scheduler" | "admin" | "product" | "test"
     
     @Prop({
         required: true,

@@ -2,7 +2,7 @@ import { HttpService } from '@nestjs/axios';
 import { ConfigService } from '@nestjs/config';
 import { getModelToken } from '@nestjs/mongoose';
 import { Test, TestingModule } from '@nestjs/testing';
-import { Yf_info } from '../mongodb/schema/yf_info.schema';
+import { Yf_info } from '../database/mongodb/schema/yf_info.schema';
 import { ManagerController } from './manager.controller';
 import { ManagerService } from './manager.service';
 

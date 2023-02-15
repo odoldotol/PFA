@@ -1,17 +1,13 @@
 import { HttpService } from '@nestjs/axios';
-import { Injectable, InternalServerErrorException, Logger } from '@nestjs/common';
+import { BadRequestException, Injectable, InternalServerErrorException, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
-import { Yf_info, Yf_infoDocument } from '../mongodb/schema/yf_info.schema';
-import { YahoofinanceService } from '../yahoofinance/yahoofinance.service';
-import { Status_price, Status_priceDocument } from '../mongodb/schema/status_price.schema';
-import { Log_priceUpdate, Log_priceUpdateDocument } from '../mongodb/schema/log_priceUpdate.schema';
+import { MarketService } from '../market/market.service';
 import { SchedulerRegistry } from '@nestjs/schedule';
 import { CronJob, CronTime } from 'cron';
 import { catchError, firstValueFrom } from 'rxjs';
-import { Config_exchange, Config_exchangeDocument } from '../mongodb/schema/config_exchange.schema';
-// import isEqual from 'lodash.isequal';
+import { DBRepository } from '../database/database.repository';
+import { pipe, map, toArray, toAsync, noop, tap, each, filter, concurrent } from "@fxts/core";
+import { Either } from "../monad/either";
 
 @Injectable()
 export class UpdaterService {
@@ -20,48 +16,39 @@ export class UpdaterService {
     private readonly PRODUCT_URL = this.configService.get('PRODUCT_URL');
     private readonly TEMP_KEY = this.configService.get('TEMP_KEY');
     private readonly DE_UP_MARGIN: number = this.configService.get('DefaultUpdateMarginMilliseconds');
-    private readonly yfCCC_ISO_Code = this.configService.get('YahooFinance_CCC_ISO_Code');
+    private readonly GETMARKET_CONCURRENCY: number = this.configService.get('GETMARKET_CONCURRENCY');
 
     constructor(
         private readonly configService: ConfigService,
         private readonly httpService: HttpService,
+        private readonly marketService: MarketService,
         private readonly schedulerRegistry: SchedulerRegistry,
-        @InjectModel(Yf_info.name) private yf_infoModel: Model<Yf_infoDocument>,
-        @InjectModel(Status_price.name) private status_priceModel: Model<Status_priceDocument>,
-        @InjectModel(Log_priceUpdate.name) private log_priceUpdateModel: Model<Log_priceUpdateDocument>,
-        @InjectModel(Config_exchange.name) private config_exchangeModel: Model<Config_exchangeDocument>,
-        private readonly yahoofinanceService: YahoofinanceService,
+        private readonly dbRepo: DBRepository
     ) {
-        this.initiator();
+        // 부모 프로세스 있으면 ready 메시지 보내기
+        this.initiator()
+        .then(() => process.send ? process.send('ready') && this.logger.log("Send Ready to Parent Process") : noop)
+        .catch(error => this.logger.error(error));
     }
 
     /**
      * ### 업데이터 초기실행
-     * Status_price 에서 모든 Doc 들을 가져와서 각각의 Doc 을 병열처리
+     * Status_price 에서 모든 Doc 들을 가져와서 각각의 Doc 으로 initiate
+     * - 목적상 병열 처리 하지 않는게 좋아보인다.
      * - Initiator 시작 종료 logger
      */
     async initiator() {
-        try {
-            /* logger */this.logger.warn("Initiator Run!!!");
-            await this.yahoofinanceService.setIsoCodeToTimezone();
-            this.initiatePyLibChecker();
-            const spDocArr = await this.getAllStatusPriceDoc();
-            await Promise.all(spDocArr.map(async (spDoc) => {
-                await this.generalInitiate(spDoc)
-            }))
-            .then(() => {
-                /* logger */this.logger.warn("Initiator End!!!");
-                if (process.send !== undefined) {
-                    process.send('ready');
-                    /* logger */this.logger.log("Send Ready to Parent Process");
-                };
-            })
-            .catch((err) => {
-                /* logger */this.logger.error(err)
-            })
-        } catch (err) {
-            throw err
-        };
+        this.logger.warn("Initiator Run!!!");
+        await this.dbRepo.setIsoCodeToTimezone();
+        const spArr: StatusPrice[] = await this.dbRepo.getAllStatusPrice();
+        pipe(
+            spArr,
+            toAsync,
+            map(this.generalInitiate.bind(this)),
+            // concurrent(spArr.length),
+            toArray,
+            tap(() => this.logger.warn("Initiator End!!!")),
+        );
     }
 
     /**
@@ -73,170 +60,82 @@ export class UpdaterService {
      *      - 장중이아니면 "가격 업데이트하기", "다음마감시간에 업데이트스케줄 생성하기"
      *      - 장중이면 "다음마감시간에 업데이트스케줄 생성하기"
      */
-    async generalInitiate(spDoc) {
-        try {
-            const ISO_Code = spDoc.ISO_Code
-            const marketSession = await this.getSessionSomethingByISOcode(ISO_Code)
-            // price status 가 최신인지 알아내기
-            const isUpToDate = await this.isPriceStatusUpToDate(ISO_Code, marketSession)
-            if (isUpToDate) { // 최신이면
-                // 다음마감시간에 업데이트스케줄 생성하기
-                /* logger */this.logger.verbose(`${ISO_Code} : UpToDate`)
-                await this.schedulerForPrice(ISO_Code, marketSession)
-            } else { // 최신 아니면 // Yf_CCC 는 항상 현재가로 초기화 되는점 알기 (isNotMarketOpen)
-                const isNotMarketOpen = this.isNotMarketOpen(marketSession, ISO_Code)
-                isNotMarketOpen ?
-                /* logger */this.logger.verbose(`${ISO_Code} : Not UpToDate`) :
-                /* logger */this.logger.verbose(`${ISO_Code} : Not UpToDate & Market Is Open`)
-                // 가격 업데이트하기
-                const updateResult = await this.updatePriceByStatusPriceDocAndPreviousclose(spDoc, marketSession["previous_close"], isNotMarketOpen)
-                // log_priceUpdate Doc 생성
-                this.createLogPriceUpdateDoc("initiator", updateResult, ISO_Code)
-                // Product 애 regularUpdater 요청하기
-                this.requestRegularUpdaterToProduct(ISO_Code, marketSession["previous_close"], updateResult)
-                // 다음마감시간에 업데이트스케줄 생성하기
-                await this.schedulerForPrice(ISO_Code, marketSession)
-            };
-        } catch (err) {
-            throw err
+    private async generalInitiate({ISO_Code, lastMarketDate, yf_exchangeTimezoneName}: StatusPrice) {
+        const exchangeSession = (await this.marketService.getExchangeSessionByISOcode(ISO_Code))
+            .getRightOrThrowCustomError(InternalServerErrorException);
+        if (this.isPriceStatusUpToDate(lastMarketDate, exchangeSession)) { // status 최신이면
+            this.logger.verbose(`${ISO_Code} : UpToDate`);
+        } else { // 최신 아니면 // Yf_CCC 는 항상 현재가로 초기화 되는점 알기 (isNotMarketOpen)
+            const isNotMarketOpen = await this.marketService.isNotMarketOpen(exchangeSession);
+            isNotMarketOpen ? this.logger.verbose(`${ISO_Code} : Not UpToDate`)
+            : this.logger.verbose(`${ISO_Code} : Not UpToDate & Market Is Open`);
+            await this.updaterForPrice(ISO_Code, yf_exchangeTimezoneName, exchangeSession, isNotMarketOpen, "initiator");
         };
+        // 업데이트스케줄 생성
+        await this.schedulerForPrice(ISO_Code, yf_exchangeTimezoneName, exchangeSession);
     }
 
+    /**
+     * ### tester
+     */
     async testGeneralInitiate(ISO_Code: string) {
-        try {
-            const spDoc = await this.getStatusPriceDocByISOcode(ISO_Code)
-            const marketSession = await this.getSessionSomethingByISOcode(ISO_Code)
-            const isUpToDate = await this.isPriceStatusUpToDate(ISO_Code, marketSession)
-            const isNotMarketOpen = this.isNotMarketOpen(marketSession, ISO_Code)
-            const info = await this.yf_infoModel.findOne({exchangeTimezoneName: spDoc.yf_exchangeTimezoneName}, "symbol regularMarketPrice regularMarketPreviousClose regularMarketLastClose").exec()
-            const tickerArr = [info.symbol]
-            const updateLog = await this.log_priceUpdateModel.find({key: ISO_Code}).sort({createdAt: -1}).limit(1).exec()
-            const priceArr = await this.yahoofinanceService.getSomethingByTickerArr(tickerArr, "Price");
-            return {
-                spDoc,
-                marketSession,
-                isUpToDate,
-                isNotMarketOpen,
-                info,
-                updateLog,
-                [tickerArr[0]]: priceArr[0]
-            }
-            // if (isUpToDate) { // 최신이면
-                // 다음마감시간에 업데이트스케줄 생성하기
-                // /* logger */this.logger.verbose(`${ISO_Code} : UpToDate`)
-                // await this.schedulerForPrice(ISO_Code, marketSession)
-            // } else { // 최신 아니면 // Yf_CCC 는 항상 현재가로 초기화 되는점 알기 (isNotMarketOpen)
-                // const isNotMarketOpen = this.isNotMarketOpen(marketSession, ISO_Code)
-                // isNotMarketOpen ?
-                // /* logger */this.logger.verbose(`${ISO_Code} : Not UpToDate`) :
-                // /* logger */this.logger.verbose(`${ISO_Code} : Not UpToDate & Market Is Open`)
-                // 가격 업데이트하기
-                // const updateResult = await this.updatePriceByStatusPriceDocAndPreviousclose(spDoc, marketSession["previous_close"], isNotMarketOpen)
-                // log_priceUpdate Doc 생성
-                // this.createLogPriceUpdateDoc("initiator", updateResult, ISO_Code)
-                // Product 애 regularUpdater 요청하기
-                // this.requestRegularUpdaterToProduct(ISO_Code, marketSession["previous_close"], updateResult)
-                // 다음마감시간에 업데이트스케줄 생성하기
-                // await this.schedulerForPrice(ISO_Code, marketSession)
-            // };
-        } catch (err) {
-            throw err
+        const spObj = await this.dbRepo.getStatusPrice(ISO_Code);
+        if (!spObj) throw new BadRequestException("ISO_Code is not valid");
+        const yf_exchangeTimezoneName = spObj.yf_exchangeTimezoneName;
+        const exchangeSession = (await this.marketService.getExchangeSessionByISOcode(ISO_Code))
+            .getRightOrThrowCustomError(InternalServerErrorException);
+        const isNotMarketOpen = await this.marketService.isNotMarketOpen(exchangeSession);
+        const {updateResult, updateLog} = await this.updaterForPrice(ISO_Code, yf_exchangeTimezoneName, exchangeSession, isNotMarketOpen, "test");
+        await this.schedulerForPrice(ISO_Code, yf_exchangeTimezoneName, exchangeSession);
+        // const info = await this.dbRepo.testPickAsset(yf_exchangeTimezoneName);
+        // const tickerArr = [info.symbol]
+        return {
+            spObj,
+            exchangeSession,
+            isUpToDate: this.isPriceStatusUpToDate(spObj.lastMarketDate, exchangeSession),
+            isNotMarketOpen,
+            updateResult,
+            updateLog: updateLog ? updateLog : await this.dbRepo.testPickLastUpdateLog(ISO_Code),
+            // info,
+            // [tickerArr[0]]: (await this.marketService.getPriceByTickerArr(tickerArr))[0]
         };
     }
 
     /**
-     * ### ISO code 와 marketSession 로 다음마감시간에 업데이트스케줄 생성|시간수정 하기
+     * ### ISO code 와 exchangeSession 로 다음마감시간에 업데이트스케줄 생성|시간수정 하기
      */
-    async schedulerForPrice(ISO_Code: string, marketSession: object) {
+    private async schedulerForPrice(ISO_Code: string, yf_exchangeTimezoneName: string, exchangeSession: ExchangeSession) {
+        // 마진 적용
+        const {previousCloseDate, nextCloseDate} = await this.getMarginClose(ISO_Code, exchangeSession);
+        // 마진적용한 직전 마감이 현재 시간보다 늦으면 직전마감이 다음 스케쥴시간이어야 한다
+        // 이 경우 업데이트도 하지 않는게 옳지만, 이렇게 마진구간에서 이 함수가 실행되는 경우는 이니시에어터가 동작하는 등의 특별한 상황일것이므로 무시한다.
+        const scheduleDate = previousCloseDate > new Date() ? previousCloseDate : nextCloseDate;
         try {
-            // 마진 적용
-            const {previousCloseDate, nextCloseDate} = await this.getMarginClose(ISO_Code, marketSession);
-            // 마진적용한 직전 마감이 현재 시간보다 늦으면 직전마감이 다음 스케쥴시간이어야 한다
-            // 이 경우 업데이트도 하지 않는게 옳지만, 이렇게 마진구간에서 이 함수가 실행되는 경우는 이니시에어터가 동작하는 등의 특별한 상황일것이므로 무시한다.
-            const scheduleDate = previousCloseDate > new Date() ? previousCloseDate : nextCloseDate
-
-            try {
-                const schedule = this.schedulerRegistry.getCronJob(ISO_Code)
-                const scheduleCronTime = new CronTime(scheduleDate)
-                schedule.setTime(scheduleCronTime)
-                /* logger */this.logger.log(`${ISO_Code} : scheduled ${scheduleDate.toLocaleString()}`);
-            } catch (error) {
-                if (error.message.slice(0, 48) === `No Cron Job was found with the given name (${ISO_Code})`) {
-                    const newUpdateSchedule = new CronJob(scheduleDate, this.recusiveUpdaterForPrice.bind(this, ISO_Code));
-                    this.schedulerRegistry.addCronJob(ISO_Code, newUpdateSchedule);
-                    newUpdateSchedule.start();
-                    /* logger */this.logger.log(`${ISO_Code} : [New]scheduled ${scheduleDate.toLocaleString()}`);
-                } else {
-                    /* logger */this.logger.error(error)
-                }
-            }
-        } catch (err) {
-            throw err
-        };
-    }
-
-    /**
-     * ### PyLibChecker initiate
-     */
-    async initiatePyLibChecker() {
-        try {
-            await this.yahoofinanceService.isPyLibVerUptodate();
-            try {
-                this.logPyCronJob();
-            } catch (error) {
-                if (error.message.slice(0, 56) === `No Cron Job was found with the given name (pyLibChecker)`) {
-                    const pyLibChecker = new CronJob("0 0 6 * * *", this.pyLibChecker.bind(this));
-                    this.schedulerRegistry.addCronJob("pyLibChecker", pyLibChecker);
-                    pyLibChecker.start();
-                    /* logger */this.logger.log(`PyLibChecker : [New]scheduled ${(new Date(pyLibChecker.nextDate().toString())).toLocaleString()}`);
-                } else {
-                    /* logger */this.logger.error(error)
-                }
-            }
+            const schedule = this.schedulerRegistry.getCronJob(ISO_Code);
+            schedule.setTime(new CronTime(scheduleDate));
+            this.logger.log(`${ISO_Code} : scheduled ${scheduleDate.toLocaleString()}`);
         } catch (error) {
-            throw error;
+            if (error.message.slice(0, 48) === `No Cron Job was found with the given name (${ISO_Code})`) {
+                const newUpdateSchedule = new CronJob(scheduleDate, this.recusiveUpdaterForPrice.bind(this, ISO_Code, yf_exchangeTimezoneName));
+                this.schedulerRegistry.addCronJob(ISO_Code, newUpdateSchedule);
+                newUpdateSchedule.start();
+                this.logger.log(`${ISO_Code} : [New]scheduled ${scheduleDate.toLocaleString()}`);
+            } else {
+                this.logger.error(error)
+            };
         };
     }
 
     /**
-     * ###
+     * ### ISO_Code 와 exchangeSession 으로 직전 장 종료, 다음 장 종료에 yf 에서의 가격 딜레이 고려한 시간마진을 적용하여 반환
      */
-    async pyLibChecker() {
-        try {
-            await this.yahoofinanceService.isPyLibVerUptodate();
-            this.logPyCronJob();
-        } catch (error) {
-            throw error;
-        }
-    }
-
-    /**
-     * ###
-     */
-    logPyCronJob() {
-        try {
-            const pyLibChecker = this.schedulerRegistry.getCronJob("pyLibChecker")
-            /* logger */this.logger.log(`pyLibChecker : ${(new Date(pyLibChecker.nextDate().toString())).toLocaleString()}`);
-        } catch (error) {
-            throw error;
-        }
-    }
-
-    /**
-     * ### ISO_Code 와 marketSession 으로 직전 장 종료, 다음 장 종료에 yf 에서의 가격 딜레이 고려한 시간마진을 적용하여 반환
-     */
-    async getMarginClose(ISO_Code: string, marketSession) {
-        const previousCloseDate = new Date(marketSession["previous_close"])
-        const nextCloseDate = new Date(marketSession["next_close"])
-        let marginMilliseconds: number = await this.config_exchangeModel.findOne({ISO_Code}, "-_id update_margin_milliseconds").lean().exec()
-            .then((doc) => doc["update_margin_milliseconds"]);
-        if (marginMilliseconds === undefined) {
-            marginMilliseconds = this.DE_UP_MARGIN
-        };
-
+    private async getMarginClose(ISO_Code: string, exchangeSession: ExchangeSession) {
+        const previousCloseDate = new Date(exchangeSession.previous_close);
+        const nextCloseDate = new Date(exchangeSession.next_close);
+        let marginMilliseconds: number = await this.dbRepo.getMarginMilliseconds(ISO_Code);
+        if (marginMilliseconds === undefined) marginMilliseconds = this.DE_UP_MARGIN;
         previousCloseDate.setMilliseconds(previousCloseDate.getMilliseconds() + marginMilliseconds);
         nextCloseDate.setMilliseconds(nextCloseDate.getMilliseconds() + marginMilliseconds);
-
         return {previousCloseDate, nextCloseDate};
     }
 
@@ -246,289 +145,228 @@ export class UpdaterService {
      * - ISO_Code 로 가격 업데이트
      * - 다음마감시간에 업데이트스케줄 생성
      */
-    async recusiveUpdaterForPrice(ISO_Code: string) {
-        try {
-            const statusPriceDoc = await this.getStatusPriceDocByISOcode(ISO_Code)
-            const marketSession = await this.getSessionSomethingByISOcode(ISO_Code)
-            const updateResult = await this.updatePriceByStatusPriceDocAndPreviousclose(statusPriceDoc, marketSession["previous_close"], true)
-            this.createLogPriceUpdateDoc("scheduler", updateResult, ISO_Code)
-            this.requestRegularUpdaterToProduct(ISO_Code, marketSession["previous_close"], updateResult)
-            await this.schedulerForPrice(ISO_Code, marketSession)
-        } catch (err) {
-            throw err
-        };
+    private async recusiveUpdaterForPrice(ISO_Code: string, yf_exchangeTimezoneName: string) {
+        const exchangeSession = (await this.marketService.getExchangeSessionByISOcode(ISO_Code))
+            .getRightOrThrowCustomError(InternalServerErrorException);
+        await this.updaterForPrice(ISO_Code, yf_exchangeTimezoneName, exchangeSession, true, "scheduler");
+        await this.schedulerForPrice(ISO_Code, yf_exchangeTimezoneName, exchangeSession);
     }
 
     /**
-     * ### Status_priceDoc 와 previous_close 로 가격 업데이트하기
+     * ### 가격 업데이트하기 <Standard>
      * - 업데이트 시작 종료 logger
      * - 가격 업데이트
      * - status 업뎃
+     * - 로그 생성 (병합)
+     * - 프로덕트에게 업데이트 요청 (병합)
      */
-    async updatePriceByStatusPriceDocAndPreviousclose(statusPriceDoc: Status_priceDocument, previous_close: string, isNotMarketOpen: boolean) {
-        try {
-            /* logger */this.logger.warn(`${statusPriceDoc.ISO_Code} : Updater Run!!!`)
-            const startTime = new Date().toISOString()
+    private async updaterForPrice(
+        ISO_Code: string,
+        yf_exchangeTimezoneName: string,
+        {previous_close}: ExchangeSession,
+        isNotMarketOpen: boolean,
+        launcher: LogPriceUpdate["launcher"]
+    ): Promise<UpdaterForPriceResult> {
+        this.logger.warn(`${ISO_Code} : Updater Run!!!`);
+        const startTime = new Date().toISOString();
+        const updateResult = await Promise.all([
             // 가격 업데이트
-            const updatePriceResult = await this.updatePriceByFilters([{exchangeTimezoneName: statusPriceDoc.yf_exchangeTimezoneName}], true, isNotMarketOpen)
-
+            this.updatePriceByFilter({exchangeTimezoneName: yf_exchangeTimezoneName}, true, isNotMarketOpen),
             // status 업뎃
-            statusPriceDoc.lastMarketDate = new Date(previous_close).toISOString()
-            const updateSatusPriceResult = await statusPriceDoc.save()
-                .then(doc => doc)
-                .catch((error) => {return {error}})
-
-            await Promise.all([updatePriceResult, updateSatusPriceResult])
-            
-            const endTime = new Date().toISOString()
-            /* logger */this.logger.warn(`${statusPriceDoc.ISO_Code} : Updater End!!!`)
-
-            return {
-                updatePriceResult: updatePriceResult[0],
+            this.dbRepo.updateStatusPriceByRegularUpdater(ISO_Code, previous_close)
+        ]).then(([updatePriceResult, updateSatusPriceResult]) => (
+            this.logger.warn(`${ISO_Code} : Updater End!!!`),
+            this.requestRegularUpdaterToProduct(ISO_Code, previous_close, updatePriceResult),
+            {
+                updatePriceResult: updatePriceResult.getWhatever,
                 updateSatusPriceResult,
                 startTime,
-                endTime
+                endTime: new Date().toISOString()
             }
-        } catch (err) {
-            throw err
-        }
-    }
-
-    /**
-     * ### log_priceUpdate Doc 생성 By launcher, updateResult, key
-     */
-    createLogPriceUpdateDoc(launcher: string, updateResult, key: string | Array<string | Object>) {
-        try {
-            const {startTime, endTime} = updateResult
-            const newLog = new this.log_priceUpdateModel({
-                launcher,
-                isStandard: true, //
-                key,
-                success: updateResult.updatePriceResult["success"],
-                failure: updateResult.updatePriceResult["failure"],
-                error: updateResult["error"] || updateResult.updatePriceResult["error"],
-                startTime,
-                endTime,
-                duration: new Date(endTime).getTime() - new Date(startTime).getTime()
-            })
-            newLog.save()
-                .then(() => {
-                    if (launcher === "scheduler" || launcher === "initiator") {
-                        /* logger */this.logger.verbose(`${key} : Log_priceUpdate Doc Created`)
-                    } else {
-                        /* logger */this.logger.verbose(`Log_priceUpdate Doc Created : ${launcher}`)
-                    }
-                })
-                .catch((error) => {
-                    /* logger */this.logger.error(error)
-                })
-        } catch (err) {
-            throw err
-        };
+        ));
+        const updateLog = (await this.dbRepo.createLogPriceUpdate(launcher, true, ISO_Code, updateResult)).getWhatever;
+        return {updateResult, updateLog};
     }
 
     /**
      * ### Product 애 regularUpdater 요청하기
      */
-    async requestRegularUpdaterToProduct(ISO_Code: string, previous_close: string, updateResult) {
+    private async requestRegularUpdaterToProduct(
+        ISO_Code: string,
+        previous_close: ExchangeSession["previous_close"],
+        updatePriceResult: Either<UpdatePriceByFilterError, UpdatePriceResultArr>
+    ) {
+        const marketDate = previous_close.slice(0, 10);
+        let priceArrs = updatePriceResult.getRightOrThrowError
+            .success.map(priceArr => [priceArr[0], priceArr[1].regularMarketLastClose]);
         try {
-            const marketDate = previous_close.slice(0, 10);
-            let priceArrs = updateResult.updatePriceResult["success"];
-            priceArrs = priceArrs.map((priceArr) => {
-                const regularMarketLastClose = priceArr[1].regularMarketLastClose;
-                return [priceArr[0], regularMarketLastClose]
-            })
             const result = (await firstValueFrom(
-                this.httpService.post(`${this.PRODUCT_URL}market/updater/${ISO_Code}`, {marketDate, priceArrs, key: this.TEMP_KEY})
+                this.httpService.post(`${this.PRODUCT_URL}market/updater/${ISO_Code}`, { marketDate, priceArrs, key: this.TEMP_KEY })
                 .pipe(catchError(error => {
                     throw error;
                 }))
-            )).status;
-            /* logger */this.logger.verbose(`${ISO_Code} : Product RegularUpdater Response status ${result}`,);
+            ).catch(error => {
+                if (error.response) this.logger.error(error.response.data);
+                throw error;
+            })).status;
+            this.logger.verbose(`${ISO_Code} : RegularUpdater Product Response status ${result}`);
         } catch (error) {
-            if (error.response) {
-                /* logger */this.logger.error(error.response.data);
-            };
-            /* logger */this.logger.verbose(`${ISO_Code} : Product RegularUpdater Request Failed!`,);
-        }
-    }
-
-    /**
-     * ISO code 로 Status_price 에서 Doc 가져오기
-     */
-    getStatusPriceDocByISOcode(ISO_Code: string) {
-        try {
-            return this.status_priceModel.findOne({ ISO_Code }).exec();
-        } catch (err) {
-            throw err
+            this.logger.error(error);
         };
-    }
-
-    /**
-     * ###
-     */
-    getAllStatusPriceDoc() {
-        try {
-            return this.status_priceModel.find().exec();
-        } catch (err) {
-            throw err
-        };
-    }
-
-    /**
-     * ### ISO code 로 session 의 something 알아내기
-     * - Yf_CCC 케이스 특이사항
-     */
-    async getSessionSomethingByISOcode(ISO_Code: string, something?: "previous_open" | "previous_close" | "next_open" | "next_close") {
-        try {
-            let marketSession
-            if (ISO_Code === this.yfCCC_ISO_Code) {
-                const previous = new Date(
-                    new Date().toISOString().slice(0, 10)/*+"T00:00:00.000Z"*/
-                ).toISOString()
-                const nextDate = new Date(previous)
-                nextDate.setUTCDate(nextDate.getUTCDate() + 1)
-                const next = nextDate.toISOString()
-                marketSession = {
-                    previous_open: previous,
-                    previous_close: previous,
-                    next_open: next,
-                    next_close: next
-                }
-            } else {
-                marketSession = await this.yahoofinanceService.getMarketSessionByISOcode(ISO_Code)
-            }
-            if (marketSession.error) {
-                console.log("ERROR: ", marketSession.error)
-                throw marketSession.error
-            }
-            return something ? marketSession[something]
-                : marketSession;
-        } catch (err) {
-            throw err;
-        }
     }
 
     /**
      * ### 세션 정보 로 price status 가 최신인지 알아내기
      */
-    async isPriceStatusUpToDate(ISO_Code: string, marketSession: object) {
-        try {
-            const spDoc = await this.getStatusPriceDocByISOcode(ISO_Code)
-            const previousClose = new Date(marketSession['previous_close']).toISOString()
-            return spDoc.lastMarketDate === previousClose ? true : false
-        } catch (err) {
-            throw err
-        };
-    }
+    private isPriceStatusUpToDate = (lastMarketDate: string, {previous_close}: ExchangeSession) => 
+        lastMarketDate === new Date(previous_close).toISOString() ? true : false;
 
     /**
-     * ### 세션 정보 로 장중이 아닌지 알아내기
-     * - 장중이 아니면 true, 장중이면 false
-     * - Yf_CCC 는 항상 true 반환중
+     * ###
      */
-    isNotMarketOpen(marketSession: object, ISO_Code: string) {
-        try {
-            // if (ISO_Code === "this.yfCCC_ISO_Code") { // 뭐가 옳은지, 뭐가 더 정확할지?
-            //     return false;
-            // };
-            const previous_open = new Date(marketSession["previous_open"])
-            const previous_close = new Date(marketSession["previous_close"])
-            const next_open = new Date(marketSession["next_open"])
-            const next_close = new Date(marketSession["next_close"])
-            if (previous_open > previous_close && next_open > next_close) { // 장중
-                return false;
-            }
-            return true;
-        } catch (err) {
-            throw err;
-        };
-    }
+    private updatePriceByFilterArr
+
+    /**
+     * ### updatePriceByFilter
+     */
+    private updatePriceByFilter = (filter: object, isStandard: boolean, isNotMarketOpen?: boolean):
+    Promise<Either<UpdatePriceByFilterError, UpdatePriceResultArr>> =>
+        this.dbRepo.getSymbolArr(filter).then(async symbolArr => isStandard ? 
+        Either.right(await this.updatePriceByTickerArr(symbolArr, isNotMarketOpen))
+        : Either.right(await this.updatePriceByTickerArr(symbolArr, true))
+    ).catch(error => (this.logger.error(error), Either.left({error, filter, isStandard})));
 
     /**
      * 티커배열로 가격 업데이트하기
-     * - 가격 업뎃 구조 리팩터 필요
      */
-    async updatePriceByTickerArr(tickerArr: string[], lastClose?: "regularMarketPreviousClose" | "regularMarketPrice") {
-        try {
-            // 가격 배열 가져오기
-            const priceArr = await this.yahoofinanceService.getSomethingByTickerArr(tickerArr, "Price");
-
-            // 디비 업데이트
-            const result = {success: [], failure: []};
-            const updatePromiseArr = tickerArr.map((ticker, idx) => { // map 의 콜백에서 return 없어도 Promise<void> 가 리턴되도록? 차이는?
-                if (priceArr[idx]["error"]) {
-                    priceArr[idx]['ticker'] = ticker;
-                    result.failure.push(priceArr[idx]);
-                } else {
-                    const regularMarketPreviousClose = priceArr[idx]["regularMarketPreviousClose"];
-                    const regularMarketPrice = priceArr[idx]["regularMarketPrice"];
-                    const regularMarketLastClose = priceArr[idx][lastClose]
-                    priceArr[idx]["regularMarketLastClose"] = regularMarketLastClose
-                    return this.yf_infoModel.updateOne({ symbol: ticker }, { regularMarketPreviousClose, regularMarketPrice, regularMarketLastClose }).exec()
-                        .then((res)=>{
-                            // const successRes = {
-                            //     acknowledged: true,
-                            //     modifiedCount: 1,
-                            //     upsertedId: null,
-                            //     upsertedCount: 0,
-                            //     matchedCount: 1
-                            // }
-                            if (
-                                res.acknowledged &&
-                                res.modifiedCount === 1 &&
-                                res.upsertedId === null &&
-                                res.upsertedCount === 0 &&
-                                res.matchedCount === 1
-                                ) /* 예외 케이스가 발견됨에 따라 수정해야항 수도 있음 */ {
-                                result.success.push([ticker, priceArr[idx]]);
-                            } else {
-                                result.failure.push({error: "updateOne error", ticker, res});
-                            }
-                        })
-                        .catch(error => {
-                            result.failure.push({error, ticker});
-                        })
-                }
-            })
-            await Promise.all(updatePromiseArr);
-            return result;
-        } catch (err) {
-            throw err;
-        };
+    private updatePriceByTickerArr = async (tickerArr: string[], isNotMarketOpen: boolean) => {
+        const result: UpdatePriceResultArr = {success: [], failure: []};
+        await pipe(
+            await this.marketService.getPriceByTickerArr(tickerArr),
+            toAsync,
+            map(ele => ele.flatMapPromise(this.dbRepo.updatePrice(isNotMarketOpen))),
+            each(ele => ele.isRight ? // *
+                result.success.push(ele.getRightOrThrowError)
+                : result.failure.push(ele.getLeftOrThrowError)
+            )
+        );
+        return result;
     }
 
     /**
-     * ### 필터배열로 ticker 배열들 뽑아서 각각 updatePriceByTickerArr 실행
-     * - 가격 업뎃 구조 리팩터 필요
+     * ### mongoDB 에 신규 자산 생성해보고 그 작업의 결과를 반환
+     * - tickerArr 로 Yf_info 생성
+     * - 새로운 거래소의 자산 발견시 Status_price 생성하고 업데이트스케줄 등록
      */
-    updatePriceByFilters(filterArr: object[], isStandard: boolean, isNotMarketOpen: boolean) {
-        try {
-            // db 에서 각 filter 들로 find 한 documents 들의 symbol 배열들을 만들어서 각각 updatePriceByTickerArr(symbol배열) 을 실행시켜!
-            return Promise.all(filterArr.map(async (filter) => {
-                return await this.yf_infoModel.find(filter, 'symbol').exec()
-                    .then(async (res) => {
-                        const symbolArr = res.map(ele=>ele.symbol)
-                        if (isStandard && isNotMarketOpen) {
-                            return await this.updatePriceByTickerArr(symbolArr, "regularMarketPrice");
-                        } else if (isStandard && !isNotMarketOpen) {
-                            return await this.updatePriceByTickerArr(symbolArr, "regularMarketPreviousClose");
-                        } else {
-                            return await this.updatePriceByTickerArr(symbolArr);
-                        }
-                    })
-                    .catch((error) => {
-                        // console.log(error);
-                        return {error, filter};
-                    })
-            }));
-        } catch (err) {
-            throw err;
+    async createAssetByTickerArr(tickerArr: string[]) {
+        const result = { // 응답
+            success: {
+                info: [],
+                status_price: [],
+            },
+            failure: {
+                info: [],
+                status_price: [],
+            }
         };
+        const spMap: Map<string, string[]> = new Map();
+        await pipe( // 중복제거와 exists필터 부분은 단일 티커처리시 필요없음. 이 부분 보완하기
+            new Set(tickerArr).values(), // 중복제거
+            toAsync,
+            map(this.createAssetTickerFilter), // exists?
+            map(ele => ele.flatMapPromise(this.marketService.getInfoByTicker)),
+            map(ele => ele.flatMapPromise(this.fulfillInfo)),
+            filter(ele => ele.isLeft ? // *
+            (result.failure.info.push(ele.getLeftOrThrowError), false)
+            : true),
+            map(ele => ele.getRightOrThrowError),
+            // concurrent(this.GETMARKET_CONCURRENCY), // 테스트 필요
+            toArray,
+            tap(async arr => { // *
+                await this.dbRepo.insertAssets(arr)
+                .then(res => result.success.info = res)
+                .catch(err =>
+                    (result.failure.info = result.failure.info.concat(err.writeErrors),
+                    result.success.info = result.success.info.concat(err.insertedDocs))
+                )
+            }),
+            each(ele => spMap.has(ele.exchangeTimezoneName) ? // *
+                spMap.get(ele.exchangeTimezoneName).push(ele.symbol)
+                : spMap.set(ele.exchangeTimezoneName, [ele.symbol])
+            )
+        );
+        await pipe(
+            spMap,
+            toAsync,
+            filter(this.isNewExchange),
+            map(this.applyNewExchange),
+            each(ele => ele.isRight ? // *
+                result.success.status_price.push(ele.getRightOrThrowError)
+                : result.failure.status_price.push(ele.getLeftOrThrowError)
+            )
+        );
+        return result;
     }
 
-    // async updatePriceAll(each: number) {
-    //     this.getPriceByTickerList([]);
-    //     return each;
-    // }
+    /**
+     * ### createAssetTickerFilter
+     */
+    private createAssetTickerFilter = async (ticker: string): Promise<Either<any, string>> =>
+        (await this.dbRepo.existsAssetByTicker(ticker) === null) ? Either.right(ticker)
+        : Either.left({ msg: "Already exists", ticker });
+
+    /**
+     * ### fulfillInfo
+     * - 다수의 info 처리시 isNotMarketOpen 을 중복 계산하지 않도록 보정하기? (시간차이는 무시?)
+     */
+    private fulfillInfo = async (info: YfInfo): Promise<Either<any, FulfilledYfInfo>> => {
+        const ISO_Code = await this.dbRepo.isoCodeToTimezone(info.exchangeTimezoneName);
+        return ISO_Code === undefined ? // ISO_Code 를 못찾은 경우 실패처리
+        Either.left({
+            msg: "Could not find ISO_Code",
+            yf_exchangeTimezoneName: info.exchangeTimezoneName,
+            yfSymbol: info.symbol
+        })
+        : Either.right({
+            ...info,
+            regularMarketLastClose: await this.marketService.isNotMarketOpen(ISO_Code) ? info.regularMarketPrice : info.regularMarketPreviousClose
+        });
+    }
+
+    /**
+     * ###
+     */
+    private isNewExchange = async ([yf_exchangeTimezoneName, _]: [string, string[]]) =>
+        await this.dbRepo.existsStatusPrice({ yf_exchangeTimezoneName }) === null;
+
+    /**
+     * ###
+     */
+    private applyNewExchange = async ([yf_exchangeTimezoneName, symbolArr]: [string, string[]]): Promise<Either<any, StatusPrice>> => {
+        const ISO_Code = await this.dbRepo.isoCodeToTimezone(yf_exchangeTimezoneName);
+        if (ISO_Code === undefined) {
+            this.logger.error(`${symbolArr[0]} : Could not find ISO_Code for ${yf_exchangeTimezoneName}`);
+            return Either.left({
+                msg: "Could not find ISO_Code",
+                yf_exchangeTimezoneName,
+                symbol: symbolArr
+            });
+        } else {
+            const exchangeSession = (await this.marketService.getExchangeSessionByISOcode(ISO_Code))
+                .getRightOrThrowCustomError(InternalServerErrorException);
+            return await this.dbRepo.createStatusPrice(ISO_Code, exchangeSession.previous_close, yf_exchangeTimezoneName)
+            .then(async res => {
+                this.logger.verbose(`${ISO_Code} : Created new status_price`);
+                this.schedulerForPrice(ISO_Code, yf_exchangeTimezoneName, exchangeSession);
+                return Either.right(res);
+            }).catch(error => {
+                this.logger.error(error);
+                return Either.left({
+                    error,
+                    yf_exchangeTimezoneName,
+                    symbol: symbolArr
+                });
+            });
+        };
+    }
 }

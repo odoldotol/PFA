@@ -6,7 +6,7 @@ export type Status_priceDocument = Status_price & mongoose.Document;
 @Schema({
     timestamps: true
  })
-export class Status_price {
+export class Status_price implements StatusPrice {
 
     @Prop({
         required: true,

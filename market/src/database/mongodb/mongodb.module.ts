@@ -4,6 +4,10 @@ import { Yf_info, Yf_infoSchema } from './schema/yf_info.schema';
 import { Status_price, Status_priceSchema } from './schema/status_price.schema';
 import { Log_priceUpdate, Log_priceUpdateSchema } from './schema/log_priceUpdate.schema';
 import { Config_exchange, Config_exchangeSchema } from './schema/config_exchange.schema';
+import { Yf_infoRepository } from './repository/yf-info.repository';
+import { Status_priceRepository } from './repository/status_price.repository';
+import { Log_priceUpdateRepository } from './repository/log_priceUpdate.repository';
+import { Config_exchangeRepository } from './repository/config_exchane.repository';
 
 @Module({
     imports: [
@@ -14,6 +18,17 @@ import { Config_exchange, Config_exchangeSchema } from './schema/config_exchange
             { name: Config_exchange.name, schema: Config_exchangeSchema}
         ])
     ],
-    exports: [MongooseModule]
+    providers: [
+        Yf_infoRepository,
+        Status_priceRepository,
+        Log_priceUpdateRepository,
+        Config_exchangeRepository
+    ],
+    exports: [
+        Yf_infoRepository,
+        Status_priceRepository,
+        Log_priceUpdateRepository,
+        Config_exchangeRepository
+    ]
 })
-export class MongodbModule {}
+export class MongoModule {}

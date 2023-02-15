@@ -4,6 +4,9 @@
 import yfinance as yf
 import sys
 import json
+import warnings
+
+warnings.filterwarnings('ignore')
 
 def get_price_by_ticker(ticker):
     try:

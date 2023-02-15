@@ -1,17 +1,17 @@
 import { HttpModule } from '@nestjs/axios';
 import { Module } from '@nestjs/common';
 import { UpdaterService } from './updater.service';
-import { YahoofinanceModule } from '../yahoofinance/yahoofinance.module';
-import { MongodbModule } from '../mongodb/mongodb.module';
+import { MarketModule } from '../market/market.module';
+import { DBModule } from '../database/database.module';
 
 @Module({
   imports: [
-    YahoofinanceModule,
+    MarketModule,
+    DBModule,
     HttpModule.register({
       timeout: 90000,
     }),
-    MongodbModule
-],
+  ],
   providers: [UpdaterService],
   exports: [UpdaterService]
 })
