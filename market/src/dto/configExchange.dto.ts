@@ -1,6 +1,6 @@
 import { IsNotEmpty, IsNumber, IsOptional, IsString } from "class-validator";
 
-export class ConfigExchangeDto {
+export class ConfigExchangeDto implements ConfigExchange {
     
     @IsNotEmpty()
     @IsString()

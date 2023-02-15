@@ -7,7 +7,7 @@ import json
 from datetime import datetime
 import warnings
 
-warnings.simplefilter(action='ignore', category=FutureWarning) # FutureWarning 제거
+warnings.filterwarnings('ignore')
 
 def get_session_by_ISOcode(ISO_Code):
     try:

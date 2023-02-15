@@ -5,16 +5,15 @@ import { catchError, firstValueFrom } from 'rxjs';
 import { ChildProcessWithoutNullStreams, spawn } from 'child_process';
 import { SchedulerRegistry } from '@nestjs/schedule';
 import { CronJob } from 'cron';
-import { OkEcSession } from '../interfaces/ecSession.interface';
-import { YfInfo } from '../interfaces/yfInfo.interface';
-import { YfPrice } from '../interfaces/yfPrice.interface';
-import { pipe, map, toArray, toAsync, curry, noop } from "@fxts/core";
+import { pipe, map, toArray, toAsync, curry, concurrent } from "@fxts/core";
+import { Either } from "../monad/either";
 
 @Injectable()
 export class MarketService {
 
     private readonly logger = new Logger(MarketService.name);
     private readonly GETMARKET_URL = this.configService.get('GETMARKET_URL');
+    private readonly GETMARKET_CONCURRENCY: number = this.configService.get('GETMARKET_CONCURRENCY');
     private readonly PIP_COMMAND = this.configService.get('PIP_COMMAND');
     private readonly YFCCC_ISO_Code = this.configService.get('YahooFinance_CCC_ISO_Code');
 
@@ -27,38 +26,70 @@ export class MarketService {
     }
 
     /**
+     * ### getInfoByTicker
+     */
+    getInfoByTicker = (ticker: string): Promise<Either<YfInfoError, YfInfo>> => this.getSomethingByTicker("Info", ticker);
+
+    /**
+     * ### getPriceByTicker
+     */
+    getPriceByTicker = (ticker: string): Promise<Either<YfPriceError, YfPrice>> => this.getSomethingByTicker("Price", ticker);
+
+    /**
      * ### getInfoByTickerArr
      */
-    getInfoByTickerArr = (tickerArr: string[]): Promise<YfInfo[]> => this.getSomethingByTickerArr(tickerArr, "Info");
+    getInfoByTickerArr = (tickerArr: string[]): Promise<Either<YfInfoError, YfInfo>[]> => this.asyncMapPipe(tickerArr, this.getSomethingByTicker("Info"), this.GETMARKET_CONCURRENCY);
 
     /**
      * ### getPriceByTickerArr
      */
-    getPriceByTickerArr = (tickerArr: string[]): Promise<YfPrice[]> => this.getSomethingByTickerArr(tickerArr, "Price");
+    getPriceByTickerArr = (tickerArr: string[]): Promise<Either<YfPriceError, YfPrice>[]> => this.asyncMapPipe(tickerArr, this.getSomethingByTicker("Price"), this.GETMARKET_CONCURRENCY);
 
     /**
-     * ### yahoo finance 에서 something 을 가져오기
+     * ### string 배열에 비동기작업을 map 병열수행
      */
-    private getSomethingByTickerArr = (tickerArr: string[], something: "Info" | "Price") => pipe(
-        tickerArr,
+    private asyncMapPipe = <T>(arr: string[], func: (a:string)=>Promise<T>, ccLen: number) => pipe(
+        arr,
         toAsync,
-        map(this.getSomethingByTicker(something)),
+        map(func),
+        concurrent(ccLen),
         toArray
     );
 
     /**
      * ### getSomethingByTicker
      */
-    private getSomethingByTicker = curry((something: "Info"|"Price", ticker: string) => this.getMarketOrCp(
-        `${this.GETMARKET_URL}yf/${something.toLowerCase()}?ticker=${ticker}`,
-        [`get${something}ByTicker.py`, ticker]
-    ));
+    private getSomethingByTicker = curry(async (something: string, ticker: string) => {
+        const res = await this.getMarketOrCp(
+            `${this.GETMARKET_URL}yf/${something.toLowerCase()}?ticker=${ticker}`,
+            [`get${something}ByTicker.py`, ticker]
+        );
+        if (res.error) return Either.left(res.error);
+        if (res.info && res.fastinfo && res.metadata && res.price)
+            return Either.right(Object.assign(res.info, res.fastinfo, res.metadata, res.price));
+        res['symbol'] = ticker;
+        return Either.right(res);
+    });
+
+    /**
+     * ### 세션 정보 로 장중이 아닌지 알아내기
+     * 장중이 아니면 true, 장중이면 false
+     * - ExchangeSession 또는 ISO_Code 를 인자로 받는다.
+     */
+    isNotMarketOpen = async (prop: ExchangeSession|string) => {
+        let previous_open: string, previous_close: string, next_open: string, next_close: string;
+        typeof prop === `string` ?
+        ({previous_open, previous_close, next_open, next_close} = (await this.getExchangeSessionByISOcode(prop)).getRightOrThrowCustomError(InternalServerErrorException))
+        : ({previous_open, previous_close, next_open, next_close} = prop);
+        return new Date(previous_open) > new Date(previous_close) && new Date(next_open) > new Date(next_close) ? false : true;
+    }
+    
 
     /**
      * ### ISO code 로 거래소 세션 정보읽기
      * - Yf_CCC 케이스 특이사항
      */
-    getMarketSessionByISOcode(ISO_Code: string): Promise<OkEcSession>|OkEcSession {
+    getExchangeSessionByISOcode = async (ISO_Code: string): Promise<Either<ExchangeSessionError, ExchangeSession>> => {
         if (ISO_Code === this.YFCCC_ISO_Code) {
             const previous = new Date(
                 new Date().toISOString().slice(0, 10) // + "T00:00:00.000Z"
@@ -66,17 +97,19 @@ export class MarketService {
             const nextDate = new Date(previous);
             nextDate.setUTCDate(nextDate.getUTCDate() + 1);
             const next = nextDate.toISOString();
-            return {
+            return Either.right({
                 previous_open: previous,
                 previous_close: previous,
                 next_open: next,
                 next_close: next
-            };
+            });
         }
-        return this.getMarketOrCp(
+        const res = await this.getMarketOrCp(
             `${this.GETMARKET_URL}ec/session?ISO_Code=${ISO_Code}`,
             ['getSessionByISOcode.py', ISO_Code]
         );
+        if (res.error) return Either.left(res.error);
+        return Either.right(res);
     }
 
     /**
@@ -96,13 +129,8 @@ export class MarketService {
     /**
      * ### runCp
      */
-    private runPyCp = ([fileName, arg]: string[]) => ({ data:
-        this.getStdoutByChildProcess(this.getPyChildProcess([fileName, arg]))
-        .catch(error => {
-            this.logger.error(error);
-            return {error, arg}
-        })
-    });
+    private runPyCp = ([fileName, arg]: string[]) =>
+    ({ data: this.getStdoutByChildProcess(this.getPyChildProcess([fileName, arg])) });
 
     /**
      * ### 파이썬 ChildProcess 만들기
@@ -110,26 +138,22 @@ export class MarketService {
     private getPyChildProcess = (args: string[]): ChildProcessWithoutNullStreams => spawn('python', args, {cwd: 'src/market/py', timeout: 60000}); // 1분 제한
 
     /**
-     * ### 세션 정보 로 장중이 아닌지 알아내기
-     * 장중이 아니면 true, 장중이면 false
-     * - Yf_CCC 따로 다뤄야 할까 ??
-     */
-    isNotMarketOpen = ({previous_open, previous_close, next_open, next_close}: OkEcSession, ISO_Code: string) => 
-        new Date(previous_open) > new Date(previous_close) && new Date(next_open) > new Date(next_close) ? false : true;
-
-    /**
      * ### ChildProcess 표준출력 받기
      * - 다양한 에러 반환
      * - 타임아웃 에러 반환
      */
-    private getStdoutByChildProcess = (cp: ChildProcessWithoutNullStreams): Promise<any> => new Promise(
+    private getStdoutByChildProcess = (cp: ChildProcessWithoutNullStreams) => new Promise(
         (resolve, reject) => {
-            cp.stdout.on('data', data => resolve(JSON.parse(data.toString())));
+            const stack: Array<Buffer|string> = [];
+            cp.stdout.on('data', data => stack.push(data));
             cp.on('error', err => reject(new InternalServerErrorException(err)));
             cp.stderr.on('data', data => reject(new InternalServerErrorException(data.toString())));
-            cp.on('close', (code, signal) => code === null && signal === "SIGTERM" ? reject(
-                new InternalServerErrorException({msg: "ChildProcess closed by Timeout!", code, signal})) : noop()
-            );
+            cp.on('close', (code, signal) => {
+                if (code === null && signal === "SIGTERM") reject(new InternalServerErrorException({msg: "ChildProcess closed by Timeout!", code, signal}))
+                stack.push(...stack.pop().toString().split(/\n/g));
+                stack.pop();
+                resolve(JSON.parse(stack.pop().toString()));
+            });
         }
     );
 
@@ -175,15 +199,15 @@ export class MarketService {
     private async pyLibChecker() {
         await this.isPyLibUptodate();
         try {
-            /* logger */this.logger.log(`PyLibChecker : ${(new Date(this.schedulerRegistry.getCronJob("pyLibChecker").nextDate().toString())).toLocaleString()}`);
+            this.logger.log(`PyLibChecker : ${(new Date(this.schedulerRegistry.getCronJob("pyLibChecker").nextDate().toString())).toLocaleString()}`);
         } catch (error) {
             if (error.message.slice(0, 56) === `No Cron Job was found with the given name (pyLibChecker)`) {
                 const job = new CronJob("0 0 6 * * *", this.pyLibChecker.bind(this));
                 this.schedulerRegistry.addCronJob("pyLibChecker", job);
                 job.start();
-                /* logger */this.logger.log(`PyLibChecker : [New] ${(new Date(job.nextDate().toString())).toLocaleString()}`);
+                this.logger.log(`PyLibChecker : [New] ${(new Date(job.nextDate().toString())).toLocaleString()}`);
             } else {
-                /* logger */this.logger.error(error)
+                this.logger.error(error)
             };
         };
     }

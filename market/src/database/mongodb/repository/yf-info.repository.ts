@@ -25,7 +25,7 @@ export class Yf_infoRepository {
     /**
      * ###
      */
-    updatePrice(symbol: string, price: {regularMarketPreviousClose, regularMarketPrice, regularMarketLastClose}) {
+    updatePrice(symbol: string, price: FulfilledYfPrice) {
         try {
             return this.yf_infoModel.updateOne({symbol}, price).exec();
         } catch (error) {
@@ -47,7 +47,7 @@ export class Yf_infoRepository {
     /**
      * ###
      */
-    insertMany(arr) {
+    insertMany(arr: Yf_info[]) {
         try {
             return this.yf_infoModel.insertMany(arr, { ordered: false });
         } catch (error) {

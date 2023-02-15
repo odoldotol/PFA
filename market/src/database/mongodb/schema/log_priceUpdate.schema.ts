@@ -6,7 +6,7 @@ export type Log_priceUpdateDocument = Log_priceUpdate & mongoose.Document;
 @Schema({
     timestamps: true
  })
-export class Log_priceUpdate {
+export class Log_priceUpdate implements LogPriceUpdate {
 
     @Prop({
         required: true,

@@ -22,7 +22,7 @@ export class ManagerService {
             const price = await this.dbRepo.getPriceByTicker(ticker)
             .then(async res => {
                 if (res === null) {
-                    const createResult = await this.updaterService.createAssets([ticker])
+                    const createResult = await this.updaterService.createAssetByTickerArr([ticker])
                     if (createResult.failure.info.length > 0) {
                         if (createResult.failure.info[0].error.doc === "Mapping key not found.") {
                             throw new BadRequestException(`Could not find Ticker: ${createResult.failure.info[0].error.ticker}`);

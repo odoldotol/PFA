@@ -3,6 +3,7 @@ import { ManagerService } from './manager.service';
 import { UpdaterService } from '../updater/updater.service';
 import { ConfigExchangeDto } from '../dto/configExchange.dto';
 import { DBRepository } from '../database/database.repository';
+import { UpperCasePipe } from './pipe/uppercasePipe';
 
 @Controller('manager')
 export class ManagerController {
@@ -18,8 +19,8 @@ export class ManagerController {
      */
     @Post('yf_info')
     @HttpCode(200)
-    async createAssets(@Body(new ParseArrayPipe({items:String})) tickerArr: string[]): Promise<object> {
-        return await this.updaterService.createAssets(tickerArr);
+    async createAssets(@Body(new ParseArrayPipe({items:String}), UpperCasePipe) tickerArr: string[]): Promise<object> {
+        return await this.updaterService.createAssetByTickerArr(tickerArr);
     }
 
     /**
@@ -44,7 +45,7 @@ export class ManagerController {
      * - ticker 로 조회 => price
      */
     @Get('price')
-    async getPrice(@Query('ISO_Code') ISO_Code?: string, @Query('ticker') ticker?: string) {
+    async getPrice(@Query('ISO_Code', UpperCasePipe) ISO_Code?: string, @Query('ticker', UpperCasePipe) ticker?: string) {
         if (ISO_Code && !ticker) {
             return await this.dbRepo.getPriceByISOcode(ISO_Code);
         } else if (ticker && !ISO_Code) {
@@ -66,7 +67,7 @@ export class ManagerController {
      * ### tester
      */
     @Post('dev/updater/test_generalInitiate/:ISO_Code')
-    async testInitiator(@Param('ISO_Code') ISO_Code: string) {
+    async testInitiator(@Param('ISO_Code', UpperCasePipe) ISO_Code: string) {
         return await this.updaterService.testGeneralInitiate(ISO_Code);
     }
 

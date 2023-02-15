@@ -5,6 +5,8 @@ import { Config_exchangeRepository } from "./mongodb/repository/config_exchane.r
 import { Log_priceUpdateRepository } from "./mongodb/repository/log_priceUpdate.repository";
 import { ConfigExchangeDto } from "../dto/configExchange.dto";
 import { Cache } from 'cache-manager';
+import { curry } from "@fxts/core";
+import { Either } from "../monad/either";
 
 @Injectable()
 export class DBRepository {
@@ -65,69 +67,51 @@ export class DBRepository {
     }
 
     /**
-     * ###
-     * - updater.service.updatePriceByTickerArr
+     * ### updatePrice
      */
-    async updatePriceByArr(tickerArr: string[], priceArr: object[], lastClose: "regularMarketPreviousClose" | "regularMarketPrice") {
-        try {
-            const result = {success: [], failure: []};
-
-            await Promise.all(tickerArr.map((ticker, idx) => {
-                if (priceArr[idx]["error"]) {
-                    priceArr[idx]['ticker'] = ticker;
-                    result.failure.push(priceArr[idx]);
-                } else {
-                    const regularMarketPreviousClose = priceArr[idx]["regularMarketPreviousClose"];
-                    const regularMarketPrice = priceArr[idx]["regularMarketPrice"];
-                    const regularMarketLastClose = priceArr[idx][lastClose];
-                    priceArr[idx]["regularMarketLastClose"] = regularMarketLastClose;
-
-                    return this.yf_infoRepo.updatePrice(
-                        ticker,
-                        {regularMarketPreviousClose, regularMarketPrice, regularMarketLastClose}
-                    )
-                    .then((res)=>{
-                        // const successRes = {
-                        //     acknowledged: true,
-                        //     modifiedCount: 1,
-                        //     upsertedId: null,
-                        //     upsertedCount: 0,
-                        //     matchedCount: 1
-                        // }
-                        if (
-                            res.acknowledged &&
-                            res.modifiedCount === 1 &&
-                            res.upsertedId === null &&
-                            res.upsertedCount === 0 &&
-                            res.matchedCount === 1
-                            ) /* 예외 케이스가 발견됨에 따라 수정해야항 수도 있음 */ {
-                            result.success.push([ticker, priceArr[idx]]);
-                        } else {
-                            result.failure.push({error: "updateOne error", ticker, res});
-                        }
-                    })
-                    .catch(error => {
-                        result.failure.push({error, ticker});
-                    });
-                };
-            }));
-            
-            return result;
-        } catch (error) {
-            throw error;
+    updatePrice = curry((isNotMarketOpen: boolean, price: YfPrice): Promise<Either<UpdatePriceError, UpdatePriceResult>> => {
+        const {symbol, regularMarketPreviousClose, regularMarketPrice} = price;
+        const fulfilledPrice: FulfilledYfPrice = {
+            regularMarketPreviousClose,
+            regularMarketPrice,
+            regularMarketLastClose: isNotMarketOpen ? regularMarketPrice : regularMarketPreviousClose,
         };
-    }
+        return this.yf_infoRepo.updatePrice(
+            symbol,
+            {
+                regularMarketPreviousClose,
+                regularMarketPrice,
+                regularMarketLastClose: fulfilledPrice.regularMarketLastClose,
+            }
+        ).then(result => {
+            // const successRes = {
+            //     acknowledged: true,
+            //     modifiedCount: 1,
+            //     upsertedId: null,
+            //     upsertedCount: 0,
+            //     matchedCount: 1
+            // }
+            if (
+                result.acknowledged &&
+                result.modifiedCount === 1 &&
+                result.upsertedId === null &&
+                result.upsertedCount === 0 &&
+                result.matchedCount === 1
+            ) {
+                const result: UpdatePriceResult = [symbol, fulfilledPrice]
+                return Either.right(result);
+            } else {
+                return Either.left({error: "updateOne error", ticker: symbol, result});
+            };
+        }).catch(error => Either.left({error, ticker: symbol}));
+    });
 
     /**
      * ###
      * - updater.service.updatePriceByFilters
      */
     async getSymbolArr(filter: object) {
-        try {
-            return (await this.yf_infoRepo.find(filter, '-_id symbol')).map(doc => doc.symbol);
-        } catch (error) {
-            throw error;
-        };
+        return (await this.yf_infoRepo.find(filter, '-_id symbol')).map(doc => doc.symbol);
     }
 
     /**
@@ -144,7 +128,7 @@ export class DBRepository {
     /**
      * ###
      */
-    insertAssets(assetArr) {
+    insertAssets(assetArr: FulfilledYfInfo[]) {
         try {
             return this.yf_infoRepo.insertMany(assetArr);
         } catch (error) {
