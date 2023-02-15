@@ -153,7 +153,7 @@ export class UpdaterService {
     }
 
     /**
-     * ### 가격 업데이트하기
+     * ### 가격 업데이트하기 <Standard>
      * - 업데이트 시작 종료 logger
      * - 가격 업데이트
      * - status 업뎃
@@ -184,7 +184,7 @@ export class UpdaterService {
                 endTime: new Date().toISOString()
             }
         ));
-        const updateLog = await this.dbRepo.createLogPriceUpdate(launcher, updateResult, ISO_Code)
+        const updateLog = (await this.dbRepo.createLogPriceUpdate(launcher, true, ISO_Code, updateResult)).getWhatever;
         return {updateResult, updateLog};
     }
 

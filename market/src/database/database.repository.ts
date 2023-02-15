@@ -22,54 +22,32 @@ export class DBRepository {
     ) {}
     
     /**
-     * ###
+     * ### getAllAssetsInfo
      */
-    getAllAssetsInfo() {
-        try {
-            return this.yf_infoRepo.findAll();
-        } catch (error) {
-            throw error;
-        };
-    }
+    getAllAssetsInfo = () => this.yf_infoRepo.findAll();
 
     /**
      * ### ISO_Code 로 조회 => [ticker, price][]
      */
-    async getPriceByISOcode(ISO_Code: string) {
-        try {
-            return this.yf_infoRepo.findPricesByExchange(await this.isoCodeToTimezone(ISO_Code))
-            .then(arr => arr.map(ele => [ele.symbol, ele.regularMarketLastClose]));
-        } catch (error) {
-            throw error;
-        };
-    }
+    getPriceByISOcode = async (ISO_Code: string) =>
+        this.yf_infoRepo.findPricesByExchange(await this.isoCodeToTimezone(ISO_Code))
+        .then(arr => arr.map(ele => [ele.symbol, ele.regularMarketLastClose]));
 
     /**
-     * ###
+     * ### getPriceByTicker
      */
-    getPriceByTicker(ticker: string) {
-        try {
-            return this.yf_infoRepo.findPriceBySymbol(ticker);
-        } catch (error) {
-            throw error;
-        };
-    }
+    getPriceByTicker = (ticker: string) => this.yf_infoRepo.findPriceBySymbol(ticker);
 
     /**
-     * ###
+     * ### testPickAsset
      */
-    testPickAsset(exchangeTimezoneName: string) {
-        try {
-            return this.yf_infoRepo.testPickOne(exchangeTimezoneName);
-        } catch (error) {
-            throw error;
-        };
-    }
+    testPickAsset = (exchangeTimezoneName: string) => this.yf_infoRepo.testPickOne(exchangeTimezoneName);
 
     /**
      * ### updatePrice
      */
-    updatePrice = curry((isNotMarketOpen: boolean, price: YfPrice): Promise<Either<UpdatePriceError, UpdatePriceResult>> => {
+    updatePrice = curry((isNotMarketOpen: boolean, price: YfPrice):
+    Promise<Either<UpdatePriceError, UpdatePriceResult>> => {
         const {symbol, regularMarketPreviousClose, regularMarketPrice} = price;
         const fulfilledPrice: FulfilledYfPrice = {
             regularMarketPreviousClose,
@@ -107,176 +85,112 @@ export class DBRepository {
     });
 
     /**
-     * ###
-     * - updater.service.updatePriceByFilters
+     * ### getSymbolArr
      */
-    async getSymbolArr(filter: object) {
-        return (await this.yf_infoRepo.find(filter, '-_id symbol')).map(doc => doc.symbol);
-    }
+    getSymbolArr = async (filter: object) =>
+        (await this.yf_infoRepo.find(filter, '-_id symbol'))
+        .map(doc => doc.symbol);
 
     /**
-     * ###
+     * ### existsAssetByTicker
      */
-    existsAssetByTicker(ticker: string) {
-        try {
-            return this.yf_infoRepo.exists(ticker);
-        } catch (error) {
-            throw error;
-        };
-    }
+    existsAssetByTicker = (ticker: string) => this.yf_infoRepo.exists(ticker);
 
     /**
-     * ###
+     * ### insertAssets
      */
-    insertAssets(assetArr: FulfilledYfInfo[]) {
-        try {
-            return this.yf_infoRepo.insertMany(assetArr);
-        } catch (error) {
-            throw error;
-        };
-    }
+    insertAssets = (assetArr: FulfilledYfInfo[]) => this.yf_infoRepo.insertMany(assetArr);
 
     /**
-     * ###
+     * ### getAllStatusPrice
      */
-    getAllStatusPrice() {
-        try {
-            return this.status_priceRepo.findAll();
-        } catch (error) {
-            throw error;
-        };
-    }
-
-    getStatusPrice(ISO_Code: string) {
-        try {
-            return this.status_priceRepo.findOneByISOcode(ISO_Code);
-        } catch (error) {
-            throw error;
-        };
-    }
+    getAllStatusPrice = () => this.status_priceRepo.findAll();
 
     /**
-     * ###
+     * ### getStatusPrice
      */
-    updateStatusPriceByRegularUpdater(ISO_Code: string, previous_close: string) {
-        try {
-            return this.status_priceRepo.updateByRegularUpdater(ISO_Code, previous_close);
-        } catch (error) {
-            throw error;
-        };
-    }
+    getStatusPrice = (ISO_Code: string) => this.status_priceRepo.findOneByISOcode(ISO_Code);
 
     /**
-     * ###
+     * ### updateStatusPriceByRegularUpdater
      */
-    existsStatusPrice(filter: object) {
-        try {
-            return this.status_priceRepo.exists(filter);
-        } catch (error) {
-            throw error;
-        };
-    }
+    updateStatusPriceByRegularUpdater = (ISO_Code: string, previous_close: string) => this.status_priceRepo.updateByRegularUpdater(ISO_Code, previous_close);
 
     /**
-     * ###
+     * ### existsStatusPrice
      */
-    createStatusPrice(ISO_Code: string, previous_close: string, yf_exchangeTimezoneName: string) {
-        try {
-            return this.status_priceRepo.createOne(
-                ISO_Code,
-                new Date(previous_close).toISOString(),
-                yf_exchangeTimezoneName
-            );
-        } catch (err) {
-            throw err
-        };
-    }
+    existsStatusPrice = (filter: object) => this.status_priceRepo.exists(filter);
 
     /**
-     * ###
+     * ### createStatusPrice
      */
-    createConfigExchange(body: ConfigExchangeDto) {
-        try {
-            return this.config_exchangeRepo.createOne(body);
-        } catch (error) {
-            throw error;
-        };
-    }
+    createStatusPrice = (ISO_Code: string, previous_close: string, yf_exchangeTimezoneName: string) =>
+        this.status_priceRepo.createOne(
+            ISO_Code,
+            new Date(previous_close).toISOString(),
+            yf_exchangeTimezoneName
+        );
 
     /**
-     * ###
+     * ### createConfigExchange
      */
-    getMarginMilliseconds(ISO_Code: string) {
-        try {
-            return this.config_exchangeRepo.findMarginMilliseconds(ISO_Code);
-        } catch (error) {
-            throw error;
-        };
-    }
+    createConfigExchange = (body: ConfigExchangeDto) => this.config_exchangeRepo.createOne(body);
 
     /**
-     * ###
+     * ### getMarginMilliseconds
      */
-    testPickLastUpdateLog(ISO_Code: string) {
-        try {
-            return this.log_priceUpdateRepo.testPickLastOne(ISO_Code);
-        } catch (error) {
-            throw error;
-        };
-    }
+    getMarginMilliseconds = (ISO_Code: string) => this.config_exchangeRepo.findMarginMilliseconds(ISO_Code);
+
+    /**
+     * ### testPickLastUpdateLog
+     */
+    testPickLastUpdateLog = (ISO_Code: string) => this.log_priceUpdateRepo.testPickLastOne(ISO_Code);
 
     /**
      * ### log_priceUpdate Doc 생성 By launcher, updateResult, key
      */
-    createLogPriceUpdate(launcher: string, updateResult, key: string | Array<string | Object>) {
-        try {
-            return this.log_priceUpdateRepo.create(launcher, updateResult, key)
-            .then(doc => {
-                if (launcher === "scheduler" || launcher === "initiator") {
-                    /* logger */this.logger.verbose(`${key} : Log_priceUpdate Doc Created`)
-                } else {
-                    /* logger */this.logger.verbose(`Log_priceUpdate Doc Created : ${launcher}`)
-                }
-                return doc;
-            })
-            .catch((error) => {
-                /* logger */this.logger.error(error)
-                throw error;
-            })
-        } catch (error) {
-            throw error
-        };
-    }
+    createLogPriceUpdate = (
+        launcher: string,
+        isStandard: boolean,
+        key: string | Array<string | Object>,
+        updateResult: FlattenStandardUpdatePriceResult
+    ): Promise<Either<Error, LogPriceUpdate>> =>
+    this.log_priceUpdateRepo.create(launcher, isStandard, key, updateResult)
+    .then(doc => {
+        if (launcher === "scheduler" || launcher === "initiator") {
+            this.logger.verbose(`${key} : Log_priceUpdate Doc Created`)
+        } else {
+            this.logger.verbose(`Log_priceUpdate Doc Created : ${launcher}`)
+        }
+        return Either.right(doc);
+    })
+    .catch((error) => {
+        this.logger.error(error)
+        return Either.left(error);
+    });
 
     /**
      * ### ISO code 를 yahoofinance exchangeTimezoneName 로 변환 혹은 그 반대를 수행
      * - 없으면 전체 갱신후 재시도
      */
     async isoCodeToTimezone(something: string): Promise<string> {
-        try {
-            const result: string = await this.cacheManager.get(something);
-            if (!result) {
-                await this.setIsoCodeToTimezone();
-                return await this.cacheManager.get(something);
-            };
-            return result;
-        } catch (error) {
-            throw error;
+        const result: string = await this.cacheManager.get(something);
+        if (!result) {
+            await this.setIsoCodeToTimezone();
+            return await this.cacheManager.get(something);
         };
+        return result;
     }
 
     /**
      * isoCodeToTimezone 갱신
      */
-    async setIsoCodeToTimezone() {
-        try {
-            await Promise.all((await this.config_exchangeRepo.findAllIsoCodeAndTimezone()).map(async isoCodeAndTimezone => {
-                await this.cacheManager.set(isoCodeAndTimezone.ISO_Code, isoCodeAndTimezone.ISO_TimezoneName);
-                await this.cacheManager.set(isoCodeAndTimezone.ISO_TimezoneName, isoCodeAndTimezone.ISO_Code);
-            }));
-        } catch (error) {
-            throw error;
-        };
-    }
+    setIsoCodeToTimezone = async () => Promise.all(
+        (await this.config_exchangeRepo.findAllIsoCodeAndTimezone())
+        .map(async isoCodeAndTimezone => {
+            await this.cacheManager.set(isoCodeAndTimezone.ISO_Code, isoCodeAndTimezone.ISO_TimezoneName);
+            await this.cacheManager.set(isoCodeAndTimezone.ISO_TimezoneName, isoCodeAndTimezone.ISO_Code);
+        })
+    );
 
 }

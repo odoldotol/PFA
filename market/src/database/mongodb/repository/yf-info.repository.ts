@@ -11,107 +11,59 @@ export class Yf_infoRepository {
     ) {}
     
     /**
-     * ###
-     * - updater.service.testGeneralInitiate
+     * ### testPickOne
      */
-    testPickOne(exchangeTimezoneName: string) {
-        try {
-            return this.findOne({exchangeTimezoneName}, "-_id symbol regularMarketPrice regularMarketPreviousClose regularMarketLastClose");
-        } catch (error) {
-            throw error;
-        };
-    }
+    testPickOne = (exchangeTimezoneName: string) => this.findOne(
+        {exchangeTimezoneName},
+        "-_id symbol regularMarketPrice regularMarketPreviousClose regularMarketLastClose"
+    );
 
     /**
-     * ###
+     * ### updatePrice
      */
-    updatePrice(symbol: string, price: FulfilledYfPrice) {
-        try {
-            return this.yf_infoModel.updateOne({symbol}, price).exec();
-        } catch (error) {
-            throw error;
-        };
-    }
+    updatePrice = (symbol: string, price: FulfilledYfPrice) => this.yf_infoModel.updateOne({symbol}, price).exec();
 
     /**
-     * ###
+     * ### exists
      */
-    exists(symbol: string) {
-        try {
-            return this.yf_infoModel.exists({symbol}).exec();
-        } catch (error) {
-            throw error;
-        };
-    }
+    exists = (symbol: string) => this.yf_infoModel.exists({symbol}).exec();
 
     /**
-     * ###
+     * ### insertMany
      */
-    insertMany(arr: Yf_info[]) {
-        try {
-            return this.yf_infoModel.insertMany(arr, { ordered: false });
-        } catch (error) {
-            throw error;
-        };
-    }
+    insertMany = (arr: Yf_info[]) => this.yf_infoModel.insertMany(arr, { ordered: false });
 
     /**
-     * ###
+     * ### findPricesByExchange
      */
-    findPricesByExchange(exchangeTimezoneName: string) {
-        try {
-            return this.find({exchangeTimezoneName}, "-_id symbol regularMarketLastClose");
-        } catch (error) {
-            throw error;
-        };
-    }
+    findPricesByExchange = (exchangeTimezoneName: string) => this.find({exchangeTimezoneName}, "-_id symbol regularMarketLastClose");
 
     /**
-     * ###
+     * ### findPriceBySymbol
      */
-    findPriceBySymbol(symbol: string) {
-        try {
-            return this.findOne({ symbol }, "-_id regularMarketLastClose exchangeTimezoneName");
-        } catch (error) {
-            throw error;
-        };
-    }
+    findPriceBySymbol = (symbol: string)  => this.findOne({ symbol }, "-_id regularMarketLastClose exchangeTimezoneName");
 
     /**
-     * ###
+     * ### findAll
      */
-    findAll() {
-        try {
-            return this.find({}, "-_id symbol shortName longName quoteType currency market exchange exchangeTimezoneName exchangeTimezoneShortName");
-        } catch (error) {
-            throw error;
-        };
-    }
+    findAll = () => this.find({}, "-_id symbol shortName longName quoteType currency market exchange exchangeTimezoneName exchangeTimezoneShortName");
 
     /**
-     * ###
+     * ### findOne
      */
     findOne(filter: object, projection?: object|string|Array<string>) {
-        try {
-            const q = this.yf_infoModel.findOne(filter)
-            if (projection) q.select(projection);
-            return q.lean().exec();
-        } catch (error) {
-            throw error;
-        };
+        const q = this.yf_infoModel.findOne(filter)
+        if (projection) q.select(projection);
+        return q.lean().exec();
     }
 
     /**
-     * ###
+     * ### find
      */
     find(filter: object, projection?: object|string|Array<string>) {
-        try {
-            const q = this.yf_infoModel.find(filter)
-            if (projection) q.select(projection);
-            return q.lean().exec();
-        } catch (error) {
-            throw error;
-        };
+        const q = this.yf_infoModel.find(filter)
+        if (projection) q.select(projection);
+        return q.lean().exec();
     }
 
 }

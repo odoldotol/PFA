@@ -13,64 +13,36 @@ export class Status_priceRepository {
     /**
      * ISO code 로 Status_price leanDoc 하나 가져오기
      */
-    findOneByISOcode(ISO_Code: string) {
-        try {
-            return this.status_priceModel.findOne({ ISO_Code }).lean().exec();
-        } catch (err) {
-            throw err
-        };
-    }
+    findOneByISOcode = (ISO_Code: string) => this.status_priceModel.findOne({ ISO_Code }).lean().exec();
 
     /**
-     * ###
+     * ### findAll
      */
-    findAll() {
-        try {
-            return this.status_priceModel.find().lean().exec();
-        } catch (err) {
-            throw err
-        };
-    }
+    findAll = () => this.status_priceModel.find().lean().exec();
 
     /**
      * ### FindOne By ISO_Code And Update LastMarketDate
      */
-    updateByRegularUpdater(ISO_Code: string, previous_close: string) {
-        try {
-            return this.status_priceModel.findOneAndUpdate(
-                { ISO_Code },
-                { lastMarketDate: new Date(previous_close).toISOString() },
-                { new: true }
-            ).lean().exec();
-        } catch (err) {
-            throw err
-        };
-    }
+    updateByRegularUpdater = (ISO_Code: string, previous_close: string) => 
+        this.status_priceModel.findOneAndUpdate(
+            { ISO_Code },
+            { lastMarketDate: new Date(previous_close).toISOString() },
+            { new: true }
+        ).lean().exec();
 
     /**
-     * ###
+     * ### exists
      */
-    exists(filter: object) {
-        try {
-            return this.status_priceModel.exists(filter).exec();
-        } catch (err) {
-            throw err
-        };
-    }
+    exists = (filter: object) => this.status_priceModel.exists(filter).exec();
 
     /**
-     * ###
+     * ### createOne
      */
-    createOne(ISO_Code: string, lastMarketDate: string, yf_exchangeTimezoneName: string) {
-        try {
-            return new this.status_priceModel({
-                ISO_Code,
-                lastMarketDate,
-                yf_exchangeTimezoneName,
-            }).save();
-        } catch (err) {
-            throw err
-        };
-    }
+    createOne = (ISO_Code: string, lastMarketDate: string, yf_exchangeTimezoneName: string) =>
+        new this.status_priceModel({
+            ISO_Code,
+            lastMarketDate,
+            yf_exchangeTimezoneName,
+        }).save();
 
 }

@@ -33,5 +33,5 @@ interface FlattenStandardUpdatePriceResult {
 
 interface UpdaterForPriceResult {
     readonly updateResult: FlattenStandardUpdatePriceResult
-    readonly updateLog: LogPriceUpdate
+    readonly updateLog: Error|LogPriceUpdate
 };

@@ -12,34 +12,19 @@ export class Config_exchangeRepository {
     ) {}
     
     /**
-     * ###
-     * - yahoofinance.service.setIsoCodeToTimezone
+     * ### findAllIsoCodeAndTimezone
      */
-    findAllIsoCodeAndTimezone() {
-        try {
-            return this.config_exchangeModel.find({}, "-_id ISO_Code ISO_TimezoneName").lean().exec();
-        } catch (error) {
-            throw error;
-        };
-    }
+    findAllIsoCodeAndTimezone = () => this.config_exchangeModel.find({}, "-_id ISO_Code ISO_TimezoneName").lean().exec();
     
     /**
-     * ###
+     * ### findMarginMilliseconds
      */
-    findMarginMilliseconds(ISO_Code: string) {
-        return this.config_exchangeModel.findOne({ISO_Code}, "-_id update_margin_milliseconds").lean().exec()
+    findMarginMilliseconds = (ISO_Code: string) => this.config_exchangeModel.findOne({ISO_Code}, "-_id update_margin_milliseconds").lean().exec()
         .then((obj) => obj["update_margin_milliseconds"]);
-    }
 
     /**
      * ### 하나 생성
      */
-    createOne(reqBody: ConfigExchangeDto) {
-        try {
-            return this.config_exchangeModel.create(reqBody);
-        } catch (error) {
-            throw error;
-        };
-    }
+    createOne = (reqBody: ConfigExchangeDto) => this.config_exchangeModel.create(reqBody);
 
 }

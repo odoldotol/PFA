@@ -13,32 +13,25 @@ export class Log_priceUpdateRepository {
     /**
      * ### log_priceUpdate Doc 생성 By launcher, updateResult, key
      */
-    create(launcher: string, updateResult, key: string | Array<string | Object>) {
-        try {
-            const {startTime, endTime} = updateResult;
-            const newLog = new this.log_priceUpdateModel({
-                launcher,
-                isStandard: true, //
-                key,
-                success: updateResult.updatePriceResult["success"],
-                failure: updateResult.updatePriceResult["failure"],
-                error: updateResult["error"] || updateResult.updatePriceResult["error"],
-                startTime,
-                endTime,
-                duration: new Date(endTime).getTime() - new Date(startTime).getTime()
-            });
-
-            return newLog.save();
-        } catch (err) {
-            throw err
-        };
+    create(launcher: string, isStandard: boolean, key: string | Array<string | Object>, updateResult: FlattenStandardUpdatePriceResult) {
+        const {startTime, endTime} = updateResult;
+        const newLog = new this.log_priceUpdateModel({
+            launcher,
+            isStandard,
+            key,
+            success: updateResult.updatePriceResult["success"],
+            failure: updateResult.updatePriceResult["failure"],
+            error: updateResult["error"] || updateResult.updatePriceResult["error"],
+            startTime,
+            endTime,
+            duration: new Date(endTime).getTime() - new Date(startTime).getTime()
+        });
+        return newLog.save();
     }
 
     /**
-     * ###
+     * ### testPickLastOne
      */
-    testPickLastOne(key: string) {
-        return this.log_priceUpdateModel.find({key}).sort({createdAt: -1}).limit(1).lean().exec();
-    }
+    testPickLastOne = (key: string) => this.log_priceUpdateModel.find({key}).sort({createdAt: -1}).limit(1).lean().exec();
 
 }
