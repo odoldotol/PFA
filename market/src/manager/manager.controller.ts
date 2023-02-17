@@ -17,7 +17,7 @@ export class ManagerController {
     /**
      * ### tickerArr 로 Assets 생성해보고 그 작업의 결과 반환
      */
-    @Post('yf_info')
+    @Post('asset')
     @HttpCode(200)
     async createAssets(@Body(new ParseArrayPipe({items:String}), UpperCasePipe) tickerArr: string[]): Promise<object> {
         return await this.updaterService.createAssetByTickerArr(tickerArr);
@@ -26,7 +26,7 @@ export class ManagerController {
     /**
      * ###
      */
-    @Get('yf_info')
+    @Get('asset')
     async getAllAssetsInfo() {
         return await this.dbRepo.getAllAssetsInfo();
     }

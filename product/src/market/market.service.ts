@@ -5,6 +5,7 @@ import { Cache } from 'cache-manager';
 import { catchError, firstValueFrom } from 'rxjs';
 import { RegularUpdateForPriceBodyDto } from './dto/regularUpdateForPriceBody.dto';
 import { ChildProcessWithoutNullStreams, spawn } from 'child_process';
+import { concurrent, each, map, peek, pipe, tap, toArray, toAsync } from '@fxts/core';
 
 @Injectable()
 export class MarketService implements OnApplicationShutdown {
@@ -18,11 +19,16 @@ export class MarketService implements OnApplicationShutdown {
         private readonly httpService: HttpService,
         @Inject(CACHE_MANAGER) private cacheManager: Cache
     ) {
-        this.initiator();
+        this.initiator()
+        .then(() => process.send ? process.send('ready') && this.logger.log("Send Ready to Parent Process") : this.logger.log("Ready"))
+        .catch(error => this.logger.error(error));
     }
 
+    /**
+     * ### 앱 종료시 캐시 백업
+     */
     async onApplicationShutdown(signal?: string) {
-        /* logger */this.logger.warn(`Cache Backup Start`);
+        this.logger.warn(`Cache Backup Start`);
         const keyArr = await this.cacheManager.store.keys();
         const BackupObj = {};
         const cacheArr = await Promise.all(keyArr.map(async (key) => {
@@ -32,7 +38,7 @@ export class MarketService implements OnApplicationShutdown {
         // 대충 이렇게 구현하면 되겠다~
         // [TODO] 완성시키기 (임시로 5초간 sleep)
         await new Promise((resolve) => setTimeout(resolve, 5000));
-        /* logger */this.logger.warn(`Cache Backup End`);
+        this.logger.warn(`Cache Backup End`);
     }
 
     /**
@@ -41,93 +47,79 @@ export class MarketService implements OnApplicationShutdown {
      * - 에러는 그대로 출력
      * - close 이벤트시 code 와 signal 을 담은 메세지 출력
      */
-    async runMarket() {
-        try {
-            return new Promise<void>((resolve, reject) => {
-                const marketCp = spawn('npm', ["run", "start:prod"], {cwd: '../market/'});
-                marketCp.stdout.on('data', (data) => {
-                    const dataArr = data.toString().split('\x1B');
-                    const str = dataArr[dataArr.length - 2]
-                    if (str !== undefined && str.slice(-16) === 'Initiator End!!!') {
-                        resolve();
-                    };
-                    // 출력
-                    dataArr.pop()
-                    if (dataArr.length === 0) {
-                        console.log("<MARKET>", data.toString(), "</MARKET>");
-                    } else {
-                        console.log("\x1B[39m<MARKET>", dataArr.join('\x1B'), "\x1B[39m</MARKET>");
-                    };
-                });
-                marketCp.on('error', (err) => {
-                    console.log(err);
-                });
-                marketCp.stderr.on('data', (data) => {
-                    console.log(data.toString());
-                });
-                marketCp.on('close', (code, signal) => {
-                    console.log(`MarketCp closed with code: ${code} and signal: ${signal}`);
-                });
-            });
-        } catch (error) {
-            throw error;
-        }
-    }
+    private runMarket = () => new Promise<void>((resolve, reject) => {
+        const marketCp = spawn('npm', ["run", "start:prod"], {cwd: '../market/'});
+        marketCp.stdout.on('data', (data) => {
+            const dataArr = data.toString().split('\x1B');
+            const str = dataArr[dataArr.length - 2]
+            if (str !== undefined && str.slice(-16) === 'Initiator End!!!') {
+                resolve();
+            };
+            // 출력
+            dataArr.pop()
+            if (dataArr.length === 0) {
+                console.log("<MARKET>", data.toString(), "</MARKET>");
+            } else {
+                console.log("\x1B[39m<MARKET>", dataArr.join('\x1B'), "\x1B[39m</MARKET>");
+            };
+        });
+        marketCp.on('error', (err) => {
+            console.log(err);
+        });
+        marketCp.stderr.on('data', (data) => {
+            console.log(data.toString());
+        });
+        marketCp.on('close', (code, signal) => {
+            console.log(`MarketCp closed with code: ${code} and signal: ${signal}`);
+        });
+    });
 
     /**
      * 
      */
     async initiator() {
-        try {
-            // await this.runMarket(); // [주의]마켓 서버를 차일드프로세스로 실행
-            /* logger */this.logger.warn("Initiator Run!!!");
-            await this.cacheManager.reset();
-            await this.initiatePriceCache();
+        // await this.runMarket(); // [주의]마켓 서버를 차일드프로세스로 실행
+        this.logger.warn("Initiator Run!!!");
+        await this.cacheManager.reset();
+        await this.initiateCache();
 
-            // await this.cacheManager.del("AAPL"); // 없을경우 테스트용
-            // const priceObj = await this.cacheManager.get("AAPL"); // marketDate 불일치 테스트용
-            // priceObj["marketDate"] = "2022-12-28" // marketDate 불일치 테스트용
-            // await this.cacheManager.set("AAPL", priceObj); // marketDate 불일치 테스트용
+        // await this.cacheManager.del("AAPL"); // 없을경우 테스트용
+        // const priceObj = await this.cacheManager.get("AAPL"); // marketDate 불일치 테스트용
+        // priceObj["marketDate"] = "2022-12-28" // marketDate 불일치 테스트용
+        // await this.cacheManager.set("AAPL", priceObj); // marketDate 불일치 테스트용
 
-            /* logger */this.logger.warn("Initiator End!!!");
-            if (process.send !== undefined) {
-                process.send('ready');
-                /* logger */this.logger.log("Send Ready to Parent Process");
-            };
-        } catch (error) {
-            throw error;
-        }
+        this.logger.warn("Initiator End!!!");
     }
 
     /**
-     * ### 가격 캐시 초기화
+     * ### 캐시 초기화
      */
-    async initiatePriceCache() {
-        try {
-            // status_price 캐싱
-            const spDocArr = await this.requestSpDocArrToMarket();
-            await Promise.all(spDocArr.map(async spDoc => {
-                const ISO_Code = spDoc.ISO_Code;
-                const marketDate = spDoc.lastMarketDate.slice(0, 10);
-                await this.cacheManager.set(`${ISO_Code}_priceStatus`, marketDate, 0);
-                // 가격 캐싱 (이전 캐싱리스트를 가지고있다가 그것만 캐싱하도록 할까? 일단은 전체캐싱)
-                const priceArrs = await this.requestPriceToMarket(ISO_Code, "ISO_Code");
-                await Promise.all(priceArrs.map(async priceArr => {
-                    const value = {
-                        price: priceArr[1],
-                        ISOcode: ISO_Code,
-                        marketDate: marketDate,
-                        count: 0
-                    };
-                    await this.cacheManager.set(priceArr[0], value);
-                }));
-                /* logger */this.logger.warn(`${ISO_Code} : Price Cache Initiated`);
-            }));
-        } catch (error) {
-            /* logger */this.logger.error(error);
-            /* logger */this.logger.warn(`Failed to initiate price cache`);
-        };
-    }
+    private initiateCache = async () => pipe(
+        await this.requestSpDocArrToMarket(), toAsync,
+        map(async spDoc => ({ ISO_Code: spDoc.ISO_Code, marketDate: spDoc.lastMarketDate.slice(0, 10) })),
+        peek(async ({ISO_Code, marketDate}) => await this.cacheManager.set(`${ISO_Code}_priceStatus`, marketDate, 0)),
+        // (백업된 캐시 가져오고 그것을 바탕으로 캐싱하도록 하기, 일단은 전체 캐싱)
+        peek(this.initiatePriceCache),
+        each(sp => this.logger.warn(`${sp.ISO_Code} : Price Cache Initiated`))
+    ).catch(error => (this.logger.error(error), this.logger.warn(`Failed to initiate price cache`)));
+
+    /**
+     * ### initiatePriceCache
+     */
+    private initiatePriceCache = async ({ISO_Code, marketDate}) => pipe(
+        await this.requestPriceByISOcode(ISO_Code), toAsync,
+        map(async price => ({
+            symbol: price[0],
+            value: {
+                price: price[1],
+                ISOcode: ISO_Code,
+                marketDate: marketDate,
+                count: 0
+            }
+        })),
+        peek(async ({symbol, value}) => await this.cacheManager.set(symbol, value, 0)),
+        toArray
+    );
 
     /**
      * ### 가격 조회
@@ -138,69 +130,64 @@ export class MarketService implements OnApplicationShutdown {
      * - 없으면 마켓업데이터에 조회요청, 케싱 [logger 00]
      */
     async getPriceByTicker(ticker: string) {
-        try {
-            const priceObj = await this.cacheManager.get(ticker);
-            if (priceObj) { // 캐시에 있으면 마켓업데이트 일치 확인
-                // count + 1
-                priceObj["count"]++;
-                await this.cacheManager.set(ticker, priceObj);
-                const marketDate = await this.cacheManager.get(`${priceObj["ISOcode"]}_priceStatus`);
-                if (marketDate === priceObj["marketDate"]) { // marketDate 일치하면 조회
-                    /* logger */this.logger.verbose(`${ticker} : 11`);
-                    return priceObj;
-                } else { // marketDate 불일치하면 마켓업데이터에 조회요청, 캐시업뎃 [logger 10]
-                    const priceByTicker = await this.requestPriceToMarket(ticker, "ticker");
-                    priceObj["price"] = priceByTicker["price"];
-                    priceObj["marketDate"] = await this.cacheManager.get(`${priceObj["ISOcode"]}_priceStatus`);
-                    /* logger */this.logger.verbose(`${ticker} : 10`);
-                    return await this.cacheManager.set(ticker, priceObj);
-                };
-            } else { // 캐시에 없으면 마켓업데이터에 조회요청, 케싱 [logger 00]
-                const priceByTicker = await this.requestPriceToMarket(ticker, "ticker");
-                if (priceByTicker.status_price) {
-                    await this.cacheManager.set(`${priceByTicker.status_price.ISO_Code}_priceStatus`, priceByTicker.status_price.lastMarketDate.slice(0,10), 0);
-                    priceByTicker.status_price = undefined;
-                };
-                priceByTicker["marketDate"] = await this.cacheManager.get(`${priceByTicker["ISOcode"]}_priceStatus`);
-                priceByTicker["count"] = 1;
-                // set 직전에 캐시에서 가격조회 다시 해야할것같다(그 사이 생성됬을수도 있으니) // 쓸모없는 고민일까?
-                // const priceObjFC = await this.cacheManager.get(ticker);
-                // if (priceObjFC) {
-                //     // count + 1
-                //     priceObjFC["count"]++;
-                //     return await this.cacheManager.set(ticker, priceObjFC);
-                // } else {
-                    /* logger */this.logger.verbose(`${ticker} : 00`);
-                    return await this.cacheManager.set(ticker, priceByTicker);
-                // };
+        const priceObj = await this.cacheManager.get(ticker);
+        if (priceObj) { // 캐시에 있으면 마켓업데이트 일치 확인
+            // count + 1
+            priceObj["count"]++;
+            await this.cacheManager.set(ticker, priceObj);
+            const marketDate = await this.cacheManager.get(`${priceObj["ISOcode"]}_priceStatus`);
+            if (marketDate === priceObj["marketDate"]) { // marketDate 일치하면 조회
+                this.logger.verbose(`${ticker} : 11`);
+                return priceObj;
+            } else { // marketDate 불일치하면 마켓업데이터에 조회요청, 캐시업뎃 [logger 10]
+                const priceByTicker = await this.requestPriceByTicker(ticker);
+                priceObj["price"] = priceByTicker["price"];
+                priceObj["marketDate"] = await this.cacheManager.get(`${priceObj["ISOcode"]}_priceStatus`);
+                this.logger.verbose(`${ticker} : 10`);
+                return await this.cacheManager.set(ticker, priceObj);
             };
-        } catch (error) {
-            throw error;
+        } else { // 캐시에 없으면 마켓업데이터에 조회요청, 케싱 [logger 00]
+            const priceByTicker = await this.requestPriceByTicker(ticker);
+            console.log(priceByTicker);
+            if (priceByTicker.status_price) {
+                await this.cacheManager.set(`${priceByTicker.status_price.ISO_Code}_priceStatus`, priceByTicker.status_price.lastMarketDate.slice(0,10), 0);
+                priceByTicker.status_price = undefined;
+            };
+            priceByTicker["marketDate"] = await this.cacheManager.get(`${priceByTicker["ISOcode"]}_priceStatus`);
+            priceByTicker["count"] = 1;
+            this.logger.verbose(`${ticker} : 00`);
+            return await this.cacheManager.set(ticker, priceByTicker);
         };
     }
 
     /**
+     * ###
+     */
+    private requestPriceByISOcode = (ISO_Code: string): Promise<SymbolPrice[]> => this.requestPriceToMarket(ISO_Code, "ISO_Code");
+
+    /**
+     * ###
+     */
+    private requestPriceByTicker = (ticker: string): Promise<Price> => this.requestPriceToMarket(ticker, "ticker");
+
+    /**
      * ### Market 서버에 가격조회 요청하기
      */
-    async requestPriceToMarket(query_value: string, query_name: "ISO_Code" | "ticker") {
-        try {
-            return (await firstValueFrom(
-                this.httpService.get(`${this.MARKET_URL}manager/price?${query_name}=${query_value}`)
-                .pipe(catchError(error => {
-                    if (error.response) {
-                        if (error.response.data.error === "Bad Request") {
-                            throw new BadRequestException(error.response.data);
-                        } else {
-                            throw new InternalServerErrorException(error.response.data);
-                        };
+    private async requestPriceToMarket(query_value: string, query_name: "ISO_Code" | "ticker") {
+        return (await firstValueFrom(
+            this.httpService.get(`${this.MARKET_URL}manager/price?${query_name}=${query_value}`)
+            .pipe(catchError(error => {
+                if (error.response) {
+                    if (error.response.data.error === "Bad Request") {
+                        throw new BadRequestException(error.response.data);
                     } else {
-                        throw new InternalServerErrorException(error);
+                        throw new InternalServerErrorException(error.response.data);
                     };
-                }))
-            )).data;
-        } catch (error) {
-            throw error;
-        };
+                } else {
+                    throw new InternalServerErrorException(error);
+                };
+            }))
+        )).data;
     }
 
     /**
@@ -224,7 +211,7 @@ export class MarketService implements OnApplicationShutdown {
                     };
                 };
             }));
-            /* logger */this.logger.verbose(`${ISO_Code} : Regular Updated`);
+            this.logger.verbose(`${ISO_Code} : Regular Updated`);
         } catch (error) {
             throw new InternalServerErrorException(error);
         };
@@ -262,17 +249,13 @@ export class MarketService implements OnApplicationShutdown {
     /**
      * ### request spDocArr to Market
      */
-    async requestSpDocArrToMarket() {
-        try {
-            return (await firstValueFrom(
-                this.httpService.get(`${this.MARKET_URL}manager/status_price`)
-                .pipe(catchError(error => {
-                    throw error;
-                }))
-            )).data;
-        } catch (error) {
-            throw error;
-        };
+    private async requestSpDocArrToMarket(): Promise<StatusPrice[]> {
+        return (await firstValueFrom(
+            this.httpService.get(`${this.MARKET_URL}manager/status_price`)
+            .pipe(catchError(error => {
+                throw error; //
+            }))
+        )).data;
     }
 
     /**
@@ -281,25 +264,21 @@ export class MarketService implements OnApplicationShutdown {
      * - market : 마켓서버에서
      */
     async getAssets(where: "cache" | "market"): Promise<Array<string> | object> {
-        try {
-            if (where === "cache") {
-                return await this.cacheManager.store.keys();
-            } else if (where === "market") {
-                const result = {};
-                const yf_infoArr = (await firstValueFrom(
-                    this.httpService.get(`${this.MARKET_URL}manager/yf_info`)
-                    .pipe(catchError(error => {
-                        throw error;
-                    }))
-                )).data;
-                yf_infoArr.forEach(yf_info => {
-                    result[yf_info.symbol] = yf_info;
-                    delete yf_info.symbol;
-                });
-                return result;
-            };
-        } catch (error) {
-            throw error;
+        if (where === "cache") {
+            return await this.cacheManager.store.keys();
+        } else if (where === "market") {
+            const result = {};
+            const yf_infoArr = (await firstValueFrom(
+                this.httpService.get(`${this.MARKET_URL}manager/asset`)
+                .pipe(catchError(error => {
+                    throw error;
+                }))
+            )).data;
+            yf_infoArr.forEach(yf_info => {
+                result[yf_info.symbol] = yf_info;
+                delete yf_info.symbol;
+            });
+            return result;
         };
     }
 
@@ -307,40 +286,32 @@ export class MarketService implements OnApplicationShutdown {
      * ### request createByTickerArr to Market
      */
     async requestCreateByTickerArrToMarket(tickerArr: string[]) {
-        try {
-            return (await firstValueFrom(
-                this.httpService.post(`${this.MARKET_URL}manager/yf_info`, tickerArr)
-                .pipe(catchError(error => {
-                    throw error;
-                }))
-            )).data;
-        } catch (error) {
-            throw error;
-        };
+        return (await firstValueFrom(
+            this.httpService.post(`${this.MARKET_URL}manager/asset`, tickerArr)
+            .pipe(catchError(error => {
+                throw error;
+            }))
+        )).data;
     }
 
     /**
      * ### request createConfigExchange to Market
      */
     async requestCreateConfigExchangeToMarket(configExchange) {
-        try {
-            return (await firstValueFrom(
-                this.httpService.post(`${this.MARKET_URL}manager/config_exchange`, configExchange)
-                .pipe(catchError(error => {
-                    if (error.response) {
-                        if (error.response.data.error === "Bad Request") {
-                            throw new BadRequestException(error.response.data);
-                        } else {
-                            throw new InternalServerErrorException(error.response.data);
-                        };
+        return (await firstValueFrom(
+            this.httpService.post(`${this.MARKET_URL}manager/config_exchange`, configExchange)
+            .pipe(catchError(error => {
+                if (error.response) {
+                    if (error.response.data.error === "Bad Request") {
+                        throw new BadRequestException(error.response.data);
                     } else {
-                        throw new InternalServerErrorException(error);
+                        throw new InternalServerErrorException(error.response.data);
                     };
-                }))
-            )).data;
-        } catch (error) {
-            throw error;
-        };
+                } else {
+                    throw new InternalServerErrorException(error);
+                };
+            }))
+        )).data;
     }
 
 }

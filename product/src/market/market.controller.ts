@@ -2,6 +2,7 @@ import { Body, Controller, Get, HttpCode, Param, Post, Query, UnauthorizedExcept
 import { MarketService } from './market.service';
 import { RegularUpdateForPriceBodyDto } from './dto/regularUpdateForPriceBody.dto';
 import { ConfigService } from '@nestjs/config';
+import { UpperCasePipe } from './pipe/uppercasePipe';
 
 @Controller('market')
 export class MarketController {
@@ -17,7 +18,7 @@ export class MarketController {
      * ### 마켓서버로부터의 레귤러업데이트
      */
     @Post('updater/:ISO_Code')
-    async regularUpdaterForPrice(@Param('ISO_Code') ISO_Code: string, @Body() body: RegularUpdateForPriceBodyDto) {
+    async regularUpdaterForPrice(@Param('ISO_Code', UpperCasePipe) ISO_Code: string, @Body(UpperCasePipe) body: RegularUpdateForPriceBodyDto) {
         if (body.key !== this.TEMP_KEY) {
             throw new UnauthorizedException();
         };
@@ -31,7 +32,7 @@ export class MarketController {
      * ### 가격조회
      */
     @Get('dev')
-    async devGetPrice(@Query('ticker') ticker: string) {
+    async devGetPrice(@Query('ticker', UpperCasePipe) ticker: string) {
         return await this.marketService.getPriceByTicker(ticker);
     }
 

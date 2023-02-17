@@ -6,7 +6,7 @@ import { SchedulerRegistry } from '@nestjs/schedule';
 import { CronJob, CronTime } from 'cron';
 import { catchError, firstValueFrom } from 'rxjs';
 import { DBRepository } from '../database/database.repository';
-import { pipe, map, toArray, toAsync, noop, tap, each, filter, concurrent } from "@fxts/core";
+import { pipe, map, toArray, toAsync, tap, each, filter, concurrent, peek } from "@fxts/core";
 import { Either } from "../monad/either";
 
 @Injectable()
@@ -27,7 +27,7 @@ export class UpdaterService {
     ) {
         // 부모 프로세스 있으면 ready 메시지 보내기
         this.initiator()
-        .then(() => process.send ? process.send('ready') && this.logger.log("Send Ready to Parent Process") : noop)
+        .then(() => process.send ? process.send('ready') && this.logger.log("Send Ready to Parent Process") : this.logger.log("Ready"))
         .catch(error => this.logger.error(error));
     }
 
@@ -40,12 +40,9 @@ export class UpdaterService {
     async initiator() {
         this.logger.warn("Initiator Run!!!");
         await this.dbRepo.setIsoCodeToTimezone();
-        const spArr: StatusPrice[] = await this.dbRepo.getAllStatusPrice();
-        pipe(
-            spArr,
-            toAsync,
-            map(this.generalInitiate.bind(this)),
-            // concurrent(spArr.length),
+        await pipe(
+            await this.dbRepo.getAllStatusPrice(), toAsync,
+            peek(this.generalInitiate.bind(this)),
             toArray,
             tap(() => this.logger.warn("Initiator End!!!")),
         );
@@ -203,7 +200,7 @@ export class UpdaterService {
             const result = (await firstValueFrom(
                 this.httpService.post(`${this.PRODUCT_URL}market/updater/${ISO_Code}`, { marketDate, priceArrs, key: this.TEMP_KEY })
                 .pipe(catchError(error => {
-                    throw error;
+                    throw error; // 
                 }))
             ).catch(error => {
                 if (error.response) this.logger.error(error.response.data);
@@ -242,8 +239,7 @@ export class UpdaterService {
     private updatePriceByTickerArr = async (tickerArr: string[], isNotMarketOpen: boolean) => {
         const result: UpdatePriceResultArr = {success: [], failure: []};
         await pipe(
-            await this.marketService.getPriceByTickerArr(tickerArr),
-            toAsync,
+            await this.marketService.getPriceByTickerArr(tickerArr), toAsync,
             map(ele => ele.flatMapPromise(this.dbRepo.updatePrice(isNotMarketOpen))),
             each(ele => ele.isRight ? // *
                 result.success.push(ele.getRightOrThrowError)
@@ -271,8 +267,7 @@ export class UpdaterService {
         };
         const spMap: Map<string, string[]> = new Map();
         await pipe( // 중복제거와 exists필터 부분은 단일 티커처리시 필요없음. 이 부분 보완하기
-            new Set(tickerArr).values(), // 중복제거
-            toAsync,
+            new Set(tickerArr).values(), toAsync,
             map(this.createAssetTickerFilter), // exists?
             map(ele => ele.flatMapPromise(this.marketService.getInfoByTicker)),
             map(ele => ele.flatMapPromise(this.fulfillInfo)),
@@ -296,8 +291,7 @@ export class UpdaterService {
             )
         );
         await pipe(
-            spMap,
-            toAsync,
+            spMap, toAsync,
             filter(this.isNewExchange),
             map(this.applyNewExchange),
             each(ele => ele.isRight ? // *

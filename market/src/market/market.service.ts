@@ -49,8 +49,7 @@ export class MarketService {
      * ### string 배열에 비동기작업을 map 병열수행
      */
     private asyncMapPipe = <T>(arr: string[], func: (a:string)=>Promise<T>, ccLen: number) => pipe(
-        arr,
-        toAsync,
+        arr, toAsync,
         map(func),
         concurrent(ccLen),
         toArray
