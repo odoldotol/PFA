@@ -3,7 +3,7 @@ import { ManagerService } from './manager.service';
 import { UpdaterService } from '../updater/updater.service';
 import { ConfigExchangeDto } from '../dto/configExchange.dto';
 import { DBRepository } from '../database/database.repository';
-import { UpperCasePipe } from './pipe/uppercasePipe';
+import { UpperCasePipe } from './pipe/upperCasePipe';
 
 @Controller('manager')
 export class ManagerController {
