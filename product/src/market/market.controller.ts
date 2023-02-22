@@ -18,7 +18,7 @@ export class MarketController {
      * ### 마켓서버로부터의 레귤러업데이트
      */
     @Post('updater/:ISO_Code')
-    async regularUpdaterForPrice(@Param('ISO_Code', UpperCasePipe) ISO_Code: string, @Body(UpperCasePipe) body: RegularUpdateForPriceBodyDto) {
+    async regularUpdaterForPrice(@Param('ISO_Code', UpperCasePipe) ISO_Code: string, @Body() body: RegularUpdateForPriceBodyDto) {
         if (body.key !== this.TEMP_KEY) {
             throw new UnauthorizedException();
         };
@@ -32,8 +32,8 @@ export class MarketController {
      * ### 가격조회
      */
     @Get('dev')
-    async devGetPrice(@Query('ticker', UpperCasePipe) ticker: string) {
-        return await this.marketService.getPriceByTicker(ticker);
+    async devGetPrice(@Query('ticker', UpperCasePipe) ticker: string, @Query('id') id?: string) {
+        return await this.marketService.getPriceByTicker(ticker, id);
     }
 
     /**

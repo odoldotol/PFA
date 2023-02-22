@@ -129,7 +129,7 @@ export class MarketService implements OnApplicationShutdown {
      *      - 불일치하면 마켓업데이터에 조회요청, 캐시업뎃 [logger 10]
      * - 없으면 마켓업데이터에 조회요청, 케싱 [logger 00]
      */
-    async getPriceByTicker(ticker: string) {
+    async getPriceByTicker(ticker: string, id?: string) {
         const priceObj = await this.cacheManager.get(ticker);
         if (priceObj) { // 캐시에 있으면 마켓업데이트 일치 확인
             // count + 1
@@ -137,26 +137,25 @@ export class MarketService implements OnApplicationShutdown {
             await this.cacheManager.set(ticker, priceObj);
             const marketDate = await this.cacheManager.get(`${priceObj["ISOcode"]}_priceStatus`);
             if (marketDate === priceObj["marketDate"]) { // marketDate 일치하면 조회
-                this.logger.verbose(`${ticker} : 11`);
+                this.logger.verbose(`${ticker} : 11${id ? " "+id : ""}`);
                 return priceObj;
             } else { // marketDate 불일치하면 마켓업데이터에 조회요청, 캐시업뎃 [logger 10]
                 const priceByTicker = await this.requestPriceByTicker(ticker);
                 priceObj["price"] = priceByTicker["price"];
                 priceObj["marketDate"] = await this.cacheManager.get(`${priceObj["ISOcode"]}_priceStatus`);
-                this.logger.verbose(`${ticker} : 10`);
-                return await this.cacheManager.set(ticker, priceObj);
+                this.logger.verbose(`${ticker} : 10${id ? " "+id : ""}`);
+                return this.cacheManager.set(ticker, priceObj);
             };
         } else { // 캐시에 없으면 마켓업데이터에 조회요청, 케싱 [logger 00]
             const priceByTicker = await this.requestPriceByTicker(ticker);
-            console.log(priceByTicker);
             if (priceByTicker.status_price) {
                 await this.cacheManager.set(`${priceByTicker.status_price.ISO_Code}_priceStatus`, priceByTicker.status_price.lastMarketDate.slice(0,10), 0);
                 priceByTicker.status_price = undefined;
             };
             priceByTicker["marketDate"] = await this.cacheManager.get(`${priceByTicker["ISOcode"]}_priceStatus`);
             priceByTicker["count"] = 1;
-            this.logger.verbose(`${ticker} : 00`);
-            return await this.cacheManager.set(ticker, priceByTicker);
+            this.logger.verbose(`${ticker} : 00${id ? " "+id : ""}`);
+            return this.cacheManager.set(ticker, priceByTicker);
         };
     }
 
@@ -235,7 +234,7 @@ export class MarketService implements OnApplicationShutdown {
                     };
                 })
             } else if (where === "cache") {
-                const result = {};
+                const result: object = {};
                 await Promise.all(spDocArr.map(async (spDoc) => {
                     result[spDoc.ISO_Code] = await this.cacheManager.get(`${spDoc.ISO_Code}_priceStatus`);
                 }));

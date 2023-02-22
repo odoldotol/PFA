@@ -17,31 +17,27 @@ export class ManagerService {
      * - 없는건 생성해보고 알려준다
      */
     async getPriceByTicker(ticker: string) {
-        try {
-            let status_price = undefined;
-            const price = await this.dbRepo.getPriceByTicker(ticker)
-            .then(async res => {
-                if (res === null) {
-                    const createResult = await this.updaterService.createAssetByTickerArr([ticker])
-                    if (createResult.failure.info.length > 0) {
-                        if (createResult.failure.info[0].error.doc === "Mapping key not found.") {
-                            throw new BadRequestException(`Could not find Ticker: ${createResult.failure.info[0].error.ticker}`);
-                        }
-                        throw new InternalServerErrorException(createResult.failure.info[0]);
+        let status_price = undefined;
+        const price = await this.dbRepo.getPriceByTicker(ticker)
+        .then(async res => {
+            if (res === null) {
+                const createResult = await this.updaterService.createAssetByTickerArr([ticker])
+                if (createResult.failure.info.length > 0) {
+                    if (createResult.failure.info[0].error.doc === "Mapping key not found.") {
+                        throw new BadRequestException(`Could not find Ticker: ${createResult.failure.info[0].error.ticker}`);
                     }
-                    status_price = createResult.success.status_price[0]
-                    return createResult.success.info[0]
-                } else {
-                    return res;
+                    throw new InternalServerErrorException(createResult.failure.info[0]);
                 }
-            }).catch(err => {
-                throw err;
-            });
-            const ISOcode = await this.dbRepo.isoCodeToTimezone(price["exchangeTimezoneName"]);
-            return {price: price.regularMarketLastClose, ISOcode, status_price};
-        } catch (error) {
-            throw error;
-        };
+                status_price = createResult.success.status_price[0]
+                return createResult.success.info[0]
+            } else {
+                return res;
+            }
+        }).catch(err => {
+            throw err;
+        });
+        const ISOcode = await this.dbRepo.isoCodeToTimezone(price["exchangeTimezoneName"]);
+        return {price: price.regularMarketLastClose, ISOcode, status_price};
     }
 
 }
