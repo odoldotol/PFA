@@ -2,7 +2,7 @@ import { Body, Controller, Get, HttpCode, Param, Post, Query, UnauthorizedExcept
 import { MarketService } from './market.service';
 import { RegularUpdateForPriceBodyDto } from './dto/regularUpdateForPriceBody.dto';
 import { ConfigService } from '@nestjs/config';
-import { UpperCasePipe } from './pipe/uppercasePipe';
+import { UpperCasePipe } from './pipe/upperCasePipe';
 
 @Controller('market')
 export class MarketController {
