@@ -1,4 +1,4 @@
-export class Either<L, R> implements EitherI<L, R>{
+export class Either<L, R> implements EitherI<L, R> {
 
     constructor(
         private readonly leftValue: L,
@@ -24,19 +24,28 @@ export class Either<L, R> implements EitherI<L, R>{
         return this.isRight ? this.rightValue : this.leftValue;
     }
 
-    getRightOrThrowCustomError(error: any) {
-        if (this.isLeft) throw new error(this.leftValue);
-        return this.rightValue;
-    }
-
-    get getRightOrThrowError() {
+    /**
+     * ### Get Right Or Throw Error
+     */
+    get getRight() {
         if (this.isLeft) throw new Error(`Either GetRightOrThrowError. Either is Left: ${this.leftValue}`);
         return this.rightValue;
     }
 
-    get getLeftOrThrowError() {
+    /**
+     * ### Get Left Or Throw Error
+     */
+    get getLeft() {
         if (this.isRight) throw new Error(`Either GetLeftOrThrowError. Either is Right: ${this.rightValue}`);
         return this.leftValue;
+    }
+
+    /**
+     * ### Get Right Or Throw Custom Error
+     */
+    getRight2(error: any) {
+        if (this.isLeft) throw new error(this.leftValue);
+        return this.rightValue;
     }
 
     map = <S>(fn: (v: R) => S): Either<L, S> =>

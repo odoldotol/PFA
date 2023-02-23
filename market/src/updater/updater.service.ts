@@ -59,7 +59,7 @@ export class UpdaterService {
      */
     private async generalInitiate({ISO_Code, lastMarketDate, yf_exchangeTimezoneName}: StatusPrice) {
         const exchangeSession = (await this.marketService.getExchangeSessionByISOcode(ISO_Code))
-            .getRightOrThrowCustomError(InternalServerErrorException);
+            .getRight2(InternalServerErrorException);
         if (this.isPriceStatusUpToDate(lastMarketDate, exchangeSession)) { // status 최신이면
             this.logger.verbose(`${ISO_Code} : UpToDate`);
         } else { // 최신 아니면 // Yf_CCC 는 항상 현재가로 초기화 되는점 알기 (isNotMarketOpen)
@@ -80,7 +80,7 @@ export class UpdaterService {
         if (!spObj) throw new BadRequestException("ISO_Code is not valid");
         const yf_exchangeTimezoneName = spObj.yf_exchangeTimezoneName;
         const exchangeSession = (await this.marketService.getExchangeSessionByISOcode(ISO_Code))
-            .getRightOrThrowCustomError(InternalServerErrorException);
+            .getRight2(InternalServerErrorException);
         const isNotMarketOpen = await this.marketService.isNotMarketOpen(exchangeSession);
         const {updateResult, updateLog} = await this.updaterForPrice(ISO_Code, yf_exchangeTimezoneName, exchangeSession, isNotMarketOpen, "test");
         await this.schedulerForPrice(ISO_Code, yf_exchangeTimezoneName, exchangeSession);
@@ -144,7 +144,7 @@ export class UpdaterService {
      */
     private async recusiveUpdaterForPrice(ISO_Code: string, yf_exchangeTimezoneName: string) {
         const exchangeSession = (await this.marketService.getExchangeSessionByISOcode(ISO_Code))
-            .getRightOrThrowCustomError(InternalServerErrorException);
+            .getRight2(InternalServerErrorException);
         await this.updaterForPrice(ISO_Code, yf_exchangeTimezoneName, exchangeSession, true, "scheduler");
         await this.schedulerForPrice(ISO_Code, yf_exchangeTimezoneName, exchangeSession);
     }
@@ -194,7 +194,7 @@ export class UpdaterService {
         updatePriceResult: Either<UpdatePriceByFilterError, UpdatePriceResultArr>
     ) {
         const marketDate = previous_close.slice(0, 10);
-        let priceArrs = updatePriceResult.getRightOrThrowError
+        let priceArrs = updatePriceResult.getRight
             .success.map(priceArr => [priceArr[0], priceArr[1].regularMarketLastClose]);
         try {
             const result = (await firstValueFrom(
@@ -242,8 +242,8 @@ export class UpdaterService {
             await this.marketService.getPriceByTickerArr(tickerArr), toAsync,
             map(ele => ele.flatMapPromise(this.dbRepo.updatePrice(isNotMarketOpen))),
             each(ele => ele.isRight ? // *
-                result.success.push(ele.getRightOrThrowError)
-                : result.failure.push(ele.getLeftOrThrowError)
+                result.success.push(ele.getRight)
+                : result.failure.push(ele.getLeft)
             )
         );
         return result;
@@ -272,9 +272,9 @@ export class UpdaterService {
             map(ele => ele.flatMapPromise(this.marketService.getInfoByTicker)),
             map(ele => ele.flatMapPromise(this.fulfillInfo)),
             filter(ele => ele.isLeft ? // *
-            (result.failure.info.push(ele.getLeftOrThrowError), false)
+            (result.failure.info.push(ele.getLeft), false)
             : true),
-            map(ele => ele.getRightOrThrowError),
+            map(ele => ele.getRight),
             // concurrent(this.GETMARKET_CONCURRENCY), // 테스트 필요
             toArray,
             tap(async arr => { // *
@@ -295,8 +295,8 @@ export class UpdaterService {
             filter(this.isNewExchange),
             map(this.applyNewExchange),
             each(ele => ele.isRight ? // *
-                result.success.status_price.push(ele.getRightOrThrowError)
-                : result.failure.status_price.push(ele.getLeftOrThrowError)
+                result.success.status_price.push(ele.getRight)
+                : result.failure.status_price.push(ele.getLeft)
             )
         );
         return result;
@@ -347,7 +347,7 @@ export class UpdaterService {
             });
         } else {
             const exchangeSession = (await this.marketService.getExchangeSessionByISOcode(ISO_Code))
-                .getRightOrThrowCustomError(InternalServerErrorException);
+                .getRight2(InternalServerErrorException);
             return await this.dbRepo.createStatusPrice(ISO_Code, exchangeSession.previous_close, yf_exchangeTimezoneName)
             .then(async res => {
                 this.logger.verbose(`${ISO_Code} : Created new status_price`);

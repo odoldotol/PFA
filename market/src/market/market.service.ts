@@ -78,7 +78,7 @@ export class MarketService {
     isNotMarketOpen = async (prop: ExchangeSession|string) => {
         let previous_open: string, previous_close: string, next_open: string, next_close: string;
         typeof prop === `string` ?
-        ({previous_open, previous_close, next_open, next_close} = (await this.getExchangeSessionByISOcode(prop)).getRightOrThrowCustomError(InternalServerErrorException))
+        ({previous_open, previous_close, next_open, next_close} = (await this.getExchangeSessionByISOcode(prop)).getRight2(InternalServerErrorException))
         : ({previous_open, previous_close, next_open, next_close} = prop);
         return new Date(previous_open) > new Date(previous_close) && new Date(next_open) > new Date(next_close) ? false : true;
     }
