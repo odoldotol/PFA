@@ -10,9 +10,13 @@ export class Log_priceUpdate implements LogPriceUpdate {
 
     @Prop({
         required: true,
-        type: String // "initiator" | "scheduler" | "admin" | "product"
+        type: String,
+        validate: [
+            (v: string) => ["initiator", "scheduler", "admin", "product", "test"].includes(v),
+            "Invalid launcher"
+        ]
     }) // 업데이트 주체
-    launcher: "initiator" | "scheduler" | "admin" | "product" | "test"
+    launcher
     
     @Prop({
         required: true,

@@ -13,7 +13,7 @@ export class Log_priceUpdateRepository {
     /**
      * ### log_priceUpdate Doc 생성 By launcher, updateResult, key
      */
-    create(launcher: string, isStandard: boolean, key: string | Array<string | Object>, updateResult: FlattenStandardUpdatePriceResult) {
+    create(launcher: string, isStandard: boolean, key: string | Array<string | Object>, updateResult: StandardUpdatePriceResult) {
         const {startTime, endTime} = updateResult;
         const newLog = new this.log_priceUpdateModel({
             launcher,

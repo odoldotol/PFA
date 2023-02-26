@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
 import { Yf_info, Yf_infoDocument } from "../schema/yf_info.schema";
-import { Model } from "mongoose";
+import { ClientSession, Model } from "mongoose";
 
 @Injectable()
 export class Yf_infoRepository {
@@ -21,7 +21,7 @@ export class Yf_infoRepository {
     /**
      * ### updatePrice
      */
-    updatePrice = (symbol: string, price: FulfilledYfPrice) => this.yf_infoModel.updateOne({symbol}, price).exec();
+    updatePrice = (symbol: string, price: FulfilledPrice, session?: ClientSession) => this.yf_infoModel.updateOne({symbol}, price).session(session ? session : null).exec();
 
     /**
      * ### exists

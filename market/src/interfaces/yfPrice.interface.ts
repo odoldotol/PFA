@@ -7,7 +7,11 @@ interface YfPrice extends Price {
     readonly symbol: string
 }
 
-interface FulfilledYfPrice extends Price{
+interface FulfilledPrice extends Price {
+    readonly regularMarketLastClose: number
+}
+
+interface FulfilledYfPrice extends YfPrice {
     readonly regularMarketLastClose: number
 }
 

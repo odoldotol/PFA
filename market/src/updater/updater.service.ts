@@ -6,7 +6,7 @@ import { SchedulerRegistry } from '@nestjs/schedule';
 import { CronJob, CronTime } from 'cron';
 import { catchError, firstValueFrom } from 'rxjs';
 import { DBRepository } from '../database/database.repository';
-import { pipe, map, toArray, toAsync, tap, each, filter, concurrent, peek } from "@fxts/core";
+import { pipe, map, toArray, toAsync, tap, each, filter, concurrent, peek, curry } from "@fxts/core";
 import { Either } from "../monad/either";
 
 @Injectable()
@@ -82,7 +82,7 @@ export class UpdaterService {
         const exchangeSession = (await this.marketService.getExchangeSessionByISOcode(ISO_Code))
             .getRight2(InternalServerErrorException);
         const isNotMarketOpen = await this.marketService.isNotMarketOpen(exchangeSession);
-        const {updateResult, updateLog} = await this.updaterForPrice(ISO_Code, yf_exchangeTimezoneName, exchangeSession, isNotMarketOpen, "test");
+        await this.updaterForPrice(ISO_Code, yf_exchangeTimezoneName, exchangeSession, isNotMarketOpen, "test");
         await this.schedulerForPrice(ISO_Code, yf_exchangeTimezoneName, exchangeSession);
         // const info = await this.dbRepo.testPickAsset(yf_exchangeTimezoneName);
         // const tickerArr = [info.symbol]
@@ -91,8 +91,7 @@ export class UpdaterService {
             exchangeSession,
             isUpToDate: this.isPriceStatusUpToDate(spObj.lastMarketDate, exchangeSession),
             isNotMarketOpen,
-            updateResult,
-            updateLog: updateLog ? updateLog : await this.dbRepo.testPickLastUpdateLog(ISO_Code),
+            updateLog: await this.dbRepo.testPickLastUpdateLog(ISO_Code),
             // info,
             // [tickerArr[0]]: (await this.marketService.getPriceByTickerArr(tickerArr))[0]
         };
@@ -151,11 +150,6 @@ export class UpdaterService {
 
     /**
      * ### 가격 업데이트하기 <Standard>
-     * - 업데이트 시작 종료 logger
-     * - 가격 업데이트
-     * - status 업뎃
-     * - 로그 생성 (병합)
-     * - 프로덕트에게 업데이트 요청 (병합)
      */
     private async updaterForPrice(
         ISO_Code: string,
@@ -163,27 +157,42 @@ export class UpdaterService {
         {previous_close}: ExchangeSession,
         isNotMarketOpen: boolean,
         launcher: LogPriceUpdate["launcher"]
-    ): Promise<UpdaterForPriceResult> {
+    ) {
         this.logger.warn(`${ISO_Code} : Updater Run!!!`);
         const startTime = new Date().toISOString();
-        const updateResult = await Promise.all([
-            // 가격 업데이트
-            this.updatePriceByFilter({exchangeTimezoneName: yf_exchangeTimezoneName}, true, isNotMarketOpen),
-            // status 업뎃
-            this.dbRepo.updateStatusPriceByRegularUpdater(ISO_Code, previous_close)
-        ]).then(([updatePriceResult, updateSatusPriceResult]) => (
-            this.logger.warn(`${ISO_Code} : Updater End!!!`),
-            this.requestRegularUpdaterToProduct(ISO_Code, previous_close, updatePriceResult),
-            {
-                updatePriceResult: updatePriceResult.getWhatever,
-                updateSatusPriceResult,
-                startTime,
-                endTime: new Date().toISOString()
-            }
-        ));
-        const updateLog = (await this.dbRepo.createLogPriceUpdate(launcher, true, ISO_Code, updateResult)).getWhatever;
-        return {updateResult, updateLog};
+        await this.dbRepo.updatePriceStandard(
+            await pipe(
+                await this.dbRepo.getSymbolArr({exchangeTimezoneName: yf_exchangeTimezoneName}), toAsync,
+                map(this.marketService.getPriceByTicker),
+                map(ele => ele.map(this.fulfillUpdatePriceSet(isNotMarketOpen))),
+                toArray
+            ),
+            ISO_Code,
+            previous_close,
+            startTime,
+            launcher
+        ).then(updateResult => {
+            this.logger.warn(`${ISO_Code} : Updater End!!!`);
+            this.requestRegularUpdaterToProduct(ISO_Code, previous_close, updateResult.updatePriceResult);
+        }).catch(_ => {
+            this.logger.warn(`${ISO_Code} : Updater Failed!!!`);
+        });
     }
+
+    /**
+     * ### fulfillUpdatePriceSet
+     */
+    private fulfillUpdatePriceSet = curry((
+        isNotMarketOpen: boolean,
+        {symbol, regularMarketPreviousClose, regularMarketPrice}: YfPrice
+    ): UpdatePriceSet => [
+        symbol,
+        {
+            regularMarketPreviousClose,
+            regularMarketPrice,
+            regularMarketLastClose: isNotMarketOpen ? regularMarketPrice : regularMarketPreviousClose
+        }
+    ]);
 
     /**
      * ### Product 애 regularUpdater 요청하기
@@ -191,11 +200,10 @@ export class UpdaterService {
     private async requestRegularUpdaterToProduct(
         ISO_Code: string,
         previous_close: ExchangeSession["previous_close"],
-        updatePriceResult: Either<UpdatePriceByFilterError, UpdatePriceResultArr>
+        updatePriceResult: UpdatePriceResult
     ) {
         const marketDate = previous_close.slice(0, 10);
-        let priceArrs = updatePriceResult.getRight
-            .success.map(priceArr => [priceArr[0], priceArr[1].regularMarketLastClose]);
+        let priceArrs = updatePriceResult.success.map(priceArr => [priceArr[0], priceArr[1].regularMarketLastClose]);
         try {
             const result = (await firstValueFrom(
                 this.httpService.post(`${this.PRODUCT_URL}market/updater/${ISO_Code}`, { marketDate, priceArrs, key: this.TEMP_KEY })
@@ -224,30 +232,14 @@ export class UpdaterService {
     private updatePriceByFilterArr
 
     /**
-     * ### updatePriceByFilter
+     * ###
      */
-    private updatePriceByFilter = (filter: object, isStandard: boolean, isNotMarketOpen?: boolean):
-    Promise<Either<UpdatePriceByFilterError, UpdatePriceResultArr>> =>
-        this.dbRepo.getSymbolArr(filter).then(async symbolArr => isStandard ? 
-        Either.right(await this.updatePriceByTickerArr(symbolArr, isNotMarketOpen))
-        : Either.right(await this.updatePriceByTickerArr(symbolArr, true))
-    ).catch(error => (this.logger.error(error), Either.left({error, filter, isStandard})));
+    private updatePriceByFilter
 
     /**
-     * 티커배열로 가격 업데이트하기
+     * ### 티커배열로 가격 업데이트하기
      */
-    private updatePriceByTickerArr = async (tickerArr: string[], isNotMarketOpen: boolean) => {
-        const result: UpdatePriceResultArr = {success: [], failure: []};
-        await pipe(
-            await this.marketService.getPriceByTickerArr(tickerArr), toAsync,
-            map(ele => ele.flatMapPromise(this.dbRepo.updatePrice(isNotMarketOpen))),
-            each(ele => ele.isRight ? // *
-                result.success.push(ele.getRight)
-                : result.failure.push(ele.getLeft)
-            )
-        );
-        return result;
-    }
+    private updatePriceByTickerArr
 
     /**
      * ### mongoDB 에 신규 자산 생성해보고 그 작업의 결과를 반환

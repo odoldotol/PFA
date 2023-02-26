@@ -5,8 +5,9 @@ import { Config_exchangeRepository } from "./mongodb/repository/config_exchane.r
 import { Log_priceUpdateRepository } from "./mongodb/repository/log_priceUpdate.repository";
 import { ConfigExchangeDto } from "../dto/configExchange.dto";
 import { Cache } from 'cache-manager';
-import { curry } from "@fxts/core";
+import { curry, each, map, pipe, toArray, toAsync } from "@fxts/core";
 import { Either } from "../monad/either";
+import mongoose, { ClientSession } from "mongoose";
 
 @Injectable()
 export class DBRepository {
@@ -44,24 +45,54 @@ export class DBRepository {
     testPickAsset = (exchangeTimezoneName: string) => this.yf_infoRepo.testPickOne(exchangeTimezoneName);
 
     /**
+     * ### updatePriceTx
+     * - 가격 업데이트
+     * - StatusPrice 업데이트
+     * - 업데이트 로그 생성
+     */
+    updatePriceStandard = async (
+        arr: Either<YfPriceError, UpdatePriceSet>[],
+        ISO_Code: string,
+        previous_close: string,
+        startTime: string,
+        launcher: string
+    ): Promise<StandardUpdatePriceResult> => {
+        const session = await mongoose.connections[1].startSession(); // 1번째 커넥션을 쓴다는 표현이 별로인데?
+        try {
+            session.startTransaction();
+            const updatePriceResult: UpdatePriceResult = {success: [], failure: []};
+            await pipe(
+                arr, toAsync,
+                map(ele => ele.flatMapPromise(this.updatePrice(session))),
+                each(ele => ele.isRight ? // *
+                    updatePriceResult.success.push(ele.getRight) : updatePriceResult.failure.push(ele.getLeft)
+                )
+            );
+            const updateResult = {
+                updatePriceResult,
+                updateSatusPriceResult: await this.updateStatusPriceByRegularUpdater(ISO_Code, previous_close, session),
+                startTime,
+                endTime: new Date().toISOString()
+            };
+            await this.createLogPriceUpdate(launcher, true, ISO_Code, updateResult);
+            await session.commitTransaction();
+            return updateResult;
+        } catch (error) {
+            this.logger.error(error);
+            await session.abortTransaction();
+            throw error;
+        } finally {
+            session.endSession();
+        }
+    };
+
+    /**
      * ### updatePrice
      */
-    updatePrice = curry((isNotMarketOpen: boolean, price: YfPrice):
-    Promise<Either<UpdatePriceError, UpdatePriceResult>> => {
-        const {symbol, regularMarketPreviousClose, regularMarketPrice} = price;
-        const fulfilledPrice: FulfilledYfPrice = {
-            regularMarketPreviousClose,
-            regularMarketPrice,
-            regularMarketLastClose: isNotMarketOpen ? regularMarketPrice : regularMarketPreviousClose,
-        };
-        return this.yf_infoRepo.updatePrice(
-            symbol,
-            {
-                regularMarketPreviousClose,
-                regularMarketPrice,
-                regularMarketLastClose: fulfilledPrice.regularMarketLastClose,
-            }
-        ).then(result => {
+    private updatePrice = curry((session: ClientSession, updatePriceSet: UpdatePriceSet):
+    Promise<Either<UpdatePriceError, UpdatePriceSet>> => {
+        return this.yf_infoRepo.updatePrice(...updatePriceSet, session)
+        .then(res => {
             // const successRes = {
             //     acknowledged: true,
             //     modifiedCount: 1,
@@ -70,18 +101,17 @@ export class DBRepository {
             //     matchedCount: 1
             // }
             if (
-                result.acknowledged &&
-                result.modifiedCount === 1 &&
-                result.upsertedId === null &&
-                result.upsertedCount === 0 &&
-                result.matchedCount === 1
+                res.acknowledged &&
+                res.modifiedCount === 1 &&
+                res.upsertedId === null &&
+                res.upsertedCount === 0 &&
+                res.matchedCount === 1
             ) {
-                const result: UpdatePriceResult = [symbol, fulfilledPrice]
-                return Either.right(result);
+                return Either.right(updatePriceSet);
             } else {
-                return Either.left({error: "updateOne error", ticker: symbol, result});
+                return Either.left({error: "updateOne error", ticker: updatePriceSet[0], res});
             };
-        }).catch(error => Either.left({error, ticker: symbol}));
+        });
     });
 
     /**
@@ -114,7 +144,7 @@ export class DBRepository {
     /**
      * ### updateStatusPriceByRegularUpdater
      */
-    updateStatusPriceByRegularUpdater = (ISO_Code: string, previous_close: string) => this.status_priceRepo.updateByRegularUpdater(ISO_Code, previous_close);
+    updateStatusPriceByRegularUpdater = (ISO_Code: string, previous_close: string, session: ClientSession) => this.status_priceRepo.updateByRegularUpdater(ISO_Code, previous_close, session);
 
     /**
      * ### existsStatusPrice
@@ -149,24 +179,20 @@ export class DBRepository {
     /**
      * ### log_priceUpdate Doc 생성 By launcher, updateResult, key
      */
-    createLogPriceUpdate = (
+    private createLogPriceUpdate = (
         launcher: string,
         isStandard: boolean,
         key: string | Array<string | Object>,
-        updateResult: FlattenStandardUpdatePriceResult
-    ): Promise<Either<Error, LogPriceUpdate>> =>
-    this.log_priceUpdateRepo.create(launcher, isStandard, key, updateResult)
-    .then(doc => {
+        updateResult: StandardUpdatePriceResult
+    ) => this.log_priceUpdateRepo.create(launcher, isStandard, key, updateResult).then(_ => {
         if (launcher === "scheduler" || launcher === "initiator") {
             this.logger.verbose(`${key} : Log_priceUpdate Doc Created`)
         } else {
-            this.logger.verbose(`Log_priceUpdate Doc Created : ${launcher}`)
+            this.logger.verbose(`${launcher} : Log_priceUpdate Doc Created`)
         }
-        return Either.right(doc);
-    })
-    .catch((error) => {
-        this.logger.error(error)
-        return Either.left(error);
+    }).catch((error) => {
+        this.logger.error(`${launcher} : Failed to Create Log_priceUpdate Doc!!!`);
+        throw error;
     });
 
     /**

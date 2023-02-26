@@ -1,37 +1,19 @@
-type UpdatePriceResult = [string, FulfilledYfPrice]
+type UpdatePriceSet = [string, FulfilledPrice]
 
 interface UpdatePriceError {
     readonly error: any
     readonly ticker: string
-    readonly result?: any
+    readonly res: any
 }
 
-interface UpdatePriceResultArr {
-    readonly success: UpdatePriceResult[]
+interface UpdatePriceResult {
+    readonly success: UpdatePriceSet[]
     readonly failure: (UpdatePriceError|YfPriceError)[]
 }
 
-interface UpdatePriceByFilterError {
-    readonly error: any
-    readonly filter: object
-    readonly isStandard: boolean
-}
-
 interface StandardUpdatePriceResult {
-    readonly updatePriceResult: EitherI<UpdatePriceByFilterError, UpdatePriceResultArr>
+    readonly updatePriceResult: UpdatePriceResult
     readonly updateSatusPriceResult: StatusPrice
     readonly startTime: string
     readonly endTime: string
 }
-
-interface FlattenStandardUpdatePriceResult {
-    readonly updatePriceResult: UpdatePriceByFilterError|UpdatePriceResultArr
-    readonly updateSatusPriceResult: StatusPrice
-    readonly startTime: string
-    readonly endTime: string
-}
-
-interface UpdaterForPriceResult {
-    readonly updateResult: FlattenStandardUpdatePriceResult
-    readonly updateLog: Error|LogPriceUpdate
-};
