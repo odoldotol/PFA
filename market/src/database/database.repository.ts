@@ -55,31 +55,27 @@ export class DBRepository {
         ISO_Code: string,
         previous_close: string,
         startTime: string,
-        launcher: string
+        launcher: LogPriceUpdate["launcher"]
     ): Promise<StandardUpdatePriceResult> => {
         const session = await mongoose.connections[1].startSession(); // 1번째 커넥션을 쓴다는 표현이 별로인데?
         try {
             session.startTransaction();
-            const updatePriceResult: UpdatePriceResult = {success: [], failure: []};
-            await pipe(
-                arr, toAsync,
-                map(ele => ele.flatMapPromise(this.updatePrice(session))),
-                each(ele => ele.isRight ? // *
-                    updatePriceResult.success.push(ele.getRight) : updatePriceResult.failure.push(ele.getLeft)
-                )
-            );
             const updateResult = {
-                updatePriceResult,
+                updatePriceResult: await pipe(
+                    arr, toAsync,
+                    map(ele => ele.flatMapPromise(this.updatePrice(session))),
+                    toArray
+                ),
                 updateSatusPriceResult: await this.updateStatusPriceByRegularUpdater(ISO_Code, previous_close, session),
                 startTime,
                 endTime: new Date().toISOString()
             };
-            await this.createLogPriceUpdate(launcher, true, ISO_Code, updateResult);
+            await this.createLogPriceUpdate(launcher, true, ISO_Code, updateResult, session);
             await session.commitTransaction();
             return updateResult;
         } catch (error) {
             this.logger.error(error);
-            await session.abortTransaction();
+            await session.abortTransaction(); // 에러가 있다면 commitTransaction 전에 에러이기때문에 지금 상태로는 없어도 아무이상없는것같음?
             throw error;
         } finally {
             session.endSession();
@@ -144,7 +140,12 @@ export class DBRepository {
     /**
      * ### updateStatusPriceByRegularUpdater
      */
-    updateStatusPriceByRegularUpdater = (ISO_Code: string, previous_close: string, session: ClientSession) => this.status_priceRepo.updateByRegularUpdater(ISO_Code, previous_close, session);
+    private updateStatusPriceByRegularUpdater = (ISO_Code: string, previous_close: string, session: ClientSession) =>
+    this.status_priceRepo.findOneAndUpdate(
+        { ISO_Code },
+        { lastMarketDate: new Date(previous_close).toISOString() },
+        session
+    );
 
     /**
      * ### existsStatusPrice
@@ -180,20 +181,39 @@ export class DBRepository {
      * ### log_priceUpdate Doc 생성 By launcher, updateResult, key
      */
     private createLogPriceUpdate = (
-        launcher: string,
+        launcher: LogPriceUpdate["launcher"],
         isStandard: boolean,
         key: string | Array<string | Object>,
-        updateResult: StandardUpdatePriceResult
-    ) => this.log_priceUpdateRepo.create(launcher, isStandard, key, updateResult).then(_ => {
-        if (launcher === "scheduler" || launcher === "initiator") {
-            this.logger.verbose(`${key} : Log_priceUpdate Doc Created`)
-        } else {
-            this.logger.verbose(`${launcher} : Log_priceUpdate Doc Created`)
+        updateResult: StandardUpdatePriceResult,
+        session: ClientSession
+    ) => {
+        const newLogDoc: LogPriceUpdate = {
+            launcher,
+            isStandard,
+            key,
+            success: [],
+            failure: [],
+            startTime: updateResult.startTime,
+            endTime: updateResult.endTime,
+            duration: new Date(updateResult.endTime).getTime() - new Date(updateResult.startTime).getTime()
         }
-    }).catch((error) => {
-        this.logger.error(`${launcher} : Failed to Create Log_priceUpdate Doc!!!`);
-        throw error;
-    });
+        pipe(
+            updateResult.updatePriceResult,
+            each(ele => ele.isRight ?
+            newLogDoc.success.push(ele.getRight) : newLogDoc.failure.push(ele.getLeft)
+            )
+        );
+        return this.log_priceUpdateRepo.create(newLogDoc, session).then(_ => {
+            if (launcher === "scheduler" || launcher === "initiator") {
+                this.logger.verbose(`${key} : Log_priceUpdate Doc Created`)
+            } else {
+                this.logger.verbose(`${launcher} : Log_priceUpdate Doc Created`)
+            }
+        }).catch((error) => {
+            this.logger.error(`${launcher} : Failed to Create Log_priceUpdate Doc!!!`);
+            throw error;
+        });
+    }
 
     /**
      * ### ISO code 를 yahoofinance exchangeTimezoneName 로 변환 혹은 그 반대를 수행

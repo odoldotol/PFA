@@ -33,17 +33,12 @@ export class Log_priceUpdate implements LogPriceUpdate {
     @Prop({
         type: mongoose.Schema.Types.Mixed // Array<[String, Object]>
     })
-    success: [string, object][]
+    success: UpdatePriceSet[]
 
     @Prop({
         type: mongoose.Schema.Types.Mixed
     })
     failure: any[]
-
-    @Prop({
-        type: mongoose.Schema.Types.Mixed
-    }) // 있을시만
-    error: any
 
     @Prop({
         required: true,

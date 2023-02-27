@@ -1,6 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
-import { ClientSession, Model } from "mongoose";
+import { ClientSession, FilterQuery, Model, UpdateQuery } from "mongoose";
 import { Status_price, Status_priceDocument } from "../schema/status_price.schema";
 
 @Injectable()
@@ -21,14 +21,17 @@ export class Status_priceRepository {
     findAll = () => this.status_priceModel.find().lean().exec();
 
     /**
-     * ### FindOne By ISO_Code And Update LastMarketDate
+     * ### findOneAndUpdate
      */
-    updateByRegularUpdater = (ISO_Code: string, previous_close: string, session?: ClientSession) => 
-        this.status_priceModel.findOneAndUpdate(
-            { ISO_Code },
-            { lastMarketDate: new Date(previous_close).toISOString() },
-            { new: true }
-        ).session(session ? session : null).lean().exec();
+    findOneAndUpdate = (
+        filter: FilterQuery<Status_priceDocument>,
+        update: UpdateQuery<Status_priceDocument>,
+        session?: ClientSession
+    ) => this.status_priceModel.findOneAndUpdate(
+        filter,
+        update,
+        { new: true }
+    ).session(session ? session : null).lean().exec();
 
     /**
      * ### exists

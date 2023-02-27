@@ -87,7 +87,7 @@ export class UpdaterService {
         // const info = await this.dbRepo.testPickAsset(yf_exchangeTimezoneName);
         // const tickerArr = [info.symbol]
         return {
-            spObj,
+            spObj: await this.dbRepo.getStatusPrice(ISO_Code),
             exchangeSession,
             isUpToDate: this.isPriceStatusUpToDate(spObj.lastMarketDate, exchangeSession),
             isNotMarketOpen,
@@ -203,7 +203,13 @@ export class UpdaterService {
         updatePriceResult: UpdatePriceResult
     ) {
         const marketDate = previous_close.slice(0, 10);
-        let priceArrs = updatePriceResult.success.map(priceArr => [priceArr[0], priceArr[1].regularMarketLastClose]);
+        let priceArrs = pipe(
+            updatePriceResult,
+            filter(ele => ele.isRight),
+            map(ele => ele.getRight),
+            map(ele => [ele[0], ele[1].regularMarketLastClose]),
+            toArray
+        );
         try {
             const result = (await firstValueFrom(
                 this.httpService.post(`${this.PRODUCT_URL}market/updater/${ISO_Code}`, { marketDate, priceArrs, key: this.TEMP_KEY })

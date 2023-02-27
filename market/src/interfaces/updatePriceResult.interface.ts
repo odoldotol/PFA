@@ -6,10 +6,7 @@ interface UpdatePriceError {
     readonly res: any
 }
 
-interface UpdatePriceResult {
-    readonly success: UpdatePriceSet[]
-    readonly failure: (UpdatePriceError|YfPriceError)[]
-}
+type UpdatePriceResult = EitherI<YfPriceError | UpdatePriceError, UpdatePriceSet>[]
 
 interface StandardUpdatePriceResult {
     readonly updatePriceResult: UpdatePriceResult
