@@ -268,7 +268,7 @@ export class UpdaterService {
             new Set(tickerArr).values(), toAsync,
             map(this.createAssetTickerFilter), // exists?
             map(ele => ele.flatMapPromise(this.marketService.getInfoByTicker)),
-            map(ele => ele.flatMapPromise(this.fulfillInfo)),
+            map(ele => ele.flatMapPromise(this.fulfillYfInfo)),
             filter(ele => ele.isLeft ? // *
             (result.failure.info.push(ele.getLeft), false)
             : true),
@@ -311,7 +311,7 @@ export class UpdaterService {
      * ### fulfillInfo
      * - 다수의 info 처리시 isNotMarketOpen 을 중복 계산하지 않도록 보정하기? (시간차이는 무시?)
      */
-    private fulfillInfo = async (info: YfInfo): Promise<Either<any, FulfilledYfInfo>> => {
+    private fulfillYfInfo = async (info: YfInfo): Promise<Either<any, FulfilledYfInfo>> => {
         const ISO_Code = await this.dbRepo.isoCodeToTimezone(info.exchangeTimezoneName);
         return ISO_Code === undefined ? // ISO_Code 를 못찾은 경우 실패처리
         Either.left({
