@@ -35,25 +35,26 @@ export class MarketService {
      */
     getPriceByTicker = (ticker: string): Promise<Either<YfPriceError, YfPrice>> => this.getSomethingByTicker("Price", ticker);
 
-    /**
-     * ### getInfoByTickerArr
-     */
-    getInfoByTickerArr = (tickerArr: string[]): Promise<Either<YfInfoError, YfInfo>[]> => this.asyncMapPipe(tickerArr, this.getSomethingByTicker("Info"), this.GETMARKET_CONCURRENCY);
+    // 아래처럼 배열단위로 다루는 매써드는 이터러블 프로그래밍으로 바꾸면서 안쓰게됨
+    // /**
+    //  * ### getInfoByTickerArr
+    //  */
+    // getInfoByTickerArr = (tickerArr: string[]): Promise<Either<YfInfoError, YfInfo>[]> => this.asyncMapPipe(tickerArr, this.getSomethingByTicker("Info"), this.GETMARKET_CONCURRENCY);
 
-    /**
-     * ### getPriceByTickerArr
-     */
-    getPriceByTickerArr = (tickerArr: string[]): Promise<Either<YfPriceError, YfPrice>[]> => this.asyncMapPipe(tickerArr, this.getSomethingByTicker("Price"), this.GETMARKET_CONCURRENCY);
+    // /**
+    //  * ### getPriceByTickerArr
+    //  */
+    // getPriceByTickerArr = (tickerArr: string[]): Promise<Either<YfPriceError, YfPrice>[]> => this.asyncMapPipe(tickerArr, this.getSomethingByTicker("Price"), this.GETMARKET_CONCURRENCY);
 
-    /**
-     * ### string 배열에 비동기작업을 map 병열수행
-     */
-    private asyncMapPipe = <T>(arr: string[], func: (a:string)=>Promise<T>, ccLen: number) => pipe(
-        arr, toAsync,
-        map(func),
-        concurrent(ccLen),
-        toArray
-    );
+    // /**
+    //  * ### string 배열에 비동기작업을 map 병열수행
+    //  */
+    // private asyncMapPipe = <T>(arr: string[], func: (a:string)=>Promise<T>, ccLen: number) => pipe(
+    //     arr, toAsync,
+    //     map(func),
+    //     concurrent(ccLen),
+    //     toArray
+    // );
 
     /**
      * ### getSomethingByTicker

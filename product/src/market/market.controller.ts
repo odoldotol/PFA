@@ -81,4 +81,16 @@ export class MarketController {
         };
         return await this.marketService.requestCreateConfigExchangeToMarket(body.configExchange);
     }
+
+    /**
+     * ### POST MarketServer/manager/updater_log
+     */
+    @Get('market_server/read_price_update_log')
+    async requestReadPriceUpdateLogToMarket(@Body() body: {key: string, ISO_Code?: string, limit?: number}) {
+        if (body.key !== this.TEMP_KEY) {
+            throw new UnauthorizedException();
+        };
+        return await this.marketService.requestReadPriceUpdateLogToMarket(body);
+    }
+
 }

@@ -5,7 +5,7 @@ import { Cache } from 'cache-manager';
 import { catchError, firstValueFrom } from 'rxjs';
 import { RegularUpdateForPriceBodyDto } from './dto/regularUpdateForPriceBody.dto';
 import { ChildProcessWithoutNullStreams, spawn } from 'child_process';
-import { concurrent, each, map, peek, pipe, tap, toArray, toAsync } from '@fxts/core';
+import { concurrent, each, entries, filter, map, peek, pipe, reduce, tap, toArray, toAsync } from '@fxts/core';
 
 @Injectable()
 export class MarketService implements OnApplicationShutdown {
@@ -309,6 +309,24 @@ export class MarketService implements OnApplicationShutdown {
                 } else {
                     throw new InternalServerErrorException(error);
                 };
+            }))
+        )).data;
+    }
+
+    /**
+     * ### request ReadPriceUpdateLog To Market
+     */
+    async requestReadPriceUpdateLogToMarket(body: object) {
+        const q = pipe(
+            entries(body),
+            filter(arr => arr[0] !== "key"),
+            map(arr => `${arr[0]}=${arr[1]}`),
+            reduce((acc, cur) => acc + "&" + cur)
+          );
+        return (await firstValueFrom(
+            this.httpService.get(`${this.MARKET_URL}manager/price_update_log${q ? "?" + q : ""}`)
+            .pipe(catchError(error => {
+                throw error;
             }))
         )).data;
     }

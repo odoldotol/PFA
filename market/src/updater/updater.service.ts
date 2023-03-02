@@ -91,7 +91,7 @@ export class UpdaterService {
             exchangeSession,
             isUpToDate: this.isPriceStatusUpToDate(spObj.lastMarketDate, exchangeSession),
             isNotMarketOpen,
-            updateLog: await this.dbRepo.testPickLastUpdateLog(ISO_Code),
+            updateLog: await this.dbRepo.testPickLastUpdateLog(),
             // info,
             // [tickerArr[0]]: (await this.marketService.getPriceByTickerArr(tickerArr))[0]
         };
@@ -165,6 +165,7 @@ export class UpdaterService {
                 await this.dbRepo.getSymbolArr({exchangeTimezoneName: yf_exchangeTimezoneName}), toAsync,
                 map(this.marketService.getPriceByTicker),
                 map(ele => ele.map(this.fulfillUpdatePriceSet(isNotMarketOpen))),
+                concurrent(this.GETMARKET_CONCURRENCY),
                 toArray
             ),
             ISO_Code,
@@ -273,7 +274,7 @@ export class UpdaterService {
             (result.failure.info.push(ele.getLeft), false)
             : true),
             map(ele => ele.getRight),
-            // concurrent(this.GETMARKET_CONCURRENCY), // 테스트 필요
+            concurrent(this.GETMARKET_CONCURRENCY),
             toArray,
             tap(async arr => { // *
                 await this.dbRepo.insertAssets(arr)

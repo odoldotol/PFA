@@ -175,7 +175,7 @@ export class DBRepository {
     /**
      * ### testPickLastUpdateLog
      */
-    testPickLastUpdateLog = (ISO_Code: string) => this.log_priceUpdateRepo.testPickLastOne(ISO_Code);
+    testPickLastUpdateLog = () => this.log_priceUpdateRepo.find1();
 
     /**
      * ### log_priceUpdate Doc 생성 By launcher, updateResult, key
@@ -237,6 +237,15 @@ export class DBRepository {
             await this.cacheManager.set(isoCodeAndTimezone.ISO_Code, isoCodeAndTimezone.ISO_TimezoneName);
             await this.cacheManager.set(isoCodeAndTimezone.ISO_TimezoneName, isoCodeAndTimezone.ISO_Code);
         })
+    );
+
+    /**
+     * ### Get last 5 UpdateLog
+     */
+    getUpdateLog = (ISO_Code?: string, limit?: number) =>
+    this.log_priceUpdateRepo.find1(
+        ISO_Code ? { key: ISO_Code } : {},
+        limit ? limit : 5
     );
 
 }

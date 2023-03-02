@@ -56,6 +56,14 @@ export class ManagerController {
     }
 
     /**
+     * ### Log_priceUpdate 조회
+     */
+    @Get('price_update_log')
+    async getUpdateLog(@Query('ISO_Code', UpperCasePipe) ISO_Code?: string, @Query('limit') limit?: number) {
+        return await this.dbRepo.getUpdateLog(ISO_Code, limit);
+    }
+
+    /**
      * ### run initator
      */
     @Post('updater/initiate')
