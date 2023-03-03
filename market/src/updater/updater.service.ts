@@ -14,7 +14,7 @@ export class UpdaterService {
 
     private readonly logger = new Logger(UpdaterService.name);
     private readonly PRODUCT_URL = this.configService.get('PRODUCT_URL');
-    private readonly TEMP_KEY = this.configService.get('TEMP_KEY');
+    private readonly TEMP_KEY: string = this.configService.get('TEMP_KEY');
     private readonly DE_UP_MARGIN: number = this.configService.get('DefaultUpdateMarginMilliseconds');
     private readonly GETMARKET_CONCURRENCY: number = this.configService.get('GETMARKET_CONCURRENCY');
 
@@ -63,7 +63,7 @@ export class UpdaterService {
         if (this.isPriceStatusUpToDate(lastMarketDate, exchangeSession)) { // status 최신이면
             this.logger.verbose(`${ISO_Code} : UpToDate`);
         } else { // 최신 아니면 // Yf_CCC 는 항상 현재가로 초기화 되는점 알기 (isNotMarketOpen)
-            const isNotMarketOpen = await this.marketService.isNotMarketOpen(exchangeSession);
+            const isNotMarketOpen = await this.isNotMarketOpen(exchangeSession);
             isNotMarketOpen ? this.logger.verbose(`${ISO_Code} : Not UpToDate`)
             : this.logger.verbose(`${ISO_Code} : Not UpToDate & Market Is Open`);
             await this.updaterForPrice(ISO_Code, yf_exchangeTimezoneName, exchangeSession, isNotMarketOpen, "initiator");
@@ -81,7 +81,7 @@ export class UpdaterService {
         const yf_exchangeTimezoneName = spObj.yf_exchangeTimezoneName;
         const exchangeSession = (await this.marketService.getExchangeSessionByISOcode(ISO_Code))
             .getRight2(InternalServerErrorException);
-        const isNotMarketOpen = await this.marketService.isNotMarketOpen(exchangeSession);
+        const isNotMarketOpen = await this.isNotMarketOpen(exchangeSession);
         await this.updaterForPrice(ISO_Code, yf_exchangeTimezoneName, exchangeSession, isNotMarketOpen, "test");
         await this.schedulerForPrice(ISO_Code, yf_exchangeTimezoneName, exchangeSession);
         // const info = await this.dbRepo.testPickAsset(yf_exchangeTimezoneName);
@@ -197,8 +197,9 @@ export class UpdaterService {
 
     /**
      * ### Product 애 regularUpdater 요청하기
+     * - 실패하면 단 한번 5분뒤에 재시도
      */
-    private async requestRegularUpdaterToProduct(
+    private requestRegularUpdaterToProduct(
         ISO_Code: string,
         previous_close: ExchangeSession["previous_close"],
         updatePriceResult: UpdatePriceResult
@@ -211,20 +212,34 @@ export class UpdaterService {
             map(ele => [ele[0], ele[1].regularMarketLastClose]),
             toArray
         );
-        try {
-            const result = (await firstValueFrom(
-                this.httpService.post(`${this.PRODUCT_URL}market/updater/${ISO_Code}`, { marketDate, priceArrs, key: this.TEMP_KEY })
-                .pipe(catchError(error => {
-                    throw error; // 
-                }))
-            ).catch(error => {
-                if (error.response) this.logger.error(error.response.data);
-                throw error;
-            })).status;
-            this.logger.verbose(`${ISO_Code} : RegularUpdater Product Response status ${result}`);
-        } catch (error) {
-            this.logger.error(error);
+
+        const rq = async (retry: boolean = false) => {
+            try {
+                this.logger.verbose(`${ISO_Code} : RegularUpdater Product Response status ${(await firstValueFrom(
+                    this.httpService.post(`${this.PRODUCT_URL}market/updater/${ISO_Code}`, { marketDate, priceArrs, key: this.TEMP_KEY })
+                    .pipe(catchError(error => {
+                        throw error; // 
+                    }))
+                ).catch(error => {
+                    if (error.response) this.logger.error(error.response.data);
+                    throw error;
+                })).status}`);
+            } catch (error) {
+                this.logger.error(error);
+                if (retry) {
+                    this.logger.warn(`${ISO_Code} : RequestRegularUpdater Failed`);
+                } else {
+                    const retryDate = new Date();
+                    retryDate.setMinutes(retryDate.getMinutes() + 5);
+                    const retry = new CronJob(retryDate, rq.bind(this, true));
+                    this.schedulerRegistry.addCronJob(ISO_Code + "_requestRegularUpdater", retry);
+                    retry.start();
+                    this.logger.warn(`${ISO_Code} : Retry RequestRegularUpdater after 5 Min. ${retryDate.toLocaleString()}`);
+                };
+            };
         };
+
+        rq();
     }
 
     /**
@@ -310,7 +325,6 @@ export class UpdaterService {
 
     /**
      * ### fulfillInfo
-     * - 다수의 info 처리시 isNotMarketOpen 을 중복 계산하지 않도록 보정하기? (시간차이는 무시?)
      */
     private fulfillYfInfo = async (info: YfInfo): Promise<Either<any, FulfilledYfInfo>> => {
         const ISO_Code = await this.dbRepo.isoCodeToTimezone(info.exchangeTimezoneName);
@@ -322,8 +336,34 @@ export class UpdaterService {
         })
         : Either.right({
             ...info,
-            regularMarketLastClose: await this.marketService.isNotMarketOpen(ISO_Code) ? info.regularMarketPrice : info.regularMarketPreviousClose
+            regularMarketLastClose: await this.isNotMarketOpen(ISO_Code) ? info.regularMarketPrice : info.regularMarketPreviousClose
         });
+    }
+
+    /**
+     * ### 장중이 아니면 true, 장중이면 false 리턴
+     * - ExchangeSession 또는 ISO_Code 를 인자로 받는다.
+     * 
+     * 짧은 시간 연속처리시 market모듈에 ExchangeSession 를 반복 요청하는 등의 isNotMarketOpen 반복 계산 않도록 함(시간 오차범위는 최대 1분으로 제한)
+     * - ISO_Code 를 받으면 db모듈에 저장된 값을 조회하고, ExchangeSession을 받으면 연산해서 알려준다.
+     * - db모듈에서 값을 읽지 못하면 market모듈에 ExchangeSession을 요청하고 연산해서 db모듈에 값을 저장하고 리턴한다.
+     * - db모듈에서 데이터가 매 00초마다 폐기되므로 데이터의 오차범위는 최대 1분이 됨.
+     */
+    private isNotMarketOpen = async (prop: ExchangeSession|string) => {
+        
+        const f = (es: ExchangeSession) => {
+            const {previous_open, previous_close, next_open, next_close} = es;
+            return new Date(previous_open) > new Date(previous_close) && new Date(next_open) > new Date(next_close) ? false : true;
+        };
+        
+        if (typeof prop === 'string') {
+            const res = await this.dbRepo.getIsNotMarketOpen(prop);
+            return res === undefined ? 
+            this.dbRepo.setIsNotMarketOpen(prop, f((await this.marketService.getExchangeSessionByISOcode(prop)).getRight2(InternalServerErrorException)))
+            : res;
+        } else {
+            return f(prop);
+        };
     }
 
     /**

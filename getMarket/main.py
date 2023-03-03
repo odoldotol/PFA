@@ -19,7 +19,11 @@ async def get_info_by_ticker(ticker):
     print(ticker, os.getpid())
     try:
         Ticker = yf.Ticker(ticker)
-        info = Ticker.info
+        try:
+            info = Ticker.info
+        except:
+            info = {"symbol": None}
+        
         if info["symbol"]:
             return info
         else:

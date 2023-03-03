@@ -248,4 +248,15 @@ export class DBRepository {
         limit ? limit : 5
     );
 
+    /**
+     * ### setIsNotMarketOpen
+     * - 1뷴에 한번만 갱신할 수 있도록 ttl 설정
+     */
+    setIsNotMarketOpen = (ISO_Code: string, isNotMarketOpen: boolean) => this.cacheManager.set(ISO_Code + "_isNotMarketOpen", isNotMarketOpen, { ttl: 60 - new Date().getSeconds() });
+
+    /**
+     * ### getIsNotMarketOpen
+     */
+    getIsNotMarketOpen = (ISO_Code: string): Promise<boolean> => this.cacheManager.get(ISO_Code + "_isNotMarketOpen");
+
 }

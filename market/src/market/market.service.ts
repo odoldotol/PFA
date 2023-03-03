@@ -69,21 +69,7 @@ export class MarketService {
             return Either.right(Object.assign(res.info, res.fastinfo, res.metadata, res.price));
         res['symbol'] = ticker;
         return Either.right(res);
-    });
-
-    /**
-     * ### 세션 정보 로 장중이 아닌지 알아내기
-     * 장중이 아니면 true, 장중이면 false
-     * - ExchangeSession 또는 ISO_Code 를 인자로 받는다.
-     */
-    isNotMarketOpen = async (prop: ExchangeSession|string) => {
-        let previous_open: string, previous_close: string, next_open: string, next_close: string;
-        typeof prop === `string` ?
-        ({previous_open, previous_close, next_open, next_close} = (await this.getExchangeSessionByISOcode(prop)).getRight2(InternalServerErrorException))
-        : ({previous_open, previous_close, next_open, next_close} = prop);
-        return new Date(previous_open) > new Date(previous_close) && new Date(next_open) > new Date(next_close) ? false : true;
-    }
-    
+    });    
 
     /**
      * ### ISO code 로 거래소 세션 정보읽기
