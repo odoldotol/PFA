@@ -26,8 +26,8 @@ export class UpdaterService {
         private readonly dbRepo: DBRepository
     ) {
         // 부모 프로세스 있으면 ready 메시지 보내기
-        this.initiator()
-        .then(() => process.send ? process.send('ready') && this.logger.log("Send Ready to Parent Process") : this.logger.log("Ready"))
+        this.initiator() 
+        .then(() => process.send ? (process.send('ready'), this.logger.log("Send Ready to Parent Process")) : this.logger.log("Ready"))
         .catch(error => this.logger.error(error));
     }
 

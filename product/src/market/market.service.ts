@@ -1,4 +1,4 @@
-import { BadRequestException, CACHE_MANAGER, Inject, Injectable, InternalServerErrorException, Logger, OnApplicationShutdown } from '@nestjs/common';
+import { BadRequestException, CACHE_MANAGER, Inject, Injectable, InternalServerErrorException, Logger, OnApplicationShutdown, BeforeApplicationShutdown, OnModuleDestroy } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { ConfigService } from '@nestjs/config';
 import { Cache } from 'cache-manager';
@@ -8,7 +8,7 @@ import { ChildProcessWithoutNullStreams, spawn } from 'child_process';
 import { concurrent, each, entries, filter, map, peek, pipe, reduce, tap, toArray, toAsync } from '@fxts/core';
 
 @Injectable()
-export class MarketService implements OnApplicationShutdown {
+export class MarketService implements OnModuleDestroy {
 
     private readonly logger = new Logger(MarketService.name);
     private readonly MARKET_URL = this.configService.get('MARKET_URL');
@@ -20,14 +20,14 @@ export class MarketService implements OnApplicationShutdown {
         @Inject(CACHE_MANAGER) private cacheManager: Cache
     ) {
         this.initiator()
-        .then(() => process.send ? process.send('ready') && this.logger.log("Send Ready to Parent Process") : this.logger.log("Ready"))
+        .then(() => process.send ? (process.send('ready'), this.logger.log("Send Ready to Parent Process")) : this.logger.log("Ready"))
         .catch(error => this.logger.error(error));
     }
 
     /**
      * ### 앱 종료시 캐시 백업
      */
-    async onApplicationShutdown(signal?: string) {
+    async onModuleDestroy(signal?: string) {
         this.logger.warn(`Cache Backup Start`);
         const keyArr = await this.cacheManager.store.keys();
         const BackupObj = {};
