@@ -320,8 +320,8 @@ export class UpdaterService {
      * ### createAssetTickerFilter
      */
     private createAssetTickerFilter = async (ticker: string): Promise<Either<any, string>> =>
-        (await this.dbRepo.existsAssetByTicker(ticker) === null) ? Either.right(ticker)
-        : Either.left({ msg: "Already exists", ticker });
+    (await this.dbRepo.existsAssetByTicker(ticker) === null) ? Either.right(ticker)
+    : Either.left({ msg: "Already exists", ticker });
 
     /**
      * ### fulfillInfo
@@ -370,7 +370,7 @@ export class UpdaterService {
      * ###
      */
     private isNewExchange = async ([yf_exchangeTimezoneName, _]: [string, string[]]) =>
-        await this.dbRepo.existsStatusPrice({ yf_exchangeTimezoneName }) === null;
+    await this.dbRepo.existsStatusPrice({ yf_exchangeTimezoneName }) === null;
 
     /**
      * ###

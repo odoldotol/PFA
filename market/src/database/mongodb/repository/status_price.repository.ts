@@ -42,10 +42,10 @@ export class Status_priceRepository {
      * ### createOne
      */
     createOne = (ISO_Code: string, lastMarketDate: string, yf_exchangeTimezoneName: string) =>
-        new this.status_priceModel({
-            ISO_Code,
-            lastMarketDate,
-            yf_exchangeTimezoneName,
-        }).save();
+    new this.status_priceModel({
+        ISO_Code,
+        lastMarketDate,
+        yf_exchangeTimezoneName,
+    }).save();
 
 }

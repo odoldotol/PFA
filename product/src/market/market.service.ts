@@ -117,8 +117,7 @@ export class MarketService implements OnApplicationShutdown {
                 count: 0
             }
         })),
-        peek(async ({symbol, value}) => await this.cacheManager.set(symbol, value, 0)),
-        toArray
+        each(async ({symbol, value}) => await this.cacheManager.set(symbol, value, 0))
     );
 
     /**

@@ -31,8 +31,8 @@ export class DBRepository {
      * ### ISO_Code 로 조회 => [ticker, price][]
      */
     getPriceByISOcode = async (ISO_Code: string) =>
-        this.yf_infoRepo.findPricesByExchange(await this.isoCodeToTimezone(ISO_Code))
-        .then(arr => arr.map(ele => [ele.symbol, ele.regularMarketLastClose]));
+    this.yf_infoRepo.findPricesByExchange(await this.isoCodeToTimezone(ISO_Code))
+    .then(arr => arr.map(ele => [ele.symbol, ele.regularMarketLastClose]));
 
     /**
      * ### getPriceByTicker
@@ -114,8 +114,8 @@ export class DBRepository {
      * ### getSymbolArr
      */
     getSymbolArr = async (filter: object) =>
-        (await this.yf_infoRepo.find(filter, '-_id symbol'))
-        .map(doc => doc.symbol);
+    (await this.yf_infoRepo.find(filter, '-_id symbol'))
+    .map(doc => doc.symbol);
 
     /**
      * ### existsAssetByTicker
@@ -156,11 +156,11 @@ export class DBRepository {
      * ### createStatusPrice
      */
     createStatusPrice = (ISO_Code: string, previous_close: string, yf_exchangeTimezoneName: string) =>
-        this.status_priceRepo.createOne(
-            ISO_Code,
-            new Date(previous_close).toISOString(),
-            yf_exchangeTimezoneName
-        );
+    this.status_priceRepo.createOne(
+        ISO_Code,
+        new Date(previous_close).toISOString(),
+        yf_exchangeTimezoneName
+    );
 
     /**
      * ### createConfigExchange
