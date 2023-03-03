@@ -215,6 +215,9 @@ export class UpdaterService {
 
         const rq = async (retry: boolean = false) => {
             try {
+                if (retry) {
+                    this.schedulerRegistry.deleteCronJob(ISO_Code + "_requestRegularUpdater");
+                }
                 this.logger.verbose(`${ISO_Code} : RegularUpdater Product Response status ${(await firstValueFrom(
                     this.httpService.post(`${this.PRODUCT_URL}market/updater/${ISO_Code}`, { marketDate, priceArrs, key: this.TEMP_KEY })
                     .pipe(catchError(error => {
