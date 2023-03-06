@@ -203,12 +203,9 @@ export class DBRepository {
             newLogDoc.success.push(ele.getRight) : newLogDoc.failure.push(ele.getLeft)
             )
         );
+        const fLen = newLogDoc.failure.length;
         return this.log_priceUpdateRepo.create(newLogDoc, session).then(_ => {
-            if (launcher === "scheduler" || launcher === "initiator") {
-                this.logger.verbose(`${key} : Log_priceUpdate Doc Created`)
-            } else {
-                this.logger.verbose(`${launcher} : Log_priceUpdate Doc Created`)
-            }
+            this.logger.verbose(`${launcher === "scheduler" || launcher === "initiator" ? key : launcher} : Log_priceUpdate Doc Created${fLen ? ` (${fLen} failed)` : ''}`);
         }).catch((error) => {
             this.logger.error(`${launcher} : Failed to Create Log_priceUpdate Doc!!!`);
             throw error;
