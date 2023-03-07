@@ -1,12 +1,8 @@
 import { Module } from '@nestjs/common';
-import { ConfigModule, ConfigService } from '@nestjs/config';
-
+import { ConfigModule } from '@nestjs/config';
 import { AppController } from './app/app.controller';
 import { AppService } from './app/app.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { AuthModule } from './auth/auth.module';
-import { PortfolioModule } from './portfolio/portfolio.module';
-import { AaaManagerModule } from './aaa-manager/aaa-manager.module';
 import { DataSource } from 'typeorm';
 import { MarketModule } from './market/market.module';
 
@@ -32,9 +28,6 @@ import { MarketModule } from './market/market.module';
     //   }),
     //   inject: [],
     // }),
-    // AuthModule,
-    // PortfolioModule,
-    // AaaManagerModule,
     MarketModule
   ],
   controllers: [AppController],

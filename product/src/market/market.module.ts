@@ -1,17 +1,15 @@
-import { CacheModule, Module } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { HttpModule } from '@nestjs/axios';
-
 import { MarketService } from './market.service';
 import { MarketController } from './market.controller';
+import { DBModule } from '../database/database.module';
 
 @Module({
   imports: [
-    CacheModule.register({
-      ttl: 60 * 60 * 24 * 5, // 5 days
-    }),
     HttpModule.register({
       timeout: 90000,
     }),
+    DBModule,
   ],
   controllers: [MarketController],
   providers: [MarketService],

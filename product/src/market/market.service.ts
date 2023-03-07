@@ -1,44 +1,27 @@
-import { BadRequestException, CACHE_MANAGER, Inject, Injectable, InternalServerErrorException, Logger, OnApplicationShutdown, BeforeApplicationShutdown, OnModuleDestroy } from '@nestjs/common';
+import { BadRequestException, Injectable, InternalServerErrorException, Logger } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { ConfigService } from '@nestjs/config';
-import { Cache } from 'cache-manager';
 import { catchError, firstValueFrom } from 'rxjs';
 import { RegularUpdateForPriceBodyDto } from './dto/regularUpdateForPriceBody.dto';
 import { ChildProcessWithoutNullStreams, spawn } from 'child_process';
+import { DBRepository } from '../database/database.repository';
 import { concurrent, each, entries, filter, map, peek, pipe, reduce, tap, toArray, toAsync } from '@fxts/core';
 
 @Injectable()
-export class MarketService implements OnModuleDestroy {
+export class MarketService {
 
     private readonly logger = new Logger(MarketService.name);
     private readonly MARKET_URL = this.configService.get('MARKET_URL');
-    private readonly priceCacheCount:number = this.configService.get('PRICE_CACHE_COUNT');
+    private readonly priceCacheCount: number = this.configService.get('PRICE_CACHE_COUNT');
 
     constructor(
         private readonly configService: ConfigService,
         private readonly httpService: HttpService,
-        @Inject(CACHE_MANAGER) private cacheManager: Cache
+        private readonly dbRepo: DBRepository,
     ) {
         this.initiator()
         .then(() => process.send ? (process.send('ready'), this.logger.log("Send Ready to Parent Process")) : this.logger.log("Ready"))
         .catch(error => this.logger.error(error));
-    }
-
-    /**
-     * ### 앱 종료시 캐시 백업
-     */
-    async onModuleDestroy(signal?: string) {
-        this.logger.warn(`Cache Backup Start`);
-        const keyArr = await this.cacheManager.store.keys();
-        const BackupObj = {};
-        const cacheArr = await Promise.all(keyArr.map(async (key) => {
-            const cache = await this.cacheManager.get(key);
-            BackupObj[key] = cache['count'];
-        }));
-        // 대충 이렇게 구현하면 되겠다~
-        // [TODO] 완성시키기 (임시로 5초간 sleep)
-        await new Promise((resolve) => setTimeout(resolve, 5000));
-        this.logger.warn(`Cache Backup End`);
     }
 
     /**
@@ -75,12 +58,11 @@ export class MarketService implements OnModuleDestroy {
     });
 
     /**
-     * 
+     * ###
      */
-    async initiator() {
+    private async initiator() {
         // await this.runMarket(); // [주의]마켓 서버를 차일드프로세스로 실행
         this.logger.warn("Initiator Run!!!");
-        await this.cacheManager.reset();
         await this.initiateCache();
 
         // await this.cacheManager.del("AAPL"); // 없을경우 테스트용
@@ -96,8 +78,8 @@ export class MarketService implements OnModuleDestroy {
      */
     private initiateCache = async () => pipe(
         await this.requestSpDocArrToMarket(), toAsync,
-        map(async spDoc => ({ ISO_Code: spDoc.ISO_Code, marketDate: spDoc.lastMarketDate.slice(0, 10) })),
-        peek(async ({ISO_Code, marketDate}) => await this.cacheManager.set(`${ISO_Code}_priceStatus`, marketDate, 0)),
+        map(async spDoc => ({ ISO_Code: spDoc.ISO_Code, marketDate: this.makeMarketDate(spDoc) })),
+        peek(async ({ISO_Code, marketDate}) => await this.dbRepo.setPriceStatus(ISO_Code, marketDate)),
         // (백업된 캐시 가져오고 그것을 바탕으로 캐싱하도록 하기, 일단은 전체 캐싱)
         peek(this.initiatePriceCache),
         each(sp => this.logger.warn(`${sp.ISO_Code} : Price Cache Initiated`))
@@ -113,11 +95,11 @@ export class MarketService implements OnModuleDestroy {
             value: {
                 price: price[1],
                 ISOcode: ISO_Code,
-                marketDate: marketDate,
+                marketDate,
                 count: 0
             }
         })),
-        each(async ({symbol, value}) => await this.cacheManager.set(symbol, value, 0))
+        each(async ({symbol, value}) => await this.dbRepo.setPrice(symbol, value))
     );
 
     /**
@@ -129,32 +111,30 @@ export class MarketService implements OnModuleDestroy {
      * - 없으면 마켓업데이터에 조회요청, 케싱 [logger 00]
      */
     async getPriceByTicker(ticker: string, id?: string) {
-        const priceObj = await this.cacheManager.get(ticker);
+        const priceObj = await this.dbRepo.getPrice(ticker);
         if (priceObj) { // 캐시에 있으면 마켓업데이트 일치 확인
-            // count + 1
-            priceObj["count"]++;
-            await this.cacheManager.set(ticker, priceObj);
-            const marketDate = await this.cacheManager.get(`${priceObj["ISOcode"]}_priceStatus`);
-            if (marketDate === priceObj["marketDate"]) { // marketDate 일치하면 조회
+            await this.dbRepo.countingPrice(ticker, priceObj);
+            const marketDate = await this.dbRepo.getPriceStatus(priceObj.ISOcode);
+            if (marketDate === priceObj.marketDate) { // marketDate 일치하면 조회
                 this.logger.verbose(`${ticker} : 11${id ? " "+id : ""}`);
                 return priceObj;
             } else { // marketDate 불일치하면 마켓업데이터에 조회요청, 캐시업뎃 [logger 10]
                 const priceByTicker = await this.requestPriceByTicker(ticker);
-                priceObj["price"] = priceByTicker["price"];
-                priceObj["marketDate"] = await this.cacheManager.get(`${priceObj["ISOcode"]}_priceStatus`);
+                priceObj.price = priceByTicker.price;
+                priceObj.marketDate = marketDate;
                 this.logger.verbose(`${ticker} : 10${id ? " "+id : ""}`);
-                return this.cacheManager.set(ticker, priceObj);
+                return this.dbRepo.setPrice(ticker, priceObj);
             };
-        } else { // 캐시에 없으면 마켓업데이터에 조회요청, 케싱 [logger 00]
+        } else { // 캐시에 없으면 마켓서버에 가격요청, 케싱 [logger 00]
             const priceByTicker = await this.requestPriceByTicker(ticker);
-            if (priceByTicker.status_price) {
-                await this.cacheManager.set(`${priceByTicker.status_price.ISO_Code}_priceStatus`, priceByTicker.status_price.lastMarketDate.slice(0,10), 0);
-                priceByTicker.status_price = undefined;
-            };
-            priceByTicker["marketDate"] = await this.cacheManager.get(`${priceByTicker["ISOcode"]}_priceStatus`);
-            priceByTicker["count"] = 1;
+            if (priceByTicker.status_price) await this.dbRepo.setPriceStatus(priceByTicker.status_price.ISO_Code, this.makeMarketDate(priceByTicker.status_price));
             this.logger.verbose(`${ticker} : 00${id ? " "+id : ""}`);
-            return this.cacheManager.set(ticker, priceByTicker);
+            return this.dbRepo.setPrice(ticker, {
+                price: priceByTicker.price,
+                ISOcode: priceByTicker.ISOcode,
+                marketDate: await this.dbRepo.getPriceStatus(priceByTicker.ISOcode),
+                count: 1
+            });
         };
     }
 
@@ -166,7 +146,7 @@ export class MarketService implements OnModuleDestroy {
     /**
      * ###
      */
-    private requestPriceByTicker = (ticker: string): Promise<Price> => this.requestPriceToMarket(ticker, "ticker");
+    private requestPriceByTicker = (ticker: string): Promise<RequestedPrice> => this.requestPriceToMarket(ticker, "ticker");
 
     /**
      * ### Market 서버에 가격조회 요청하기
@@ -195,17 +175,17 @@ export class MarketService implements OnModuleDestroy {
      */
     async regularUpdaterForPrice(ISO_Code: string, body: RegularUpdateForPriceBodyDto) {
         try {
-            await this.cacheManager.set(`${ISO_Code}_priceStatus`, body.marketDate, 0);
+            await this.dbRepo.setPriceStatus(ISO_Code, body.marketDate);
             await Promise.all(body.priceArrs.map(async priceArr => {
-                const priceObj = await this.cacheManager.get(priceArr[0]);
+                const priceObj = await this.dbRepo.getPrice(priceArr[0]);
                 if (priceObj) {
-                    if (priceObj["count"] < this.priceCacheCount) {
-                        await this.cacheManager.del(priceArr[0]);
+                    if (priceObj.count < this.priceCacheCount) {
+                        await this.dbRepo.deletePrice(priceArr[0]);
                     } else {
-                        priceObj["price"] = priceArr[1];
-                        priceObj["marketDate"] = body.marketDate;
-                        priceObj["count"] = 0;
-                        await this.cacheManager.set(priceArr[0], priceObj);
+                        priceObj.price = priceArr[1];
+                        priceObj.marketDate = body.marketDate;
+                        priceObj.count = 0;
+                        await this.dbRepo.setPrice(priceArr[0], priceObj);
                     };
                 };
             }));
@@ -228,14 +208,14 @@ export class MarketService implements OnModuleDestroy {
                 return spDocArr.map((spDoc) => {
                     return {
                         ISO_Code: spDoc.ISO_Code,
-                        priceStatus: spDoc.lastMarketDate.slice(0,10),
+                        priceStatus: this.makeMarketDate(spDoc),
                         exchangeTimezoneName: spDoc.yf_exchangeTimezoneName,
                     };
                 })
             } else if (where === "cache") {
-                const result: object = {};
+                const result: {[ISO_Code: string]: string} = {};
                 await Promise.all(spDocArr.map(async (spDoc) => {
-                    result[spDoc.ISO_Code] = await this.cacheManager.get(`${spDoc.ISO_Code}_priceStatus`);
+                    result[spDoc.ISO_Code] = await this.dbRepo.getPriceStatus(spDoc.ISO_Code);
                 }));
                 return result;
             };
@@ -243,6 +223,11 @@ export class MarketService implements OnModuleDestroy {
             throw new InternalServerErrorException(error);
         };
     }
+
+    /**
+     * ### makeMarketDate
+     */
+    makeMarketDate = (spDoc: StatusPrice) => spDoc.lastMarketDate.slice(0, 10);
 
     /**
      * ### request spDocArr to Market
@@ -263,7 +248,7 @@ export class MarketService implements OnModuleDestroy {
      */
     async getAssets(where: "cache" | "market"): Promise<Array<string> | object> {
         if (where === "cache") {
-            return await this.cacheManager.store.keys();
+            return this.dbRepo.getAllCachedKeys();
         } else if (where === "market") {
             const result = {};
             const yf_infoArr = (await firstValueFrom(
