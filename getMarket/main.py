@@ -19,6 +19,7 @@ async def get_info_by_ticker(ticker):
     print(ticker, os.getpid())
     try:
         Ticker = yf.Ticker(ticker)
+        Ticker.fast_info.currency # 잘못된 티커 빠르게 에러던지기 위한
         try:
             info = Ticker.info
         except:
