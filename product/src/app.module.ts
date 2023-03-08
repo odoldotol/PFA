@@ -5,6 +5,7 @@ import { AppService } from './app/app.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
 import { MarketModule } from './market/market.module';
+import { KakaoCBModule } from './kakaoCB/kakaoCB.module';
 
 @Module({
   imports: [
@@ -28,7 +29,8 @@ import { MarketModule } from './market/market.module';
     //   }),
     //   inject: [],
     // }),
-    MarketModule
+    MarketModule,
+    KakaoCBModule
   ],
   controllers: [AppController],
   providers: [AppService],
