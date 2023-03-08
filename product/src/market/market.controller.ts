@@ -18,11 +18,11 @@ export class MarketController {
      * ### 마켓서버로부터의 레귤러업데이트
      */
     @Post('updater/:ISO_Code')
-    async regularUpdaterForPrice(@Param('ISO_Code', UpperCasePipe) ISO_Code: string, @Body() body: RegularUpdateForPriceBodyDto) {
+    regularUpdaterForPrice(@Param('ISO_Code', UpperCasePipe) ISO_Code: string, @Body() body: RegularUpdateForPriceBodyDto) {
         if (body.key !== this.TEMP_KEY) {
             throw new UnauthorizedException();
         };
-        return await this.marketService.regularUpdaterForPrice(ISO_Code, body);
+        return this.marketService.regularUpdaterForPrice(ISO_Code, body);
     }
 
 
@@ -32,8 +32,8 @@ export class MarketController {
      * ### 가격조회
      */
     @Get('dev')
-    async devGetPrice(@Query('ticker', UpperCasePipe) ticker: string, @Query('id') id?: string) {
-        return await this.marketService.getPriceByTicker(ticker, id);
+    devGetPrice(@Query('ticker', UpperCasePipe) ticker: string, @Query('id') id?: string) {
+        return this.marketService.getPriceByTicker(ticker, id);
     }
 
     /**
@@ -42,8 +42,8 @@ export class MarketController {
      * - market: 마켓서버의 상태
      */
     @Get('dev/price_status/:where')
-    async devGetMarketPriceStatus(@Param('where') where: "cache" | "market") {
-        return await this.marketService.getMarketPriceStatus(where);
+    devGetMarketPriceStatus(@Param('where') where: "cache" | "market") {
+        return this.marketService.getMarketPriceStatus(where);
     }
 
     /**
@@ -52,8 +52,8 @@ export class MarketController {
      * - market: 마켓서버에서
      */
     @Get('dev/assets/:where')
-    async devGetAssets(@Param('where') where: "cache" | "market") {
-        return await this.marketService.getAssets(where);
+    devGetAssets(@Param('where') where: "cache" | "market") {
+        return this.marketService.getAssets(where);
     }
 
 
@@ -64,30 +64,30 @@ export class MarketController {
      */
     @Post('market_server/create_by_ticker_arr')
     @HttpCode(200)
-    async requestCreateByTickerArrToMarket(@Body() body: {key: string, tickerArr: string[]}): Promise<object> {
+    requestCreateByTickerArrToMarket(@Body() body: {key: string, tickerArr: string[]}): Promise<object> {
         if (body.key !== this.TEMP_KEY) {
             throw new UnauthorizedException();
         };
-        return await this.marketService.requestCreateByTickerArrToMarket(body.tickerArr);
+        return this.marketService.requestCreateByTickerArrToMarket(body.tickerArr);
     }
 
     /**
      * ### POST MarketServer/manager/config_exchange
      */
     @Post('market_server/create_config_exchange')
-    async requestCreateConfigExchangeToMarket(@Body() body: {key: string, configExchange: object}): Promise<object> {
+    requestCreateConfigExchangeToMarket(@Body() body: {key: string, configExchange: object}): Promise<object> {
         if (body.key !== this.TEMP_KEY) {
             throw new UnauthorizedException();
         };
-        return await this.marketService.requestCreateConfigExchangeToMarket(body.configExchange);
+        return this.marketService.requestCreateConfigExchangeToMarket(body.configExchange);
     }
 
     /**
      * ### POST MarketServer/manager/updater_log
      */
     @Get('market_server/read_price_update_log')
-    async requestReadPriceUpdateLogToMarket(@Body() body: {ISO_Code?: string, limit?: number}) {
-        return await this.marketService.requestReadPriceUpdateLogToMarket(body);
+    requestReadPriceUpdateLogToMarket(@Query('ISO_Code', UpperCasePipe) ISO_Code?: string, @Query('limit') limit?: number) {
+        return this.marketService.requestReadPriceUpdateLogToMarket({ ISO_Code, limit });
     }
 
 }

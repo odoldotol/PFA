@@ -13,7 +13,7 @@ export class MarketService {
 
     private readonly logger = new Logger(MarketService.name);
     private readonly GETMARKET_URL = this.configService.get('GETMARKET_URL');
-    private readonly GETMARKET_CONCURRENCY: number = this.configService.get('GETMARKET_CONCURRENCY');
+    private readonly GETMARKET_CONCURRENCY: number = this.configService.get('GETMARKET_CONCURRENCY') * 10;
     private readonly PIP_COMMAND = this.configService.get('PIP_COMMAND');
     private readonly YFCCC_ISO_Code = this.configService.get('YahooFinance_CCC_ISO_Code');
 

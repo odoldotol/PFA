@@ -304,6 +304,7 @@ export class MarketService {
         const q = pipe(
             entries(body),
             filter(arr => arr[0] !== "key"),
+            filter(arr => arr[1]),
             map(arr => `${arr[0]}=${arr[1]}`),
             reduce((acc, cur) => acc + "&" + cur)
           );

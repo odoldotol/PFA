@@ -16,7 +16,7 @@ export class UpdaterService {
     private readonly PRODUCT_URL = this.configService.get('PRODUCT_URL');
     private readonly TEMP_KEY: string = this.configService.get('TEMP_KEY');
     private readonly DE_UP_MARGIN: number = this.configService.get('DefaultUpdateMarginMilliseconds');
-    private readonly GETMARKET_CONCURRENCY: number = this.configService.get('GETMARKET_CONCURRENCY');
+    private readonly GETMARKET_CONCURRENCY: number = this.configService.get('GETMARKET_CONCURRENCY') * 10;
 
     constructor(
         private readonly configService: ConfigService,

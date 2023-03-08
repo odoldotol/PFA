@@ -19,24 +19,24 @@ export class ManagerController {
      */
     @Post('asset')
     @HttpCode(200)
-    async createAssets(@Body(new ParseArrayPipe({items:String}), UpperCasePipe) tickerArr: string[]): Promise<object> {
-        return await this.updaterService.createAssetByTickerArr(tickerArr);
+    createAssets(@Body(new ParseArrayPipe({items:String}), UpperCasePipe) tickerArr: string[]): Promise<object> {
+        return this.updaterService.createAssetByTickerArr(tickerArr);
     }
 
     /**
      * ###
      */
     @Get('asset')
-    async getAllAssetsInfo() {
-        return await this.dbRepo.getAllAssetsInfo();
+    getAllAssetsInfo() {
+        return this.dbRepo.getAllAssetsInfo();
     }
 
     /**
      * ### status_price doc 모두 조회
      */
     @Get('status_price')
-    async getAllStatusPrice() {
-        return await this.dbRepo.getAllStatusPrice();
+    getAllStatusPrice() {
+        return this.dbRepo.getAllStatusPrice();
     }
 
     /**
@@ -45,11 +45,11 @@ export class ManagerController {
      * - ticker 로 조회 => price
      */
     @Get('price')
-    async getPrice(@Query('ISO_Code', UpperCasePipe) ISO_Code?: string, @Query('ticker', UpperCasePipe) ticker?: string) {
+    getPrice(@Query('ISO_Code', UpperCasePipe) ISO_Code?: string, @Query('ticker', UpperCasePipe) ticker?: string) {
         if (ISO_Code && !ticker) {
-            return await this.dbRepo.getPriceByISOcode(ISO_Code);
+            return this.dbRepo.getPriceByISOcode(ISO_Code);
         } else if (ticker && !ISO_Code) {
-            return await this.managerService.getPriceByTicker(ticker);
+            return this.managerService.getPriceByTicker(ticker);
         } else {
             throw new BadRequestException('ISO_Code or ticker must be provided')
         }
@@ -59,32 +59,32 @@ export class ManagerController {
      * ### Log_priceUpdate 조회
      */
     @Get('price_update_log')
-    async getUpdateLog(@Query('ISO_Code', UpperCasePipe) ISO_Code?: string, @Query('limit') limit?: number) {
-        return await this.dbRepo.getUpdateLog(ISO_Code, limit);
+    getUpdateLog(@Query('ISO_Code', UpperCasePipe) ISO_Code?: string, @Query('limit') limit?: number) {
+        return this.dbRepo.getUpdateLog(ISO_Code, limit);
     }
 
     /**
      * ### run initator
      */
     @Post('updater/initiate')
-    async Initiator() {
-        return await this.updaterService.initiator();
+    Initiator() {
+        return this.updaterService.initiator();
     }
 
     /**
      * ### tester
      */
     @Post('dev/updater/test_generalInitiate/:ISO_Code')
-    async testInitiator(@Param('ISO_Code', UpperCasePipe) ISO_Code: string) {
-        return await this.updaterService.testGeneralInitiate(ISO_Code);
+    testInitiator(@Param('ISO_Code', UpperCasePipe) ISO_Code: string) {
+        return this.updaterService.testGeneralInitiate(ISO_Code);
     }
 
     /**
      * ### create config_exchange
      */
     @Post('config_exchange')
-    async createConfigExchange(@Body() body: ConfigExchangeDto) {
-        return await this.dbRepo.createConfigExchange(body);
+    createConfigExchange(@Body() body: ConfigExchangeDto) {
+        return this.dbRepo.createConfigExchange(body);
     }
 
 }
