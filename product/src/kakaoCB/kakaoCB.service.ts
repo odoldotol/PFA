@@ -15,14 +15,14 @@ export class KakaoCBService {
     /**
      * ###
      */
-    async inquire(body: any): Promise<SkillResponse> {
+    async inquire(body: SkillPayload): Promise<SkillResponse> {
         return {
             version: this.KAKAO_CHATBOT_VERSION,
             template: {
                 outputs: [
                     {
                         simpleText: {
-                            text: await this.marketService.getPriceByTicker(body.action.params.ticker, body.userRequest.user.id)
+                            text: await this.marketService.getPriceByTicker(body.action.params.ticker.toUpperCase(), body.userRequest.user.id)
                             .then(res => `${(res.price + Number.EPSILON).toFixed(2)} (${res.marketDate})`)
                             .catch(err => err.message)
                         },
