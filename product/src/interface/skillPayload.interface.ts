@@ -1,6 +1,6 @@
 interface SkillPayload {
-    intent: { id: string, name: string },
-    userRequest: {
+    intent?: { id: string, name: string },
+    userRequest?: {
       timezone: string,
       params: { ignoreMe: string },
       block: { id: string, name: string },
@@ -8,8 +8,8 @@ interface SkillPayload {
       lang: any,
       user: { id: string, type: string, properties: any }
     },
-    bot: { id: string, name: string },
-    action: {
+    bot?: { id: string, name: string },
+    action?: {
       name: string,
       clientExtra: null,
       params: { ticker?: string },

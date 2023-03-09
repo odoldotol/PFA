@@ -1,21 +1,17 @@
-import { IsNotEmpty, IsObject } from "class-validator";
+import { IsNotEmpty, IsObject, IsOptional } from "class-validator";
 
 export class SkillPayloadDto implements SkillPayload {
     
-    @IsNotEmpty()
-    @IsObject()
+    @IsOptional()
     readonly intent
 
-    @IsNotEmpty()
-    @IsObject()
+    @IsOptional()
     readonly userRequest
 
-    @IsNotEmpty()
-    @IsObject()
+    @IsOptional()
     readonly bot
 
-    @IsNotEmpty()
-    @IsObject()
+    @IsOptional()
     readonly action
 
 };

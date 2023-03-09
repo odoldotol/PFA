@@ -1,4 +1,4 @@
-import { Body, Controller, Logger, Post } from '@nestjs/common';
+import { Body, Controller, Post } from '@nestjs/common';
 import { KakaoCBService } from './kakaoCB.service';
 import { SkillPayloadDto } from './dto/SkillPayload.dto';
 

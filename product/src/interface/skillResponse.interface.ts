@@ -1,6 +1,6 @@
 interface SkillResponse {
     version: string
-    template: object
+    template?: object
     context?: object
     data?: object
 }
