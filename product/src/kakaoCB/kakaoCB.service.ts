@@ -16,19 +16,21 @@ export class KakaoCBService {
      * ###
      */
     async inquire(body: SkillPayload): Promise<SkillResponse> {
+        const price = await this.marketService.getPriceByTicker(body.action.params.ticker.toUpperCase(), body.userRequest.user.id)
+        .then(res => (res["kakaoText"] = `${(res.price + Number.EPSILON).toFixed(2)} ${this.currencyToSign(res.currency)} (${res.marketDate})`, res))
+        .catch(err => (err["kakaoText"] = err.message, err));
         return {
             version: this.KAKAO_CHATBOT_VERSION,
             template: {
                 outputs: [
                     {
                         simpleText: {
-                            text: await this.marketService.getPriceByTicker(body.action.params.ticker.toUpperCase(), body.userRequest.user.id)
-                            .then(res => `${(res.price + Number.EPSILON).toFixed(2)} ${this.currencyToSign(res.currency)} (${res.marketDate})`)
-                            .catch(err => err.message)
+                            text: price.kakaoText
                         },
                     },
                 ],
             },
+            data: price,
         }
     }
 
