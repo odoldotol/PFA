@@ -19,12 +19,16 @@ export class Yf_info implements FulfilledYfInfo {
         // required: true,
         type: String,
     })
-    currency?: string //표현 통화
-
+    currency?: string // 표현 통화
+    
+    @Prop({
+        // required: true,
+        type: String,
+    })
+    quoteType?: string // 카테고리 역할
     /* 
         중요한 공통 props (99% 신뢰)
         
-        quoteType : 카테고리 역할
 
 
         shortName : 이름으로 사용할놈

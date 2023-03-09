@@ -17,7 +17,7 @@ export class KakaoCBService {
      */
     async inquire(body: SkillPayload): Promise<SkillResponse> {
         const price = await this.marketService.getPriceByTicker(body.action.params.ticker.toUpperCase(), body.userRequest.user.id)
-        .then(res => (res["kakaoText"] = `${(res.price + Number.EPSILON).toFixed(2)} ${this.currencyToSign(res.currency)} (${res.marketDate})`, res))
+        .then(res => (res["kakaoText"] = `${(res.price + Number.EPSILON).toFixed(2)}${this.currencyToSign(res.currency)} (${res.marketDate})`, res))
         .catch(err => (err["kakaoText"] = err.message, err));
         return {
             version: this.KAKAO_CHATBOT_VERSION,
@@ -40,17 +40,17 @@ export class KakaoCBService {
     currencyToSign(currency: string): string {
         switch (currency) {
             case 'USD':
-                return '$';
+                return ' $';
             case 'EUR':
-                return '€';
+                return ' €';
             case 'JPY':
-                return '¥';
+                return ' ¥';
             case 'GBP':
-                return '£';
+                return ' £';
             case 'CNY':
-                return '¥';
+                return ' ¥';
             case 'KRW':
-                return '₩';
+                return ' ₩';
             default:
                 return '';
         }

@@ -36,12 +36,12 @@ export class Yf_infoRepository {
     /**
      * ### findPricesByExchange
      */
-    findPricesByExchange = (exchangeTimezoneName: string) => this.find({exchangeTimezoneName}, "-_id symbol regularMarketLastClose currency");
+    findPricesByExchange = (exchangeTimezoneName: string) => this.find({exchangeTimezoneName}, "-_id symbol regularMarketLastClose currency quoteType");
 
     /**
      * ### findPriceBySymbol
      */
-    findPriceBySymbol = (symbol: string)  => this.findOne({ symbol }, "-_id regularMarketLastClose exchangeTimezoneName currency");
+    findPriceBySymbol = (symbol: string)  => this.findOne({ symbol }, "-_id regularMarketLastClose exchangeTimezoneName currency quoteType");
 
     /**
      * ### findAll

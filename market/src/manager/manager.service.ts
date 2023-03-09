@@ -37,7 +37,7 @@ export class ManagerService {
             throw err;
         });
         const ISOcode = await this.dbRepo.isoCodeToTimezone(price["exchangeTimezoneName"]);
-        return {price: price.regularMarketLastClose, ISOcode, currency: price.currency, status_price};
+        return {price: price.regularMarketLastClose, ISOcode, currency: price.quoteType === "INDEX" ? "INDEX" : price.currency, status_price};
     }
 
 }
