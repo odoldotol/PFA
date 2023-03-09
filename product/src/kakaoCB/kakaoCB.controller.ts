@@ -14,7 +14,7 @@ export class KakaoCBController {
      */
     @Post('inquire')
     inquire(@Body() body/*: SkillPayloadDto*/) {
-        console.log(body);
+        // console.log(body);
         return this.kakaoCBService.inquire(body);
     }
 }
