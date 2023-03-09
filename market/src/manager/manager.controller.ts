@@ -24,7 +24,7 @@ export class ManagerController {
     }
 
     /**
-     * ###
+     * ### getAllAssetsInfo
      */
     @Get('asset')
     getAllAssetsInfo() {
@@ -44,14 +44,14 @@ export class ManagerController {
      * - ISO_Code 로 조회 => [ticker, price][]
      * - ticker 로 조회 => price
      */
-    @Get('price')
-    getPrice(@Query('ISO_Code', UpperCasePipe) ISO_Code?: string, @Query('ticker', UpperCasePipe) ticker?: string) {
-        if (ISO_Code && !ticker) {
-            return this.dbRepo.getPriceByISOcode(ISO_Code);
-        } else if (ticker && !ISO_Code) {
-            return this.managerService.getPriceByTicker(ticker);
+    @Post('price')
+    getPrice(@Body(UpperCasePipe) body: {ISO_Code?: string, ticker?: string}) {
+        if (body.ISO_Code && !body.ticker) {
+            return this.dbRepo.getPriceByISOcode(body.ISO_Code);
+        } else if (body.ticker && !body.ISO_Code) {
+            return this.managerService.getPriceByTicker(body.ticker);
         } else {
-            throw new BadRequestException('ISO_Code or ticker must be provided')
+            throw new BadRequestException('Either ISO_Code or ticker must be provided')
         }
     }
 

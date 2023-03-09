@@ -151,9 +151,9 @@ export class MarketService {
     /**
      * ### Market 서버에 가격조회 요청하기
      */
-    private async requestPriceToMarket(query_value: string, query_name: "ISO_Code" | "ticker") {
+    private async requestPriceToMarket(value: string, key: "ISO_Code" | "ticker") {
         return (await firstValueFrom(
-            this.httpService.get(`${this.MARKET_URL}manager/price?${query_name}=${query_value}`)
+            this.httpService.post(`${this.MARKET_URL}manager/price`, { [key]: value })
             .pipe(catchError(error => {
                 if (error.response) {
                     if (error.response.data.error === "Bad Request") {

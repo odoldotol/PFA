@@ -31,9 +31,9 @@ export class MarketController {
     /**
      * ### 가격조회
      */
-    @Get('dev')
-    devGetPrice(@Query('ticker', UpperCasePipe) ticker: string, @Query('id') id?: string) {
-        return this.marketService.getPriceByTicker(ticker, id);
+    @Post('dev')
+    devGetPrice(@Body(UpperCasePipe) body: {ticker: string, id?: string}) {
+        return this.marketService.getPriceByTicker(body.ticker, body.id);
     }
 
     /**
