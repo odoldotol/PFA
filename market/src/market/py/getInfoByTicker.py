@@ -11,7 +11,9 @@ warnings.filterwarnings('ignore')
 def get_info_by_ticker(ticker):
     try:
         Ticker = yf.Ticker(ticker)
+        Ticker.fast_info.currency # 잘못된 티커 빠르게 에러던지기 위한
         try:
+            raise Exception("info") # 성능상 info 건너뛰기
             info = Ticker.info
         except:
             info = {"symbol": None}
@@ -28,7 +30,7 @@ def get_info_by_ticker(ticker):
                 "regularMarketPreviousClose": regularMarketPreviousClose
             }
             metadata = Ticker.get_history_metadata()
-            print(json.dumps({"info": info, "fastinfo": fastinfo, "price": price, "metadata": metadata}))
+            print(json.dumps({"info": info, "fastinfo": {"currency": fastinfo["currency"], "exchange": fastinfo["exchange"], "quoteType": fastinfo["quoteType"]}, "price": price, "metadata": {"symbol": metadata["symbol"], "instrumentType": metadata["instrumentType"], "exchangeTimezoneShortName": metadata["timezone"], "exchangeTimezoneName": metadata["exchangeTimezoneName"]}}))
     except Exception as e:
         print(json.dumps({ # 실패하면 error 객체 만들어서 출력
             'error': {
