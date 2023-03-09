@@ -61,7 +61,7 @@ export class MarketService {
      */
     private getSomethingByTicker = curry(async (something: string, ticker: string) => {
         const res = await this.getMarketOrCp(
-            `${this.GETMARKET_URL}yf/${something.toLowerCase()}?ticker=${ticker}`,
+            `${this.GETMARKET_URL}yf/${something.toLowerCase()}/`, {ticker},
             [`get${something}ByTicker.py`, ticker]
         );
         if (res.error) return Either.left(res.error);
@@ -91,7 +91,7 @@ export class MarketService {
             });
         }
         const res = await this.getMarketOrCp(
-            `${this.GETMARKET_URL}ec/session?ISO_Code=${ISO_Code}`,
+            `${this.GETMARKET_URL}ec/session/`, { ISO_Code },
             ['getSessionByISOcode.py', ISO_Code]
         );
         if (res.error) return Either.left(res.error);
@@ -102,8 +102,8 @@ export class MarketService {
      * ###
      * - getMarket 서버를 이용할 수 없을 경우 자식 프로세스에서 시도한다.
      */
-    private getMarketOrCp = (url: string, pyCpArgs: string[]) => firstValueFrom(
-        this.httpService.get(url)
+    private getMarketOrCp = (url: string, data: object, pyCpArgs: string[]) => firstValueFrom(
+        this.httpService.post(url, data)
         .pipe(catchError(error => {
             throw error; //[Todo] 에러 핸들링
         }))
