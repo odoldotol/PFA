@@ -32,7 +32,7 @@ export class DBRepository {
      */
     getPriceByISOcode = async (ISO_Code: string) =>
     this.yf_infoRepo.findPricesByExchange(await this.isoCodeToTimezone(ISO_Code))
-    .then(arr => arr.map(ele => [ele.symbol, ele.regularMarketLastClose]));
+    .then(arr => arr.map(ele => [ele.symbol, ele.regularMarketLastClose, ele.currency]));
 
     /**
      * ### getPriceByTicker

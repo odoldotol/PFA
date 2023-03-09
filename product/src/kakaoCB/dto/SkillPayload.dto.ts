@@ -14,4 +14,7 @@ export class SkillPayloadDto implements SkillPayload {
     @IsOptional()
     readonly action
 
+    @IsOptional()
+    readonly contexts
+
 };

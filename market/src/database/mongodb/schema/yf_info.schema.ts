@@ -14,13 +14,18 @@ export class Yf_info implements FulfilledYfInfo {
         type: String,
     })
     symbol: string; // 거의 id 역할 가능
+    
+    @Prop({
+        // required: true,
+        type: String,
+    })
+    currency?: string //표현 통화
 
     /* 
         중요한 공통 props (99% 신뢰)
         
         quoteType : 카테고리 역할
 
-        currency : 표현 통화
 
         shortName : 이름으로 사용할놈
 

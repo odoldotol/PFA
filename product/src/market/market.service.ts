@@ -95,6 +95,7 @@ export class MarketService {
             value: {
                 price: price[1],
                 ISOcode: ISO_Code,
+                currency: price[2],
                 marketDate,
                 count: 0
             }
@@ -132,6 +133,7 @@ export class MarketService {
             return this.dbRepo.setPrice(ticker, {
                 price: priceByTicker.price,
                 ISOcode: priceByTicker.ISOcode,
+                currency: priceByTicker.currency,
                 marketDate: await this.dbRepo.getPriceStatus(priceByTicker.ISOcode),
                 count: 1
             });

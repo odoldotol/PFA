@@ -1,19 +1,20 @@
 interface SkillPayload {
-    intent?: { id: string, name: string },
-    userRequest?: {
-      timezone: string,
-      params: { ignoreMe: string },
-      block: { id: string, name: string },
-      utterance: string,
-      lang: any,
-      user: { id: string, type: string, properties: any }
-    },
-    bot?: { id: string, name: string },
-    action?: {
-      name: string,
-      clientExtra: null,
-      params: { ticker?: string },
-      id: string,
-      detailParams: { ticker?: any }
-    }
+  bot?: { id: string, name: string }
+  intent?: { id: string, name: string, extra?: any }
+  action?: {
+    id: string,
+    name: string,
+    params: { ticker?: string },
+    detailParams: { ticker?: any }
+    clientExtra: any,
+  }
+  userRequest?: {
+    block: { id: string, name: string },
+    user: { id: string, type: string, properties: any }
+    utterance: string,
+    params: { ignoreMe: string, surface?: string },
+    lang: any,
+    timezone: string,
+  },
+  contexts?: any
 }
