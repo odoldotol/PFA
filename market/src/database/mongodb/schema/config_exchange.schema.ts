@@ -30,12 +30,12 @@ export class Config_exchange implements ConfigExchange {
     @Prop({
         type: String
     })
-    country: string
+    country?: string
 
     @Prop({
         type: String
     })
-    exchange_website: string
+    exchange_website?: string
 
     @Prop({
         required: true,
@@ -46,7 +46,7 @@ export class Config_exchange implements ConfigExchange {
     @Prop({
         type: Number
     })
-    update_margin_milliseconds: number
+    update_margin_milliseconds?: number
 }
 
 export const Config_exchangeSchema = SchemaFactory.createForClass(Config_exchange);

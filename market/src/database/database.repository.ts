@@ -3,7 +3,6 @@ import { Yf_infoRepository } from "./mongodb/repository/yf-info.repository";
 import { Status_priceRepository } from "./mongodb/repository/status_price.repository";
 import { Config_exchangeRepository } from "./mongodb/repository/config_exchane.repository";
 import { Log_priceUpdateRepository } from "./mongodb/repository/log_priceUpdate.repository";
-import { ConfigExchangeDto } from "../dto/configExchange.dto";
 import { Cache } from 'cache-manager';
 import { curry, each, map, pipe, toArray, toAsync } from "@fxts/core";
 import { Either } from "../monad/either";
@@ -165,7 +164,7 @@ export class DBRepository {
     /**
      * ### createConfigExchange
      */
-    createConfigExchange = (body: ConfigExchangeDto) => this.config_exchangeRepo.createOne(body);
+    createConfigExchange = (body: ConfigExchange) => this.config_exchangeRepo.createOne(body);
 
     /**
      * ### getMarginMilliseconds

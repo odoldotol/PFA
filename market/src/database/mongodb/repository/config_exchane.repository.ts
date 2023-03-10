@@ -2,7 +2,6 @@ import { Injectable } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
 import { Model } from "mongoose";
 import { Config_exchange, Config_exchangeDocument } from "../schema/config_exchange.schema";
-import { ConfigExchangeDto } from "../../../dto/configExchange.dto";
 
 @Injectable()
 export class Config_exchangeRepository {
@@ -25,6 +24,6 @@ export class Config_exchangeRepository {
     /**
      * ### 하나 생성
      */
-    createOne = (reqBody: ConfigExchangeDto) => this.config_exchangeModel.create(reqBody);
+    createOne = (reqBody: Config_exchange) => this.config_exchangeModel.create(reqBody);
 
 }

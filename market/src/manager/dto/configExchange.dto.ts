@@ -12,11 +12,11 @@ export class ConfigExchangeDto implements ConfigExchange {
 
     @IsOptional()
     @IsString()
-    readonly country: string;
+    readonly country?: string;
 
     @IsOptional()
     @IsString()
-    readonly exchange_website: string;
+    readonly exchange_website?: string;
 
     @IsNotEmpty()
     @IsString()
@@ -24,6 +24,6 @@ export class ConfigExchangeDto implements ConfigExchange {
 
     @IsOptional()
     @IsNumber()
-    readonly update_margin_milliseconds: number;
+    readonly update_margin_milliseconds?: number;
 
 };
