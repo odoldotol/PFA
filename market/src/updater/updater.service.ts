@@ -219,7 +219,7 @@ export class UpdaterService {
                     this.schedulerRegistry.deleteCronJob(ISO_Code + "_requestRegularUpdater");
                 }
                 this.logger.verbose(`${ISO_Code} : RegularUpdater Product Response status ${(await firstValueFrom(
-                    this.httpService.post(`${this.PRODUCT_URL}market/updater/${ISO_Code}`, { marketDate, priceArrs, key: this.TEMP_KEY })
+                    this.httpService.post(`${this.PRODUCT_URL}market/updater/${ISO_Code}`, this.addKey({ marketDate, priceArrs }))
                     .pipe(catchError(error => {
                         throw error; // 
                     }))
@@ -405,4 +405,9 @@ export class UpdaterService {
             });
         };
     }
+
+    /**
+     * ### addKey
+     */
+    addKey = <T>(body: T) => (body["key"] = this.TEMP_KEY, body);
 }

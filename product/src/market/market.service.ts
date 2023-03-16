@@ -12,6 +12,7 @@ export class MarketService {
 
     private readonly logger = new Logger(MarketService.name);
     private readonly MARKET_URL = this.configService.get('MARKET_URL');
+    private readonly TEMP_KEY: string = this.configService.get('TEMP_KEY');
     private readonly priceCacheCount: number = this.configService.get('PRICE_CACHE_COUNT');
 
     constructor(
@@ -155,7 +156,7 @@ export class MarketService {
      */
     private async requestPriceToMarket(value: string, key: "ISO_Code" | "ticker") {
         return (await firstValueFrom(
-            this.httpService.post(`${this.MARKET_URL}manager/price`, { [key]: value })
+            this.httpService.post(`${this.MARKET_URL}manager/price`, this.addKey({ [key]: value }))
             .pipe(catchError(error => {
                 if (error.response) {
                     if (error.response.data.error === "Bad Request") {
@@ -236,7 +237,7 @@ export class MarketService {
      */
     private async requestSpDocArrToMarket(): Promise<StatusPrice[]> {
         return (await firstValueFrom(
-            this.httpService.get(`${this.MARKET_URL}manager/status_price`)
+            this.httpService.post(`${this.MARKET_URL}manager/read_status_price`, this.addKey({}))
             .pipe(catchError(error => {
                 throw error; //
             }))
@@ -254,7 +255,7 @@ export class MarketService {
         } else if (where === "market") {
             const result = {};
             const yf_infoArr = (await firstValueFrom(
-                this.httpService.get(`${this.MARKET_URL}manager/asset`)
+                this.httpService.post(`${this.MARKET_URL}manager/read_asset`, this.addKey({}))
                 .pipe(catchError(error => {
                     throw error;
                 }))
@@ -268,36 +269,41 @@ export class MarketService {
     }
 
     /**
-     * ### request createByTickerArr to Market
+     * ### addKey
      */
-    async requestCreateByTickerArrToMarket(tickerArr: string[]) {
-        return (await firstValueFrom(
-            this.httpService.post(`${this.MARKET_URL}manager/asset`, tickerArr)
-            .pipe(catchError(error => {
-                throw error;
-            }))
-        )).data;
-    }
+    addKey = <T>(body: T) => (body["key"] = this.TEMP_KEY, body);
 
-    /**
-     * ### request createConfigExchange to Market
-     */
-    async requestCreateConfigExchangeToMarket(configExchange) {
-        return (await firstValueFrom(
-            this.httpService.post(`${this.MARKET_URL}manager/config_exchange`, configExchange)
-            .pipe(catchError(error => {
-                if (error.response) {
-                    if (error.response.data.error === "Bad Request") {
-                        throw new BadRequestException(error.response.data);
-                    } else {
-                        throw new InternalServerErrorException(error.response.data);
-                    };
-                } else {
-                    throw new InternalServerErrorException(error);
-                };
-            }))
-        )).data;
-    }
+    // /**
+    //  * ### request createByTickerArr to Market
+    //  */
+    // async requestCreateByTickerArrToMarket(tickerArr: string[]) {
+    //     return (await firstValueFrom(
+    //         this.httpService.post(`${this.MARKET_URL}manager/asset`, tickerArr)
+    //         .pipe(catchError(error => {
+    //             throw error;
+    //         }))
+    //     )).data;
+    // }
+
+    // /**
+    //  * ### request createConfigExchange to Market
+    //  */
+    // async requestCreateConfigExchangeToMarket(configExchange) {
+    //     return (await firstValueFrom(
+    //         this.httpService.post(`${this.MARKET_URL}manager/config_exchange`, configExchange)
+    //         .pipe(catchError(error => {
+    //             if (error.response) {
+    //                 if (error.response.data.error === "Bad Request") {
+    //                     throw new BadRequestException(error.response.data);
+    //                 } else {
+    //                     throw new InternalServerErrorException(error.response.data);
+    //                 };
+    //             } else {
+    //                 throw new InternalServerErrorException(error);
+    //             };
+    //         }))
+    //     )).data;
+    // }
 
     /**
      * ### request ReadPriceUpdateLog To Market
@@ -311,7 +317,7 @@ export class MarketService {
             reduce((acc, cur) => acc + "&" + cur)
           );
         return (await firstValueFrom(
-            this.httpService.get(`${this.MARKET_URL}manager/price_update_log${q ? "?" + q : ""}`)
+            this.httpService.post(`${this.MARKET_URL}manager/read_price_update_log${q ? "?" + q : ""}`, this.addKey({}))
             .pipe(catchError(error => {
                 throw error;
             }))

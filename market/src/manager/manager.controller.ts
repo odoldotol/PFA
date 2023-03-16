@@ -1,11 +1,14 @@
-import { BadRequestException, Body, Controller, Delete, Get, HttpCode, Param, ParseArrayPipe, Patch, Post, Put, Query } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Delete, Get, HttpCode, Param, ParseArrayPipe, Patch, Post, Put, Query, UseGuards } from '@nestjs/common';
 import { ManagerService } from './manager.service';
 import { UpdaterService } from '../updater/updater.service';
 import { ConfigExchangeDto } from './dto/configExchange.dto';
 import { DBRepository } from '../database/database.repository';
 import { UpperCasePipe } from './pipe/upperCasePipe';
+import { CreateAssetsDto } from './dto/createAssets.dto';
+import { KeyGuard } from './guard/key.guard';
 
 @Controller('manager')
+@UseGuards(KeyGuard)
 export class ManagerController {
 
     constructor(
@@ -19,14 +22,14 @@ export class ManagerController {
      */
     @Post('asset')
     @HttpCode(200)
-    createAssets(@Body(new ParseArrayPipe({items:String}), UpperCasePipe) tickerArr: string[]): Promise<object> {
-        return this.updaterService.createAssetByTickerArr(tickerArr);
+    createAssets(@Body(UpperCasePipe) body: CreateAssetsDto) {
+        return this.updaterService.createAssetByTickerArr(body.tickerArr);
     }
 
     /**
      * ### getAllAssetsInfo
      */
-    @Get('asset')
+    @Post('read_asset')
     getAllAssetsInfo() {
         return this.dbRepo.getAllAssetsInfo();
     }
@@ -34,7 +37,7 @@ export class ManagerController {
     /**
      * ### status_price doc 모두 조회
      */
-    @Get('status_price')
+    @Post('read_status_price')
     getAllStatusPrice() {
         return this.dbRepo.getAllStatusPrice();
     }
@@ -58,7 +61,7 @@ export class ManagerController {
     /**
      * ### Log_priceUpdate 조회
      */
-    @Get('price_update_log')
+    @Post('read_price_update_log')
     getUpdateLog(@Query('ISO_Code', UpperCasePipe) ISO_Code?: string, @Query('limit') limit?: number) {
         return this.dbRepo.getUpdateLog(ISO_Code, limit);
     }

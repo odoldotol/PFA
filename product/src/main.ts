@@ -8,6 +8,7 @@ async function bootstrap() {
 
   const app = await NestFactory.create(AppModule);
 
+  // admin, FE + 기타 서비스(Kakao 등) 허용
   app.enableCors();
 
   app.useGlobalInterceptors(

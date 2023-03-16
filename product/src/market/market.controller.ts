@@ -1,16 +1,13 @@
-import { Body, Controller, Get, HttpCode, Param, Post, Query, UnauthorizedException } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, Param, Post, Query, UnauthorizedException, UseGuards } from '@nestjs/common';
 import { MarketService } from './market.service';
 import { RegularUpdateForPriceBodyDto } from './dto/regularUpdateForPriceBody.dto';
-import { ConfigService } from '@nestjs/config';
 import { UpperCasePipe } from './pipe/upperCasePipe';
+import { KeyGuard } from './guard/key.guard';
 
 @Controller('market')
 export class MarketController {
 
-    private readonly TEMP_KEY = this.configService.get('TEMP_KEY');
-
     constructor(
-        private readonly configService: ConfigService,
         private readonly marketService: MarketService
     ) {}
 
@@ -18,10 +15,8 @@ export class MarketController {
      * ### 마켓서버로부터의 레귤러업데이트
      */
     @Post('updater/:ISO_Code')
+    @UseGuards(KeyGuard)
     regularUpdaterForPrice(@Param('ISO_Code', UpperCasePipe) ISO_Code: string, @Body() body: RegularUpdateForPriceBodyDto) {
-        if (body.key !== this.TEMP_KEY) {
-            throw new UnauthorizedException();
-        };
         return this.marketService.regularUpdaterForPrice(ISO_Code, body);
     }
 
@@ -59,31 +54,27 @@ export class MarketController {
 
 
 
-    /**
-     * ### POST MarketServer/manager/yf_info
-     */
-    @Post('market_server/create_by_ticker_arr')
-    @HttpCode(200)
-    requestCreateByTickerArrToMarket(@Body() body: {key: string, tickerArr: string[]}): Promise<object> {
-        if (body.key !== this.TEMP_KEY) {
-            throw new UnauthorizedException();
-        };
-        return this.marketService.requestCreateByTickerArrToMarket(body.tickerArr);
-    }
+    // /**
+    //  * ### POST MarketServer/manager/yf_info
+    //  */
+    // @Post('market_server/create_by_ticker_arr')
+    // @UseGuards(AdminGuard)
+    // @HttpCode(200)
+    // requestCreateByTickerArrToMarket(@Body() body: {key: string, tickerArr: string[]}): Promise<object> {
+    //     return this.marketService.requestCreateByTickerArrToMarket(body.tickerArr);
+    // }
+
+    // /**
+    //  * ### POST MarketServer/manager/config_exchange
+    //  */
+    // @Post('market_server/create_config_exchange')
+    // @UseGuards(AdminGuard)
+    // requestCreateConfigExchangeToMarket(@Body() body: {key: string, configExchange: object}): Promise<object> {
+    //     return this.marketService.requestCreateConfigExchangeToMarket(body.configExchange);
+    // }
 
     /**
-     * ### POST MarketServer/manager/config_exchange
-     */
-    @Post('market_server/create_config_exchange')
-    requestCreateConfigExchangeToMarket(@Body() body: {key: string, configExchange: object}): Promise<object> {
-        if (body.key !== this.TEMP_KEY) {
-            throw new UnauthorizedException();
-        };
-        return this.marketService.requestCreateConfigExchangeToMarket(body.configExchange);
-    }
-
-    /**
-     * ### POST MarketServer/manager/updater_log
+     * ### GET MarketServer/manager/updater_log
      */
     @Get('market_server/read_price_update_log')
     requestReadPriceUpdateLogToMarket(@Query('ISO_Code', UpperCasePipe) ISO_Code?: string, @Query('limit') limit?: number) {

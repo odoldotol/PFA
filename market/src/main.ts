@@ -8,6 +8,7 @@ async function bootstrap() {
 
   const app = await NestFactory.create(AppModule);
 
+  // admin 과 product 만 허용
   app.enableCors();
 
   app.useGlobalInterceptors(
