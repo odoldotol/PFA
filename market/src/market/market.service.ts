@@ -13,7 +13,6 @@ export class MarketService {
 
     private readonly logger = new Logger(MarketService.name);
     private readonly GETMARKET_URL = this.configService.get('GETMARKET_URL');
-    private readonly GETMARKET_CONCURRENCY: number = this.configService.get('GETMARKET_CONCURRENCY') * 10;
     private readonly PIP_COMMAND = this.configService.get('PIP_COMMAND');
     private readonly YFCCC_ISO_Code = this.configService.get('YahooFinance_CCC_ISO_Code');
 
@@ -65,7 +64,7 @@ export class MarketService {
             [`get${something}ByTicker.py`, ticker]
         );
         if (res.error) return Either.left(res.error);
-        if (res.info && res.fastinfo && res.metadata && res.price)
+        if (res.info && res.fastinfo && res.metadata && res.price) // 야후파이낸스 API 문제로 임시조치중
             return Either.right(Object.assign(res.info, res.fastinfo, res.metadata, res.price));
         res['symbol'] = ticker;
         return Either.right(res);
@@ -150,7 +149,7 @@ export class MarketService {
      * - exchange_calendars
      */
     private isPyLibUptodate = () => new Promise<void>((resolve, reject) => {
-        const result = {yfinance: "OutDated!!!", exchange_calendars: "OutDated!!!"};
+        const result = { yfinance: "OutDated!!!", exchange_calendars: "OutDated!!!" };
         const cp = spawn(`${this.PIP_COMMAND}`, ['list', '--uptodate'], {timeout: 60000});
         cp.stdout.on('data', data => {
             const str = data.toString();
@@ -185,16 +184,16 @@ export class MarketService {
     private async pyLibChecker() {
         await this.isPyLibUptodate();
         try {
-            this.logger.log(`PyLibChecker : ${(new Date(this.schedulerRegistry.getCronJob("pyLibChecker").nextDate().toString())).toLocaleString()}`);
-        } catch (error) {
-            if (error.message.slice(0, 56) === `No Cron Job was found with the given name (pyLibChecker)`) {
+            if (this.schedulerRegistry.doesExist("cron", "pyLibChecker")) {
+                this.logger.log(`PyLibChecker : ${(new Date(this.schedulerRegistry.getCronJob("pyLibChecker").nextDate().toString())).toLocaleString()}`);
+            } else {
                 const job = new CronJob("0 0 6 * * *", this.pyLibChecker.bind(this));
                 this.schedulerRegistry.addCronJob("pyLibChecker", job);
                 job.start();
                 this.logger.log(`PyLibChecker : [New] ${(new Date(job.nextDate().toString())).toLocaleString()}`);
-            } else {
-                this.logger.error(error)
             };
+        } catch (error) {
+            this.logger.error(error);
         };
     }
 

@@ -107,18 +107,18 @@ export class UpdaterService {
         // 이 경우 업데이트도 하지 않는게 옳지만, 이렇게 마진구간에서 이 함수가 실행되는 경우는 이니시에어터가 동작하는 등의 특별한 상황일것이므로 무시한다.
         const scheduleDate = previousCloseDate > new Date() ? previousCloseDate : nextCloseDate;
         try {
-            const schedule = this.schedulerRegistry.getCronJob(ISO_Code);
-            schedule.setTime(new CronTime(scheduleDate));
-            this.logger.log(`${ISO_Code} : scheduled ${scheduleDate.toLocaleString()}`);
-        } catch (error) {
-            if (error.message.slice(0, 48) === `No Cron Job was found with the given name (${ISO_Code})`) {
+            if (this.schedulerRegistry.doesExist("cron", ISO_Code)) {
+                const schedule = this.schedulerRegistry.getCronJob(ISO_Code);
+                schedule.setTime(new CronTime(scheduleDate));
+                this.logger.log(`${ISO_Code} : scheduled ${scheduleDate.toLocaleString()}`);
+            } else {
                 const newUpdateSchedule = new CronJob(scheduleDate, this.recusiveUpdaterForPrice.bind(this, ISO_Code, yf_exchangeTimezoneName));
                 this.schedulerRegistry.addCronJob(ISO_Code, newUpdateSchedule);
                 newUpdateSchedule.start();
                 this.logger.log(`${ISO_Code} : [New]scheduled ${scheduleDate.toLocaleString()}`);
-            } else {
-                this.logger.error(error)
             };
+        } catch (error) {
+            this.logger.error(error);
         };
     }
 
