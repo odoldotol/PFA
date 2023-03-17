@@ -1,5 +1,5 @@
 import { HttpService } from '@nestjs/axios';
-import { Injectable, InternalServerErrorException, Logger } from '@nestjs/common';
+import { Injectable, InternalServerErrorException, Logger, OnApplicationBootstrap } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { catchError, firstValueFrom } from 'rxjs';
 import { ChildProcessWithoutNullStreams, spawn } from 'child_process';
@@ -9,7 +9,7 @@ import { pipe, map, toArray, toAsync, curry, concurrent } from "@fxts/core";
 import { Either } from "../monad/either";
 
 @Injectable()
-export class MarketService {
+export class MarketService implements OnApplicationBootstrap {
 
     private readonly logger = new Logger(MarketService.name);
     private readonly GETMARKET_URL = this.configService.get('GETMARKET_URL');
@@ -20,7 +20,9 @@ export class MarketService {
         private readonly configService: ConfigService,
         private readonly httpService: HttpService,
         private readonly schedulerRegistry: SchedulerRegistry,
-    ) {
+    ) {}
+
+    onApplicationBootstrap() {
         this.pyLibChecker();
     }
 

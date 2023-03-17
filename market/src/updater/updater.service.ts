@@ -1,5 +1,5 @@
 import { HttpService } from '@nestjs/axios';
-import { BadRequestException, Injectable, InternalServerErrorException, Logger } from '@nestjs/common';
+import { BadRequestException, Injectable, InternalServerErrorException, Logger, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { MarketService } from '../market/market.service';
 import { SchedulerRegistry } from '@nestjs/schedule';
@@ -10,7 +10,7 @@ import { pipe, map, toArray, toAsync, tap, each, filter, concurrent, peek, curry
 import { Either } from "../monad/either";
 
 @Injectable()
-export class UpdaterService {
+export class UpdaterService implements OnModuleInit {
 
     private readonly logger = new Logger(UpdaterService.name);
     private readonly PRODUCT_URL = this.configService.get('PRODUCT_URL');
@@ -24,11 +24,11 @@ export class UpdaterService {
         private readonly marketService: MarketService,
         private readonly schedulerRegistry: SchedulerRegistry,
         private readonly dbRepo: DBRepository
-    ) {
-        // 부모 프로세스 있으면 ready 메시지 보내기
-        this.initiator() 
-        .then(() => process.send ? (process.send('ready'), this.logger.log("Send Ready to Parent Process")) : this.logger.log("Ready"))
-        .catch(error => this.logger.error(error));
+    ) {}
+
+    async onModuleInit() {
+        await this.initiator() 
+        .catch(error => this.logger.error(error)); 
     }
 
     /**

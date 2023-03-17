@@ -1,9 +1,11 @@
-import { CallHandler, ExecutionContext, NestInterceptor, ValidationPipe } from '@nestjs/common';
+import { CallHandler, ExecutionContext, Logger, NestInterceptor, ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { Observable } from 'rxjs';
 
 async function bootstrap() {
+
+  const logger = new Logger("NestApplication");
   let keepAlive = true;
 
   const app = await NestFactory.create(AppModule);
@@ -29,8 +31,6 @@ async function bootstrap() {
     transform: true
   }));
   
-  await app.listen(process.env.PORT || 7000);
-
   process.on('SIGINT', async () => {
     keepAlive = false;
 
@@ -38,5 +38,10 @@ async function bootstrap() {
     console.log('Server closed');
     process.exit(0);
   });
+
+  await app.listen(process.env.PORT || 7000);
+
+  process.send ? (process.send('ready'), logger.log("Send Ready to Parent Process")) : logger.log("Ready!!");
+
 }
 bootstrap();

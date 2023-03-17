@@ -1,14 +1,13 @@
-import { BadRequestException, Injectable, InternalServerErrorException, Logger } from '@nestjs/common';
+import { BadRequestException, Injectable, InternalServerErrorException, Logger, OnModuleInit } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { ConfigService } from '@nestjs/config';
 import { catchError, firstValueFrom } from 'rxjs';
-import { RegularUpdateForPriceBodyDto } from './dto/regularUpdateForPriceBody.dto';
 import { ChildProcessWithoutNullStreams, spawn } from 'child_process';
 import { DBRepository } from '../database/database.repository';
-import { concurrent, each, entries, filter, map, peek, pipe, reduce, tap, toArray, toAsync } from '@fxts/core';
+import { concurrent, curry, each, entries, filter, map, peek, pipe, reduce, tap, toArray, toAsync } from '@fxts/core';
 
 @Injectable()
-export class MarketService {
+export class MarketService implements OnModuleInit {
 
     private readonly logger = new Logger(MarketService.name);
     private readonly MARKET_URL = this.configService.get('MARKET_URL');
@@ -19,10 +18,22 @@ export class MarketService {
         private readonly configService: ConfigService,
         private readonly httpService: HttpService,
         private readonly dbRepo: DBRepository,
-    ) {
-        this.initiator()
-        .then(() => process.send ? (process.send('ready'), this.logger.log("Send Ready to Parent Process")) : this.logger.log("Ready"))
-        .catch(error => this.logger.error(error));
+    ) {}
+
+    async onModuleInit() {
+        // await this.runMarket(); // [주의]마켓 서버를 차일드프로세스로 실행
+
+        this.logger.warn("Initiator Run!!!");
+        await this.dbRepo.cacheRecovery()
+        .then(async lastCacheBackupFileName => (this.logger.verbose(`Cache Recovered : ${lastCacheBackupFileName}`) , await this.selectiveCacheUpdate()))
+        .catch(async error => (this.logger.error(error), await this.initiateCache()));
+
+        // await this.dbRepo.deletePrice("AAPL"); // 없을경우 테스트용
+        // const priceObj = await this.cacheManager.get("AAPL"); // marketDate 불일치 테스트용
+        // priceObj["marketDate"] = "2022-12-28" // marketDate 불일치 테스트용
+        // await this.cacheManager.set("AAPL", priceObj); // marketDate 불일치 테스트용
+
+        this.logger.warn("Initiator End!!!");
     }
 
     /**
@@ -59,31 +70,27 @@ export class MarketService {
     });
 
     /**
-     * ###
+     * ### selectiveCacheUpdate
      */
-    private async initiator() {
-        // await this.runMarket(); // [주의]마켓 서버를 차일드프로세스로 실행
-        this.logger.warn("Initiator Run!!!");
-        await this.initiateCache();
-
-        // await this.cacheManager.del("AAPL"); // 없을경우 테스트용
-        // const priceObj = await this.cacheManager.get("AAPL"); // marketDate 불일치 테스트용
-        // priceObj["marketDate"] = "2022-12-28" // marketDate 불일치 테스트용
-        // await this.cacheManager.set("AAPL", priceObj); // marketDate 불일치 테스트용
-
-        this.logger.warn("Initiator End!!!");
-    }
+    private selectiveCacheUpdate = async () => pipe(
+        await this.requestSpDocArrToMarket(), toAsync,
+        map(spDoc => ({ ISO_Code: spDoc.ISO_Code, marketDate: this.makeMarketDate(spDoc) })),
+        filter(async ele => ele.marketDate !== await this.dbRepo.getPriceStatus(ele.ISO_Code)),
+        peek(ele => this.dbRepo.setPriceStatus(ele.ISO_Code, ele.marketDate)),
+        map(async ({ISO_Code, marketDate}) => ({ISO_Code, marketDate, priceArrs: await this.requestPriceByISOcode(ISO_Code)})),
+        each(ele => this.regularUpdaterForPrice(ele.ISO_Code, ele.marketDate, ele.priceArrs))
+    ).catch(error => (this.logger.error(error), this.logger.warn(`Failed to initiate price cache`)));
 
     /**
      * ### 캐시 초기화
+     * - hard
      */
     private initiateCache = async () => pipe(
         await this.requestSpDocArrToMarket(), toAsync,
         map(async spDoc => ({ ISO_Code: spDoc.ISO_Code, marketDate: this.makeMarketDate(spDoc) })),
         peek(async ({ISO_Code, marketDate}) => await this.dbRepo.setPriceStatus(ISO_Code, marketDate)),
-        // (백업된 캐시 가져오고 그것을 바탕으로 캐싱하도록 하기, 일단은 전체 캐싱)
         peek(this.initiatePriceCache),
-        each(sp => this.logger.warn(`${sp.ISO_Code} : Price Cache Initiated`))
+        each(sp => this.logger.verbose(`${sp.ISO_Code} : Price Cache Initiated`))
     ).catch(error => (this.logger.error(error), this.logger.warn(`Failed to initiate price cache`)));
 
     /**
@@ -95,7 +102,7 @@ export class MarketService {
             symbol: price[0],
             value: {
                 price: price[1],
-                ISOcode: ISO_Code,
+                ISO_Code,
                 currency: price[2],
                 marketDate,
                 count: 0
@@ -113,19 +120,18 @@ export class MarketService {
      * - 없으면 마켓업데이터에 조회요청, 케싱 [logger 00]
      */
     async getPriceByTicker(ticker: string, id?: string) {
-        const priceObj = await this.dbRepo.getPrice(ticker);
-        if (priceObj) { // 캐시에 있으면 마켓업데이트 일치 확인
-            await this.dbRepo.countingPrice(ticker, priceObj);
-            const marketDate = await this.dbRepo.getPriceStatus(priceObj.ISOcode);
-            if (marketDate === priceObj.marketDate) { // marketDate 일치하면 조회
+        const cachedPrice = await this.dbRepo.countingPrice(ticker);
+        if (cachedPrice) { // 캐시에 있으면 마켓업데이트 일치 확인
+            const marketDate = await this.dbRepo.getPriceStatus(cachedPrice.ISO_Code);
+            if (marketDate === cachedPrice.marketDate) { // marketDate 일치하면 조회
                 this.logger.verbose(`${ticker} : 11${id ? " "+id : ""}`);
-                return priceObj;
+                return cachedPrice;
             } else { // marketDate 불일치하면 마켓업데이터에 조회요청, 캐시업뎃 [logger 10]
                 const priceByTicker = await this.requestPriceByTicker(ticker);
-                priceObj.price = priceByTicker.price;
-                priceObj.marketDate = marketDate;
+                cachedPrice.price = priceByTicker.price;
+                cachedPrice.marketDate = marketDate;
                 this.logger.verbose(`${ticker} : 10${id ? " "+id : ""}`);
-                return this.dbRepo.setPrice(ticker, priceObj);
+                return this.dbRepo.setPrice(ticker, cachedPrice);
             };
         } else { // 캐시에 없으면 마켓서버에 가격요청, 케싱 [logger 00]
             const priceByTicker = await this.requestPriceByTicker(ticker);
@@ -133,9 +139,9 @@ export class MarketService {
             this.logger.verbose(`${ticker} : 00${id ? " "+id : ""}`);
             return this.dbRepo.setPrice(ticker, {
                 price: priceByTicker.price,
-                ISOcode: priceByTicker.ISOcode,
+                ISO_Code: priceByTicker.ISO_Code,
                 currency: priceByTicker.currency,
-                marketDate: await this.dbRepo.getPriceStatus(priceByTicker.ISOcode),
+                marketDate: await this.dbRepo.getPriceStatus(priceByTicker.ISO_Code),
                 count: 1
             });
         };
@@ -144,7 +150,7 @@ export class MarketService {
     /**
      * ###
      */
-    private requestPriceByISOcode = (ISO_Code: string): Promise<SymbolPrice[]> => this.requestPriceToMarket(ISO_Code, "ISO_Code");
+    private requestPriceByISOcode = (ISO_Code: string): Promise<SymbolPriceCurrency[]> => this.requestPriceToMarket(ISO_Code, "ISO_Code");
 
     /**
      * ###
@@ -176,18 +182,20 @@ export class MarketService {
      * ISO_Code marketDate 수정
      * price 조회하면서 카운트 기준(priceCacheCount) 미만은 캐시에서 삭제하고 기준이상은 price, marketDate 업뎃, count = 0
      */
-    async regularUpdaterForPrice(ISO_Code: string, body: RegularUpdateForPriceBodyDto) {
+    async regularUpdaterForPrice (ISO_Code: string, marketDate: string, priceArrs: SymbolPrice[] | SymbolPriceCurrency[]) {
         try {
-            await this.dbRepo.setPriceStatus(ISO_Code, body.marketDate);
-            await Promise.all(body.priceArrs.map(async priceArr => {
+            await this.dbRepo.setPriceStatus(ISO_Code, marketDate);
+            await Promise.all(priceArrs.map(async (priceArr: SymbolPrice | SymbolPriceCurrency) => {
                 const priceObj = await this.dbRepo.getPrice(priceArr[0]);
                 if (priceObj) {
                     if (priceObj.count < this.priceCacheCount) {
                         await this.dbRepo.deletePrice(priceArr[0]);
                     } else {
                         priceObj.price = priceArr[1];
-                        priceObj.marketDate = body.marketDate;
+                        priceObj.marketDate = marketDate;
                         priceObj.count = 0;
+                        priceObj.ISO_Code = ISO_Code;
+                        if (priceArr[2]) priceObj.currency = priceArr[2];
                         await this.dbRepo.setPrice(priceArr[0], priceObj);
                     };
                 };
@@ -196,7 +204,7 @@ export class MarketService {
         } catch (error) {
             throw new InternalServerErrorException(error);
         };
-    }
+    };
 
     /**
      * ### 거래소별 상태를 리턴

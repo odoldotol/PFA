@@ -1,12 +1,14 @@
-import { CallHandler, ExecutionContext, NestInterceptor, ValidationPipe } from '@nestjs/common';
+import { CallHandler, ExecutionContext, NestInterceptor, ValidationPipe, Logger } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { Observable } from 'rxjs';
 
 async function bootstrap() {
+
+  const logger = new Logger("NestApplication");
   let keepAlive = true;
 
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule).then(app => (logger.log('App created'), app));
 
   // admin 과 product 만 허용
   app.enableCors();
@@ -29,8 +31,6 @@ async function bootstrap() {
     forbidNonWhitelisted: true,
   }));
 
-  await app.listen(process.env.PORT || 6000);
-
   process.on('SIGINT', async () => {
     keepAlive = false;
 
@@ -38,5 +38,11 @@ async function bootstrap() {
     console.log('Server closed');
     process.exit(0);
   });
+
+  await app.listen(process.env.PORT || 6000);
+  logger.log('App listen');
+
+  process.send ? (process.send('ready'), logger.log("Send Ready to Parent Process")) : logger.log("Ready!!");
+
 }
 bootstrap();

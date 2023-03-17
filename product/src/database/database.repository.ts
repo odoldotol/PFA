@@ -1,5 +1,6 @@
 import { CACHE_MANAGER, Inject, Injectable, Logger, OnModuleDestroy } from "@nestjs/common";
 import { Cache } from 'cache-manager';
+import { readdir, readFile, writeFile } from 'node:fs/promises';
 import { curry, each, map, pipe, toArray, toAsync } from "@fxts/core";
 
 @Injectable()
@@ -17,16 +18,30 @@ export class DBRepository implements OnModuleDestroy {
      */
     async onModuleDestroy(signal?: string) {
         this.logger.warn(`Cache Backup Start`);
-        const keyArr = await this.cacheManager.store.keys();
-        const BackupObj = {};
-        const cacheArr = await Promise.all(keyArr.map(async (key) => {
-            const cache = await this.cacheManager.get(key);
-            BackupObj[key] = cache['count'];
-        }));
-        // 대충 이렇게 구현하면 되겠다~
-        // [TODO] 완성시키기 (임시로 5초간 sleep)
-        await new Promise((resolve) => setTimeout(resolve, 5000));
-        this.logger.warn(`Cache Backup End`);
+        const allKey: string[] = await this.cacheManager.store.keys();
+        const allVal = await this.cacheManager.store.mget(...allKey);
+        const allCache = allKey.map((key, idx) => ([key, allVal[idx]]));
+        const backupFileName = new Date().toISOString();
+        await writeFile(`cacheBackup/${backupFileName}`, JSON.stringify(allCache, null, 4));
+        this.logger.warn(`Cache Backup End : ${backupFileName}`);
+    }
+
+    /**
+     * ### cacheRecovery
+     * - readLastCacheBackup 로 복구
+     */
+    cacheRecovery = async () => {
+        const [lastCacheBackupFileName, lastCacheBackup] = await this.readLastCacheBackup();
+        each(async cache => await this.cacheManager.set(cache[0], cache[1]), lastCacheBackup);
+        return lastCacheBackupFileName;
+    }
+
+    /**
+     * ### readLastCacheBackup
+     */
+    private readLastCacheBackup = async (): Promise<[string, Array<[string,string|CachedPrice]>]> => {
+        const lastCacheBackupFileName = (await readdir('cacheBackup')).pop();
+        return [lastCacheBackupFileName, JSON.parse(await readFile(`cacheBackup/${lastCacheBackupFileName}`, 'utf8'))];
     }
 
     /**
@@ -53,7 +68,15 @@ export class DBRepository implements OnModuleDestroy {
      * ### countingPrice
      * - count 1 증가
      */
-    countingPrice = (symbol: string, price: CachedPrice) => (price.count++, this.setPrice(symbol, price));
+    countingPrice = async (symbol: string) => {
+        try {
+            const price = await this.getPrice(symbol);
+            price.count++;
+            return this.setPrice(symbol, price);
+        } catch (e) {
+            return undefined;
+        }
+    }
 
     /**
      * ### deletePrice

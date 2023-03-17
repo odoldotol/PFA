@@ -1,6 +1,6 @@
 import { IsArray, IsNotEmpty, IsString } from "class-validator";
 
-export class RegularUpdateForPriceBodyDto {
+export class RegularUpdateForPriceBodyDto implements RegularUpdatePrice {
     
     @IsNotEmpty()
     @IsString()
@@ -8,6 +8,6 @@ export class RegularUpdateForPriceBodyDto {
 
     @IsNotEmpty()
     @IsArray()
-    readonly priceArrs: [string, number][];
+    readonly priceArrs: SymbolPrice[];
 
 };
