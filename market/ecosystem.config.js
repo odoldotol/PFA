@@ -16,7 +16,6 @@ module.exports = {
       env: {
         NODE_ENV: 'production',
         PORT: 6000,
-        PM2: 1,
         PM2_NAME: 'pfa_market_prod',
       },
     },

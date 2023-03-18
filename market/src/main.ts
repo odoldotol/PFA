@@ -59,9 +59,9 @@ async function bootstrap() {
       let pm2_id: number
       const pm2_name = process.env.PM2_NAME;
       const pm2 = require('pm2');
-      pm2.connect(err => process.exit(2));
+      pm2.connect(err => (logger.error(err), process.exit(2)));
       pm2.list((err, list) => {
-        err && process.exit(2);
+        err && (logger.error(err), process.exit(2));
         try {
           pm2_id = list.find(p => p.pid === pid).pm_id;
         } catch (e) { // old process reloaded
