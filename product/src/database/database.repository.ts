@@ -1,4 +1,5 @@
 import { CACHE_MANAGER, Inject, Injectable, Logger, OnModuleDestroy } from "@nestjs/common";
+import { ConfigService } from '@nestjs/config';
 import { Cache } from 'cache-manager';
 import { readdir, readFile, writeFile } from 'node:fs/promises';
 import { curry, each, map, pipe, toArray, toAsync } from "@fxts/core";
@@ -8,8 +9,10 @@ export class DBRepository implements OnModuleDestroy {
 
     private readonly logger = new Logger(DBRepository.name);
     private readonly PS = "_priceStatus";
+    private readonly PM2_NAME: string = this.configService.get('PM2_NAME');
 
     constructor(
+        private readonly configService: ConfigService,
         @Inject(CACHE_MANAGER) private cacheManager: Cache,
     ) {}
 
@@ -23,6 +26,7 @@ export class DBRepository implements OnModuleDestroy {
         const allCache = allKey.map((key, idx) => ([key, allVal[idx]]));
         const backupFileName = new Date().toISOString();
         await writeFile(`cacheBackup/${backupFileName}`, JSON.stringify(allCache, null, 4));
+        this.PM2_NAME && process.send('cache_backup_end');
         this.logger.warn(`Cache Backup End : ${backupFileName}`);
     }
 
@@ -31,6 +35,7 @@ export class DBRepository implements OnModuleDestroy {
      * - readLastCacheBackup 로 복구
      */
     cacheRecovery = async () => {
+        this.cacheManager.reset();
         const [lastCacheBackupFileName, lastCacheBackup] = await this.readLastCacheBackup();
         each(async cache => await this.cacheManager.set(cache[0], cache[1]), lastCacheBackup);
         return lastCacheBackupFileName;

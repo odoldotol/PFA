@@ -23,3 +23,8 @@ interface RegularUpdatePrice {
     marketDate: string;
     priceArrs: SymbolPrice[];
 }
+
+type SpAsyncIter = AsyncIterableIterator<{
+    ISO_Code: string;
+    marketDate: string;
+}>
