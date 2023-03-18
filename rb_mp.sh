@@ -1,7 +1,10 @@
 cd market
+npm i
+wait
 npm run build:prod
 wait
 cd ../product
+npm i
+wait
 npm run build:prod
 wait
-pm2 logs --lines 200
