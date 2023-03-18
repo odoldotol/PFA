@@ -9,7 +9,8 @@ module.exports = {
       wait_ready: true,
       listen_timeout: 600000, // 10분
       kill_timeout: 20000, // 20초
-      watch: '.',
+      max_restarts: 50,
+      restart_delay: 500,
     },
     // {
     //   script: './service-worker/',

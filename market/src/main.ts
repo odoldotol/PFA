@@ -35,7 +35,7 @@ async function bootstrap() {
     keepAlive = false;
 
     await app.close();
-    console.log('Server closed');
+    logger.log('Server closed');
     process.exit(0);
   });
 
