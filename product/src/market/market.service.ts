@@ -25,8 +25,9 @@ export class MarketService implements OnModuleInit {
 
         this.logger.warn("Initiator Run!!!");
         await this.dbRepo.cacheRecovery()
-        .then(async lastCacheBackupFileName => (this.logger.verbose(`Cache Recovered : ${lastCacheBackupFileName}`) , await this.selectiveCacheUpdate()))
-        .catch(async error => (this.logger.error(error), await this.initiateCache()));
+        .then(async lastCacheBackupFileName => (this.logger.verbose(`Cache Recovered : ${lastCacheBackupFileName}`) , this.selectiveCacheUpdate()))
+        .catch(async error => (this.logger.error(error), this.logger.warn(`Failed to selective Update price cache`), this.initiateCache()))
+        .catch(error => (this.logger.error(error), this.logger.warn(`Failed to initiate price cache`)));
 
         // await this.dbRepo.deletePrice("AAPL"); // 없을경우 테스트용
         // const priceObj = await this.cacheManager.get("AAPL"); // marketDate 불일치 테스트용
@@ -79,7 +80,7 @@ export class MarketService implements OnModuleInit {
         peek(ele => this.dbRepo.setPriceStatus(ele.ISO_Code, ele.marketDate)),
         map(async ({ISO_Code, marketDate}) => ({ISO_Code, marketDate, priceArrs: await this.requestPriceByISOcode(ISO_Code)})),
         each(ele => this.regularUpdaterForPrice(ele.ISO_Code, ele.marketDate, ele.priceArrs))
-    ).catch(error => (this.logger.error(error), this.logger.warn(`Failed to initiate price cache`)));
+    );
 
     /**
      * ### 캐시 초기화
@@ -91,7 +92,7 @@ export class MarketService implements OnModuleInit {
         peek(async ({ISO_Code, marketDate}) => await this.dbRepo.setPriceStatus(ISO_Code, marketDate)),
         peek(this.initiatePriceCache),
         each(sp => this.logger.verbose(`${sp.ISO_Code} : Price Cache Initiated`))
-    ).catch(error => (this.logger.error(error), this.logger.warn(`Failed to initiate price cache`)));
+    );
 
     /**
      * ### initiatePriceCache
