@@ -26,7 +26,7 @@ export class MarketService implements OnModuleInit {
     async onModuleInit() {
         this.logger.warn("Initiator Run!!!");
         if (this.PM2_NAME) {
-            pm2.connect(err => process.exit(2));
+            pm2.connect(err => err && process.exit(2));
             pm2.launchBus((err, pm2_bus) => {
                 err && process.exit(2);
                 pm2_bus.on('process:msg', async packet => {
