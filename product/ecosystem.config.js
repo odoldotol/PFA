@@ -1,4 +1,3 @@
-// pm2 (5.2.2 lts)
 module.exports = {
   apps : [
     {
@@ -6,16 +5,12 @@ module.exports = {
       script: 'dist/main.js',
       instances: 1,
       exec_mode: 'cluster',
-      wait_ready: true,
-      listen_timeout: 600000, // 10분
+      // wait_ready: true, // 필요없음
+      listen_timeout: 60000, // 1분
       kill_timeout: 20000, // 20초
       max_restarts: 50,
       restart_delay: 500,
     },
-    // {
-    //   script: './service-worker/',
-    //   watch: ['./service-worker']
-    // }
   ],
 
   // deploy : {

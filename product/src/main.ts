@@ -8,11 +8,12 @@ async function bootstrap() {
   const logger = new Logger("NestApplication");
   let keepAlive = true;
 
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule).then(app => (logger.log('App created'), app));
 
-  // admin, FE + 기타 서비스(Kakao 등) 허용
+  // adminFE, 서비스FE + 기타 서비스(Kakao 등) 허용하면 됨
   app.enableCors();
 
+  // keepAlive 인터셉터
   app.useGlobalInterceptors(
     new class KeepAliveInterceptor implements NestInterceptor {
       intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
@@ -31,17 +32,61 @@ async function bootstrap() {
     transform: true
   }));
   
-  process.on('SIGINT', async () => {
+  /**
+   * ### 서버 종료 동작
+   */
+  const closing = async () => {
     keepAlive = false;
 
     await app.close();
     logger.log('Server closed');
     process.exit(0);
+  };
+
+  process.on('SIGINT', async () => {
+    closing();
   });
 
-  await app.listen(process.env.PORT || 7000);
+  await app.listen(process.env.PORT || 7000).then(() => {
+    logger.log('App listen');
+    process.send('ready', logger.log("Send Ready to Parent Process"), { swallowErrors: false}, (err) => {
+      if (err) {
+        logger.error(err);
+        logger.log("Ready!!");
+      }
+    });
+  });
 
-  process.send ? (process.send('ready'), logger.log("Send Ready to Parent Process")) : logger.log("Ready!!");
+  // 나의 pm2_id 찾아서 나를 대체하는 새로운 앱이 준비되면 나를 종료하기
+  const pid = process.pid;
+  let pm2_id: number
+  const pm2_name = 'pfa_product'
+  const pm2 = require('pm2')
+  
+  pm2.connect(function(err) {
+    if (err) logger.error(err), process.exit(2);
+    pm2.list((err, list) => {
+      if (err) logger.error(err), process.exit(2);  
+      try {
+        pm2_id = list.find(p => p.pid === pid).pm_id; // old process 를 재구동 한 경우 여기서 에러 발생
+        pm2.launchBus(function(err, pm2_bus) {
+          pm2_bus.on('process:msg', function(packet) {
+            // console.log("msg", packet);
+            if (packet.raw === 'ready' && packet.process.name === pm2_name && packet.process.pm_id === pm2_id) {
+              logger.log(`New ${pm2_name} is ready`);
+              // closing(); // 다시 살리려고함
+              // process.kill(pid, 'SIGINT'); // 다시 살리려고함
+              // pm2.delete(`_old_${pm2_id}`); // 다시 살리려고함
+              // pm2.stop(`_old_${pm2_id}`); // 다시 살림
+            };
+          });
+        });
+      } catch (e) { // old process 를 재구동 한 경우 여기로 들어온다.
+        logger.error(e)
+        logger.log(`Old ${pm2_name} is reloaded...`)
+      };
+    });
+  });
 
 }
 bootstrap();
