@@ -5,7 +5,7 @@ import { catchError, firstValueFrom } from 'rxjs';
 import { ChildProcessWithoutNullStreams, spawn } from 'child_process';
 import { DBRepository } from '../database/database.repository';
 import * as pm2 from 'pm2';
-import { concurrent, curry, each, entries, filter, map, peek, pipe, reduce, tap, toArray, toAsync } from '@fxts/core';
+import { concurrent, curry, delay, each, entries, filter, map, peek, pipe, reduce, tap, toArray, toAsync } from '@fxts/core';
 
 @Injectable()
 export class MarketService implements OnModuleInit {
@@ -44,34 +44,16 @@ export class MarketService implements OnModuleInit {
                             packet.process.name === this.PM2_NAME &&
                             packet.process.pm_id === `_old_${pm2_id}`
                         ) {
-                            await this.dbRepo.cacheRecovery().then(async lastCacheBackupFileName => ( // 캐시 복구
-                                this.logger.verbose(`Cache Recovered : ${lastCacheBackupFileName}`),
-                                this.selectiveCacheUpdate(await this.getSpIter()))
-                            ).catch(error => (
-                                this.logger.error(error),
-                                this.logger.warn(`Failed to selective Update price cache`))
-                            );
+                            await this.dbRepo.cacheRecovery().then(this.selectiveCacheUpdate)
                             pm2.disconnect(); // disconnect 안되고있음, 아마 main 연결 때문인듯?
                         };
                     });
                 });
             });
         };
-        await this.dbRepo.cacheRecovery().then(async lastCacheBackupFileName => ( // 캐시 복구
-            this.logger.verbose(`Cache Recovered : ${lastCacheBackupFileName}`),
-            this.selectiveCacheUpdate(await this.getSpIter()))
-        ).catch(async error => ( // 실패하면 마켓 통해서 완전 초기화
-            this.logger.error(error),
-            this.logger.warn(`Failed to selective Update price cache`),
-            this.initiateCache(await this.getSpIter()))
-        ).catch(error => (
-            this.logger.error(error),
-            this.logger.warn(`Failed to initiate price cache`))
-        );
-        // PM2_listen_timeout ms 이후에 연결 종료
-        setTimeout(() => {
-            pm2.disconnect(); // disconnect 안되고있음, 아마 main 연결 때문인듯?
-        }, this.PM2_listen_timeout);
+        await this.dbRepo.cacheRecovery().then(this.selectiveCacheUpdate)
+        // 모듈 이닛 + PM2_listen_timeout ms + 마진(3s) 이후에 연결 종료
+        this.PM2_NAME && delay(this.PM2_listen_timeout + 3000).then(pm2.disconnect) // disconnect 안되고있음, 아마 main 연결 때문인듯?
         this.logger.warn("Initiator End!!!");
     }
 
@@ -117,52 +99,44 @@ export class MarketService implements OnModuleInit {
     }), await this.requestSpDocArrToMarket()));
 
     /**
-     * ### Insert SpIter To Chache
-     */
-    private insertSpIter = peek<SpAsyncIter>(sp => this.dbRepo.setPriceStatus(sp.ISO_Code, sp.marketDate));
-
-    /**
      * ### selectiveCacheUpdate
-     * - SpIter 와 Cache 를 비교
-     * - 다른경우, SpIter 로 Cache 갱신하고 Price 업데이트
+     * - 마켓에서 Sp 가져와서
+     * - Cache Sp 와 비교해서 다른경우
+     * - 해당 Sp 에 대한 regularUpdater 실행
+     * - 실패시 하드 초기화
      */
-    private selectiveCacheUpdate = (spIter: SpAsyncIter) => pipe(
-        spIter,
-        filter(async ele => ele.marketDate !== await this.dbRepo.getPriceStatus(ele.ISO_Code)),
-        this.insertSpIter,
-        map(async ({ISO_Code, marketDate}) => ({ISO_Code, marketDate, priceArrs: await this.requestPriceByISOcode(ISO_Code)})),
-        each(ele => this.regularUpdaterForPrice(ele.ISO_Code, ele.marketDate, ele.priceArrs))
-    );
+    private selectiveCacheUpdate = () => pipe(
+        this.getSpIter(),
+        filter(async sp => sp.marketDate !== await this.dbRepo.getPriceStatus(sp.ISO_Code)),
+        each(async sp => this.regularUpdaterForPrice(sp.ISO_Code, sp.marketDate, await this.requestPriceByISOcode(sp.ISO_Code)))
+    ).catch(error => (this.logger.error(error), this.logger.error(`Failed to SelectiveUpdate`), this.initiateCache()));
+
 
     /**
-     * ### 캐시 초기화
-     * - hard
+     * ### 캐시 초기화[Hard]
+     * - 마켓에서 Sp 가져와서
+     * - cache 에 insert 하고
+     * - 모든 Sp 에 대해 price init.
      */
-    private initiateCache = async (spIter: SpAsyncIter) => pipe(
-        spIter,
-        this.insertSpIter,
-        peek(this.initiatePriceCache),
-        each(sp => this.logger.verbose(`${sp.ISO_Code} : Price Cache Initiated`))
-    );
+    private initiateCache = () => pipe(
+        this.getSpIter(),
+        peek(sp => this.dbRepo.setPriceStatus(sp.ISO_Code, sp.marketDate)),
+        each(this.initiatePriceCache)
+    ).catch(error => (this.logger.error(error), this.logger.warn(`Failed to initiate price cache`)));
 
     /**
-     * ### initiatePriceCache
-     * - hard
+     * ### initiatePriceCache[Hard]
      */
-    private initiatePriceCache = async ({ISO_Code, marketDate}) => pipe(
-        await this.requestPriceByISOcode(ISO_Code), toAsync,
-        map(async price => ({
-            symbol: price[0],
-            value: {
-                price: price[1],
-                ISO_Code,
-                currency: price[2],
-                marketDate,
-                count: 0
-            }
-        })),
-        each(async ({symbol, value}) => await this.dbRepo.setPrice(symbol, value))
-    );
+    private initiatePriceCache = ({ISO_Code, marketDate}) => pipe(
+        this.requestPriceByISOcode(ISO_Code),
+        each(price => this.dbRepo.setPrice(price[0], {
+            price: price[1],
+            ISO_Code,
+            currency: price[2],
+            marketDate,
+            count: 0
+        }))
+    ).then(() => this.logger.verbose(`${ISO_Code} : Price Cache Initiated`))
 
     /**
      * ### 가격 조회
@@ -231,9 +205,9 @@ export class MarketService implements OnModuleInit {
     }
 
     /**
-     * ###
-     * ISO_Code marketDate 수정
-     * price 조회하면서 카운트 기준(priceCacheCount) 미만은 캐시에서 삭제하고 기준이상은 price, marketDate 업뎃, count = 0
+     * ### Sp 로 Cache 갱신하고 Price 업데이트
+     * - ISO_Code marketDate 수정
+     * - price 조회하면서 카운트 기준(priceCacheCount) 미만은 캐시에서 삭제하고 기준이상은 price, marketDate 업뎃, count = 0
      */
     async regularUpdaterForPrice (ISO_Code: string, marketDate: string, priceArrs: SymbolPrice[] | SymbolPriceCurrency[]) {
         try {

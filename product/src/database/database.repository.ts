@@ -35,10 +35,14 @@ export class DBRepository implements OnModuleDestroy {
      * - readLastCacheBackup 로 복구
      */
     cacheRecovery = async () => {
-        this.cacheManager.reset();
-        const [lastCacheBackupFileName, lastCacheBackup] = await this.readLastCacheBackup();
-        each(async cache => await this.cacheManager.set(cache[0], cache[1]), lastCacheBackup);
-        return lastCacheBackupFileName;
+        try {
+            this.cacheManager.reset();
+            const [lastCacheBackupFileName, lastCacheBackup] = await this.readLastCacheBackup();
+            await each(cache => this.cacheManager.set(cache[0], cache[1]), toAsync(lastCacheBackup));
+            this.logger.verbose(`Cache Recovered : ${lastCacheBackupFileName}`)
+        } catch (e) {
+            this.logger.error(e), this.logger.error(`Failed to Cache Recovery`);
+        };
     }
 
     /**
