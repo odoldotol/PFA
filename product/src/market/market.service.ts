@@ -29,9 +29,9 @@ export class MarketService implements OnModuleInit {
             pm2.connect(err => err && process.exit(2));
             pm2.launchBus((err, pm2_bus) => {
                 err && process.exit(2);
-                pm2_bus.on('process:msg', async packet => {
+                pm2_bus.on('process:msg', packet => {
                     let pm2_id: number;
-                    pm2.list((err, list) => { // disconnect 가 안되서 메세지 수신때마다 확인해서 올드앱에서 동작 방지해야한다.
+                    pm2.list(async (err, list) => { // disconnect 가 안되서 메세지 수신때마다 확인해서 올드앱에서 동작 방지해야한다.
                         err && process.exit(2);
                         try {
                             pm2_id = list.find(p => p.pid === process.pid).pm_id;
@@ -39,21 +39,21 @@ export class MarketService implements OnModuleInit {
                             pm2_id = undefined;
                             pm2.disconnect(); // disconnect 안되고있음, 아마 main 연결 때문인듯?
                         };
+                        if (
+                            packet.raw === 'cache_backup_end' &&
+                            packet.process.name === this.PM2_NAME &&
+                            packet.process.pm_id === `_old_${pm2_id}`
+                        ) {
+                            await this.dbRepo.cacheRecovery().then(async lastCacheBackupFileName => ( // 캐시 복구
+                                this.logger.verbose(`Cache Recovered : ${lastCacheBackupFileName}`),
+                                this.selectiveCacheUpdate(await this.getSpIter()))
+                            ).catch(error => (
+                                this.logger.error(error),
+                                this.logger.warn(`Failed to selective Update price cache`))
+                            );
+                            pm2.disconnect(); // disconnect 안되고있음, 아마 main 연결 때문인듯?
+                        };
                     });
-                    if (
-                        packet.raw === 'cache_backup_end' &&
-                        packet.process.name === this.PM2_NAME &&
-                        packet.process.pm_id === `_old_${pm2_id}`
-                    ) {
-                        await this.dbRepo.cacheRecovery().then(async lastCacheBackupFileName => ( // 캐시 복구
-                            this.logger.verbose(`Cache Recovered : ${lastCacheBackupFileName}`),
-                            this.selectiveCacheUpdate(await this.getSpIter()))
-                        ).catch(async error => (
-                            this.logger.error(error),
-                            this.logger.warn(`Failed to selective Update price cache`))
-                        );
-                        pm2.disconnect(); // disconnect 안되고있음, 아마 main 연결 때문인듯?
-                    };
                 });
             });
         };
