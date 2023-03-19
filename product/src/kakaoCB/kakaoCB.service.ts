@@ -31,7 +31,7 @@ export class KakaoCBService {
                     },
                 ],
             },
-            data: kakaoData,
+            data: {...kakaoData, kakaoText},
         }
     }
 
