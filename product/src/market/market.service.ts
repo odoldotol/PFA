@@ -155,10 +155,8 @@ export class MarketService implements OnModuleInit {
                 return cachedPrice;
             } else { // marketDate 불일치하면 마켓업데이터에 조회요청, 캐시업뎃 [logger 10]
                 const priceByTicker = await this.requestPriceByTicker(ticker);
-                cachedPrice.price = priceByTicker.price;
-                cachedPrice.marketDate = marketDate;
                 this.logger.verbose(`${ticker} : 10${id ? " "+id : ""}`);
-                return this.dbRepo.setPrice(ticker, cachedPrice);
+                return this.dbRepo.setPrice(ticker, {...priceByTicker, marketDate, count: cachedPrice.count});
             };
         } else { // 캐시에 없으면 마켓서버에 가격요청, 케싱 [logger 00]
             const priceByTicker = await this.requestPriceByTicker(ticker);
@@ -218,12 +216,13 @@ export class MarketService implements OnModuleInit {
                     if (priceObj.count < this.priceCacheCount) {
                         await this.dbRepo.deletePrice(priceArr[0]);
                     } else {
-                        priceObj.price = priceArr[1];
-                        priceObj.marketDate = marketDate;
-                        priceObj.count = 0;
-                        priceObj.ISO_Code = ISO_Code;
-                        if (priceArr[2]) priceObj.currency = priceArr[2];
-                        await this.dbRepo.setPrice(priceArr[0], priceObj);
+                        await this.dbRepo.setPrice(priceArr[0], {
+                            price: priceArr[1],
+                            ISO_Code,
+                            currency: priceArr[2] ? priceArr[2] : priceObj.currency,
+                            marketDate,
+                            count: 0
+                        });
                     };
                 };
             }));

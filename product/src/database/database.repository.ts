@@ -81,7 +81,7 @@ export class DBRepository implements OnModuleDestroy {
         try {
             const price = await this.getPrice(symbol);
             price.count++;
-            return this.setPrice(symbol, price);
+            return price;
         } catch (e) {
             return undefined;
         }

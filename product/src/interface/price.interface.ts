@@ -12,10 +12,10 @@ interface RequestedPrice {
 }
 
 interface CachedPrice {
-    price: number;
-    ISO_Code: string;
-    currency: string;
-    marketDate: string;
+    readonly price: number;
+    readonly ISO_Code: string;
+    readonly currency: string;
+    readonly marketDate: string;
     count: number;
 }
 
