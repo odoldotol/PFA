@@ -30,13 +30,14 @@ export class DBRepository implements OnModuleDestroy {
         this.logger.warn(`Cache Backup End : ${backupFileName}`);
     }
 
+    cacheReset = () => this.cacheManager.reset();
+
     /**
      * ### cacheRecovery
      * - readLastCacheBackup 로 복구
      */
     cacheRecovery = async () => {
         try {
-            this.cacheManager.reset();
             const [lastCacheBackupFileName, lastCacheBackup] = await this.readLastCacheBackup();
             await each(cache => this.cacheManager.set(cache[0], cache[1]), toAsync(lastCacheBackup));
             this.logger.verbose(`Cache Recovered : ${lastCacheBackupFileName}`)

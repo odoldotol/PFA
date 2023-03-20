@@ -65,44 +65,30 @@ export class MarketService implements OnModuleInit {
         this.logger.warn("Initiator End!!!");
     }
 
-    /**
-     * ### Get SpAsyncIter
-     */
-    private getSpIter = async (): Promise<SpAsyncIter> => toAsync(map(spDoc => ({
+    private selectiveCacheUpdate = () => pipe(
+        this.getSpAsyncIter(),
+        reject(this.isSpLatest),
+        each(this.regularUpdaterForSp)
+    ).catch(e => (this.logger.error(e), this.logger.error(`SelectiveUpdate Failed`), this.cacheHardInit()));
+
+    private cacheHardInit = () => pipe(
+        this.getSpAsyncIter(),
+        peek(this.setSpToCache),
+        each(this.initiatePriceCache)
+    ).catch(error => (this.logger.error(error), this.logger.warn(`CacheHardInit Failed`)));
+
+    private getSpAsyncIter = async () => toAsync(map(spDoc => ({
         ISO_Code: spDoc.ISO_Code,
         marketDate: this.makeMarketDate(spDoc)
     }), await this.requestSpDocArrToMarket()));
 
-    /**
-     * ### selectiveCacheUpdate
-     * - 마켓에서 Sp 가져와서
-     * - Cache Sp 와 비교해서 다른경우
-     * - 해당 Sp 에 대한 regularUpdater 실행
-     * - 실패시 하드 초기화
-     */
-    private selectiveCacheUpdate = () => pipe(
-        this.getSpIter(),
-        filter(async sp => sp.marketDate !== await this.dbRepo.getPriceStatus(sp.ISO_Code)),
-        each(async sp => this.regularUpdaterForPrice(sp.ISO_Code, sp.marketDate, await this.requestPriceByISOcode(sp.ISO_Code)))
-    ).catch(error => (this.logger.error(error), this.logger.error(`Failed to SelectiveUpdate`), this.cacheHardInit()));
+    private isSpLatest = async (sp: Sp) => sp.marketDate === await this.dbRepo.getPriceStatus(sp.ISO_Code);
 
+    private regularUpdaterForSp = async (sp: Sp) => this.regularUpdaterForPrice(sp.ISO_Code, sp.marketDate, await this.requestPriceByISOcode(sp.ISO_Code));
 
-    /**
-     * ### 캐시 초기화[Hard]
-     * - 마켓에서 Sp 가져와서
-     * - cache 에 insert 하고
-     * - 모든 Sp 에 대해 price init.
-     */
-    private cacheHardInit = () => pipe(
-        this.getSpIter(),
-        peek(sp => this.dbRepo.setPriceStatus(sp.ISO_Code, sp.marketDate)),
-        each(this.initiatePriceCache)
-    ).catch(error => (this.logger.error(error), this.logger.warn(`Failed to initiate price cache`)));
+    private setSpToCache = (sp: Sp) => this.dbRepo.setPriceStatus(sp.ISO_Code, sp.marketDate);
 
-    /**
-     * ### initiatePriceCache[Hard]
-     */
-    private initiatePriceCache = ({ISO_Code, marketDate}) => pipe(
+    private initiatePriceCache = ({ ISO_Code, marketDate }: Sp) => pipe(
         this.requestPriceByISOcode(ISO_Code),
         each(price => this.dbRepo.setPrice(price[0], {
             price: price[1],
