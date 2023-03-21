@@ -1,86 +1,61 @@
-import { BadRequestException, Injectable, InternalServerErrorException, Logger, OnModuleInit } from '@nestjs/common';
+import { BadRequestException, Injectable, InternalServerErrorException, Logger, OnApplicationBootstrap, OnModuleInit } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { ConfigService } from '@nestjs/config';
 import { catchError, firstValueFrom } from 'rxjs';
 import { ChildProcessWithoutNullStreams, spawn } from 'child_process';
 import { DBRepository } from '../database/database.repository';
-import * as pm2 from 'pm2';
+import { Pm2Service } from '../pm2/pm2.service';
 import { concurrent, curry, delay, each, entries, filter, map, peek, pipe, reduce, reject, tap, toArray, toAsync } from '@fxts/core';
 
 @Injectable()
-export class MarketService implements OnModuleInit {
+export class MarketService implements OnModuleInit, OnApplicationBootstrap {
 
     private readonly logger = new Logger(MarketService.name);
     private readonly MARKET_URL = this.configService.get('MARKET_URL');
     private readonly TEMP_KEY: string = this.configService.get('TEMP_KEY');
     private readonly priceCacheCount: number = this.configService.get('PRICE_CACHE_COUNT');
-    private readonly PM2_NAME: string = this.configService.get('PM2_NAME');
-    private readonly PM2_listen_timeout: number = this.configService.get('listen_timeout');
 
     constructor(
         private readonly configService: ConfigService,
         private readonly httpService: HttpService,
         private readonly dbRepo: DBRepository,
+        private readonly pm2Service: Pm2Service,
     ) {}
 
     async onModuleInit() {
         this.logger.warn("Initiator Run!!!");
-        let restoreCache: () => Promise<void>;
-        if (this.PM2_NAME) {
-            new Promise<boolean>((resolve, reject) => {
-                pm2.connect(err => {
-                    err && reject(err);
-                    pm2.launchBus((err, pm2_bus) => {
-                        err && reject(err);
-                        pm2_bus.on('process:msg', packet => {
-                            let pm2_id: number;
-                            pm2.list(async (err, list) => {
-                                err && reject(err);
-                                try {
-                                    pm2_id = list.find(p => p.pid === process.pid).pm_id;
-                                } catch (e) { // old process 되고나서 재 수신시 undefined
-                                    pm2_id = undefined;
-                                };
-                                if (
-                                    packet.raw === 'cache_backup_end' &&
-                                    packet.process.name === this.PM2_NAME &&
-                                    packet.process.pm_id === `_old_${pm2_id}`
-                                ) {
-                                    resolve(true);
-                                };
-                            });
-                        });
-                        this.logger.warn("Cache Recovery listener opened");
-                    });
-                });
-                // PM2_listen_timeout ms + 마진(3s) 이후에 연결 종료
-                delay(this.PM2_listen_timeout + 3000).then(() => resolve(false));
-                pm2.disconnect();
-            }).then(res => (
-                this.logger.warn("Cache Recovery listener closed"),
-                res && restoreCache())
-            ).catch(e => (pm2.disconnect(), this.logger.error(e)));
-        };
-        await (restoreCache = () => this.dbRepo.cacheRecovery().then(this.selectiveCacheUpdate))();
+        await this.restoreCache();
+    }
+
+    onApplicationBootstrap() {
+        this.pm2Service.IS_RUN_BY_PM2 && this.pm2Service.cacheRecoveryListener(this.restoreCache);
         this.logger.warn("Initiator End!!!");
     }
+
+    private restoreCache = () => this.dbRepo.cacheRecovery().then(this.selectiveCacheUpdate);
 
     private selectiveCacheUpdate = () => pipe(
         this.getSpAsyncIter(),
         reject(this.isSpLatest),
         each(this.regularUpdaterForSp)
-    ).catch(e => (this.logger.error(e), this.logger.error(`SelectiveUpdate Failed`), this.cacheHardInit()));
+    ).then(() => this.logger.verbose(`SelectiveUpdate Success`))
+    .catch(e => (this.logger.error(e), this.logger.error(`SelectiveUpdate Failed`), this.cacheHardInit()));
 
     private cacheHardInit = () => pipe(
         this.getSpAsyncIter(),
         peek(this.setSpToCache),
         each(this.initiatePriceCache)
-    ).catch(error => (this.logger.error(error), this.logger.warn(`CacheHardInit Failed`)));
+    ).then(() => this.logger.verbose(`CacheHardInit Success`))
+    .catch(error => (this.logger.error(error), this.logger.error(`CacheHardInit Failed`)));
 
-    private getSpAsyncIter = async () => toAsync(map(spDoc => ({
+    private getSpAsyncIter = () => pipe(
+        this.requestSpDocArrToMarket(), toAsync,
+        map(this.spDocToSp));
+
+    private spDocToSp = (spDoc: StatusPrice): Sp => ({
         ISO_Code: spDoc.ISO_Code,
         marketDate: this.makeMarketDate(spDoc)
-    }), await this.requestSpDocArrToMarket()));
+    });
 
     private isSpLatest = async (sp: Sp) => sp.marketDate === await this.dbRepo.getPriceStatus(sp.ISO_Code);
 
