@@ -15,16 +15,18 @@ interface CachedPrice {
     readonly price: number;
     readonly ISO_Code: string;
     readonly currency: string;
-    readonly marketDate: string;
+    readonly marketDate: MarketDate;
     count: number;
 }
 
 interface RegularUpdatePrice {
-    marketDate: string;
+    marketDate: MarketDate;
     priceArrs: SymbolPrice[];
 }
 
 interface Sp {
     ISO_Code: string;
-    marketDate: string;
+    marketDate: MarketDate;
 }
+
+type MarketDate = string

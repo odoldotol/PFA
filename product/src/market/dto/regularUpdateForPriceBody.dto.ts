@@ -4,7 +4,7 @@ export class RegularUpdateForPriceBodyDto implements RegularUpdatePrice {
     
     @IsNotEmpty()
     @IsString()
-    readonly marketDate: string;
+    readonly marketDate: MarketDate;
 
     @IsNotEmpty()
     @IsArray()

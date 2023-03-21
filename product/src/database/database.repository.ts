@@ -1,100 +1,82 @@
 import { CACHE_MANAGER, Inject, Injectable, Logger, OnModuleDestroy } from "@nestjs/common";
-import { ConfigService } from '@nestjs/config';
 import { Cache } from 'cache-manager';
 import { readdir, readFile, writeFile } from 'node:fs/promises';
 import { curry, each, map, pipe, toArray, toAsync } from "@fxts/core";
+import { Pm2Service } from "src/pm2/pm2.service";
 
 @Injectable()
 export class DBRepository implements OnModuleDestroy {
 
     private readonly logger = new Logger(DBRepository.name);
     private readonly PS = "_priceStatus";
-    private readonly PM2_NAME: string = this.configService.get('PM2_NAME');
 
     constructor(
-        private readonly configService: ConfigService,
-        @Inject(CACHE_MANAGER) private cacheManager: Cache,
+        private readonly pm2Service: Pm2Service,
+        @Inject(CACHE_MANAGER) private readonly cacheManager: Cache
     ) {}
 
-    /**
-     * ### 앱 종료시 캐시 백업
-     */
-    async onModuleDestroy(signal?: string) {
+    async onModuleDestroy() {
+        await this.backupCacheToLocalfile(this.getAllCache(), new Date().toISOString());
+        this.pm2Service.IS_RUN_BY_PM2 && process.send('cache_backup_end');
+    }
+
+    private backupCacheToLocalfile = async (data: Promise<CacheSet[]>, fileName: string) => {
         this.logger.warn(`Cache Backup Start`);
-        const allKey: string[] = await this.cacheManager.store.keys();
-        const allVal = await this.cacheManager.store.mget(...allKey);
-        const allCache = allKey.map((key, idx) => ([key, allVal[idx]]));
-        const backupFileName = new Date().toISOString();
-        await writeFile(`cacheBackup/${backupFileName}`, JSON.stringify(allCache, null, 4));
-        this.PM2_NAME && process.send('cache_backup_end');
-        this.logger.warn(`Cache Backup End : ${backupFileName}`);
+        await writeFile(`cacheBackup/${fileName}`, JSON.stringify(await data, null, 4));
+        this.logger.warn(`Cache Backup End : ${fileName}`);
     }
 
-    cacheReset = () => this.cacheManager.reset();
+    cacheRecovery = async () => this.localFileCacheRecovery(await this.getLastCacheBackupFileName())
+        .catch(e => (this.logger.error(e.stack), this.logger.error(`Failed to Cache Recovery`)));
+    
+    private getAllCache = () => pipe(
+        this.getAllCacheKeys(), toAsync,
+        map(this.getCache),
+        toArray
+    );
 
-    /**
-     * ### cacheRecovery
-     * - readLastCacheBackup 로 복구
-     */
-    cacheRecovery = async () => {
-        try {
-            const [lastCacheBackupFileName, lastCacheBackup] = await this.readLastCacheBackup();
-            await each(cache => this.cacheManager.set(cache[0], cache[1]), toAsync(lastCacheBackup));
-            this.logger.verbose(`Cache Recovered : ${lastCacheBackupFileName}`)
-        } catch (e) {
-            this.logger.error(e), this.logger.error(`Failed to Cache Recovery`);
-        };
+    localFileCacheRecovery = (fileName: string) => pipe(
+        this.readCacheBackupFile(fileName), toAsync,
+        map(this.setTtlOnCacheSet),
+        each(this.setCache.bind(this)),
+    ).then(() => this.logger.verbose(`Cache Recovered : ${fileName}`));
+
+    private setTtlOnCacheSet = (cache: CacheSet) => (cache[0].slice(-12) === this.PS && cache.push(0), cache);
+    
+    private readCacheBackupFile = async (fileName: string): Promise<CacheSet[]> => JSON.parse(await readFile(`cacheBackup/${fileName}`, 'utf8'));
+    
+    private getLastCacheBackupFileName = async () => (await readdir('cacheBackup')).pop();
+
+    getAllCacheKeys = (): Promise<CacheKey[]> => this.cacheManager.store.keys();
+
+    private getAllCacheValues = async (): Promise<CacheValue[]> => this.cacheManager.store.mget(...await this.getAllCacheKeys());
+    
+    private getCacheValue = (key: CacheKey): Promise<CacheValue> => this.cacheManager.get(key);
+
+    private getCache = async (key: CacheKey): Promise<CacheSet> => [key, await this.getCacheValue(key)];
+
+    private setCache(cacheSet: CacheSet): Promise<CacheValue>
+    private setCache(key: CacheKey, value: CacheValue): Promise<CacheValue>
+    private setCache(key: CacheKey, value: CacheValue, ttl: number): Promise<CacheValue>
+    private setCache(arg: CacheKey | CacheSet, value?: CacheValue, ttl?: number) {
+        return Array.isArray(arg) ? this.cacheManager.set(...arg) : this.cacheManager.set(arg, value, ttl);
     }
 
-    /**
-     * ### readLastCacheBackup
-     */
-    private readLastCacheBackup = async (): Promise<[string, Array<[string,string|CachedPrice]>]> => {
-        const lastCacheBackupFileName = (await readdir('cacheBackup')).pop();
-        return [lastCacheBackupFileName, JSON.parse(await readFile(`cacheBackup/${lastCacheBackupFileName}`, 'utf8'))];
-    }
+    private cacheReset = () => this.cacheManager.reset();
+    
+    setPriceStatus = (ISO_Code: string, marketDate: MarketDate) => this.cacheManager.set(ISO_Code+this.PS, marketDate, 0);
 
-    /**
-     * ### setPriceStatus
-     */
-    setPriceStatus = (ISO_Code: string, marketDate: string) => this.cacheManager.set(ISO_Code+this.PS, marketDate, 0);
+    getPriceStatus = (ISO_Code: string): Promise<MarketDate> => this.cacheManager.get(ISO_Code+this.PS);
 
-    /**
-     * ### getPriceStatus
-     */
-    getPriceStatus = (ISO_Code: string): Promise<string> => this.cacheManager.get(ISO_Code+this.PS);
-
-    /**
-     * ### setPrice
-     */
     setPrice = (symbol: string, price: CachedPrice) => this.cacheManager.set(symbol, price);
 
-    /**
-     * ### getPrice
-     */
     getPrice = (symbol: string): Promise<CachedPrice> => this.cacheManager.get(symbol);
 
-    /**
-     * ### countingPrice
-     * - count 1 증가
-     */
-    countingPrice = async (symbol: string) => {
-        try {
-            const price = await this.getPrice(symbol);
-            price.count++;
-            return price;
-        } catch (e) {
-            return undefined;
-        }
-    }
-
-    /**
-     * ### deletePrice
-     */
     deletePrice = (symbol: string) => this.cacheManager.del(symbol);
 
-    /**
-     * ###
-     */
-    getAllCachedKeys = () => this.cacheManager.store.keys();
+    countingPrice = async (symbol: string) => {
+        const price = await this.getPrice(symbol);
+        return price ? (price.count++, price) : price;
+    }
+
 }

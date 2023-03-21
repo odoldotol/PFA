@@ -200,7 +200,7 @@ export class MarketService implements OnModuleInit, OnApplicationBootstrap {
     /**
      * ### makeMarketDate
      */
-    makeMarketDate = (spDoc: StatusPrice) => spDoc.lastMarketDate.slice(0, 10);
+    makeMarketDate = (spDoc: StatusPrice): MarketDate => spDoc.lastMarketDate.slice(0, 10);
 
     /**
      * ### request spDocArr to Market
@@ -221,7 +221,7 @@ export class MarketService implements OnModuleInit, OnApplicationBootstrap {
      */
     async getAssets(where: "cache" | "market"): Promise<Array<string> | object> {
         if (where === "cache") {
-            return this.dbRepo.getAllCachedKeys();
+            return this.dbRepo.getAllCacheKeys();
         } else if (where === "market") {
             const result = {};
             const yf_infoArr = (await firstValueFrom(
