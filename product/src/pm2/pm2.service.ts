@@ -11,6 +11,7 @@ export class Pm2Service implements OnModuleInit {
     readonly IS_RUN_BY_PM2: boolean;
     private readonly PM2_listen_timeout: number = this.configService.get('listen_timeout');
     private readonly PM2_ID: number;
+    private msgBus: any;
     private isOld: boolean = false;
 
     constructor(
@@ -21,23 +22,23 @@ export class Pm2Service implements OnModuleInit {
         this.getPm2List().then(pm2_pArr => this.PM2_ID = find(this.isPm2ProcessME, pm2_pArr).pm_id);
     }
 
-    onModuleInit() {
-        this.IS_RUN_BY_PM2 && this.newProcessReadyListener( // 이게 리슨 안되고 올드프로레스가 죽으면 wait_ready = true 필요하다는 뜻이다.
+    async onModuleInit() {
+        this.IS_RUN_BY_PM2 && (this.msgBus = await this.launchBus()) && this.newProcessReadyListener( // 이게 리슨 안되고 올드프로레스가 죽으면 wait_ready = true 필요하다는 뜻이다.
             () => this.logger.verbose(`I confirmed that New ${this.PM2_ID+'|'+this.PM2_NAME} was ready`));
     }
 
     private newProcessReadyListener = (action: Function) => new Promise(async resolve =>
-        await this.listener(async packet => await this.isNewProcessMsg(packet) && resolve(action())));
+        this.listener(async packet => await this.isNewProcessMsg(packet) && resolve(action())));
 
     cacheRecoveryListener = (action: Function) => new Promise<void>(async resolve => {
-        await this.listener(async packet => this.isCacheRecoveryMsg(packet) && resolve(
+        this.listener(async packet => this.isCacheRecoveryMsg(packet) && resolve(
             (this.logger.warn("Cache Recovery listener closed"), action())));
         delay(this.PM2_listen_timeout + 3000).then(() => resolve( // PM2_listen_timeout ms + 마진(3s) 이후에 연결 종료
             this.logger.warn("Cache Recovery listener closed")));
         this.logger.warn("Cache Recovery listener opened");
     });
 
-    private listener = async (msgCallBack: Function) => (await this.launchBus()).on('process:msg', msgCallBack);
+    private listener = (msgCallBack: Function) => this.msgBus.on('process:msg', msgCallBack);
 
     private isNewProcessMsg = async packet => 
     packet.raw === 'ready' &&
