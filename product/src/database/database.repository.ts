@@ -20,7 +20,7 @@ export class DBRepository implements OnModuleDestroy {
         this.pm2Service.IS_RUN_BY_PM2 && process.send('cache_backup_end');
     }
 
-    private backupCacheToLocalfile = async (data: Promise<CacheSet[]>, fileName: string) => {
+    private backupCacheToLocalfile = async (data: Promise<CacheSet<CacheValue>[]>, fileName: string) => {
         this.logger.warn(`Cache Backup Start`);
         await writeFile(`cacheBackup/${fileName}`, JSON.stringify(await data, null, 4));
         this.logger.warn(`Cache Backup End : ${fileName}`);
@@ -41,42 +41,43 @@ export class DBRepository implements OnModuleDestroy {
         each(this.setCache.bind(this)),
     ).then(() => this.logger.verbose(`Cache Recovered : ${fileName}`));
 
-    private setTtlOnCacheSet = (cache: CacheSet) => (cache[0].slice(-12) === this.PS && cache.push(0), cache);
+    private setTtlOnCacheSet = (cache: CacheSet<CacheValue>) => (cache[0].slice(-12) === this.PS && cache.push(0), cache);
     
-    private readCacheBackupFile = async (fileName: string): Promise<CacheSet[]> => JSON.parse(await readFile(`cacheBackup/${fileName}`, 'utf8'));
+    private readCacheBackupFile = async (fileName: string): Promise<CacheSet<CacheValue>[]> => JSON.parse(await readFile(`cacheBackup/${fileName}`, 'utf8'));
     
     private getLastCacheBackupFileName = async () => (await readdir('cacheBackup')).pop();
 
-    getAllCacheKeys = (): Promise<CacheKey[]> => this.cacheManager.store.keys();
-
-    private getAllCacheValues = async (): Promise<CacheValue[]> => this.cacheManager.store.mget(...await this.getAllCacheKeys());
+    countingGetPrice = (symbol: string) => this.getPrice(symbol).then(v => v && (v.count++, v));
     
-    private getCacheValue = (key: CacheKey): Promise<CacheValue> => this.cacheManager.get(key);
+    setPriceStatus = (ISO_Code: string, marketDate: MarketDate): Promise<MarketDate> => this.setCache(ISO_Code+this.PS, marketDate, 0);
+    
+    setPrice = (symbol: string, price: CachedPrice) => this.setCache(symbol, price);
+    
+    getPriceStatus = (ISO_Code: string): Promise<MarketDate> => this.getCacheValue(ISO_Code+this.PS).then(this.passMarketDate);
 
-    private getCache = async (key: CacheKey): Promise<CacheSet> => [key, await this.getCacheValue(key)];
+    getPrice = (symbol: string) => this.getCacheValue(symbol).then(this.passCachedPrice);
+    
+    private passMarketDate = (v: CacheValue): MarketDate => typeof v === 'string' && v;
+    
+    private passCachedPrice = (v: CacheValue) => v instanceof Object && v;
 
-    private setCache(cacheSet: CacheSet): Promise<CacheValue>
-    private setCache(key: CacheKey, value: CacheValue): Promise<CacheValue>
-    private setCache(key: CacheKey, value: CacheValue, ttl: number): Promise<CacheValue>
-    private setCache(arg: CacheKey | CacheSet, value?: CacheValue, ttl?: number) {
+    private setCache<T>(cacheSet: CacheSet<T>): Promise<T>
+    private setCache<T>(key: CacheKey, value: T): Promise<T>
+    private setCache<T>(key: CacheKey, value: T, ttl: number): Promise<T>
+    private setCache<T>(arg: CacheKey | CacheSet<T>, value?: T, ttl?: number) {
         return Array.isArray(arg) ? this.cacheManager.set(...arg) : this.cacheManager.set(arg, value, ttl);
     }
 
-    private cacheReset = () => this.cacheManager.reset();
-    
-    setPriceStatus = (ISO_Code: string, marketDate: MarketDate) => this.cacheManager.set(ISO_Code+this.PS, marketDate, 0);
+    private getCache = async (key: CacheKey): Promise<CacheSet<CacheValue>> => [key, await this.getCacheValue(key)];
 
-    getPriceStatus = (ISO_Code: string): Promise<MarketDate> => this.cacheManager.get(ISO_Code+this.PS);
+    private getCacheValue = (key: CacheKey): Promise<CacheValue> => this.cacheManager.get(key);
 
-    setPrice = (symbol: string, price: CachedPrice) => this.cacheManager.set(symbol, price);
+    private getAllCacheValues = async (): Promise<CacheValue[]> => this.cacheManager.store.mget(...await this.getAllCacheKeys());
 
-    getPrice = (symbol: string): Promise<CachedPrice> => this.cacheManager.get(symbol);
+    getAllCacheKeys = (): Promise<CacheKey[]> => this.cacheManager.store.keys();
 
     deletePrice = (symbol: string) => this.cacheManager.del(symbol);
 
-    countingPrice = async (symbol: string) => {
-        const price = await this.getPrice(symbol);
-        return price ? (price.count++, price) : price;
-    }
+    private cacheReset = () => this.cacheManager.reset();
 
 }

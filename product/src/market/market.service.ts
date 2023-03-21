@@ -2,7 +2,7 @@ import { BadRequestException, Injectable, InternalServerErrorException, Logger, 
 import { HttpService } from '@nestjs/axios';
 import { ConfigService } from '@nestjs/config';
 import { catchError, firstValueFrom } from 'rxjs';
-import { ChildProcessWithoutNullStreams, spawn } from 'child_process';
+import { spawn } from 'child_process';
 import { DBRepository } from '../database/database.repository';
 import { Pm2Service } from '../pm2/pm2.service';
 import { concurrent, curry, delay, each, entries, filter, map, peek, pipe, reduce, reject, tap, toArray, toAsync } from '@fxts/core';
@@ -83,7 +83,7 @@ export class MarketService implements OnModuleInit, OnApplicationBootstrap {
      * - 없으면 마켓업데이터에 조회요청, 케싱 [logger 00]
      */
     async getPriceByTicker(ticker: string, id?: string) {
-        const cachedPrice = await this.dbRepo.countingPrice(ticker);
+        const cachedPrice = await this.dbRepo.countingGetPrice(ticker);
         if (cachedPrice) { // 캐시에 있으면 마켓업데이트 일치 확인
             const marketDate = await this.dbRepo.getPriceStatus(cachedPrice.ISO_Code);
             if (marketDate === cachedPrice.marketDate) { // marketDate 일치하면 조회
@@ -242,38 +242,6 @@ export class MarketService implements OnModuleInit, OnApplicationBootstrap {
      * ### addKey
      */
     addKey = <T>(body: T) => (body["key"] = this.TEMP_KEY, body);
-
-    // /**
-    //  * ### request createByTickerArr to Market
-    //  */
-    // async requestCreateByTickerArrToMarket(tickerArr: string[]) {
-    //     return (await firstValueFrom(
-    //         this.httpService.post(`${this.MARKET_URL}manager/asset`, tickerArr)
-    //         .pipe(catchError(error => {
-    //             throw error;
-    //         }))
-    //     )).data;
-    // }
-
-    // /**
-    //  * ### request createConfigExchange to Market
-    //  */
-    // async requestCreateConfigExchangeToMarket(configExchange) {
-    //     return (await firstValueFrom(
-    //         this.httpService.post(`${this.MARKET_URL}manager/config_exchange`, configExchange)
-    //         .pipe(catchError(error => {
-    //             if (error.response) {
-    //                 if (error.response.data.error === "Bad Request") {
-    //                     throw new BadRequestException(error.response.data);
-    //                 } else {
-    //                     throw new InternalServerErrorException(error.response.data);
-    //                 };
-    //             } else {
-    //                 throw new InternalServerErrorException(error);
-    //             };
-    //         }))
-    //     )).data;
-    // }
 
     /**
      * ### request ReadPriceUpdateLog To Market

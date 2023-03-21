@@ -12,14 +12,13 @@ export class KakaoCBService {
         private readonly marketService: MarketService,
     ) {}
 
-    /**
-     * ###
-     */
-    async inquire(body: SkillPayload): Promise<SkillResponse> {
+    inquire = async (body: SkillPayload): Promise<SkillResponse> => {
         let kakaoText: string;
-        const kakaoData = await this.marketService.getPriceByTicker(body.action.params.ticker.toUpperCase(), body.userRequest.user.id)
-        .then(res => (kakaoText = `${(res.price + Number.EPSILON).toFixed(2)}${this.currencyToSign(res.currency)} (${res.marketDate})`, res))
-        .catch(err => kakaoText = err.message);
+        const price = await this.marketService.getPriceByTicker(
+            body.action.params.ticker.toUpperCase(),
+            body.userRequest.user.id
+        ).catch((err): undefined => (kakaoText = err.message, undefined));
+        kakaoText = price && `${(price.price + Number.EPSILON).toFixed(2)}${this.currencyToSign(price.currency)} (${price.marketDate})`;
         return {
             version: this.KAKAO_CHATBOT_VERSION,
             template: {
@@ -31,14 +30,11 @@ export class KakaoCBService {
                     },
                 ],
             },
-            data: {...kakaoData, kakaoText},
+            data: {...price, kakaoText},
         }
     }
 
-    /**
-     * ###
-     */
-    currencyToSign(currency: string): string {
+    private currencyToSign = (currency: string) => {
         switch (currency) {
             case 'USD':
                 return ' $';

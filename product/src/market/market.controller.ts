@@ -20,9 +20,6 @@ export class MarketController {
         return this.marketService.regularUpdaterForPrice(ISO_Code, body.marketDate, body.priceArrs);
     }
 
-
-
-
     /**
      * ### 가격조회
      */
@@ -51,30 +48,8 @@ export class MarketController {
         return this.marketService.getAssets(where);
     }
 
-
-
-
-    // /**
-    //  * ### POST MarketServer/manager/yf_info
-    //  */
-    // @Post('market_server/create_by_ticker_arr')
-    // @UseGuards(AdminGuard)
-    // @HttpCode(200)
-    // requestCreateByTickerArrToMarket(@Body() body: {key: string, tickerArr: string[]}): Promise<object> {
-    //     return this.marketService.requestCreateByTickerArrToMarket(body.tickerArr);
-    // }
-
-    // /**
-    //  * ### POST MarketServer/manager/config_exchange
-    //  */
-    // @Post('market_server/create_config_exchange')
-    // @UseGuards(AdminGuard)
-    // requestCreateConfigExchangeToMarket(@Body() body: {key: string, configExchange: object}): Promise<object> {
-    //     return this.marketService.requestCreateConfigExchangeToMarket(body.configExchange);
-    // }
-
     /**
-     * ### GET MarketServer/manager/updater_log
+     * ### [임시] POST MarketServer/manager/read_price_update_log
      */
     @Get('market_server/read_price_update_log')
     requestReadPriceUpdateLogToMarket(@Query('ISO_Code', UpperCasePipe) ISO_Code?: string, @Query('limit') limit?: number) {
