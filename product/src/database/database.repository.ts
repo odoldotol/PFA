@@ -46,18 +46,26 @@ export class DBRepository implements OnModuleDestroy {
     private readCacheBackupFile = async (fileName: string): Promise<CacheSet<CacheValue>[]> => JSON.parse(await readFile(`cacheBackup/${fileName}`, 'utf8'));
     
     private getLastCacheBackupFileName = async () => (await readdir('cacheBackup')).pop();
+    
+    setPriceStatus = (ISO_Code: ISO_Code, marketDate: MarketDate) => this.setCache(ISO_Code+this.PS, marketDate, 0);
+    
+    setPriceAndGetCopy = (symbol: TickerSymbol, price: CachedPrice) => this.setCache(symbol, price).then(this.copy);
+    
+    getPriceStatus = (ISO_Code: ISO_Code) => this.getCacheValue(ISO_Code+this.PS).then(this.passMarketDate);
 
-    countingGetPrice = (symbol: string) => this.getPrice(symbol).then(v => v && (v.count++, v));
+    updatePriceAndGetCopy = async (symbol: TickerSymbol, update: Partial<CachedPrice>) => this.copy(this.update(await this.getPrice(symbol), update));
     
-    setPriceStatus = (ISO_Code: string, marketDate: MarketDate): Promise<MarketDate> => this.setCache(ISO_Code+this.PS, marketDate, 0);
-    
-    setPrice = (symbol: string, price: CachedPrice) => this.setCache(symbol, price);
-    
-    getPriceStatus = (ISO_Code: string): Promise<MarketDate> => this.getCacheValue(ISO_Code+this.PS).then(this.passMarketDate);
+    countingGetPriceCopy = (symbol: TickerSymbol) => this.getPrice(symbol).then(v => v && (v.count++, v)).then(this.copy);
 
-    getPrice = (symbol: string) => this.getCacheValue(symbol).then(this.passCachedPrice);
+    getPriceCopy = (symbol: TickerSymbol) => this.getPrice(symbol).then(this.copy);
+
+    private getPrice = (symbol: TickerSymbol) => this.getCacheValue(symbol).then(this.passCachedPrice);
     
-    private passMarketDate = (v: CacheValue): MarketDate => typeof v === 'string' && v;
+    private copy = <T>(v: T): T => v && Object.assign({}, v);
+
+    private update = <T>(v: T, update: Partial<T>): T => v && Object.assign(v, update);
+
+    private passMarketDate = (v: CacheValue) => typeof v === 'string' && v;
     
     private passCachedPrice = (v: CacheValue) => v instanceof Object && v;
 
@@ -76,7 +84,7 @@ export class DBRepository implements OnModuleDestroy {
 
     getAllCacheKeys = (): Promise<CacheKey[]> => this.cacheManager.store.keys();
 
-    deletePrice = (symbol: string) => this.cacheManager.del(symbol);
+    deleteCache = (key: CacheKey) => this.cacheManager.del(key);
 
     private cacheReset = () => this.cacheManager.reset();
 

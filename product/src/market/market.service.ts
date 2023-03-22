@@ -52,20 +52,17 @@ export class MarketService implements OnModuleInit, OnApplicationBootstrap {
         this.requestSpDocArrToMarket(), toAsync,
         map(this.spDocToSp));
 
-    private spDocToSp = (spDoc: StatusPrice): Sp => ({
-        ISO_Code: spDoc.ISO_Code,
-        marketDate: this.makeMarketDate(spDoc)
-    });
+    private spDocToSp = (spDoc: StatusPrice): Sp => [ spDoc.ISO_Code, this.makeMarketDate(spDoc) ];
 
-    private isSpLatest = async (sp: Sp) => sp.marketDate === await this.dbRepo.getPriceStatus(sp.ISO_Code);
+    private isSpLatest = async (sp: Sp) => sp[1] === await this.dbRepo.getPriceStatus(sp[0]);
 
-    private regularUpdaterForSp = async (sp: Sp) => this.regularUpdaterForPrice(sp.ISO_Code, sp.marketDate, await this.requestPriceByISOcode(sp.ISO_Code));
+    private regularUpdaterForSp = async (sp: Sp) => this.regularUpdaterForPrice(sp, await this.requestPriceByISOcode(sp[1]));
 
-    private setSpToCache = (sp: Sp) => this.dbRepo.setPriceStatus(sp.ISO_Code, sp.marketDate);
+    private setSpToCache = (sp: Sp) => this.dbRepo.setPriceStatus(...sp);
 
-    private initiatePriceCache = ({ ISO_Code, marketDate }: Sp) => pipe(
+    private initiatePriceCache = ([ ISO_Code, marketDate ]: Sp) => pipe(
         this.requestPriceByISOcode(ISO_Code),
-        each(price => this.dbRepo.setPrice(price[0], {
+        each(price => this.dbRepo.setPriceAndGetCopy(price[0], {
             price: price[1],
             ISO_Code,
             currency: price[2],
@@ -73,6 +70,36 @@ export class MarketService implements OnModuleInit, OnApplicationBootstrap {
             count: 0
         }))
     ).then(() => this.logger.verbose(`${ISO_Code} : Price Cache Initiated`))
+
+    /**
+     * ### Sp 로 Cache 갱신하고 Price 업데이트
+     * - ISO_Code marketDate 수정
+     * - price 조회하면서 카운트 기준(priceCacheCount) 미만은 캐시에서 삭제하고 기준이상은 price, marketDate 업뎃, count = 0
+     */
+    async regularUpdaterForPrice ([ISO_Code, marketDate]: Sp, priceArrs: SymbolPrice[] | SymbolPriceCurrency[]) {
+        try {
+            await this.dbRepo.setPriceStatus(ISO_Code, marketDate);
+            await Promise.all(priceArrs.map(async (priceArr: SymbolPrice | SymbolPriceCurrency) => {
+                const priceObj = await this.dbRepo.getPriceCopy(priceArr[0]);
+                if (priceObj) {
+                    if (priceObj.count < this.priceCacheCount) {
+                        await this.dbRepo.deleteCache(priceArr[0]);
+                    } else {
+                        await this.dbRepo.setPriceAndGetCopy(priceArr[0], {
+                            price: priceArr[1],
+                            ISO_Code,
+                            currency: priceArr[2] ? priceArr[2] : priceObj.currency,
+                            marketDate,
+                            count: 0
+                        });
+                    };
+                };
+            }));
+            this.logger.verbose(`${ISO_Code} : Regular Updated`);
+        } catch (error) {
+            throw new InternalServerErrorException(error);
+        };
+    };
 
     /**
      * ### 가격 조회
@@ -83,7 +110,7 @@ export class MarketService implements OnModuleInit, OnApplicationBootstrap {
      * - 없으면 마켓업데이터에 조회요청, 케싱 [logger 00]
      */
     async getPriceByTicker(ticker: string, id?: string) {
-        const cachedPrice = await this.dbRepo.countingGetPrice(ticker);
+        const cachedPrice = await this.dbRepo.countingGetPriceCopy(ticker);
         if (cachedPrice) { // 캐시에 있으면 마켓업데이트 일치 확인
             const marketDate = await this.dbRepo.getPriceStatus(cachedPrice.ISO_Code);
             if (marketDate === cachedPrice.marketDate) { // marketDate 일치하면 조회
@@ -92,13 +119,13 @@ export class MarketService implements OnModuleInit, OnApplicationBootstrap {
             } else { // marketDate 불일치하면 마켓업데이터에 조회요청, 캐시업뎃 [logger 10]
                 const priceByTicker = await this.requestPriceByTicker(ticker);
                 this.logger.verbose(`${ticker} : 10${id ? " "+id : ""}`);
-                return this.dbRepo.setPrice(ticker, {...priceByTicker, marketDate, count: cachedPrice.count});
+                return this.dbRepo.setPriceAndGetCopy(ticker, {...priceByTicker, marketDate, count: cachedPrice.count});
             };
         } else { // 캐시에 없으면 마켓서버에 가격요청, 케싱 [logger 00]
             const priceByTicker = await this.requestPriceByTicker(ticker);
             if (priceByTicker.status_price) await this.dbRepo.setPriceStatus(priceByTicker.status_price.ISO_Code, this.makeMarketDate(priceByTicker.status_price));
             this.logger.verbose(`${ticker} : 00${id ? " "+id : ""}`);
-            return this.dbRepo.setPrice(ticker, {
+            return this.dbRepo.setPriceAndGetCopy(ticker, {
                 price: priceByTicker.price,
                 ISO_Code: priceByTicker.ISO_Code,
                 currency: priceByTicker.currency,
@@ -137,36 +164,6 @@ export class MarketService implements OnModuleInit, OnApplicationBootstrap {
             }))
         )).data;
     }
-
-    /**
-     * ### Sp 로 Cache 갱신하고 Price 업데이트
-     * - ISO_Code marketDate 수정
-     * - price 조회하면서 카운트 기준(priceCacheCount) 미만은 캐시에서 삭제하고 기준이상은 price, marketDate 업뎃, count = 0
-     */
-    async regularUpdaterForPrice (ISO_Code: string, marketDate: string, priceArrs: SymbolPrice[] | SymbolPriceCurrency[]) {
-        try {
-            await this.dbRepo.setPriceStatus(ISO_Code, marketDate);
-            await Promise.all(priceArrs.map(async (priceArr: SymbolPrice | SymbolPriceCurrency) => {
-                const priceObj = await this.dbRepo.getPrice(priceArr[0]);
-                if (priceObj) {
-                    if (priceObj.count < this.priceCacheCount) {
-                        await this.dbRepo.deletePrice(priceArr[0]);
-                    } else {
-                        await this.dbRepo.setPrice(priceArr[0], {
-                            price: priceArr[1],
-                            ISO_Code,
-                            currency: priceArr[2] ? priceArr[2] : priceObj.currency,
-                            marketDate,
-                            count: 0
-                        });
-                    };
-                };
-            }));
-            this.logger.verbose(`${ISO_Code} : Regular Updated`);
-        } catch (error) {
-            throw new InternalServerErrorException(error);
-        };
-    };
 
     /**
      * ### 거래소별 상태를 리턴

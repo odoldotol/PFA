@@ -1,32 +1,34 @@
-type SymbolPrice = [string, number]
+type SymbolPrice = [TickerSymbol, number]
 
-// ISO_Code 로 마켓 서버에서 오는
-type SymbolPriceCurrency = [...SymbolPrice, string]
+type SymbolPriceCurrency = [...SymbolPrice, Currency]
 
-// ticker 로 마켓서버에서 오는
 interface RequestedPrice {
     price: number;
-    ISO_Code: string;
-    currency: string;
+    ISO_Code: ISO_Code;
+    currency: Currency;
     status_price?: StatusPrice;
 }
 
 interface CachedPrice {
-    readonly price: number;
-    readonly ISO_Code: string;
-    readonly currency: string;
-    readonly marketDate: MarketDate;
+    price: number;
+    ISO_Code: ISO_Code;
+    currency: Currency;
+    marketDate: MarketDate;
     count: number;
 }
 
 interface RegularUpdatePrice {
+    ISO_Code: ISO_Code;
     marketDate: MarketDate;
     priceArrs: SymbolPrice[];
 }
 
-interface Sp {
-    ISO_Code: string;
-    marketDate: MarketDate;
-}
+type Sp = [ISO_Code, MarketDate]
 
-type MarketDate = string
+type MarketDate = string // TODO: MarketDate 정의 - "0000-00-00"
+
+type ISO_Code = string // TODO: ISO_Code 코드 정의 - "XNYS"...
+
+type Currency = string // TODO: Currency 정의 - "USD"...
+
+type TickerSymbol = string // TODO: TickerSymbol 정의 - "AAPL"...

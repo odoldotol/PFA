@@ -14,10 +14,10 @@ export class MarketController {
     /**
      * ### 마켓서버로부터의 레귤러업데이트
      */
-    @Post('updater/:ISO_Code')
+    @Post('updater')
     @UseGuards(KeyGuard)
-    regularUpdaterForPrice(@Param('ISO_Code', UpperCasePipe) ISO_Code: string, @Body() body: RegularUpdateForPriceBodyDto) {
-        return this.marketService.regularUpdaterForPrice(ISO_Code, body.marketDate, body.priceArrs);
+    regularUpdaterForPrice(@Body(UpperCasePipe) body: RegularUpdateForPriceBodyDto) {
+        return this.marketService.regularUpdaterForPrice([ body.ISO_Code, body.marketDate ], body.priceArrs);
     }
 
     /**
