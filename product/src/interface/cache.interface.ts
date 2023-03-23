@@ -1,5 +1,9 @@
-type CacheKey = string
+type CacheKey = ISO_Code_priceStatus | TickerSymbol
 
-type CacheValue = MarketDate | CachedPrice
+type CacheValue = MarketDateI | CachedPriceI
 
 type CacheSet<T> = [CacheKey, T, number?]
+
+type BackupCacheValue = string | CachedPriceI
+
+type ISO_Code_priceStatus = string // Todo: ISO_Code_priceStatus 정의 - "ISO_Code" + "_priceStatus"

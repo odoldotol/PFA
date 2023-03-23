@@ -3,6 +3,7 @@ import { MarketService } from './market.service';
 import { RegularUpdateForPriceBodyDto } from './dto/regularUpdateForPriceBody.dto';
 import { UpperCasePipe } from './pipe/upperCasePipe';
 import { KeyGuard } from './guard/key.guard';
+import { MarketDateParser } from './pipe/marketDateParser';
 
 @Controller('market')
 export class MarketController {
@@ -16,8 +17,8 @@ export class MarketController {
      */
     @Post('updater')
     @UseGuards(KeyGuard)
-    regularUpdaterForPrice(@Body(UpperCasePipe) body: RegularUpdateForPriceBodyDto) {
-        return this.marketService.regularUpdaterForPrice([ body.ISO_Code, body.marketDate ], body.priceArrs);
+    regularUpdaterForPrice(@Body(UpperCasePipe, MarketDateParser) body: RegularUpdateForPriceBodyDto) {
+        return this.marketService.regularUpdaterForPrice([ body.ISO_Code, body.marketDateClass ], body.priceArrs);
     }
 
     /**

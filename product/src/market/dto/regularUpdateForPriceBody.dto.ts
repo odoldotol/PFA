@@ -1,4 +1,4 @@
-import { IsArray, IsNotEmpty, IsString } from "class-validator";
+import { IsArray, IsNotEmpty, IsObject, IsOptional, IsString } from "class-validator";
 
 export class RegularUpdateForPriceBodyDto implements RegularUpdatePrice {
     
@@ -8,7 +8,11 @@ export class RegularUpdateForPriceBodyDto implements RegularUpdatePrice {
 
     @IsNotEmpty()
     @IsString()
-    readonly marketDate: MarketDate;
+    readonly marketDate: string;
+
+    @IsOptional()
+    @IsObject()
+    readonly marketDateClass: MarketDateI;    
 
     @IsNotEmpty()
     @IsArray()

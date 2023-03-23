@@ -6,6 +6,7 @@ import { spawn } from 'child_process';
 import { DBRepository } from '../database/database.repository';
 import { Pm2Service } from '../pm2/pm2.service';
 import { concurrent, curry, delay, each, entries, filter, map, peek, pipe, reduce, reject, tap, toArray, toAsync } from '@fxts/core';
+import { MarketDate } from '../class/marketDate.class';
 
 @Injectable()
 export class MarketService implements OnModuleInit, OnApplicationBootstrap {
@@ -52,17 +53,17 @@ export class MarketService implements OnModuleInit, OnApplicationBootstrap {
         this.requestSpDocArrToMarket(), toAsync,
         map(this.spDocToSp));
 
-    private spDocToSp = (spDoc: StatusPrice): Sp => [ spDoc.ISO_Code, this.makeMarketDate(spDoc) ];
+    private spDocToSp = (spDoc: StatusPrice): Sp => [ spDoc.ISO_Code, MarketDate.fromSpDoc(spDoc) ];
 
-    private isSpLatest = async (sp: Sp) => sp[1] === await this.dbRepo.getPriceStatus(sp[0]);
+    private isSpLatest = async (sp: Sp) => sp[1].isEqualTo(await this.dbRepo.getCcPriceStatus(sp[0]));
 
-    private regularUpdaterForSp = async (sp: Sp) => this.regularUpdaterForPrice(sp, await this.requestPriceByISOcode(sp[1]));
+    private regularUpdaterForSp = async (sp: Sp) => this.regularUpdaterForPrice(sp, await this.requestPriceByISOcode(sp[0]));
 
-    private setSpToCache = (sp: Sp) => this.dbRepo.setPriceStatus(...sp);
+    private setSpToCache = (sp: Sp) => this.dbRepo.setCcPriceStatus(...sp);
 
     private initiatePriceCache = ([ ISO_Code, marketDate ]: Sp) => pipe(
         this.requestPriceByISOcode(ISO_Code),
-        each(price => this.dbRepo.setPriceAndGetCopy(price[0], {
+        each(price => this.dbRepo.setCcPrice(price[0], {
             price: price[1],
             ISO_Code,
             currency: price[2],
@@ -78,14 +79,14 @@ export class MarketService implements OnModuleInit, OnApplicationBootstrap {
      */
     async regularUpdaterForPrice ([ISO_Code, marketDate]: Sp, priceArrs: SymbolPrice[] | SymbolPriceCurrency[]) {
         try {
-            await this.dbRepo.setPriceStatus(ISO_Code, marketDate);
+            await this.dbRepo.setCcPriceStatus(ISO_Code, marketDate);
             await Promise.all(priceArrs.map(async (priceArr: SymbolPrice | SymbolPriceCurrency) => {
-                const priceObj = await this.dbRepo.getPriceCopy(priceArr[0]);
+                const priceObj = await this.dbRepo.getCcPrice(priceArr[0]);
                 if (priceObj) {
                     if (priceObj.count < this.priceCacheCount) {
-                        await this.dbRepo.deleteCache(priceArr[0]);
+                        await this.dbRepo.deleteCcOne(priceArr[0]);
                     } else {
-                        await this.dbRepo.setPriceAndGetCopy(priceArr[0], {
+                        await this.dbRepo.setCcPrice(priceArr[0], {
                             price: priceArr[1],
                             ISO_Code,
                             currency: priceArr[2] ? priceArr[2] : priceObj.currency,
@@ -110,26 +111,26 @@ export class MarketService implements OnModuleInit, OnApplicationBootstrap {
      * - 없으면 마켓업데이터에 조회요청, 케싱 [logger 00]
      */
     async getPriceByTicker(ticker: string, id?: string) {
-        const cachedPrice = await this.dbRepo.countingGetPriceCopy(ticker);
+        const cachedPrice = await this.dbRepo.countingGetCcPrice(ticker);
         if (cachedPrice) { // 캐시에 있으면 마켓업데이트 일치 확인
-            const marketDate = await this.dbRepo.getPriceStatus(cachedPrice.ISO_Code);
-            if (marketDate === cachedPrice.marketDate) { // marketDate 일치하면 조회
+            const marketDate = await this.dbRepo.getCcPriceStatus(cachedPrice.ISO_Code);
+            if (marketDate.isEqualTo(cachedPrice.marketDate)) { // marketDate 일치하면 조회
                 this.logger.verbose(`${ticker} : 11${id ? " "+id : ""}`);
                 return cachedPrice;
             } else { // marketDate 불일치하면 마켓업데이터에 조회요청, 캐시업뎃 [logger 10]
                 const priceByTicker = await this.requestPriceByTicker(ticker);
                 this.logger.verbose(`${ticker} : 10${id ? " "+id : ""}`);
-                return this.dbRepo.setPriceAndGetCopy(ticker, {...priceByTicker, marketDate, count: cachedPrice.count});
+                return this.dbRepo.setCcPrice(ticker, {...priceByTicker, marketDate, count: cachedPrice.count});
             };
         } else { // 캐시에 없으면 마켓서버에 가격요청, 케싱 [logger 00]
             const priceByTicker = await this.requestPriceByTicker(ticker);
-            if (priceByTicker.status_price) await this.dbRepo.setPriceStatus(priceByTicker.status_price.ISO_Code, this.makeMarketDate(priceByTicker.status_price));
+            if (priceByTicker.status_price) await this.dbRepo.setCcPriceStatus(priceByTicker.status_price.ISO_Code, MarketDate.fromSpDoc(priceByTicker.status_price));
             this.logger.verbose(`${ticker} : 00${id ? " "+id : ""}`);
-            return this.dbRepo.setPriceAndGetCopy(ticker, {
+            return this.dbRepo.setCcPrice(ticker, {
                 price: priceByTicker.price,
                 ISO_Code: priceByTicker.ISO_Code,
                 currency: priceByTicker.currency,
-                marketDate: await this.dbRepo.getPriceStatus(priceByTicker.ISO_Code),
+                marketDate: await this.dbRepo.getCcPriceStatus(priceByTicker.ISO_Code),
                 count: 1
             });
         };
@@ -178,14 +179,14 @@ export class MarketService implements OnModuleInit, OnApplicationBootstrap {
                 return spDocArr.map((spDoc) => {
                     return {
                         ISO_Code: spDoc.ISO_Code,
-                        priceStatus: this.makeMarketDate(spDoc),
+                        priceStatus: MarketDate.fromSpDoc(spDoc),
                         exchangeTimezoneName: spDoc.yf_exchangeTimezoneName,
                     };
                 })
             } else if (where === "cache") {
-                const result: {[ISO_Code: string]: string} = {};
+                const result: {[ISO_Code: string]: MarketDate} = {};
                 await Promise.all(spDocArr.map(async (spDoc) => {
-                    result[spDoc.ISO_Code] = await this.dbRepo.getPriceStatus(spDoc.ISO_Code);
+                    result[spDoc.ISO_Code] = await this.dbRepo.getCcPriceStatus(spDoc.ISO_Code);
                 }));
                 return result;
             };
@@ -193,11 +194,6 @@ export class MarketService implements OnModuleInit, OnApplicationBootstrap {
             throw new InternalServerErrorException(error);
         };
     }
-
-    /**
-     * ### makeMarketDate
-     */
-    makeMarketDate = (spDoc: StatusPrice): MarketDate => spDoc.lastMarketDate.slice(0, 10);
 
     /**
      * ### request spDocArr to Market
@@ -218,7 +214,7 @@ export class MarketService implements OnModuleInit, OnApplicationBootstrap {
      */
     async getAssets(where: "cache" | "market"): Promise<Array<string> | object> {
         if (where === "cache") {
-            return this.dbRepo.getAllCacheKeys();
+            return this.dbRepo.getAllCcKeys();
         } else if (where === "market") {
             const result = {};
             const yf_infoArr = (await firstValueFrom(

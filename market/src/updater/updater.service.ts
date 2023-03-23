@@ -7,7 +7,7 @@ import { CronJob, CronTime } from 'cron';
 import { catchError, firstValueFrom } from 'rxjs';
 import { DBRepository } from '../database/database.repository';
 import { pipe, map, toArray, toAsync, tap, each, filter, concurrent, peek, curry } from "@fxts/core";
-import { Either } from "../monad/either";
+import { Either } from "../class/either.class";
 
 @Injectable()
 export class UpdaterService implements OnModuleInit {
