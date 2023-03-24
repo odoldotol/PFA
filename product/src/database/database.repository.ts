@@ -1,5 +1,6 @@
 import { Injectable, Logger } from "@nestjs/common";
 import { IMCacheRepository } from "./iMCache/iMCache.repository";
+import { MarketDate } from "../class/marketDate.class";
 import { apply, compactObject, curry, each, filter, head, last, map, partition, peek, pipe, tap, toAsync } from "@fxts/core";
 
 @Injectable()
@@ -10,33 +11,27 @@ export class DBRepository {
     constructor(
         private readonly iMCache: IMCacheRepository
     ) {}
-
-    cacheRecovery = this.iMCache.localFileCacheRecovery;
-
-    getAllCcKeys = this.iMCache.getAllKeys;
     
-    setCcPriceStatus = this.iMCache.setMarketDate
+    setCcPriceStatusWithRP = (rP: RequestedPrice) =>
+        this.iMCache.setMarketDate([rP.status_price.ISO_Code, MarketDate.fromSpDoc(rP.status_price)]);
+    setCcPrice = this.iMCache.setPrice;
     
     getCcPriceStatus = this.iMCache.getMarketDate;
+    countingGetCcPrice = this.iMCache.countingGetPrice;
     
-    setCcPrice = this.iMCache.setPriceAndGetCopy;
+    updateCcPrice = this.iMCache.updatePrice;
 
-    getCcPrice = this.iMCache.getPriceCopy;
-    
-    countingGetCcPrice = this.iMCache.countingGetPriceCopy;
-    
-    updateCcPrice = this.iMCache.updatePriceAndGetCopy;
+    cacheRecovery = this.iMCache.localFileCacheRecovery;
+    getAllCcKeys = this.iMCache.getAllKeys;
 
-    deleteCcOne = this.iMCache.deleteOne;
-
-    regularUpdater = async (initSet: SpPSetsSet | SpPSetsSet2) => pipe(initSet,
+    regularUpdater = (initSet: SpPSetsSet | SpPSetsSet2) => pipe(initSet,
         this.setSpAndReturnPSets, toAsync,
         partition(this.iMCache.isGteMinCount), ([truePSets, falsePSets]) => (
             pipe(truePSets,
                 map(this.toCachedPriceSet(head(initSet))),
                 each(this.updateCcPrice)),
             pipe(falsePSets,
-                each(a => this.deleteCcOne(head(a))))
+                each(a => this.iMCache.deleteOne(head(a))))
         )).then(() => this.logger.verbose(`${head(head(initSet))} : Regular Updated`));
 
     cacheHardInit = (initSet: SpPSetsSet2) => pipe(initSet,
@@ -45,7 +40,7 @@ export class DBRepository {
         each(this.setCcPrice));
 
     private setSpAndReturnPSets = (initSet: SpPSetsSet2) => pipe(initSet,
-        tap(set => this.setCcPriceStatus(head(set))),
+        tap(set => this.iMCache.setMarketDate(head(set))),
         last);
 
     private toCachedPriceSet = curry(([ ISO_Code, marketDate ]: Sp, priceSet: PSet | PSet2) =>

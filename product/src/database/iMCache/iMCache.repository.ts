@@ -2,7 +2,7 @@ import { CACHE_MANAGER, Inject, Injectable, Logger, OnModuleDestroy } from "@nes
 import { ConfigService } from "@nestjs/config";
 import { Cache } from 'cache-manager';
 import { readdir, readFile, writeFile } from 'node:fs/promises';
-import { curry, each, gte, head, isObject, isString, last, lte, map, not, pipe, toArray, toAsync } from "@fxts/core";
+import { curry, each, gte, head, isObject, isString, last, lte, map, not, pipe, toArray, toAsync, zip } from "@fxts/core";
 import { Pm2Service } from "../../pm2/pm2.service";
 import { MarketDate } from "../../class/marketDate.class";
 import { CachedPrice } from "../../class/cachedPrice.class";
@@ -44,10 +44,6 @@ export class IMCacheRepository implements OnModuleDestroy {
     private readCacheBackupFile = async (fileName: string): Promise<CacheSet<BackupCacheValue>[]> =>
         JSON.parse(await readFile(`cacheBackup/${fileName}`, 'utf8'));
 
-    private getAllCache = () => pipe(
-        this.getAllKeys(), toAsync,
-        map(this.getKeyValueSet), toArray);
-
     // TODO: 그냥통과된 BackupCache 있는지 확인하는 함수 pipe 에 넣기
     private toCacheSet = (cache: CacheSet<BackupCacheValue>) => pipe(cache,
         this.toCachedPrice,
@@ -65,39 +61,38 @@ export class IMCacheRepository implements OnModuleDestroy {
     
     setMarketDate = (sp: Sp) => this.setOne(head(sp)+this.PS, last(sp), 0);
     
-    setPriceAndGetCopy = ([symbol, price]: CacheSet<CachedPriceI>, ttl?: number) => 
+    setPrice = ([symbol, price]: CacheSet<CachedPriceI>, ttl?: number) => 
         this.setOne(symbol, new CachedPrice(price));
-    
-    updatePriceAndGetCopy = async ([symbol, update]: CacheUpdateSet<CachedPriceI>) =>
-        this.update(await this.getPrice(symbol), update);
 
-    isGteMinCount = async (set: PSet | PSet2) => this.priceCacheCount <= (await this.getPriceCopy(head(set))).count;
-    
-    countingGetPriceCopy = (symbol: TickerSymbol) => pipe(symbol,
-        this.getPrice,
-        this.counting);
-    
-    getPriceCopy = (symbol: TickerSymbol) => this.getPrice(symbol);
-    
     getMarketDate = (ISO_Code: ISO_Code) => pipe(ISO_Code+this.PS,
         this.getValue,
         this.passMarketDate);
+
+    countingGetPrice = (symbol: TickerSymbol) => pipe(symbol,
+        this.getPrice,
+        this.counting);
 
     private getPrice = (symbol: TickerSymbol) => pipe(symbol,
         this.getValue,
         this.passCachedPrice);
 
+    updatePrice = async ([symbol, update]: CacheUpdateSet<CachedPriceI>) =>
+        this.update(await this.getPrice(symbol), update);
+
+    isGteMinCount = async (set: PSet | PSet2) => pipe(head(set),
+        this.getPrice,
+        p => p && this.priceCacheCount <= p.count
+    );
+
+    private isPriceStatus = <T>(cacheSet: CacheSet<T>) => head(cacheSet).slice(-12) === this.PS
+    
+    private passMarketDate = (v: CacheValue) => v instanceof MarketDate ? v : null;
+    
+    private passCachedPrice = (v: CacheValue) => v instanceof CachedPrice ? v : null;
+    
     private counting = (v: CachedPrice) => v && v.counting();
     
     private copy = <T>(v: T): T => v && Object.assign({}, v, {copy: true});
-
-    private update = <T>(v: T, update: Partial<T>): T => v && Object.assign(v, update);
-
-    private passMarketDate = (v: CacheValue) => v instanceof MarketDate && v;
-    
-    private passCachedPrice = (v: CacheValue) => v instanceof CachedPrice && v;
-
-    private isPriceStatus = <T>(cacheSet: CacheSet<T>) => head(cacheSet).slice(-12) === this.PS
 
     private setOne<T>(cacheSet: CacheSet<T>): Promise<T>
     private setOne<T>(key: CacheKey, value: T): Promise<T>
@@ -110,11 +105,16 @@ export class IMCacheRepository implements OnModuleDestroy {
 
     private getValue = (key: CacheKey): Promise<CacheValue> => this.cacheManager.get(key);
 
+    private update = <T>(v: T, update: Partial<T>): T => v && Object.assign(v, update);
+
+    deleteOne = (key: CacheKey) => this.cacheManager.del(key);
+
+    private getAllCache = async (): Promise<CacheSet<CacheValue>[]> =>
+        toArray(zip(await this.getAllKeys(), await this.getAllValues()));
+
     private getAllValues = async (): Promise<CacheValue[]> => this.cacheManager.store.mget(...await this.getAllKeys());
 
     getAllKeys = (): Promise<CacheKey[]> => this.cacheManager.store.keys();
-
-    deleteOne = (key: CacheKey) => this.cacheManager.del(key);
 
     private reset = () => this.cacheManager.reset();
 
