@@ -1,6 +1,6 @@
 import { Injectable, Logger } from "@nestjs/common";
 import { IMCacheRepository } from "./iMCache/iMCache.repository";
-import { apply, compactObject, curry, each, filter, head, last, map, partition, pipe, tap } from "@fxts/core";
+import { apply, compactObject, curry, each, filter, head, last, map, partition, peek, pipe, tap, toAsync } from "@fxts/core";
 
 @Injectable()
 export class DBRepository {
@@ -30,7 +30,7 @@ export class DBRepository {
     deleteCcOne = this.iMCache.deleteOne;
 
     regularUpdater = async (initSet: SpPSetsSet | SpPSetsSet2) => pipe(initSet,
-        this.setSpAndReturnPSets,
+        this.setSpAndReturnPSets, toAsync,
         partition(this.iMCache.isGteMinCount), ([truePSets, falsePSets]) => (
             pipe(truePSets,
                 map(this.toCachedPriceSet(head(initSet))),

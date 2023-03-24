@@ -2,7 +2,7 @@ import { CACHE_MANAGER, Inject, Injectable, Logger, OnModuleDestroy } from "@nes
 import { ConfigService } from "@nestjs/config";
 import { Cache } from 'cache-manager';
 import { readdir, readFile, writeFile } from 'node:fs/promises';
-import { curry, each, gte, head, isObject, isString, last, map, not, pipe, toArray, toAsync } from "@fxts/core";
+import { curry, each, gte, head, isObject, isString, last, lte, map, not, pipe, toArray, toAsync } from "@fxts/core";
 import { Pm2Service } from "../../pm2/pm2.service";
 import { MarketDate } from "../../class/marketDate.class";
 import { CachedPrice } from "../../class/cachedPrice.class";
@@ -71,9 +71,7 @@ export class IMCacheRepository implements OnModuleDestroy {
     updatePriceAndGetCopy = async ([symbol, update]: CacheUpdateSet<CachedPriceI>) =>
         this.update(await this.getPrice(symbol), update);
 
-    isGteMinCount = (set: PSet | PSet2) => pipe(head(set),
-        this.getPriceCopy,
-        v => gte(v.count, this.priceCacheCount));
+    isGteMinCount = async (set: PSet | PSet2) => this.priceCacheCount <= (await this.getPriceCopy(head(set))).count;
     
     countingGetPriceCopy = (symbol: TickerSymbol) => pipe(symbol,
         this.getPrice,

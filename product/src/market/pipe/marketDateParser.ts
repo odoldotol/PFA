@@ -4,6 +4,6 @@ import { MarketDate } from "../../class/marketDate.class";
 
 export class MarketDateParser implements PipeTransform {
     transform(value: RegularUpdateForPriceBodyDto) {
-        return value && Object.assign(value, { marketDate: new MarketDate(value["marketDate"]) });
+        return value && Object.assign(value, { marketDateClass: new MarketDate(value["marketDate"]) });
     }
 }
