@@ -2,7 +2,10 @@ type CacheKey = ISO_Code_priceStatus | TickerSymbol
 
 type CacheValue = MarketDateI | CachedPriceI
 
-type CacheSet<T> = [CacheKey, T, number?]
+type CacheSet<T> = [CacheKey, T]
+type CacheSet2<T> = [CacheKey, T, number]
+
+type CacheUpdateSet<T> = [CacheKey, Partial<T>]
 
 type BackupCacheValue = string | CachedPriceI
 

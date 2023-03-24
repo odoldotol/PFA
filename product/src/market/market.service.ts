@@ -5,7 +5,7 @@ import { catchError, firstValueFrom } from 'rxjs';
 import { spawn } from 'child_process';
 import { DBRepository } from '../database/database.repository';
 import { Pm2Service } from '../pm2/pm2.service';
-import { concurrent, curry, delay, each, entries, filter, map, peek, pipe, reduce, reject, tap, toArray, toAsync } from '@fxts/core';
+import { compactObject, concurrent, curry, delay, each, entries, filter, head, last, map, peek, pipe, reduce, reject, tap, toArray, toAsync } from '@fxts/core';
 import { MarketDate } from '../class/marketDate.class';
 
 @Injectable()
@@ -14,7 +14,6 @@ export class MarketService implements OnModuleInit, OnApplicationBootstrap {
     private readonly logger = new Logger(MarketService.name);
     private readonly MARKET_URL = this.configService.get('MARKET_URL');
     private readonly TEMP_KEY: string = this.configService.get('TEMP_KEY');
-    private readonly priceCacheCount: number = this.configService.get('PRICE_CACHE_COUNT');
 
     constructor(
         private readonly configService: ConfigService,
@@ -33,74 +32,38 @@ export class MarketService implements OnModuleInit, OnApplicationBootstrap {
         this.logger.warn("Initiator End!!!");
     }
 
-    private restoreCache = () => this.dbRepo.cacheRecovery().then(this.selectiveCacheUpdate);
+    private restoreCache = () => this.dbRepo.cacheRecovery()
+        .then(this.selectiveCacheUpdate)
+        .catch(this.cacheHardInit);
 
     private selectiveCacheUpdate = () => pipe(
-        this.getSpAsyncIter(),
+        this.spAsyncIter(),
         reject(this.isSpLatest),
-        each(this.regularUpdaterForSp)
+        map(this.withPriceSetArr),
+        each(this.dbRepo.regularUpdater)
     ).then(() => this.logger.verbose(`SelectiveUpdate Success`))
-    .catch(e => (this.logger.error(e), this.logger.error(`SelectiveUpdate Failed`), this.cacheHardInit()));
+    .catch(e => {this.logger.error(e), this.logger.error(`SelectiveUpdate Failed`); throw e});
 
     private cacheHardInit = () => pipe(
-        this.getSpAsyncIter(),
-        peek(this.setSpToCache),
-        each(this.initiatePriceCache)
+        this.spAsyncIter(),
+        map(this.withPriceSetArr),
+        each(this.dbRepo.cacheHardInit)
     ).then(() => this.logger.verbose(`CacheHardInit Success`))
     .catch(error => (this.logger.error(error), this.logger.error(`CacheHardInit Failed`)));
 
-    private getSpAsyncIter = () => pipe(
+    private spAsyncIter = () => pipe(
         this.requestSpDocArrToMarket(), toAsync,
         map(this.spDocToSp));
 
-    private spDocToSp = (spDoc: StatusPrice): Sp => [ spDoc.ISO_Code, MarketDate.fromSpDoc(spDoc) ];
+    private spDocToSp = (spDoc: StatusPrice): Sp => [ spDoc.ISO_Code, this.spDocToMarketDate(spDoc) ];
 
-    private isSpLatest = async (sp: Sp) => sp[1].isEqualTo(await this.dbRepo.getCcPriceStatus(sp[0]));
+    private spDocToMarketDate = (spDoc: StatusPrice) => MarketDate.fromSpDoc(spDoc);
 
-    private regularUpdaterForSp = async (sp: Sp) => this.regularUpdaterForPrice(sp, await this.requestPriceByISOcode(sp[0]));
+    private isSpLatest = async (sp: Sp) => last(sp).isEqualTo(await this.dbRepo.getCcPriceStatus(head(sp)));
 
-    private setSpToCache = (sp: Sp) => this.dbRepo.setCcPriceStatus(...sp);
+    private withPriceSetArr = async (sp: Sp) => [ sp, await this.requestPriceByISOcode(head(sp)) ] as [Sp, PSet2[]];
 
-    private initiatePriceCache = ([ ISO_Code, marketDate ]: Sp) => pipe(
-        this.requestPriceByISOcode(ISO_Code),
-        each(price => this.dbRepo.setCcPrice(price[0], {
-            price: price[1],
-            ISO_Code,
-            currency: price[2],
-            marketDate,
-            count: 0
-        }))
-    ).then(() => this.logger.verbose(`${ISO_Code} : Price Cache Initiated`))
-
-    /**
-     * ### Sp 로 Cache 갱신하고 Price 업데이트
-     * - ISO_Code marketDate 수정
-     * - price 조회하면서 카운트 기준(priceCacheCount) 미만은 캐시에서 삭제하고 기준이상은 price, marketDate 업뎃, count = 0
-     */
-    async regularUpdaterForPrice ([ISO_Code, marketDate]: Sp, priceArrs: SymbolPrice[] | SymbolPriceCurrency[]) {
-        try {
-            await this.dbRepo.setCcPriceStatus(ISO_Code, marketDate);
-            await Promise.all(priceArrs.map(async (priceArr: SymbolPrice | SymbolPriceCurrency) => {
-                const priceObj = await this.dbRepo.getCcPrice(priceArr[0]);
-                if (priceObj) {
-                    if (priceObj.count < this.priceCacheCount) {
-                        await this.dbRepo.deleteCcOne(priceArr[0]);
-                    } else {
-                        await this.dbRepo.setCcPrice(priceArr[0], {
-                            price: priceArr[1],
-                            ISO_Code,
-                            currency: priceArr[2] ? priceArr[2] : priceObj.currency,
-                            marketDate,
-                            count: 0
-                        });
-                    };
-                };
-            }));
-            this.logger.verbose(`${ISO_Code} : Regular Updated`);
-        } catch (error) {
-            throw new InternalServerErrorException(error);
-        };
-    };
+    regularUpdater =  this.dbRepo.regularUpdater;
 
     /**
      * ### 가격 조회
@@ -120,26 +83,26 @@ export class MarketService implements OnModuleInit, OnApplicationBootstrap {
             } else { // marketDate 불일치하면 마켓업데이터에 조회요청, 캐시업뎃 [logger 10]
                 const priceByTicker = await this.requestPriceByTicker(ticker);
                 this.logger.verbose(`${ticker} : 10${id ? " "+id : ""}`);
-                return this.dbRepo.setCcPrice(ticker, {...priceByTicker, marketDate, count: cachedPrice.count});
+                return this.dbRepo.setCcPrice([ticker, {...priceByTicker, marketDate, count: cachedPrice.count}]);
             };
         } else { // 캐시에 없으면 마켓서버에 가격요청, 케싱 [logger 00]
             const priceByTicker = await this.requestPriceByTicker(ticker);
-            if (priceByTicker.status_price) await this.dbRepo.setCcPriceStatus(priceByTicker.status_price.ISO_Code, MarketDate.fromSpDoc(priceByTicker.status_price));
+            if (priceByTicker.status_price) await this.dbRepo.setCcPriceStatus([priceByTicker.status_price.ISO_Code, this.spDocToMarketDate(priceByTicker.status_price)]);
             this.logger.verbose(`${ticker} : 00${id ? " "+id : ""}`);
-            return this.dbRepo.setCcPrice(ticker, {
+            return this.dbRepo.setCcPrice([ticker, {
                 price: priceByTicker.price,
                 ISO_Code: priceByTicker.ISO_Code,
                 currency: priceByTicker.currency,
                 marketDate: await this.dbRepo.getCcPriceStatus(priceByTicker.ISO_Code),
                 count: 1
-            });
+            }]);
         };
     }
 
     /**
      * ###
      */
-    private requestPriceByISOcode = (ISO_Code: string): Promise<SymbolPriceCurrency[]> => this.requestPriceToMarket(ISO_Code, "ISO_Code");
+    private requestPriceByISOcode = (ISO_Code: string): Promise<PSet2[]> => this.requestPriceToMarket(ISO_Code, "ISO_Code");
 
     /**
      * ###
@@ -179,12 +142,12 @@ export class MarketService implements OnModuleInit, OnApplicationBootstrap {
                 return spDocArr.map((spDoc) => {
                     return {
                         ISO_Code: spDoc.ISO_Code,
-                        priceStatus: MarketDate.fromSpDoc(spDoc),
+                        priceStatus: this.spDocToMarketDate(spDoc),
                         exchangeTimezoneName: spDoc.yf_exchangeTimezoneName,
                     };
                 })
             } else if (where === "cache") {
-                const result: {[ISO_Code: string]: MarketDate} = {};
+                const result: {[ISO_Code: string]: MarketDateI} = {};
                 await Promise.all(spDocArr.map(async (spDoc) => {
                     result[spDoc.ISO_Code] = await this.dbRepo.getCcPriceStatus(spDoc.ISO_Code);
                 }));
@@ -242,9 +205,9 @@ export class MarketService implements OnModuleInit, OnApplicationBootstrap {
     async requestReadPriceUpdateLogToMarket(body: object) {
         const q = pipe(
             entries(body),
-            filter(arr => arr[0] !== "key"),
-            filter(arr => arr[1]),
-            map(arr => `${arr[0]}=${arr[1]}`),
+            filter(arr => head(arr) !== "key"),
+            filter(arr => last(arr)),
+            map(arr => `${head(arr)}=${last(arr)}`),
             reduce((acc, cur) => acc + "&" + cur)
           );
         return (await firstValueFrom(

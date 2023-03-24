@@ -1,9 +1,9 @@
 interface CachedPriceI {
-    price: number;
-    ISO_Code: ISO_Code;
-    currency: Currency;
-    marketDate: MarketDateI;
-    count: number;
+    readonly price: number;
+    readonly ISO_Code: ISO_Code;
+    readonly currency: Currency;
+    readonly marketDate: MarketDateI;
+    readonly count: number;
 
     counting?(): CachedPriceI;
 }

@@ -18,7 +18,7 @@ export class MarketController {
     @Post('updater')
     @UseGuards(KeyGuard)
     regularUpdaterForPrice(@Body(UpperCasePipe, MarketDateParser) body: RegularUpdateForPriceBodyDto) {
-        return this.marketService.regularUpdaterForPrice([ body.ISO_Code, body.marketDateClass ], body.priceArrs);
+        return this.marketService.regularUpdater([[ body.ISO_Code, body.marketDateClass ], body.priceArrs]);
     }
 
     /**

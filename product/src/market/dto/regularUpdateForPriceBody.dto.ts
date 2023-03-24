@@ -16,6 +16,6 @@ export class RegularUpdateForPriceBodyDto implements RegularUpdatePrice {
 
     @IsNotEmpty()
     @IsArray()
-    readonly priceArrs: SymbolPrice[];
+    readonly priceArrs: PSet[];
 
 };

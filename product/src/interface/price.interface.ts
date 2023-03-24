@@ -1,6 +1,10 @@
-type SymbolPrice = [TickerSymbol, number]
+type Sp = [ISO_Code, MarketDateI]
 
-type SymbolPriceCurrency = [...SymbolPrice, Currency]
+type PSet = [TickerSymbol, number]
+type PSet2 = [TickerSymbol, number, Currency]
+
+type SpPSetsSet = [Sp, PSet[]]
+type SpPSetsSet2 = [Sp, PSet2[]]
 
 interface RequestedPrice {
     price: number;
@@ -13,13 +17,9 @@ interface RegularUpdatePrice {
     ISO_Code: ISO_Code;
     marketDate: string;
     marketDateClass: MarketDateI;
-    priceArrs: SymbolPrice[];
+    priceArrs: PSet[];
 }
 
-type Sp = [ISO_Code, MarketDateI]
-
-type ISO_Code = string // TODO: ISO_Code 코드 정의 - "XNYS"...
-
-type Currency = string // TODO: Currency 정의 - "USD"...
-
-type TickerSymbol = string // TODO: TickerSymbol 정의 - "AAPL"...
+type ISO_Code = string // TODO: ISO_Code 정의?
+type Currency = string // TODO: Currency 정의?
+type TickerSymbol = string // TODO: TickerSymbol 정의?
