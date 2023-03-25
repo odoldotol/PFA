@@ -26,7 +26,7 @@ export class MarketController {
      */
     @Post('dev')
     devGetPrice(@Body(UpperCasePipe) body: {ticker: string, id?: string}) {
-        return this.marketService.getPriceByTicker(body.ticker, body.id);
+        return this.marketService.getPrice(body.ticker, body.id);
     }
 
     /**
@@ -36,7 +36,7 @@ export class MarketController {
      */
     @Get('dev/price_status/:where')
     devGetMarketPriceStatus(@Param('where') where: "cache" | "market") {
-        return this.marketService.getMarketPriceStatus(where);
+        return this.marketService.fetchPriceStatus(where);
     }
 
     /**
@@ -46,7 +46,7 @@ export class MarketController {
      */
     @Get('dev/assets/:where')
     devGetAssets(@Param('where') where: "cache" | "market") {
-        return this.marketService.getAssets(where);
+        return this.marketService.fetchAssets(where);
     }
 
     /**
@@ -54,7 +54,7 @@ export class MarketController {
      */
     @Get('market_server/read_price_update_log')
     requestReadPriceUpdateLogToMarket(@Query('ISO_Code', UpperCasePipe) ISO_Code?: string, @Query('limit') limit?: number) {
-        return this.marketService.requestReadPriceUpdateLogToMarket({ ISO_Code, limit });
+        return this.marketService.fetchPriceUpdateLog({ ISO_Code, limit });
     }
 
 }

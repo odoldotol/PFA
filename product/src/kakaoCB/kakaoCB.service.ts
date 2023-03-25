@@ -14,7 +14,7 @@ export class KakaoCBService {
 
     inquire = async (body: SkillPayload): Promise<SkillResponse> => {
         let kakaoText: string;
-        const price = await this.marketService.getPriceByTicker(
+        const price = await this.marketService.getPrice(
             body.action.params.ticker.toUpperCase(),
             body.userRequest.user.id
         ).catch((err): undefined => (kakaoText = err.message, undefined));
