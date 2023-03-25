@@ -26,20 +26,14 @@ export class ManagerController {
         return this.updaterService.createAssetByTickerArr(body.tickerArr);
     }
 
-    /**
-     * ### getAllAssetsInfo
-     */
     @Post('read_asset')
     getAllAssetsInfo() {
-        return this.dbRepo.getAllAssetsInfo();
+        return this.dbRepo.readAllAssetsInfo();
     }
 
-    /**
-     * ### status_price doc 모두 조회
-     */
     @Post('read_status_price')
     getAllStatusPrice() {
-        return this.dbRepo.getAllStatusPrice();
+        return this.dbRepo.readAllStatusPrice();
     }
 
     /**
@@ -50,7 +44,7 @@ export class ManagerController {
     @Post('price')
     getPrice(@Body(UpperCasePipe) body: {ISO_Code?: string, ticker?: string}) {
         if (body.ISO_Code && !body.ticker) {
-            return this.dbRepo.getPriceByISOcode(body.ISO_Code);
+            return this.dbRepo.readPriceByISOcode(body.ISO_Code);
         } else if (body.ticker && !body.ISO_Code) {
             return this.managerService.getPriceByTicker(body.ticker);
         } else {
@@ -58,33 +52,21 @@ export class ManagerController {
         }
     }
 
-    /**
-     * ### Log_priceUpdate 조회
-     */
     @Post('read_price_update_log')
     getUpdateLog(@Query('ISO_Code', UpperCasePipe) ISO_Code?: string, @Query('limit') limit?: number) {
-        return this.dbRepo.getUpdateLog(ISO_Code, limit);
+        return this.dbRepo.readUpdateLog(ISO_Code, limit);
     }
 
-    /**
-     * ### run initator
-     */
     @Post('updater/initiate')
     Initiator() {
         return this.updaterService.initiator();
     }
 
-    /**
-     * ### tester
-     */
     @Post('dev/updater/test_generalInitiate/:ISO_Code')
     testInitiator(@Param('ISO_Code', UpperCasePipe) ISO_Code: string) {
         return this.updaterService.testGeneralInitiate(ISO_Code);
     }
 
-    /**
-     * ### create config_exchange
-     */
     @Post('config_exchange')
     createConfigExchange(@Body() body: ConfigExchangeDto) {
         return this.dbRepo.createConfigExchange(body);

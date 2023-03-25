@@ -52,18 +52,18 @@ export class MarketService implements OnModuleInit, OnApplicationBootstrap {
     .catch(error => (this.logger.error(error), this.logger.error(`CacheHardInit Failed`)));
 
     private spAsyncIter = () => pipe(
-        this.requestSpDocArrToMarket(), toAsync,
+        this.fetchAllSpDoc(), toAsync,
         map(this.spDocToSp));
 
     private spDocToSp = (spDoc: StatusPrice) => [ spDoc.ISO_Code, MarketDate.fromSpDoc(spDoc) ] as Sp;
 
     private isSpLatest = async (sp: Sp) => last(sp).isEqualTo(await this.dbRepo.readCcPriceStatus(head(sp)));
 
-    private withPriceSetArr = async (sp: Sp) => [ sp, await this.requestPriceByISOcode(head(sp)) ] as [Sp, PSet2[]];
+    private withPriceSetArr = async (sp: Sp) => [ sp, await this.fetchPriceByISOcode(head(sp)) ] as [Sp, PSet2[]];
 
     regularUpdater =  this.dbRepo.regularUpdater;
 
-    getPriceByTicker = async (ticker: string, id: string = "") => pipe(
+    getPrice = async (ticker: string, id: string = "") => pipe(
         [ ticker, [] ] as GPSet,
         apply(this.readCache),
         apply(this.ifNoCache_setNew),
@@ -78,13 +78,13 @@ export class MarketService implements OnModuleInit, OnApplicationBootstrap {
     private ifNoCache_setNew = async (...[ ticker, stack ]: GPSet) =>
         [ ticker, toArray(append(
             isNil(head(stack)) &&
-            await this.setPriceWithMarket(ticker), stack)) ] as GPSet;
+            await this.createPriceWithFetching(ticker), stack)) ] as GPSet;
     
     private ifOutdated_updateIt = async (...[ ticker, stack ]: GPSet) =>
         [ ticker, toArray(append(
             isObject(head(stack)) &&
             not(await this.isPriceUpToDate(head(stack) as CachedPriceI)) &&
-            await this.updateWithMarket(ticker), stack)) ] as GPSet;
+            await this.updateWithFetching(ticker), stack)) ] as GPSet;
 
     private Logger_GetPriceByTicker = curry(
         (id: string, [ ticker, stack ]: GPSet) => pipe(stack,
@@ -98,19 +98,19 @@ export class MarketService implements OnModuleInit, OnApplicationBootstrap {
         filter(a => a),
         last);
 
-    private setPriceWithMarket = (ticker: string) => pipe(ticker,
-        this.getPriceSetFromReq,
+    private createPriceWithFetching = (ticker: string) => pipe(ticker,
+        this.fetchPriceSet,
         this.dbRepo.createCcPrice);
 
     private isPriceUpToDate = async (price: CachedPriceI) =>
         (await this.dbRepo.readCcPriceStatus(price.ISO_Code)).isEqualTo(price.marketDate);
 
-    private updateWithMarket = (ticker: string) => pipe(ticker,
-        this.getPriceUpdateSetFromReq,
+    private updateWithFetching = (ticker: string) => pipe(ticker,
+        this.fetchPriceUpdateSet,
         this.dbRepo.updateCcPrice);
 
-    private getPriceSetFromReq = (ticker: string) => pipe(ticker,
-        this.requestPriceByTicker,
+    private fetchPriceSet = (ticker: string) => pipe(ticker,
+        this.fetchPriceByTicker,
         tap(rP => rP.status_price && this.dbRepo.createCcPriceStatusWithRP(rP)),
         async (rP) => [
             ticker,
@@ -119,18 +119,18 @@ export class MarketService implements OnModuleInit, OnApplicationBootstrap {
                 count: 1})
         ] as CacheSet<CachedPriceI>);
 
-    private getPriceUpdateSetFromReq = (ticker: string) => pipe(ticker,
-        this.requestPriceByTicker,
+    private fetchPriceUpdateSet = (ticker: string) => pipe(ticker,
+        this.fetchPriceByTicker,
         async (rP) => [ ticker, pick(
             ["price", "marketDate"],
             Object.assign(rP, { marketDate: await this.dbRepo.readCcPriceStatus(rP.ISO_Code) }))
         ] as CacheUpdateSet<CachedPriceI>);
 
-    private requestPriceByISOcode = (ISO_Code: string): Promise<PSet2[]> => this.requestPriceToMarket(ISO_Code, "ISO_Code");
-    private requestPriceByTicker = (ticker: string): Promise<RequestedPrice> => this.requestPriceToMarket(ticker, "ticker");
+    private fetchPriceByISOcode = (ISO_Code: string): Promise<PSet2[]> => this.fetchPrice(ISO_Code, "ISO_Code");
+    private fetchPriceByTicker = (ticker: string): Promise<RequestedPrice> => this.fetchPrice(ticker, "ticker");
 
     // TODO: Refac
-    private async requestPriceToMarket(value: string, key: "ISO_Code" | "ticker") {
+    private async fetchPrice(value: string, key: "ISO_Code" | "ticker") {
         return (await firstValueFrom(
             this.httpService.post(`${this.MARKET_URL}manager/price`, this.addKey({ [key]: value }))
             .pipe(catchError(error => {
@@ -148,7 +148,7 @@ export class MarketService implements OnModuleInit, OnApplicationBootstrap {
     }
 
     // TODO: Refac
-    private async requestSpDocArrToMarket(): Promise<StatusPrice[]> {
+    private async fetchAllSpDoc(): Promise<StatusPrice[]> {
         return (await firstValueFrom(
             this.httpService.post(`${this.MARKET_URL}manager/read_status_price`, this.addKey({}))
             .pipe(catchError(error => {
@@ -164,9 +164,9 @@ export class MarketService implements OnModuleInit, OnApplicationBootstrap {
      * - cache : 캐시상태
      * - market : 마켓서버상태
      */
-    async getMarketPriceStatus(where: "cache" | "market") {
+    async fetchPriceStatus(where: "cache" | "market") {
         try {
-            const spDocArr = await this.requestSpDocArrToMarket();
+            const spDocArr = await this.fetchAllSpDoc();
             if (where === "market") {
                 // return spDocArr
                 return spDocArr.map((spDoc) => {
@@ -193,7 +193,7 @@ export class MarketService implements OnModuleInit, OnApplicationBootstrap {
      * - cache : 캐시에서
      * - market : 마켓서버에서
      */
-    async getAssets(where: "cache" | "market"): Promise<Array<string> | object> {
+    async fetchAssets(where: "cache" | "market"): Promise<Array<string> | object> {
         if (where === "cache") {
             return this.dbRepo.getAllCcKeys();
         } else if (where === "market") {
@@ -215,7 +215,7 @@ export class MarketService implements OnModuleInit, OnApplicationBootstrap {
     /**
      * ### [DEV] request ReadPriceUpdateLog To Market
      */
-    async requestReadPriceUpdateLogToMarket(body: object) {
+    async fetchPriceUpdateLog(body: object) {
         const q = pipe(
             entries(body),
             filter(arr => head(arr) !== "key"),

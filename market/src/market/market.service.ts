@@ -22,46 +22,14 @@ export class MarketService implements OnApplicationBootstrap {
         private readonly schedulerRegistry: SchedulerRegistry,
     ) {}
 
-    onApplicationBootstrap() {
-        this.pyLibChecker();
-    }
+    onApplicationBootstrap = this.pyLibChecker;
 
-    /**
-     * ### getInfoByTicker
-     */
-    getInfoByTicker = (ticker: string): Promise<Either<YfInfoError, YfInfo>> => this.getSomethingByTicker("Info", ticker);
+    fetchInfo = (ticker: string): Promise<Either<YfInfoError, YfInfo>> => this.fetchSomething("Info", ticker);
+    fetchPrice = (ticker: string): Promise<Either<YfPriceError, YfPrice>> => this.fetchSomething("Price", ticker);
 
-    /**
-     * ### getPriceByTicker
-     */
-    getPriceByTicker = (ticker: string): Promise<Either<YfPriceError, YfPrice>> => this.getSomethingByTicker("Price", ticker);
-
-    // 아래처럼 배열단위로 다루는 매써드는 이터러블 프로그래밍으로 바꾸면서 안쓰게됨
-    // /**
-    //  * ### getInfoByTickerArr
-    //  */
-    // getInfoByTickerArr = (tickerArr: string[]): Promise<Either<YfInfoError, YfInfo>[]> => this.asyncMapPipe(tickerArr, this.getSomethingByTicker("Info"), this.GETMARKET_CONCURRENCY);
-
-    // /**
-    //  * ### getPriceByTickerArr
-    //  */
-    // getPriceByTickerArr = (tickerArr: string[]): Promise<Either<YfPriceError, YfPrice>[]> => this.asyncMapPipe(tickerArr, this.getSomethingByTicker("Price"), this.GETMARKET_CONCURRENCY);
-
-    // /**
-    //  * ### string 배열에 비동기작업을 map 병열수행
-    //  */
-    // private asyncMapPipe = <T>(arr: string[], func: (a:string)=>Promise<T>, ccLen: number) => pipe(
-    //     arr, toAsync,
-    //     map(func),
-    //     concurrent(ccLen),
-    //     toArray
-    // );
-
-    /**
-     * ### getSomethingByTicker
-     */
-    private getSomethingByTicker = curry(async (something: string, ticker: string) => {
-        const res = await this.getMarketOrCp(
+    // TODO - Refac
+    private fetchSomething = curry(async (something: string, ticker: string) => {
+        const res = await this.fetching(
             `${this.GETMARKET_URL}yf/${something.toLowerCase()}/`, {ticker},
             [`get${something}ByTicker.py`, ticker]
         );
@@ -69,14 +37,10 @@ export class MarketService implements OnApplicationBootstrap {
         if (res.info && res.fastinfo && res.metadata && res.price) // 야후파이낸스 API 문제로 임시조치중
             return Either.right(Object.assign(res.info, res.fastinfo, res.metadata, res.price));
         res['symbol'] = ticker;
-        return Either.right(res);
-    });    
+        return Either.right(res);});    
 
-    /**
-     * ### ISO code 로 거래소 세션 정보읽기
-     * - Yf_CCC 케이스 특이사항
-     */
-    getExchangeSessionByISOcode = async (ISO_Code: string): Promise<Either<ExchangeSessionError, ExchangeSession>> => {
+    // TODO - Refac
+    fetchExchangeSession = async (ISO_Code: string): Promise<Either<ExchangeSessionError, ExchangeSession>> => {
         if (ISO_Code === this.YFCCC_ISO_Code) {
             const previous = new Date(
                 new Date().toISOString().slice(0, 10) // + "T00:00:00.000Z"
@@ -91,19 +55,18 @@ export class MarketService implements OnApplicationBootstrap {
                 next_close: next
             });
         }
-        const res = await this.getMarketOrCp(
+        const res = await this.fetching(
             `${this.GETMARKET_URL}ec/session/`, { ISO_Code },
             ['getSessionByISOcode.py', ISO_Code]
         );
         if (res.error) return Either.left(res.error);
-        return Either.right(res);
-    }
+        return Either.right(res);};
 
     /**
-     * ###
+     * #### TODO - Refac
      * - getMarket 서버를 이용할 수 없을 경우 자식 프로세스에서 시도한다.
      */
-    private getMarketOrCp = (url: string, data: object, pyCpArgs: string[]) => firstValueFrom(
+    private fetching = (url: string, data: object, pyCpArgs: string[]) => firstValueFrom(
         this.httpService.post(url, data)
         .pipe(catchError(error => {
             throw error; //[Todo] 에러 핸들링
@@ -113,15 +76,9 @@ export class MarketService implements OnApplicationBootstrap {
         return this.runPyCp(pyCpArgs);
     }).then(res => res.data);
 
-    /**
-     * ### runCp
-     */
     private runPyCp = ([fileName, arg]: string[]) =>
-    ({ data: this.getStdoutByChildProcess(this.getPyChildProcess([fileName, arg])) });
+        ({ data: this.getStdoutByChildProcess(this.getPyChildProcess([fileName, arg])) });
 
-    /**
-     * ### 파이썬 ChildProcess 만들기
-     */
     private getPyChildProcess = (args: string[]): ChildProcessWithoutNullStreams => spawn('python', args, {cwd: 'src/market/py', timeout: 60000}); // 1분 제한
 
     /**
@@ -149,6 +106,7 @@ export class MarketService implements OnApplicationBootstrap {
      * ### 파이썬 라이브러리 버젼 최신인지 확인
      * - yfinance
      * - exchange_calendars
+     * - TODO - Refac - outdated 일때는 버젼도 출력하도록 기능도 추가하기
      */
     private isPyLibUptodate = () => new Promise<void>((resolve, reject) => {
         const result = { yfinance: "OutDated!!!", exchange_calendars: "OutDated!!!" };
@@ -180,7 +138,7 @@ export class MarketService implements OnApplicationBootstrap {
     });
 
     /**
-     * ### PyLibChecker
+     * #### TODO - Refac
      * 최신 버전인지 확인로그 띄우는 크론잡
      */
     private async pyLibChecker() {

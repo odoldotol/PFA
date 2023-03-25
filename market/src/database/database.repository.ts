@@ -14,37 +14,51 @@ export class DBRepository {
     private readonly logger = new Logger(DBRepository.name);
 
     constructor(
-        private readonly yf_infoRepo: Yf_infoRepository,
-        private readonly status_priceRepo: Status_priceRepository,
-        private readonly log_priceUpdateRepo: Log_priceUpdateRepository,
-        private readonly config_exchangeRepo: Config_exchangeRepository,
         @Inject(CACHE_MANAGER) private cacheManager: Cache,
+        private readonly config_exchangeRepo: Config_exchangeRepository,
+        private readonly log_priceUpdateRepo: Log_priceUpdateRepository,
+        private readonly status_priceRepo: Status_priceRepository,
+        private readonly yf_infoRepo: Yf_infoRepository,
     ) {}
     
-    /**
-     * ### getAllAssetsInfo
-     */
-    getAllAssetsInfo = () => this.yf_infoRepo.findAll();
+    createConfigExchange = this.config_exchangeRepo.createOne;
+    
+    createStatusPrice = (ISO_Code: string, previous_close: string, yf_exchangeTimezoneName: string) =>
+        this.status_priceRepo.createOne(
+            ISO_Code,
+            new Date(previous_close).toISOString(),
+            yf_exchangeTimezoneName);
+    
+    createAssets = this.yf_infoRepo.insertMany;
+
+    readMarginMs = this.config_exchangeRepo.findMarginMilliseconds;
+    testPickLastUpdateLog = this.log_priceUpdateRepo.find1;
+
+    readUpdateLog = (ISO_Code?: string, limit?: number) => this.log_priceUpdateRepo.find1(
+        ISO_Code ? { key: ISO_Code } : {},
+        limit ? limit : 5);
+
+    existsStatusPrice = this.status_priceRepo.exists;
+    readAllStatusPrice = this.status_priceRepo.findAll;
+    readStatusPrice = this.status_priceRepo.findOneByISOcode;
+    existsAssetByTicker = this.yf_infoRepo.exists;
+    testPickAsset = this.yf_infoRepo.testPickOne;
+    readAllAssetsInfo = this.yf_infoRepo.findAll;
+    readPriceByTicker = this.yf_infoRepo.findPriceBySymbol;
+
+    readSymbolArr = async (filter: object) =>
+        (await this.yf_infoRepo.find(filter, '-_id symbol'))
+        .map(doc => doc.symbol);
 
     /**
      * ### ISO_Code 로 조회 => [ticker, price][]
      */
-    getPriceByISOcode = async (ISO_Code: string) =>
-    this.yf_infoRepo.findPricesByExchange(await this.isoCodeToTimezone(ISO_Code))
-    .then(arr => arr.map(ele => [ele.symbol, ele.regularMarketLastClose, ele.quoteType === "INDEX" ? "INDEX" : ele.currency]));
+    readPriceByISOcode = async (ISO_Code: string) =>
+        this.yf_infoRepo.findPricesByExchange(await this.isoCodeToTimezone(ISO_Code))
+        .then(arr => arr.map(ele => [ele.symbol, ele.regularMarketLastClose, ele.quoteType === "INDEX" ? "INDEX" : ele.currency]));
 
     /**
-     * ### getPriceByTicker
-     */
-    getPriceByTicker = (ticker: string) => this.yf_infoRepo.findPriceBySymbol(ticker);
-
-    /**
-     * ### testPickAsset
-     */
-    testPickAsset = (exchangeTimezoneName: string) => this.yf_infoRepo.testPickOne(exchangeTimezoneName);
-
-    /**
-     * ### updatePriceTx
+     * ### TODO - Refac
      * - 가격 업데이트
      * - StatusPrice 업데이트
      * - 업데이트 로그 생성
@@ -81,9 +95,6 @@ export class DBRepository {
         }
     };
 
-    /**
-     * ### updatePrice
-     */
     private updatePrice = curry((session: ClientSession, updatePriceSet: UpdatePriceSet):
     Promise<Either<UpdatePriceError, UpdatePriceSet>> => {
         return this.yf_infoRepo.updatePrice(...updatePriceSet, session)
@@ -109,36 +120,7 @@ export class DBRepository {
         });
     });
 
-    /**
-     * ### getSymbolArr
-     */
-    getSymbolArr = async (filter: object) =>
-    (await this.yf_infoRepo.find(filter, '-_id symbol'))
-    .map(doc => doc.symbol);
 
-    /**
-     * ### existsAssetByTicker
-     */
-    existsAssetByTicker = (ticker: string) => this.yf_infoRepo.exists(ticker);
-
-    /**
-     * ### insertAssets
-     */
-    insertAssets = (assetArr: FulfilledYfInfo[]) => this.yf_infoRepo.insertMany(assetArr);
-
-    /**
-     * ### getAllStatusPrice
-     */
-    getAllStatusPrice = () => this.status_priceRepo.findAll();
-
-    /**
-     * ### getStatusPrice
-     */
-    getStatusPrice = (ISO_Code: string) => this.status_priceRepo.findOneByISOcode(ISO_Code);
-
-    /**
-     * ### updateStatusPriceByRegularUpdater
-     */
     private updateStatusPriceByRegularUpdater = (ISO_Code: string, previous_close: string, session: ClientSession) =>
     this.status_priceRepo.findOneAndUpdate(
         { ISO_Code },
@@ -146,39 +128,6 @@ export class DBRepository {
         session
     );
 
-    /**
-     * ### existsStatusPrice
-     */
-    existsStatusPrice = (filter: object) => this.status_priceRepo.exists(filter);
-
-    /**
-     * ### createStatusPrice
-     */
-    createStatusPrice = (ISO_Code: string, previous_close: string, yf_exchangeTimezoneName: string) =>
-    this.status_priceRepo.createOne(
-        ISO_Code,
-        new Date(previous_close).toISOString(),
-        yf_exchangeTimezoneName
-    );
-
-    /**
-     * ### createConfigExchange
-     */
-    createConfigExchange = (body: ConfigExchange) => this.config_exchangeRepo.createOne(body);
-
-    /**
-     * ### getMarginMilliseconds
-     */
-    getMarginMilliseconds = (ISO_Code: string) => this.config_exchangeRepo.findMarginMilliseconds(ISO_Code);
-
-    /**
-     * ### testPickLastUpdateLog
-     */
-    testPickLastUpdateLog = () => this.log_priceUpdateRepo.find1();
-
-    /**
-     * ### log_priceUpdate Doc 생성 By launcher, updateResult, key
-     */
     private createLogPriceUpdate = (
         launcher: LogPriceUpdate["launcher"],
         isStandard: boolean,
@@ -236,23 +185,10 @@ export class DBRepository {
     );
 
     /**
-     * ### Get last 5 UpdateLog
-     */
-    getUpdateLog = (ISO_Code?: string, limit?: number) =>
-    this.log_priceUpdateRepo.find1(
-        ISO_Code ? { key: ISO_Code } : {},
-        limit ? limit : 5
-    );
-
-    /**
-     * ### setIsNotMarketOpen
      * - 1뷴에 한번만 갱신할 수 있도록 ttl 설정
      */
     setIsNotMarketOpen = (ISO_Code: string, isNotMarketOpen: boolean) => this.cacheManager.set(ISO_Code + "_isNotMarketOpen", isNotMarketOpen, { ttl: 60 - new Date().getSeconds() });
 
-    /**
-     * ### getIsNotMarketOpen
-     */
     getIsNotMarketOpen = (ISO_Code: string): Promise<boolean> => this.cacheManager.get(ISO_Code + "_isNotMarketOpen");
 
 }

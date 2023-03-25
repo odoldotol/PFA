@@ -13,12 +13,12 @@ export class ManagerService {
     ) {}
 
     /**
-     * ### ticker 로 조회 => price
+     * ### TODO - Refac
      * - 없는건 생성해보고 알려준다
      */
     async getPriceByTicker(ticker: string) {
         let status_price = undefined;
-        const price: FulfilledYfInfo = await this.dbRepo.getPriceByTicker(ticker)
+        const price: FulfilledYfInfo = await this.dbRepo.readPriceByTicker(ticker)
         .then(async res => {
             if (res === null) {
                 const createResult = await this.updaterService.createAssetByTickerArr([ticker])

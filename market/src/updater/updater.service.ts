@@ -26,30 +26,21 @@ export class UpdaterService implements OnModuleInit {
         private readonly dbRepo: DBRepository
     ) {}
 
-    async onModuleInit() {
-        await this.initiator() 
+    onModuleInit = async () => await this.initiator() 
         .catch(error => this.logger.error(error)); 
-    }
 
-    /**
-     * ### 업데이터 초기실행
-     * Status_price 에서 모든 Doc 들을 가져와서 각각의 Doc 으로 initiate
-     * - 목적상 병열 처리 하지 않는게 좋아보인다.
-     * - Initiator 시작 종료 logger
-     */
-    async initiator() {
+    initiator = async () => {
         this.logger.warn("Initiator Run!!!");
         await this.dbRepo.setIsoCodeToTimezone();
         await pipe(
-            await this.dbRepo.getAllStatusPrice(), toAsync,
+            await this.dbRepo.readAllStatusPrice(), toAsync,
             peek(this.generalInitiate.bind(this)),
             toArray,
             tap(() => this.logger.warn("Initiator End!!!")),
-        );
-    }
+        );};
 
     /**
-     * ### 표준 초기실행
+     * ### TODO - Refac
      * - price status 가 최신인지 알아내기
      *      - 최신이면 "다음마감시간에 업데이트스케줄 생성하기"
      *      - 아니면 "장중인지 알아내기"
@@ -58,7 +49,7 @@ export class UpdaterService implements OnModuleInit {
      *      - 장중이면 "다음마감시간에 업데이트스케줄 생성하기"
      */
     private async generalInitiate({ISO_Code, lastMarketDate, yf_exchangeTimezoneName}: StatusPrice) {
-        const exchangeSession = (await this.marketService.getExchangeSessionByISOcode(ISO_Code))
+        const exchangeSession = (await this.marketService.fetchExchangeSession(ISO_Code))
             .getRight2(InternalServerErrorException);
         if (this.isPriceStatusUpToDate(lastMarketDate, exchangeSession)) { // status 최신이면
             this.logger.verbose(`${ISO_Code} : UpToDate`);
@@ -72,36 +63,27 @@ export class UpdaterService implements OnModuleInit {
         await this.schedulerForPrice(ISO_Code, yf_exchangeTimezoneName, exchangeSession);
     }
 
-    /**
-     * ### tester
-     */
+    // [DEV]
     async testGeneralInitiate(ISO_Code: string) {
-        const spObj = await this.dbRepo.getStatusPrice(ISO_Code);
+        const spObj = await this.dbRepo.readStatusPrice(ISO_Code);
         if (!spObj) throw new BadRequestException("ISO_Code is not valid");
         const yf_exchangeTimezoneName = spObj.yf_exchangeTimezoneName;
-        const exchangeSession = (await this.marketService.getExchangeSessionByISOcode(ISO_Code))
+        const exchangeSession = (await this.marketService.fetchExchangeSession(ISO_Code))
             .getRight2(InternalServerErrorException);
         const isNotMarketOpen = await this.isNotMarketOpen(exchangeSession);
         await this.updaterForPrice(ISO_Code, yf_exchangeTimezoneName, exchangeSession, isNotMarketOpen, "test");
         await this.schedulerForPrice(ISO_Code, yf_exchangeTimezoneName, exchangeSession);
-        // const info = await this.dbRepo.testPickAsset(yf_exchangeTimezoneName);
-        // const tickerArr = [info.symbol]
         return {
-            spObj: await this.dbRepo.getStatusPrice(ISO_Code),
+            spObj: await this.dbRepo.readStatusPrice(ISO_Code),
             exchangeSession,
             isUpToDate: this.isPriceStatusUpToDate(spObj.lastMarketDate, exchangeSession),
             isNotMarketOpen,
             updateLog: await this.dbRepo.testPickLastUpdateLog(),
-            // info,
-            // [tickerArr[0]]: (await this.marketService.getPriceByTickerArr(tickerArr))[0]
         };
     }
 
-    /**
-     * ### ISO code 와 exchangeSession 로 다음마감시간에 업데이트스케줄 생성|시간수정 하기
-     */
+    // TODO - Refac
     private async schedulerForPrice(ISO_Code: string, yf_exchangeTimezoneName: string, exchangeSession: ExchangeSession) {
-        // 마진 적용
         const {previousCloseDate, nextCloseDate} = await this.getMarginClose(ISO_Code, exchangeSession);
         // 마진적용한 직전 마감이 현재 시간보다 늦으면 직전마감이 다음 스케쥴시간이어야 한다
         // 이 경우 업데이트도 하지 않는게 옳지만, 이렇게 마진구간에서 이 함수가 실행되는 경우는 이니시에어터가 동작하는 등의 특별한 상황일것이므로 무시한다.
@@ -122,35 +104,25 @@ export class UpdaterService implements OnModuleInit {
         };
     }
 
-    /**
-     * ### ISO_Code 와 exchangeSession 으로 직전 장 종료, 다음 장 종료에 yf 에서의 가격 딜레이 고려한 시간마진을 적용하여 반환
-     */
+    // TODO - Refac
     private async getMarginClose(ISO_Code: string, exchangeSession: ExchangeSession) {
         const previousCloseDate = new Date(exchangeSession.previous_close);
         const nextCloseDate = new Date(exchangeSession.next_close);
-        let marginMilliseconds: number = await this.dbRepo.getMarginMilliseconds(ISO_Code);
+        let marginMilliseconds: number = await this.dbRepo.readMarginMs(ISO_Code);
         if (marginMilliseconds === undefined) marginMilliseconds = this.DE_UP_MARGIN;
         previousCloseDate.setMilliseconds(previousCloseDate.getMilliseconds() + marginMilliseconds);
         nextCloseDate.setMilliseconds(nextCloseDate.getMilliseconds() + marginMilliseconds);
         return {previousCloseDate, nextCloseDate};
     }
 
-    /**
-     * ### 가격 업데이터
-     * 업뎃하고 다음 스케줄을 생성하는것 까지
-     * - ISO_Code 로 가격 업데이트
-     * - 다음마감시간에 업데이트스케줄 생성
-     */
+    // TODO - Refac
     private async recusiveUpdaterForPrice(ISO_Code: string, yf_exchangeTimezoneName: string) {
-        const exchangeSession = (await this.marketService.getExchangeSessionByISOcode(ISO_Code))
+        const exchangeSession = (await this.marketService.fetchExchangeSession(ISO_Code))
             .getRight2(InternalServerErrorException);
         await this.updaterForPrice(ISO_Code, yf_exchangeTimezoneName, exchangeSession, true, "scheduler");
         await this.schedulerForPrice(ISO_Code, yf_exchangeTimezoneName, exchangeSession);
     }
 
-    /**
-     * ### 가격 업데이트하기 <Standard>
-     */
     private async updaterForPrice(
         ISO_Code: string,
         yf_exchangeTimezoneName: string,
@@ -162,8 +134,8 @@ export class UpdaterService implements OnModuleInit {
         const startTime = new Date().toISOString();
         await this.dbRepo.updatePriceStandard(
             await pipe(
-                await this.dbRepo.getSymbolArr({exchangeTimezoneName: yf_exchangeTimezoneName}), toAsync,
-                map(this.marketService.getPriceByTicker),
+                await this.dbRepo.readSymbolArr({exchangeTimezoneName: yf_exchangeTimezoneName}), toAsync,
+                map(this.marketService.fetchPrice),
                 map(ele => ele.map(this.fulfillUpdatePriceSet(isNotMarketOpen))),
                 concurrent(this.GETMARKET_CONCURRENCY),
                 toArray
@@ -174,32 +146,23 @@ export class UpdaterService implements OnModuleInit {
             launcher
         ).then(updateResult => {
             this.logger.warn(`${ISO_Code} : Updater End!!!`);
-            this.requestRegularUpdaterToProduct(ISO_Code, previous_close, updateResult.updatePriceResult);
+            this.regularUpdater(ISO_Code, previous_close, updateResult.updatePriceResult);
         }).catch(_ => {
             this.logger.warn(`${ISO_Code} : Updater Failed!!!`);
         });
     }
 
-    /**
-     * ### fulfillUpdatePriceSet
-     */
     private fulfillUpdatePriceSet = curry((
         isNotMarketOpen: boolean,
         {symbol, regularMarketPreviousClose, regularMarketPrice}: YfPrice
-    ): UpdatePriceSet => [
-        symbol,
-        {
-            regularMarketPreviousClose,
-            regularMarketPrice,
-            regularMarketLastClose: isNotMarketOpen ? regularMarketPrice : regularMarketPreviousClose
-        }
-    ]);
+    ): UpdatePriceSet => [ symbol, {
+        regularMarketPreviousClose,
+        regularMarketPrice,
+        regularMarketLastClose: isNotMarketOpen ? regularMarketPrice : regularMarketPreviousClose
+    } ] );
 
-    /**
-     * ### Product 애 regularUpdater 요청하기
-     * - 실패하면 단 한번 5분뒤에 재시도
-     */
-    private requestRegularUpdaterToProduct(
+    // TODO - Refac
+    private regularUpdater(
         ISO_Code: string,
         previous_close: ExchangeSession["previous_close"],
         updatePriceResult: UpdatePriceResult
@@ -212,7 +175,6 @@ export class UpdaterService implements OnModuleInit {
             map(ele => [ele[0], ele[1].regularMarketLastClose]),
             toArray
         );
-
         const rq = async (retry: boolean = false) => {
             try {
                 if (retry) {
@@ -241,36 +203,12 @@ export class UpdaterService implements OnModuleInit {
                 };
             };
         };
-
         rq();
     }
 
-    /**
-     * ### 세션 정보 로 price status 가 최신인지 알아내기
-     */
     private isPriceStatusUpToDate = (lastMarketDate: string, {previous_close}: ExchangeSession) => 
         lastMarketDate === new Date(previous_close).toISOString() ? true : false;
 
-    /**
-     * ###
-     */
-    private updatePriceByFilterArr
-
-    /**
-     * ###
-     */
-    private updatePriceByFilter
-
-    /**
-     * ### 티커배열로 가격 업데이트하기
-     */
-    private updatePriceByTickerArr
-
-    /**
-     * ### mongoDB 에 신규 자산 생성해보고 그 작업의 결과를 반환
-     * - tickerArr 로 Yf_info 생성
-     * - 새로운 거래소의 자산 발견시 Status_price 생성하고 업데이트스케줄 등록
-     */
     async createAssetByTickerArr(tickerArr: string[]) {
         const result = { // 응답
             success: {
@@ -286,7 +224,7 @@ export class UpdaterService implements OnModuleInit {
         await pipe( // 중복제거와 exists필터 부분은 단일 티커처리시 필요없음. 이 부분 보완하기
             new Set(tickerArr).values(), toAsync,
             map(this.createAssetTickerFilter), // exists?
-            map(ele => ele.flatMapPromise(this.marketService.getInfoByTicker)),
+            map(ele => ele.flatMapPromise(this.marketService.fetchInfo)),
             map(ele => ele.flatMapPromise(this.fulfillYfInfo)),
             filter(ele => ele.isLeft ? // *
             (result.failure.info.push(ele.getLeft), false)
@@ -295,7 +233,7 @@ export class UpdaterService implements OnModuleInit {
             concurrent(this.GETMARKET_CONCURRENCY),
             toArray,
             tap(async arr => { // *
-                await this.dbRepo.insertAssets(arr)
+                await this.dbRepo.createAssets(arr)
                 .then(res => result.success.info = res)
                 .catch(err =>
                     (result.failure.info = result.failure.info.concat(err.writeErrors),
@@ -319,16 +257,10 @@ export class UpdaterService implements OnModuleInit {
         return result;
     }
 
-    /**
-     * ### createAssetTickerFilter
-     */
     private createAssetTickerFilter = async (ticker: string): Promise<Either<any, string>> =>
-    (await this.dbRepo.existsAssetByTicker(ticker) === null) ? Either.right(ticker)
-    : Either.left({ msg: "Already exists", ticker });
+        (await this.dbRepo.existsAssetByTicker(ticker) === null) ?
+        Either.right(ticker) : Either.left({ msg: "Already exists", ticker });
 
-    /**
-     * ### fulfillInfo
-     */
     private fulfillYfInfo = async (info: YfInfo): Promise<Either<any, FulfilledYfInfo>> => {
         const ISO_Code = await this.dbRepo.isoCodeToTimezone(info.exchangeTimezoneName);
         return ISO_Code === undefined ? // ISO_Code 를 못찾은 경우 실패처리
@@ -344,40 +276,31 @@ export class UpdaterService implements OnModuleInit {
     }
 
     /**
-     * ### 장중이 아니면 true, 장중이면 false 리턴
-     * - ExchangeSession 또는 ISO_Code 를 인자로 받는다.
-     * 
+     * #### TODO - Refac - DB 모듈로 일부분 분리
      * 짧은 시간 연속처리시 market모듈에 ExchangeSession 를 반복 요청하는 등의 isNotMarketOpen 반복 계산 않도록 함(시간 오차범위는 최대 1분으로 제한)
      * - ISO_Code 를 받으면 db모듈에 저장된 값을 조회하고, ExchangeSession을 받으면 연산해서 알려준다.
      * - db모듈에서 값을 읽지 못하면 market모듈에 ExchangeSession을 요청하고 연산해서 db모듈에 값을 저장하고 리턴한다.
      * - db모듈에서 데이터가 매 00초마다 폐기되므로 데이터의 오차범위는 최대 1분이 됨.
      */
     private isNotMarketOpen = async (prop: ExchangeSession|string) => {
-        
         const f = (es: ExchangeSession) => {
             const {previous_open, previous_close, next_open, next_close} = es;
             return new Date(previous_open) > new Date(previous_close) && new Date(next_open) > new Date(next_close) ? false : true;
         };
-        
         if (typeof prop === 'string') {
             const res = await this.dbRepo.getIsNotMarketOpen(prop);
             return res === undefined ? 
-            this.dbRepo.setIsNotMarketOpen(prop, f((await this.marketService.getExchangeSessionByISOcode(prop)).getRight2(InternalServerErrorException)))
+            this.dbRepo.setIsNotMarketOpen(prop, f((await this.marketService.fetchExchangeSession(prop)).getRight2(InternalServerErrorException)))
             : res;
         } else {
             return f(prop);
         };
     }
 
-    /**
-     * ###
-     */
     private isNewExchange = async ([yf_exchangeTimezoneName, _]: [string, string[]]) =>
-    await this.dbRepo.existsStatusPrice({ yf_exchangeTimezoneName }) === null;
+        await this.dbRepo.existsStatusPrice({ yf_exchangeTimezoneName }) === null;
 
-    /**
-     * ###
-     */
+    // TODO - Refac
     private applyNewExchange = async ([yf_exchangeTimezoneName, symbolArr]: [string, string[]]): Promise<Either<any, StatusPrice>> => {
         const ISO_Code = await this.dbRepo.isoCodeToTimezone(yf_exchangeTimezoneName);
         if (ISO_Code === undefined) {
@@ -388,7 +311,7 @@ export class UpdaterService implements OnModuleInit {
                 symbol: symbolArr
             });
         } else {
-            const exchangeSession = (await this.marketService.getExchangeSessionByISOcode(ISO_Code))
+            const exchangeSession = (await this.marketService.fetchExchangeSession(ISO_Code))
                 .getRight2(InternalServerErrorException);
             return await this.dbRepo.createStatusPrice(ISO_Code, exchangeSession.previous_close, yf_exchangeTimezoneName)
             .then(async res => {
@@ -403,11 +326,8 @@ export class UpdaterService implements OnModuleInit {
                     symbol: symbolArr
                 });
             });
-        };
-    }
+        };};
 
-    /**
-     * ### addKey
-     */
     addKey = <T>(body: T) => (body["key"] = this.TEMP_KEY, body);
+    
 }
