@@ -103,7 +103,7 @@ export class MarketService implements OnModuleInit, OnApplicationBootstrap {
         this.dbRepo.createCcPrice);
 
     private isPriceUpToDate = async (price: CachedPriceI) =>
-        (await this.dbRepo.readCcPriceStatus(price.ISO_Code)).isEqualTo(price.marketDate);
+        price.marketDate.isEqualTo(await this.dbRepo.readCcPriceStatus(price.ISO_Code));
 
     private updateWithFetching = (ticker: string) => pipe(ticker,
         this.fetchPriceUpdateSet,
