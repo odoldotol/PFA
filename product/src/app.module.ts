@@ -5,6 +5,7 @@ import { AppService } from './app/app.service';
 import { MarketModule } from './market/market.module';
 import { KakaoCBModule } from './kakaoCB/kakaoCB.module';
 import { Pm2Module } from './pm2/pm2.module';
+import { ScheduleModule } from '@nestjs/schedule';
 
 @Module({
   imports: [
@@ -12,6 +13,7 @@ import { Pm2Module } from './pm2/pm2.module';
       isGlobal: true,
       envFilePath: ".env.development.local"
     }),
+    ScheduleModule.forRoot(),
     Pm2Module,
     MarketModule,
     KakaoCBModule

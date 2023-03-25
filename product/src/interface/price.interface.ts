@@ -6,6 +6,8 @@ type PSet2 = [TickerSymbol, number, Currency]
 type SpPSetsSet = [Sp, PSet[]]
 type SpPSetsSet2 = [Sp, PSet2[]]
 
+type GPSet = [TickerSymbol, CachedPriceI[]]
+
 interface RequestedPrice {
     price: number;
     ISO_Code: ISO_Code;

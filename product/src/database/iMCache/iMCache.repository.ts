@@ -1,29 +1,46 @@
-import { CACHE_MANAGER, Inject, Injectable, Logger, OnModuleDestroy } from "@nestjs/common";
+import { CACHE_MANAGER, Inject, Injectable, Logger, OnApplicationBootstrap, OnModuleDestroy } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
+import { SchedulerRegistry } from "@nestjs/schedule";
 import { Cache } from 'cache-manager';
+import { CronJob } from "cron";
 import { readdir, readFile, writeFile } from 'node:fs/promises';
-import { curry, each, gte, head, isObject, isString, last, lte, map, not, pipe, toArray, toAsync, zip } from "@fxts/core";
 import { Pm2Service } from "../../pm2/pm2.service";
 import { MarketDate } from "../../class/marketDate.class";
 import { CachedPrice } from "../../class/cachedPrice.class";
+import { curry, each, gte, head, isObject, isString, last, lte, map, not, pipe, tap, toArray, toAsync, zip } from "@fxts/core";
 
 @Injectable()
-export class IMCacheRepository implements OnModuleDestroy {
+export class IMCacheRepository implements OnApplicationBootstrap, OnModuleDestroy {
 
     private readonly logger = new Logger(IMCacheRepository.name);
     private readonly PS = "_priceStatus";
     private readonly priceCacheCount: number = this.configService.get('PRICE_CACHE_COUNT');
 
     constructor(
+        private readonly schedulerRegistry: SchedulerRegistry,
         private readonly configService: ConfigService,
         private readonly pm2Service: Pm2Service,
         @Inject(CACHE_MANAGER) private readonly cacheManager: Cache
     ) {}
 
-    async onModuleDestroy() {
-        await this.backupCacheToLocalfile(this.getAllCache(), new Date().toISOString());
-        this.pm2Service.IS_RUN_BY_PM2 && process.send('cache_backup_end');
-    }
+    onApplicationBootstrap = () => this.backupPlanner();
+
+    onModuleDestroy = async () => {
+        await this.backupCache();
+        this.pm2Service.IS_RUN_BY_PM2 && process.send('cache_backup_end');};
+
+    backupPlanner = () => this.schedulerRegistry.doesExist("cron", "dailyCacheBackup") ?
+        this.backupCache().then(() => this.logger_backupPlan(this.schedulerRegistry.getCronJob("dailyCacheBackup")))
+        : pipe(
+            new CronJob("0 0 11 * * *", this.backupPlanner),
+            tap(job => this.schedulerRegistry.addCronJob("dailyCacheBackup", job)),
+            tap(job => job.start()),
+            job => this.logger_backupPlan(job)
+        );
+    
+    private logger_backupPlan = (cronJob: CronJob) => this.logger.log(`Backup Plan : ${(new Date(cronJob.nextDate().toString())).toLocaleString()}`);
+
+    private backupCache = () => this.backupCacheToLocalfile(this.getAllCache(), new Date().toISOString());
 
     private backupCacheToLocalfile = async (data: Promise<CacheSet<CacheValue>[]>, fileName: string) => {
         this.logger.warn(`Cache Backup Start`);
@@ -59,30 +76,29 @@ export class IMCacheRepository implements OnModuleDestroy {
         [ head(cache), new MarketDate(cache[1]), 0 ] as CacheSet2<MarketDate>
         : cache;
     
-    setMarketDate = (sp: Sp) => this.setOne(head(sp)+this.PS, last(sp), 0);
+    createMarketDate = (sp: Sp) => this.setOne(head(sp)+this.PS, last(sp), 0);
     
-    setPrice = ([symbol, price]: CacheSet<CachedPriceI>, ttl?: number) => 
+    createPrice = ([symbol, price]: CacheSet<CachedPriceI>, ttl?: number) => 
         this.setOne(symbol, new CachedPrice(price));
 
-    getMarketDate = (ISO_Code: ISO_Code) => pipe(ISO_Code+this.PS,
+    readMarketDate = (ISO_Code: ISO_Code) => pipe(ISO_Code+this.PS,
         this.getValue,
         this.passMarketDate);
 
-    countingGetPrice = (symbol: TickerSymbol) => pipe(symbol,
-        this.getPrice,
+    countingReadPrice = (symbol: TickerSymbol) => pipe(symbol,
+        this.readPrice,
         this.counting);
 
-    private getPrice = (symbol: TickerSymbol) => pipe(symbol,
-        this.getValue,
-        this.passCachedPrice);
-
     updatePrice = async ([symbol, update]: CacheUpdateSet<CachedPriceI>) =>
-        this.update(await this.getPrice(symbol), update);
+        this.update(await this.readPrice(symbol), update);
 
     isGteMinCount = async (set: PSet | PSet2) => pipe(head(set),
-        this.getPrice,
-        p => p && this.priceCacheCount <= p.count
-    );
+        this.readPrice,
+        p => p && this.priceCacheCount <= p.count);
+
+    private readPrice = (symbol: TickerSymbol) => pipe(symbol,
+        this.getValue,
+        this.passCachedPrice);
 
     private isPriceStatus = <T>(cacheSet: CacheSet<T>) => head(cacheSet).slice(-12) === this.PS
     

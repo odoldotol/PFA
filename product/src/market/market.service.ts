@@ -6,7 +6,7 @@ import { spawn } from 'child_process';
 import { DBRepository } from '../database/database.repository';
 import { Pm2Service } from '../pm2/pm2.service';
 import { MarketDate } from '../class/marketDate.class';
-import { append, apply, compactObject, concurrent, curry, delay, each, entries, filter, head, isNil, isObject, isUndefined, last, map, not, nth, partition, peek, pick, pipe, reduce, reject, tap, toArray, toAsync } from '@fxts/core';
+import { append, apply, compact, compactObject, concurrent, curry, delay, drop, each, entries, filter, flat, head, isNil, isObject, isString, isUndefined, join, last, map, not, nth, partition, peek, pick, pipe, reduce, reject, tap, toArray, toAsync } from '@fxts/core';
 
 @Injectable()
 export class MarketService implements OnModuleInit, OnApplicationBootstrap {
@@ -57,39 +57,53 @@ export class MarketService implements OnModuleInit, OnApplicationBootstrap {
 
     private spDocToSp = (spDoc: StatusPrice) => [ spDoc.ISO_Code, MarketDate.fromSpDoc(spDoc) ] as Sp;
 
-    private isSpLatest = async (sp: Sp) => last(sp).isEqualTo(await this.dbRepo.getCcPriceStatus(head(sp)));
+    private isSpLatest = async (sp: Sp) => last(sp).isEqualTo(await this.dbRepo.readCcPriceStatus(head(sp)));
 
     private withPriceSetArr = async (sp: Sp) => [ sp, await this.requestPriceByISOcode(head(sp)) ] as [Sp, PSet2[]];
 
     regularUpdater =  this.dbRepo.regularUpdater;
 
-    getPriceByTicker = (ticker: string, id?: string) => pipe(
-        [] as CachedPriceI[],
-        tap(this.readCache(ticker)),
-        tap(this.ifNoCache_setNew(ticker)),
-        tap(this.ifOutdated_updateIt(ticker)),
-        tap(this.Logger_GetPriceByTicker(ticker, id)),
-        last);
+    getPriceByTicker = async (ticker: string, id: string = "") => pipe(
+        [ ticker, [] ] as GPSet,
+        apply(this.readCache),
+        apply(this.ifNoCache_setNew),
+        apply(this.ifOutdated_updateIt),
+        tap(this.Logger_GetPriceByTicker(id)),
+        this.takeLastFromSet);
 
-    private readCache = curry(async (ticker: string, stack: CachedPriceI[]) =>
-        stack.push(await this.dbRepo.countingGetCcPrice(ticker)));
+    private readCache = async (...[ ticker, stack ]: GPSet) =>
+        [ ticker, toArray(append(
+            await this.dbRepo.countingReadCcPrice(ticker), stack)) ] as GPSet;
 
-    private ifNoCache_setNew = curry(async (ticker: string, stack: CachedPriceI[]) =>
-        isNil(head(stack)) && stack.push(await this.setPriceWithMarket(ticker)));
+    private ifNoCache_setNew = async (...[ ticker, stack ]: GPSet) =>
+        [ ticker, toArray(append(
+            isNil(head(stack)) &&
+            await this.setPriceWithMarket(ticker), stack)) ] as GPSet;
     
-    private ifOutdated_updateIt = curry(async (ticker: string, stack: CachedPriceI[]) =>
-        isObject(head(stack)) && not(this.isPriceUpToDate(nth(0, stack))) && stack.push(await this.updateWithMarket(ticker)));
+    private ifOutdated_updateIt = async (...[ ticker, stack ]: GPSet) =>
+        [ ticker, toArray(append(
+            isObject(head(stack)) &&
+            not(await this.isPriceUpToDate(head(stack) as CachedPriceI)) &&
+            await this.updateWithMarket(ticker), stack)) ] as GPSet;
 
-    private Logger_GetPriceByTicker = curry((ticker: string, id: string, stack/**/) => pipe(stack,
-        stack => `${head(stack) ? "1" : "0"}${nth(1, stack) ? "0" : "1"}`,
-        tap(code => this.logger.verbose(`${ticker} : ${code}${id ? " "+id : ""}`))));
+    private Logger_GetPriceByTicker = curry(
+        (id: string, [ ticker, stack ]: GPSet) => pipe(stack,
+            map(a => a ? 1 : 0),
+            toArray,
+            join(""),
+            tap(code => this.logger.verbose(`${ticker} : ${code}${id && " "+id}`))));
+
+    private takeLastFromSet = (set: GPSet) => pipe(set,
+        last,
+        filter(a => a),
+        last);
 
     private setPriceWithMarket = (ticker: string) => pipe(ticker,
         this.getPriceSetFromReq,
-        this.dbRepo.setCcPrice);
+        this.dbRepo.createCcPrice);
 
     private isPriceUpToDate = async (price: CachedPriceI) =>
-        (await this.dbRepo.getCcPriceStatus(price.ISO_Code)).isEqualTo(price.marketDate);
+        (await this.dbRepo.readCcPriceStatus(price.ISO_Code)).isEqualTo(price.marketDate);
 
     private updateWithMarket = (ticker: string) => pipe(ticker,
         this.getPriceUpdateSetFromReq,
@@ -97,20 +111,22 @@ export class MarketService implements OnModuleInit, OnApplicationBootstrap {
 
     private getPriceSetFromReq = (ticker: string) => pipe(ticker,
         this.requestPriceByTicker,
-        tap(rP => rP.status_price && this.dbRepo.setCcPriceStatusWithRP(rP)),
+        tap(rP => rP.status_price && this.dbRepo.createCcPriceStatusWithRP(rP)),
         async (rP) => [
             ticker,
             Object.assign(rP, {
-                marketDate: await this.dbRepo.getCcPriceStatus(rP.ISO_Code),
+                marketDate: await this.dbRepo.readCcPriceStatus(rP.ISO_Code),
                 count: 1})
         ] as CacheSet<CachedPriceI>);
 
     private getPriceUpdateSetFromReq = (ticker: string) => pipe(ticker,
         this.requestPriceByTicker,
-        (rP) => [ ticker, pick["price"](rP) ] as CacheUpdateSet<CachedPriceI>);
+        async (rP) => [ ticker, pick(
+            ["price", "marketDate"],
+            Object.assign(rP, { marketDate: await this.dbRepo.readCcPriceStatus(rP.ISO_Code) }))
+        ] as CacheUpdateSet<CachedPriceI>);
 
     private requestPriceByISOcode = (ISO_Code: string): Promise<PSet2[]> => this.requestPriceToMarket(ISO_Code, "ISO_Code");
-
     private requestPriceByTicker = (ticker: string): Promise<RequestedPrice> => this.requestPriceToMarket(ticker, "ticker");
 
     // TODO: Refac
@@ -163,7 +179,7 @@ export class MarketService implements OnModuleInit, OnApplicationBootstrap {
             } else if (where === "cache") {
                 const result: {[ISO_Code: string]: MarketDateI} = {};
                 await Promise.all(spDocArr.map(async (spDoc) => {
-                    result[spDoc.ISO_Code] = await this.dbRepo.getCcPriceStatus(spDoc.ISO_Code);
+                    result[spDoc.ISO_Code] = await this.dbRepo.readCcPriceStatus(spDoc.ISO_Code);
                 }));
                 return result;
             };

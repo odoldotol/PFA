@@ -12,15 +12,12 @@ export class DBRepository {
         private readonly iMCache: IMCacheRepository
     ) {}
     
-    setCcPriceStatusWithRP = (rP: RequestedPrice) =>
-        this.iMCache.setMarketDate([rP.status_price.ISO_Code, MarketDate.fromSpDoc(rP.status_price)]);
-    setCcPrice = this.iMCache.setPrice;
-    
-    getCcPriceStatus = this.iMCache.getMarketDate;
-    countingGetCcPrice = this.iMCache.countingGetPrice;
-    
+    createCcPriceStatusWithRP = (rP: RequestedPrice) =>
+        this.iMCache.createMarketDate([rP.status_price.ISO_Code, MarketDate.fromSpDoc(rP.status_price)]);
+    createCcPrice = this.iMCache.createPrice;
+    readCcPriceStatus = this.iMCache.readMarketDate;
+    countingReadCcPrice = this.iMCache.countingReadPrice;
     updateCcPrice = this.iMCache.updatePrice;
-
     cacheRecovery = this.iMCache.localFileCacheRecovery;
     getAllCcKeys = this.iMCache.getAllKeys;
 
@@ -37,10 +34,10 @@ export class DBRepository {
     cacheHardInit = (initSet: SpPSetsSet2) => pipe(initSet,
         this.setSpAndReturnPSets,
         map(this.toCachedPriceSet(head(initSet))),
-        each(this.setCcPrice));
+        each(this.createCcPrice));
 
     private setSpAndReturnPSets = (initSet: SpPSetsSet2) => pipe(initSet,
-        tap(set => this.iMCache.setMarketDate(head(set))),
+        tap(set => this.iMCache.createMarketDate(head(set))),
         last);
 
     private toCachedPriceSet = curry(([ ISO_Code, marketDate ]: Sp, priceSet: PSet | PSet2) =>
