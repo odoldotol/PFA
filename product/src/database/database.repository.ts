@@ -18,6 +18,7 @@ export class DBRepository {
     readCcPriceStatus = this.iMCache.readMarketDate;
     countingReadCcPrice = this.iMCache.countingReadPrice;
     updateCcPrice = this.iMCache.updatePrice;
+    
     cacheRecovery = this.iMCache.localFileCacheRecovery;
     getAllCcKeys = this.iMCache.getAllKeys;
 

@@ -1,8 +1,11 @@
+import { isString, not } from "@fxts/core"
+
 export class MarketDate extends String implements MarketDateI {
 
-    constructor(s: string) {
-        if (!/^\d{4}-\d{2}-\d{2}$/.test(s)) throw new Error(`Invalid MarketDate : ${s}`);
-        super(s);
+    constructor(arg: string | MarketDateI) {
+        if (isString(arg) && not(/^\d{4}-\d{2}-\d{2}$/.test(arg))) throw new Error(`Invalid MarketDate : ${arg}`);
+        else if (arg instanceof MarketDate) arg = arg.get;
+        super(arg);
     }
 
     static fromSpDoc(spDoc: StatusPrice): MarketDate {

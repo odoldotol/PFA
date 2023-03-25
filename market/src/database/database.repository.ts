@@ -122,11 +122,10 @@ export class DBRepository {
 
 
     private updateStatusPriceByRegularUpdater = (ISO_Code: string, previous_close: string, session: ClientSession) =>
-    this.status_priceRepo.findOneAndUpdate(
-        { ISO_Code },
-        { lastMarketDate: new Date(previous_close).toISOString() },
-        session
-    );
+        this.status_priceRepo.findOneAndUpdate(
+            { ISO_Code },
+            { lastMarketDate: new Date(previous_close).toISOString() },
+            session);
 
     private createLogPriceUpdate = (
         launcher: LogPriceUpdate["launcher"],

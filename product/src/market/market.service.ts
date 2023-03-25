@@ -22,7 +22,7 @@ export class MarketService implements OnModuleInit, OnApplicationBootstrap {
         private readonly pm2Service: Pm2Service,
     ) {}
 
-    async onModuleInit() {
+    onModuleInit = async () => {
         this.logger.warn("Initiator Run!!!");
         await this.restoreCache();
     }
@@ -109,6 +109,7 @@ export class MarketService implements OnModuleInit, OnApplicationBootstrap {
         this.fetchPriceUpdateSet,
         this.dbRepo.updateCcPrice);
 
+    // TODO - Refac
     private fetchPriceSet = (ticker: string) => pipe(ticker,
         this.fetchPriceByTicker,
         tap(rP => rP.status_price && this.dbRepo.createCcPriceStatusWithRP(rP)),
@@ -119,6 +120,7 @@ export class MarketService implements OnModuleInit, OnApplicationBootstrap {
                 count: 1})
         ] as CacheSet<CachedPriceI>);
 
+    // TODO - Refac
     private fetchPriceUpdateSet = (ticker: string) => pipe(ticker,
         this.fetchPriceByTicker,
         async (rP) => [ ticker, pick(

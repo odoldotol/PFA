@@ -20,12 +20,11 @@ export class Pm2Service implements OnModuleInit {
         if (this.IS_RUN_BY_PM2 = not(isUndefined(this.PM2_NAME))) Pm2Service.identify(this);
     }
 
-    async onModuleInit() {
+    onModuleInit = async () => {
         this.IS_RUN_BY_PM2 &&
         (this.msgBus = await this.launchBus()) &&
         this.newProcessReadyListener( // 이게 리슨 안되고 올드프로레스가 죽으면 wait_ready = true 필요하다는 뜻이다.
-            () => this.logger.verbose(`I confirmed that New ${this.PM2_ID+'|'+this.PM2_NAME} was ready`));
-    }
+            () => this.logger.verbose(`I confirmed that New ${this.PM2_ID+'|'+this.PM2_NAME} was ready`));};
 
     private newProcessReadyListener = (action: Function) => new Promise(resolve =>
         this.listener(async packet => await this.isReadyMsgFromNewProcess(packet) && resolve(action())));
@@ -41,16 +40,16 @@ export class Pm2Service implements OnModuleInit {
     private listener = (msgCallBack: Function) => this.msgBus.on('process:msg', msgCallBack);
 
     private isReadyMsgFromNewProcess = async packet => 
-    packet.raw === 'ready' &&
-    packet.process.name === this.PM2_NAME &&
-    packet.process.pm_id === this.PM2_ID &&
-    await this.am_I_old_process_now();
+        packet.raw === 'ready' &&
+        packet.process.name === this.PM2_NAME &&
+        packet.process.pm_id === this.PM2_ID &&
+        await this.am_I_old_process_now();
 
     private isCacheRecoveryMsgFromOldProcess = packet =>
-    packet.process.pm_id === `_old_${this.PM2_ID}` &&
-    packet.raw === 'cache_backup_end' &&
-    packet.process.name === this.PM2_NAME &&
-    not(this.isOld);
+        packet.process.pm_id === `_old_${this.PM2_ID}` &&
+        packet.raw === 'cache_backup_end' &&
+        packet.process.name === this.PM2_NAME &&
+        not(this.isOld);
 
     private am_I_old_process_now = async () => this.isOld ? true : this.isOld = await this.oldCheck();
     
