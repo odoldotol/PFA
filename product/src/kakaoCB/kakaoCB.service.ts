@@ -17,8 +17,8 @@ export class KakaoCBService {
         const price = await this.marketService.getPrice(
             body.action.params.ticker.toUpperCase(),
             body.userRequest.user.id
+        ).then(p => (kakaoText = `${(p.price + Number.EPSILON).toFixed(2)}${this.currencyToSign(p.currency)} (${p.marketDate})`, p)
         ).catch((err): undefined => (kakaoText = err.message, undefined));
-        kakaoText = price && `${(price.price + Number.EPSILON).toFixed(2)}${this.currencyToSign(price.currency)} (${price.marketDate})`;
         return {
             version: this.KAKAO_CHATBOT_VERSION,
             template: {

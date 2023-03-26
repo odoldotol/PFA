@@ -76,8 +76,7 @@ export class Pm2Service implements OnModuleInit {
     private static identify = (pm2Service: Pm2Service) => pipe(
         pm2Service.getPm2List(),
         find(pm2Service.isProcessIdEqualMine),
-        Pm2Service.setPM2_ID(pm2Service)
-    );
+        Pm2Service.setPM2_ID(pm2Service));
 
     private static setPM2_ID = curry((pm2Service: Pm2Service, pm2_p: pm2.ProcessDescription) =>
         // @ts-ignore

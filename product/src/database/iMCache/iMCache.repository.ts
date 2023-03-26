@@ -108,7 +108,7 @@ export class IMCacheRepository implements OnApplicationBootstrap, OnModuleDestro
     
     private counting = (v: CachedPrice) => v && v.counting();
     
-    private copy = <T>(v: T): T => v && Object.assign({}, v, {copy: true});
+    private copy = <T>(v: T): T => v && Object.assign({copy: true}, v);
 
     private setOne<T>(cacheSet: CacheSet<T>): Promise<T>
     private setOne<T>(key: CacheKey, value: T): Promise<T>
