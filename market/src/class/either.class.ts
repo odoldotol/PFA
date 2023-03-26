@@ -4,8 +4,9 @@ export class Either<L, R> implements EitherI<L, R> {
         private readonly leftValue: L,
         private readonly rightValue: R,
     ) {
-        this.leftValue === undefined && this.rightValue === undefined
-        && (() => { throw new Error('Either must have a value') })();
+        if ((this.leftValue === undefined && this.rightValue === undefined) ||
+        (this.leftValue !== undefined && this.rightValue !== undefined))
+        throw new Error('Either must have a value');
     }
   
     static right = <R>(value: R): Either<undefined, R> => new this(undefined, value);
