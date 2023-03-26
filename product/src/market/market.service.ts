@@ -24,13 +24,11 @@ export class MarketService implements OnModuleInit, OnApplicationBootstrap {
 
     onModuleInit = async () => {
         this.logger.warn("Initiator Run!!!");
-        await this.restoreCache();
-    }
+        await this.restoreCache();};
 
-    onApplicationBootstrap() {
+    onApplicationBootstrap = () => {
         this.pm2Service.IS_RUN_BY_PM2 && this.pm2Service.cacheRecoveryListener(this.restoreCache);
-        this.logger.warn("Initiator End!!!");
-    }
+        this.logger.warn("Initiator End!!!");};
 
     private restoreCache = () => this.dbRepo.cacheRecovery()
         .then(this.selectiveCacheUpdate)
@@ -57,7 +55,7 @@ export class MarketService implements OnModuleInit, OnApplicationBootstrap {
 
     private spDocToSp = (spDoc: StatusPrice) => [ spDoc.ISO_Code, MarketDate.fromSpDoc(spDoc) ] as Sp;
 
-    private isSpLatest = async (sp: Sp) => last(sp).isEqualTo(await this.dbRepo.readCcPriceStatus(head(sp)));
+    private isSpLatest = async (sp: Sp) => last(sp).isEqualTo(await this.dbRepo.readCcStatusPrice(head(sp)));
 
     private withPriceSetArr = async (sp: Sp) => [ sp, await this.fetchPriceByISOcode(head(sp)) ] as [Sp, PSet2[]];
 
@@ -73,7 +71,7 @@ export class MarketService implements OnModuleInit, OnApplicationBootstrap {
 
     private readCache = async (...[ ticker, stack ]: GPSet) =>
         [ ticker, toArray(append(
-            await this.dbRepo.countingReadCcPrice(ticker), stack)) ] as GPSet;
+            await this.dbRepo.readCcPriceCounting(ticker), stack)) ] as GPSet;
 
     private ifNoCache_setNew = async (...[ ticker, stack ]: GPSet) =>
         [ ticker, toArray(append(
@@ -103,7 +101,7 @@ export class MarketService implements OnModuleInit, OnApplicationBootstrap {
         this.dbRepo.createCcPrice);
 
     private isPriceUpToDate = async (price: CachedPriceI) =>
-        price.marketDate.isEqualTo(await this.dbRepo.readCcPriceStatus(price.ISO_Code));
+        price.marketDate.isEqualTo(await this.dbRepo.readCcStatusPrice(price.ISO_Code));
 
     private updateWithFetching = (ticker: string) => pipe(ticker,
         this.fetchPriceUpdateSet,
@@ -116,7 +114,7 @@ export class MarketService implements OnModuleInit, OnApplicationBootstrap {
         async (rP) => [
             ticker,
             Object.assign(rP, {
-                marketDate: await this.dbRepo.readCcPriceStatus(rP.ISO_Code),
+                marketDate: await this.dbRepo.readCcStatusPrice(rP.ISO_Code),
                 count: 1})
         ] as CacheSet<CachedPriceI>);
 
@@ -125,7 +123,7 @@ export class MarketService implements OnModuleInit, OnApplicationBootstrap {
         this.fetchPriceByTicker,
         async (rP) => [ ticker, pick(
             ["price", "marketDate"],
-            Object.assign(rP, { marketDate: await this.dbRepo.readCcPriceStatus(rP.ISO_Code) }))
+            Object.assign(rP, { marketDate: await this.dbRepo.readCcStatusPrice(rP.ISO_Code) }))
         ] as CacheUpdateSet<CachedPriceI>);
 
     private fetchPriceByISOcode = (ISO_Code: string): Promise<PSet2[]> => this.fetchPrice(ISO_Code, "ISO_Code");
@@ -181,7 +179,7 @@ export class MarketService implements OnModuleInit, OnApplicationBootstrap {
             } else if (where === "cache") {
                 const result: {[ISO_Code: string]: MarketDateI} = {};
                 await Promise.all(spDocArr.map(async (spDoc) => {
-                    result[spDoc.ISO_Code] = await this.dbRepo.readCcPriceStatus(spDoc.ISO_Code);
+                    result[spDoc.ISO_Code] = await this.dbRepo.readCcStatusPrice(spDoc.ISO_Code);
                 }));
                 return result;
             };

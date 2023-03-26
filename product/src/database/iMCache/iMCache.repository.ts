@@ -85,7 +85,7 @@ export class IMCacheRepository implements OnApplicationBootstrap, OnModuleDestro
         this.getValue,
         this.passMarketDate);
 
-    countingReadPrice = (symbol: TickerSymbol) => pipe(symbol,
+    readPriceCounting = (symbol: TickerSymbol) => pipe(symbol,
         this.readPrice,
         this.counting);
 
@@ -100,7 +100,7 @@ export class IMCacheRepository implements OnApplicationBootstrap, OnModuleDestro
         this.getValue,
         this.passCachedPrice);
 
-    private isPriceStatus = <T>(cacheSet: CacheSet<T>) => head(cacheSet).slice(-12) === this.PS
+    private isPriceStatus = <T>(cacheSet: CacheSet<T>) => head(cacheSet).slice(-12) === this.PS;
     
     private passMarketDate = (v: CacheValue) => v instanceof MarketDate ? v : null;
     

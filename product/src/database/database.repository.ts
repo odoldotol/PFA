@@ -15,8 +15,8 @@ export class DBRepository {
     createCcPriceStatusWithRP = (rP: RequestedPrice) =>
         this.iMCache.createMarketDate([rP.status_price.ISO_Code, MarketDate.fromSpDoc(rP.status_price)]);
     createCcPrice = this.iMCache.createPrice;
-    readCcPriceStatus = this.iMCache.readMarketDate;
-    countingReadCcPrice = this.iMCache.countingReadPrice;
+    readCcStatusPrice = this.iMCache.readMarketDate;
+    readCcPriceCounting = this.iMCache.readPriceCounting;
     updateCcPrice = this.iMCache.updatePrice;
     
     cacheRecovery = this.iMCache.localFileCacheRecovery;
@@ -24,11 +24,11 @@ export class DBRepository {
 
     regularUpdater = (initSet: SpPSetsSet | SpPSetsSet2) => pipe(initSet,
         this.setSpAndReturnPSets, toAsync,
-        partition(this.iMCache.isGteMinCount), ([truePSets, falsePSets]) => (
-            pipe(truePSets,
+        partition(this.iMCache.isGteMinCount), ([ updatePSets, deletePSets ]) => (
+            pipe(updatePSets,
                 map(this.toCachedPriceSet(head(initSet))),
                 each(this.updateCcPrice)),
-            pipe(falsePSets,
+            pipe(deletePSets,
                 each(a => this.iMCache.deleteOne(head(a))))
         )).then(() => this.logger.verbose(`${head(head(initSet))} : Regular Updated`));
 
