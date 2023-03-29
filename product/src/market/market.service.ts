@@ -91,8 +91,7 @@ export class MarketService implements OnModuleInit, OnApplicationBootstrap {
             join(""),
             tap(code => this.logger.verbose(`${ticker} : ${code}${id && " "+id}`))));
 
-    private takeLastFromSet = (set: GPSet) => pipe(set,
-        last,
+    private takeLastFromSet = (set: GPSet) => pipe(last(set),
         filter(a => a),
         last);
 
