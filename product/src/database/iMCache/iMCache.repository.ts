@@ -14,7 +14,7 @@ export class IMCacheRepository implements OnApplicationBootstrap, OnModuleDestro
 
     private readonly logger = new Logger(IMCacheRepository.name);
     private readonly PS = "_priceStatus";
-    private readonly priceCacheCount: number = this.configService.get('PRICE_CACHE_COUNT');
+    private readonly priceCacheCount = this.configService.get<number>('PRICE_CACHE_COUNT');
 
     constructor(
         private readonly schedulerRegistry: SchedulerRegistry,

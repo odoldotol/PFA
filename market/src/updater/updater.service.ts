@@ -13,10 +13,10 @@ import { Either } from "../class/either.class";
 export class UpdaterService implements OnModuleInit {
 
     private readonly logger = new Logger(UpdaterService.name);
-    private readonly PRODUCT_URL = this.configService.get('PRODUCT_URL');
-    private readonly TEMP_KEY: string = this.configService.get('TEMP_KEY');
-    private readonly DE_UP_MARGIN: number = this.configService.get('DefaultUpdateMarginMilliseconds');
-    private readonly GETMARKET_CONCURRENCY: number = this.configService.get('GETMARKET_CONCURRENCY') * 10;
+    private readonly PRODUCT_URL = this.configService.get<string>('PRODUCT_URL');
+    private readonly TEMP_KEY = this.configService.get<string>('TEMP_KEY');
+    private readonly DE_UP_MARGIN = this.configService.get<number>('DefaultUpdateMarginMilliseconds');
+    private readonly GETMARKET_CONCURRENCY = this.configService.get<number>('GETMARKET_CONCURRENCY') * 10;
 
     constructor(
         private readonly configService: ConfigService,
@@ -26,7 +26,7 @@ export class UpdaterService implements OnModuleInit {
         private readonly dbRepo: DBRepository
     ) {}
 
-    onModuleInit = async () => await this.initiator() 
+    onModuleInit = () => this.initiator() 
         .catch(error => this.logger.error(error)); 
 
     initiator = async () => {

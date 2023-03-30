@@ -1,5 +1,6 @@
 import { CallHandler, ExecutionContext, Logger, NestInterceptor, ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
+import { ConfigService } from '@nestjs/config';
 import { AppModule } from './app.module';
 import { Response } from 'express';
 
@@ -9,6 +10,10 @@ async function bootstrap() {
   let keepAlive = true;
 
   const app = await NestFactory.create(AppModule).then(app => (logger.log('App created'), app));
+
+  const configService = app.get(ConfigService);
+  const PORT = configService.get<number>("PORT", 7000);
+  const PM2_NAME = configService.get<string>("PM2_NAME");
 
   app.enableCors(); // adminFE, 서비스FE + 기타 서비스(Kakao 등) 허용하면 됨
 
@@ -41,11 +46,11 @@ async function bootstrap() {
     process.exit(0);
   };
   
-  await app.listen(process.env.PORT || 7000);
+  await app.listen(PORT);
   
   logger.log('App listen');
   
-  if (process.env.PM2_NAME) process.send('ready',
+  if (PM2_NAME) process.send('ready',
     logger.log("Send Ready to Parent Process"),
     { swallowErrors: true}, (err) => err && logger.error(err)
   );

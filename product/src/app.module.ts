@@ -11,7 +11,7 @@ import { ScheduleModule } from '@nestjs/schedule';
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: ".env.development.local"
+      envFilePath: ".env"
     }),
     ScheduleModule.forRoot(),
     Pm2Module,

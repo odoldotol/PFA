@@ -12,9 +12,9 @@ import { Either } from "../class/either.class";
 export class MarketService implements OnApplicationBootstrap {
 
     private readonly logger = new Logger(MarketService.name);
-    private readonly GETMARKET_URL = this.configService.get('GETMARKET_URL');
-    private readonly PIP_COMMAND = this.configService.get('PIP_COMMAND');
-    private readonly YFCCC_ISO_Code = this.configService.get('YahooFinance_CCC_ISO_Code');
+    private readonly GETMARKET_URL = this.configService.get<string>('GETMARKET_URL');
+    private readonly PIP_COMMAND = this.configService.get<string>('PIP_COMMAND');
+    private readonly YFCCC_ISO_Code = this.configService.get<string>('YahooFinance_CCC_ISO_Code');
 
     constructor(
         private readonly configService: ConfigService,
@@ -22,7 +22,9 @@ export class MarketService implements OnApplicationBootstrap {
         private readonly schedulerRegistry: SchedulerRegistry,
     ) {}
 
-    onApplicationBootstrap = this.pyLibChecker;
+    onApplicationBootstrap = () => {
+        this.pyLibChecker()
+    };
 
     fetchInfo = (ticker: string): Promise<Either<YfInfoError, YfInfo>> => this.fetchSomething("Info", ticker);
     fetchPrice = (ticker: string): Promise<Either<YfPriceError, YfPrice>> => this.fetchSomething("Price", ticker);

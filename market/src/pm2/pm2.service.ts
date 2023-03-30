@@ -7,9 +7,9 @@ import { curry, delay, filter, find, isUndefined, not, pipe, range, toAsync } fr
 export class Pm2Service implements OnModuleInit {
 
     private readonly logger = new Logger(Pm2Service.name);
-    private readonly PM2_NAME: string = this.configService.get('PM2_NAME');
+    private readonly PM2_NAME = this.configService.get<string>('PM2_NAME');
     readonly IS_RUN_BY_PM2: boolean;
-    private readonly PM2_listen_timeout: number = this.configService.get('listen_timeout');
+    private readonly PM2_listen_timeout = this.configService.get<number>('listen_timeout');
     private readonly PM2_ID: number;
     private msgBus: any;
     private isOld: boolean = false;

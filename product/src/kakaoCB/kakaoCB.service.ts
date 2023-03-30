@@ -5,7 +5,7 @@ import { MarketService } from '../market/market.service';
 @Injectable()
 export class KakaoCBService {
 
-    private readonly KAKAO_CHATBOT_VERSION: string = this.configService.get('KAKAO_CHATBOT_VERSION');
+    private readonly KAKAO_CHATBOT_VERSION = this.configService.get<string>('KAKAO_CHATBOT_VERSION');
 
     constructor(
         private readonly configService: ConfigService,

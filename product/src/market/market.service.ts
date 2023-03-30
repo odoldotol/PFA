@@ -12,8 +12,8 @@ import { append, apply, compact, compactObject, concurrent, curry, delay, drop, 
 export class MarketService implements OnModuleInit, OnApplicationBootstrap {
 
     private readonly logger = new Logger(MarketService.name);
-    private readonly MARKET_URL = this.configService.get('MARKET_URL');
-    private readonly TEMP_KEY: string = this.configService.get('TEMP_KEY');
+    private readonly MARKET_URL = this.configService.get<string>('MARKET_URL');
+    private readonly TEMP_KEY = this.configService.get<string>('TEMP_KEY');
 
     constructor(
         private readonly configService: ConfigService,

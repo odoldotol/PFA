@@ -11,7 +11,7 @@ import { Pm2Module } from './pm2/pm2.module';
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: ".env.development.local"
+      envFilePath: ".env"
     }),
     MongooseModule.forRootAsync({
       imports: [ConfigModule],
