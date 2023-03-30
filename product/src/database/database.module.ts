@@ -1,6 +1,6 @@
-import { CacheModule, Module } from "@nestjs/common";
+import { Module } from "@nestjs/common";
 import { DBRepository } from "./database.repository";
-import { IMCache } from "./iMCache/iMcache.module";
+import { IMCache } from "./iMCache/iMCache.module";
 
 @Module({
     imports: [
