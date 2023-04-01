@@ -18,19 +18,12 @@ export class Status_priceRepository {
         filter: FilterQuery<Status_priceDocument>,
         update: UpdateQuery<Status_priceDocument>,
         session?: ClientSession
-    ) => this.status_priceModel.findOneAndUpdate(
-        filter,
-        update,
-        { new: true }
-    ).session(session ? session : null).lean().exec();
+    ) => this.status_priceModel.findOneAndUpdate(filter, update, { new: true })
+        .session(session ? session : null).lean().exec();
 
     exists = (filter: object) => this.status_priceModel.exists(filter).exec();
 
     createOne = (ISO_Code: string, lastMarketDate: string, yf_exchangeTimezoneName: string) =>
-    new this.status_priceModel({
-        ISO_Code,
-        lastMarketDate,
-        yf_exchangeTimezoneName,
-    }).save();
+        new this.status_priceModel({ ISO_Code, lastMarketDate, yf_exchangeTimezoneName }).save();
 
 }
