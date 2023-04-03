@@ -1,3 +1,5 @@
+// 대체될 예정
+
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
 import mongoose from "mongoose";
 
