@@ -7,12 +7,12 @@ import { Log_priceUpdate, Log_priceUpdateDocument } from "../schema/log_priceUpd
 export class Log_priceUpdateRepository {
 
     constructor(
-        @InjectModel(Log_priceUpdate.name) private log_priceUpdateModel: Model<Log_priceUpdateDocument>,
+        @InjectModel(Log_priceUpdate.name) private model: Model<Log_priceUpdateDocument>,
     ) {}
     
     create = (newDoc: Log_priceUpdate, session?: ClientSession) =>
-        new this.log_priceUpdateModel(newDoc).save({session: session? session : null});
+        new this.model(newDoc).save({session: session? session : null});
 
     find1 = (filter?: FilterQuery<Log_priceUpdateDocument>, limit: number = 1) =>
-        this.log_priceUpdateModel.find(filter).sort({createdAt: -1}).limit(limit).lean().exec();
+        this.model.find(filter).sort({createdAt: -1}).limit(limit).lean().exec();
 }

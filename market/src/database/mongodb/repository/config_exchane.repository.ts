@@ -7,16 +7,16 @@ import { Config_exchange, Config_exchangeDocument } from "../schema/config_excha
 export class Config_exchangeRepository {
 
     constructor(
-        @InjectModel(Config_exchange.name) private config_exchangeModel: Model<Config_exchangeDocument>,
+        @InjectModel(Config_exchange.name) private model: Model<Config_exchangeDocument>,
     ) {}
 
-    findAllIsoCodeAndTimezone = () => this.config_exchangeModel.find({},
+    findAllIsoCodeAndTimezone = () => this.model.find({},
         "-_id ISO_Code ISO_TimezoneName").lean().exec();
     
-    findMarginMilliseconds = (ISO_Code: string) => this.config_exchangeModel.findOne({ ISO_Code },
+    findMarginMilliseconds = (ISO_Code: string) => this.model.findOne({ ISO_Code },
         "-_id update_margin_milliseconds").lean().exec()
         .then(obj => obj.update_margin_milliseconds);
 
-    createOne = (reqBody: Config_exchange) => this.config_exchangeModel.create(reqBody);
+    createOne = (reqBody: Config_exchange) => this.model.create(reqBody);
 
 }
