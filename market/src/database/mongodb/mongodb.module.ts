@@ -9,6 +9,7 @@ import { Yf_infoRepository } from './repository/yf-info.repository';
 import { Status_priceRepository } from './repository/status_price.repository';
 import { Log_priceUpdateRepository } from './repository/log_priceUpdate.repository';
 import { Config_exchangeRepository } from './repository/config_exchane.repository';
+import { Exchange_updateSetRepository } from './repository/exchange_updateSet.repository';
 
 @Module({
     imports: [
@@ -24,13 +25,15 @@ import { Config_exchangeRepository } from './repository/config_exchane.repositor
         Yf_infoRepository,
         Status_priceRepository,
         Log_priceUpdateRepository,
-        Config_exchangeRepository
+        Config_exchangeRepository,
+        Exchange_updateSetRepository
     ],
     exports: [
         Yf_infoRepository,
         Status_priceRepository,
         Log_priceUpdateRepository,
-        Config_exchangeRepository
+        Config_exchangeRepository,
+        Exchange_updateSetRepository
     ]
 })
 export class MongoModule {}

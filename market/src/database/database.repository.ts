@@ -3,6 +3,7 @@ import { Yf_infoRepository } from "./mongodb/repository/yf-info.repository";
 import { Status_priceRepository } from "./mongodb/repository/status_price.repository";
 import { Config_exchangeRepository } from "./mongodb/repository/config_exchane.repository";
 import { Log_priceUpdateRepository } from "./mongodb/repository/log_priceUpdate.repository";
+import { Exchange_updateSetRepository } from "./mongodb/repository/exchange_updateSet.repository";
 import { Cache } from 'cache-manager';
 import { curry, each, map, pipe, toArray, toAsync } from "@fxts/core";
 import { Either } from "../class/either.class";
@@ -15,13 +16,14 @@ export class DBRepository {
 
     constructor(
         @Inject(CACHE_MANAGER) private cacheManager: Cache,
-        private readonly config_exchangeRepo: Config_exchangeRepository,
-        private readonly log_priceUpdateRepo: Log_priceUpdateRepository,
+        private readonly config_exRepo: Config_exchangeRepository,
+        private readonly log_pUpdateRepo: Log_priceUpdateRepository,
         private readonly status_priceRepo: Status_priceRepository,
         private readonly yf_infoRepo: Yf_infoRepository,
+        private readonly ex_updateSetRepo: Exchange_updateSetRepository,
     ) {}
     
-    createConfigExchange = this.config_exchangeRepo.createOne;
+    createConfigExchange = this.config_exRepo.createOne;
     
     createStatusPrice = (ISO_Code: string, previous_close: string, yf_exchangeTimezoneName: string) =>
         this.status_priceRepo.createOne(
@@ -31,10 +33,10 @@ export class DBRepository {
     
     createAssets = this.yf_infoRepo.insertMany;
 
-    readMarginMs = this.config_exchangeRepo.findMarginMilliseconds;
-    testPickLastUpdateLog = this.log_priceUpdateRepo.find1;
+    readMarginMs = this.config_exRepo.findMarginMilliseconds;
+    testPickLastUpdateLog = this.log_pUpdateRepo.find1;
 
-    readUpdateLog = (ISO_Code?: string, limit?: number) => this.log_priceUpdateRepo.find1(
+    readUpdateLog = (ISO_Code?: string, limit?: number) => this.log_pUpdateRepo.find1(
         ISO_Code ? { key: ISO_Code } : {},
         limit ? limit : 5);
 
@@ -151,7 +153,7 @@ export class DBRepository {
             )
         );
         const fLen = newLogDoc.failure.length;
-        return this.log_priceUpdateRepo.create(newLogDoc, session).then(_ => {
+        return this.log_pUpdateRepo.create(newLogDoc, session).then(_ => {
             this.logger.verbose(`${launcher === "scheduler" || launcher === "initiator" ? key : launcher} : Log_priceUpdate Doc Created${fLen ? ` (${fLen} failed)` : ''}`);
         }).catch((error) => {
             this.logger.error(`${launcher} : Failed to Create Log_priceUpdate Doc!!!`);
@@ -176,7 +178,7 @@ export class DBRepository {
      * isoCodeToTimezone 갱신
      */
     setIsoCodeToTimezone = async () => Promise.all(
-        (await this.config_exchangeRepo.findAllIsoCodeAndTimezone())
+        (await this.config_exRepo.findAllIsoCodeAndTimezone())
         .map(async isoCodeAndTimezone => {
             await this.cacheManager.set(isoCodeAndTimezone.ISO_Code, isoCodeAndTimezone.ISO_TimezoneName);
             await this.cacheManager.set(isoCodeAndTimezone.ISO_TimezoneName, isoCodeAndTimezone.ISO_Code);
