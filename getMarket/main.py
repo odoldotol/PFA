@@ -38,17 +38,25 @@ async def get_info_by_ticker(body: Body):
             return info
         else:
             fastinfo = Ticker.fast_info
-            priceChart = Ticker.history(period="7d")
-            regularMarketPrice = priceChart['Close'][-1]
-            regularMarketPreviousClose = priceChart['Close'][-2]
-            price = {
-                "regularMarketPrice": regularMarketPrice,
-                "regularMarketPreviousClose": regularMarketPreviousClose
-            }
+            price = getPrice(Ticker)
             metadata = Ticker.get_history_metadata()
-            return {"info": info, "fastinfo": {"currency": fastinfo["currency"], "exchange": fastinfo["exchange"], "quoteType": fastinfo["quoteType"]}, "price": price, "metadata": {"symbol": metadata["symbol"], "instrumentType": metadata["instrumentType"], "exchangeTimezoneShortName": metadata["timezone"], "exchangeTimezoneName": metadata["exchangeTimezoneName"]}}
+            return {
+                "info": info,
+                "fastinfo": {
+                    "currency": fastinfo["currency"],
+                    "exchange": fastinfo["exchange"],
+                    "quoteType": fastinfo["quoteType"]
+                },
+                "price": price,
+                "metadata": {
+                    "symbol": metadata["symbol"],
+                    "instrumentType": metadata["instrumentType"],
+                    "exchangeTimezoneShortName": metadata["timezone"],
+                    "exchangeTimezoneName": metadata["exchangeTimezoneName"]
+                }
+            }
     except Exception as e:
-        return { # 실패하면 error 객체 만들어서 출력
+        return {
             'error': {
                 'doc': e.__doc__,
                 "ticker": ticker,
@@ -61,16 +69,10 @@ async def get_price_by_ticker(body: Body):
     ticker = body.ticker
     print(ticker, os.getpid())
     try:
-        priceChart = yf.Ticker(ticker).history(period="7d") # BTC-USD 등 에서 누락되는 경우 발견, 안전하게 7일치 가져와서 마지막 2일을 담자
-        regularMarketPrice = priceChart['Close'][-1]
-        regularMarketPreviousClose = priceChart['Close'][-2]
-        price = {
-            "regularMarketPrice": regularMarketPrice,
-            "regularMarketPreviousClose": regularMarketPreviousClose
-        }
-        return price # 성공하면 price 출력
+        price = getPrice(yf.Ticker(ticker))
+        return price
     except Exception as e:
-        return { # 실패하면 error 객체 만들어서 출력
+        return {
             'error': {
                 'doc': e.__doc__,
                 "ticker": ticker,
@@ -84,16 +86,23 @@ async def get_session_by_ISOcode(body: Body):
     print(ISO_Code, os.getpid())
     try:
         cd = xcals.get_calendar(ISO_Code)
-        return { # 성공하면 아래 dic 출력
+        return {
             "previous_open": cd.previous_open(datetime.utcnow()).isoformat(),
             "previous_close": cd.previous_close(datetime.utcnow()).isoformat(),
             "next_open": cd.next_open(datetime.utcnow()).isoformat(),
             "next_close": cd.next_close(datetime.utcnow()).isoformat(),
         }
     except Exception as e:
-        return { # 실패하면 error 객체 만들어서 출력
+        return {
             'error': {
                 'doc': e.__doc__,
                 "ISO_Code": ISO_Code,
             }
         }
+
+def getPrice(Ticker: yf.Ticker):
+    priceChart = Ticker.history(period="7d")
+    return {
+        "regularMarketPrice": priceChart['Close'][-1],
+        "regularMarketPreviousClose": priceChart['Close'][-2]
+    }

@@ -5,6 +5,7 @@ import yfinance as yf
 import sys
 import json
 import warnings
+from getPriceByTicker import getPrice
 
 warnings.filterwarnings('ignore')
 
@@ -22,17 +23,25 @@ def get_info_by_ticker(ticker):
             print(json.dumps(info))
         else:
             fastinfo = Ticker.fast_info
-            priceChart = Ticker.history(period="7d")
-            regularMarketPrice = priceChart['Close'][-1]
-            regularMarketPreviousClose = priceChart['Close'][-2]
-            price = {
-                "regularMarketPrice": regularMarketPrice,
-                "regularMarketPreviousClose": regularMarketPreviousClose
-            }
+            price = getPrice(Ticker)
             metadata = Ticker.get_history_metadata()
-            print(json.dumps({"info": info, "fastinfo": {"currency": fastinfo["currency"], "exchange": fastinfo["exchange"], "quoteType": fastinfo["quoteType"]}, "price": price, "metadata": {"symbol": metadata["symbol"], "instrumentType": metadata["instrumentType"], "exchangeTimezoneShortName": metadata["timezone"], "exchangeTimezoneName": metadata["exchangeTimezoneName"]}}))
+            print(json.dumps({
+                "info": info,
+                "fastinfo": {
+                    "currency": fastinfo["currency"],
+                    "exchange": fastinfo["exchange"],
+                    "quoteType": fastinfo["quoteType"]
+                },
+                "price": price,
+                "metadata": {
+                    "symbol": metadata["symbol"],
+                    "instrumentType": metadata["instrumentType"],
+                    "exchangeTimezoneShortName": metadata["timezone"],
+                    "exchangeTimezoneName": metadata["exchangeTimezoneName"]
+                }
+            }))
     except Exception as e:
-        print(json.dumps({ # 실패하면 error 객체 만들어서 출력
+        print(json.dumps({
             'error': {
                 'doc': e.__doc__,
                 "ticker": ticker,
