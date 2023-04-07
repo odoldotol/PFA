@@ -12,8 +12,6 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule).then(app => (logger.log('App created'), app));
 
   const configService = app.get(ConfigService);
-  const PORT = configService.get<number>("PORT", 6000);
-  const PM2_NAME = configService.get<string>("PM2_NAME");
 
   app.enableCors(); // adminFE 와 product 만 허용하면 됨
 
@@ -21,13 +19,11 @@ async function bootstrap() {
     new class KeepAliveInterceptor implements NestInterceptor {
       intercept(context: ExecutionContext, next: CallHandler) {
         if (keepAlive === false) {
-          console.log('KeepAliveInterceptor : Disable keepAlive');
+          logger.verbose('KeepAliveInterceptor : Disable keepAlive');
           context.switchToHttp().getResponse<Response>().set('Connection', 'close');
         };
         return next.handle();
-      }
-    }
-  );
+      }});
 
   app.useGlobalPipes(new ValidationPipe({
     transform: true,
@@ -38,6 +34,15 @@ async function bootstrap() {
   process.on('SIGINT', () => {
     appTerminator();
   });
+  
+  await app.listen(configService.get<number>("PORT", 6000));
+  
+  logger.log('App listen');
+  
+  if (configService.get<string>("PM2_NAME")) process.send('ready',
+    logger.log("Send Ready to Parent Process"),
+    { swallowErrors: true}, (err) => err && logger.error(err)
+  );
 
   const appTerminator = async () => {
     keepAlive = false;
@@ -45,15 +50,6 @@ async function bootstrap() {
     logger.log('Server closed');
     process.exit(0);
   };
-  
-  await app.listen(PORT);
-  
-  logger.log('App listen');
-  
-  if (PM2_NAME) process.send('ready',
-    logger.log("Send Ready to Parent Process"),
-    { swallowErrors: true}, (err) => err && logger.error(err)
-  );
 
 }
 bootstrap();

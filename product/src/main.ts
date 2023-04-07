@@ -12,8 +12,6 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule).then(app => (logger.log('App created'), app));
 
   const configService = app.get(ConfigService);
-  const PORT = configService.get<number>("PORT", 7000);
-  const PM2_NAME = configService.get<string>("PM2_NAME");
 
   app.enableCors(); // adminFE, 서비스FE + 기타 서비스(Kakao 등) 허용하면 됨
 
@@ -25,9 +23,7 @@ async function bootstrap() {
           context.switchToHttp().getResponse<Response>().set('Connection', 'close');
         };
         return next.handle();
-      }
-    }
-  );
+      }});
 
   app.useGlobalPipes(new ValidationPipe({
     whitelist: true,
@@ -38,6 +34,15 @@ async function bootstrap() {
   process.on('SIGINT', () => {
     appTerminator();
   });
+  
+  await app.listen(configService.get<number>("PORT", 7000));
+  
+  logger.log('App listen');
+  
+  if (configService.get<string>("PM2_NAME")) process.send('ready',
+    logger.log("Send Ready to Parent Process"),
+    { swallowErrors: true}, (err) => err && logger.error(err)
+  );
 
   const appTerminator = async () => {
     keepAlive = false;
@@ -45,15 +50,6 @@ async function bootstrap() {
     logger.log('Server closed');
     process.exit(0);
   };
-  
-  await app.listen(PORT);
-  
-  logger.log('App listen');
-  
-  if (PM2_NAME) process.send('ready',
-    logger.log("Send Ready to Parent Process"),
-    { swallowErrors: true}, (err) => err && logger.error(err)
-  );
 
 }
 bootstrap();
