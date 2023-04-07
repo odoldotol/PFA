@@ -18,11 +18,11 @@ app = FastAPI()
 
 
 @app.get("/")
-async def read_root():
+def read_root():
     return {"Hello": "Welcome to the PFA's Get Market API"}
 
 @app.post("/yf/info/")
-async def get_info_by_ticker(body: Body):
+def get_info_by_ticker(body: Body):
     ticker = body.ticker
     print(ticker, os.getpid())
     try:
@@ -65,7 +65,7 @@ async def get_info_by_ticker(body: Body):
         }
 
 @app.post("/yf/price/")
-async def get_price_by_ticker(body: Body):
+def get_price_by_ticker(body: Body):
     ticker = body.ticker
     print(ticker, os.getpid())
     try:
@@ -81,7 +81,7 @@ async def get_price_by_ticker(body: Body):
         }
 
 @app.post("/ec/session/")
-async def get_session_by_ISOcode(body: Body):
+def get_session_by_ISOcode(body: Body):
     ISO_Code = body.ISO_Code
     print(ISO_Code, os.getpid())
     try:

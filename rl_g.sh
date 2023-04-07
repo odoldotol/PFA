@@ -9,10 +9,10 @@ do
     sleep 0.5
 done
 echo "server down"
-nohup uvicorn main:app --workers 3 &
+nohup uvicorn main:app --workers 1 &
 while :
 do
-    if [ $(command tail -n 15 nohup.out | grep "Application startup complete." | wc -l) -eq 3 ]
+    if [ $(command tail -n 15 nohup.out | grep "Application startup complete." | wc -l) -eq 1 ]
     then
         break
     fi

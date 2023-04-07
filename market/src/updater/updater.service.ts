@@ -16,7 +16,7 @@ export class UpdaterService implements OnModuleInit {
     private readonly PRODUCT_URL = this.configService.get<string>('PRODUCT_URL');
     private readonly TEMP_KEY = this.configService.get<string>('TEMP_KEY');
     private readonly DE_UP_MARGIN = this.configService.get<number>('DefaultUpdateMarginMilliseconds');
-    private readonly GETMARKET_CONCURRENCY = this.configService.get<number>('GETMARKET_CONCURRENCY') * 10;
+    private readonly GETMARKET_CONCURRENCY = this.configService.get<number>('GETMARKET_CONCURRENCY') * 50;
 
     constructor(
         private readonly configService: ConfigService,
