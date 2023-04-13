@@ -26,10 +26,11 @@ export class MarketService implements OnApplicationBootstrap {
         this.pyLibChecker()
     };
 
-    fetchInfo = (ticker: string): Promise<Either<YfInfoError, YfInfo>> => this.fetchSomething("Info", ticker)
+    fetchInfo = (ticker: string) => this.fetchSomething("Info", ticker)
         .then((res: Either<YfInfoError, GetMarketInfo>) => res.map(v => Object.assign(v.info, v.fastinfo, v.metadata, v.price) as YfInfo));
 
-    fetchPrice = (ticker: string): Promise<Either<YfPriceError, YfPrice>> => this.fetchSomething("Price", ticker);
+    fetchPrice = (ticker: string) => this.fetchSomething("Price", ticker)
+        .then((res: Either<YfPriceError, Price>) => res.map(v => (v['symbol'] = ticker, v) as YfPrice));
 
     private fetchSomething = curry(async (something: string, ticker: string) => {
         const res = await this.fetching(

@@ -15,7 +15,7 @@ interface FulfilledYfPrice extends YfPrice {
     readonly regularMarketLastClose: number
 }
 
-interface YfPriceError {
+interface YfPriceError { // 개판이구만
     readonly doc: string
     readonly ticker: string
     readonly args: any

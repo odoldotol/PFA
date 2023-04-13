@@ -25,7 +25,7 @@ interface FulfilledYfInfo extends FulfilledYfPrice {
     // [key: string]: string|number|null|boolean
 }
 
-interface YfInfoError {
+interface YfInfoError { // 개판이구만
     readonly doc: string
     readonly ticker: string
     readonly args: any
