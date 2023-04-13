@@ -26,7 +26,9 @@ export class MarketService implements OnApplicationBootstrap {
         this.pyLibChecker()
     };
 
-    fetchInfo = (ticker: string): Promise<Either<YfInfoError, YfInfo>> => this.fetchSomething("Info", ticker);
+    fetchInfo = (ticker: string): Promise<Either<YfInfoError, YfInfo>> => this.fetchSomething("Info", ticker)
+        .then((res: Either<YfInfoError, GetMarketInfo>) => res.map(v => Object.assign(v.info, v.fastinfo, v.metadata, v.price) as YfInfo));
+
     fetchPrice = (ticker: string): Promise<Either<YfPriceError, YfPrice>> => this.fetchSomething("Price", ticker);
 
     private fetchSomething = curry(async (something: string, ticker: string) => {
@@ -35,7 +37,7 @@ export class MarketService implements OnApplicationBootstrap {
             [`get${something}ByTicker.py`, ticker]
         );
         if (res.error) return Either.left(res.error);
-        else return Either.right(Object.assign(res.info, res.fastinfo, res.metadata, res.price));});    
+        else return Either.right(res);});
 
     // TODO - Refac
     fetchExchangeSession = async (ISO_Code: string): Promise<Either<ExchangeSessionError, ExchangeSession>> => {

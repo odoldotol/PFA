@@ -25,9 +25,6 @@ class R_Info(BaseModel):
     price: Price
     metadata: dict
 
-class R_Price(BaseModel):
-    price: Price
-
 class R_Session(BaseModel):
     previous_open: str
     previous_close: str
@@ -89,8 +86,8 @@ def get_info_by_ticker(body: B_Ticker) -> Union[R_Info, R_Error]:
             }
         }
 
-@app.post("/yf/price/", tags=["Price"], description="Yahoo Finance API Price", response_model=Union[R_Price, R_Error])
-def get_price_by_ticker(body: B_Ticker) -> Union[R_Price, R_Error]:
+@app.post("/yf/price/", tags=["Price"], description="Yahoo Finance API Price", response_model=Union[Price, R_Error])
+def get_price_by_ticker(body: B_Ticker) -> Union[Price, R_Error]:
     ticker = body.ticker
     print(ticker, os.getpid())
     try:
