@@ -29,17 +29,13 @@ export class MarketService implements OnApplicationBootstrap {
     fetchInfo = (ticker: string): Promise<Either<YfInfoError, YfInfo>> => this.fetchSomething("Info", ticker);
     fetchPrice = (ticker: string): Promise<Either<YfPriceError, YfPrice>> => this.fetchSomething("Price", ticker);
 
-    // TODO - Refac
     private fetchSomething = curry(async (something: string, ticker: string) => {
         const res = await this.fetching(
             `${this.GETMARKET_URL}yf/${something.toLowerCase()}/`, {ticker},
             [`get${something}ByTicker.py`, ticker]
         );
         if (res.error) return Either.left(res.error);
-        if (res.info && res.fastinfo && res.metadata && res.price) // 야후파이낸스 API 문제로 임시조치중
-            return Either.right(Object.assign(res.info, res.fastinfo, res.metadata, res.price));
-        res['symbol'] = ticker;
-        return Either.right(res);});    
+        else return Either.right(Object.assign(res.info, res.fastinfo, res.metadata, res.price));});    
 
     // TODO - Refac
     fetchExchangeSession = async (ISO_Code: string): Promise<Either<ExchangeSessionError, ExchangeSession>> => {
@@ -102,7 +98,6 @@ export class MarketService implements OnApplicationBootstrap {
             });
         }
     );
-
 
     /**
      * ### 파이썬 라이브러리 버젼 최신인지 확인

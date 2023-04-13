@@ -20,7 +20,7 @@ def get_info_by_ticker(ticker):
             info = {"symbol": None}
 
         if info["symbol"]:
-            print(json.dumps(info))
+            print(json.dumps({info}))
         else:
             fastinfo = Ticker.fast_info
             price = getPrice(Ticker)

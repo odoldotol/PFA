@@ -9,20 +9,45 @@ import warnings
 
 warnings.simplefilter(action='ignore', category=FutureWarning) # FutureWarning 제거
 
-class Body(BaseModel):
-    ticker: Union[str, None] = None
-    ISO_Code: Union[str, None] = None
+class B_Ticker(BaseModel):
+    ticker: str
 
+class B_ISO_Code(BaseModel):
+    ISO_Code: str
 
-app = FastAPI()
+class Price(BaseModel):
+    regularMarketPrice: float
+    regularMarketPreviousClose: float
 
+class R_Info(BaseModel):
+    info: dict
+    fastinfo: dict
+    price: Price
+    metadata: dict
 
-@app.get("/")
+class R_Price(BaseModel):
+    price: Price
+
+class R_Session(BaseModel):
+    previous_open: str
+    previous_close: str
+    next_open: str
+    next_close: str
+
+class R_Error(BaseModel): # Refac: 그냥 에러를 던지도록 하기
+    error: dict
+
+app = FastAPI(
+    title="Get Market API",
+    description="Yahoo Finance API, Exchange Calendar API",
+)
+
+@app.get("/", tags=["root"], include_in_schema=False)
 def read_root():
-    return {"Hello": "Welcome to the PFA's Get Market API"}
+    return "Welcome to the PFA's Get Market API"
 
-@app.post("/yf/info/")
-def get_info_by_ticker(body: Body):
+@app.post("/yf/info/", tags=["Asset Info"], description="Yahoo Finance API Info", response_model=Union[R_Info, R_Error])
+def get_info_by_ticker(body: B_Ticker) -> Union[R_Info, R_Error]:
     ticker = body.ticker
     print(ticker, os.getpid())
     try:
@@ -35,7 +60,7 @@ def get_info_by_ticker(body: Body):
             info = {"symbol": None}
         
         if info["symbol"]:
-            return info
+            return {info}
         else:
             fastinfo = Ticker.fast_info
             price = getPrice(Ticker)
@@ -64,8 +89,8 @@ def get_info_by_ticker(body: Body):
             }
         }
 
-@app.post("/yf/price/")
-def get_price_by_ticker(body: Body):
+@app.post("/yf/price/", tags=["Price"], description="Yahoo Finance API Price", response_model=Union[R_Price, R_Error])
+def get_price_by_ticker(body: B_Ticker) -> Union[R_Price, R_Error]:
     ticker = body.ticker
     print(ticker, os.getpid())
     try:
@@ -80,8 +105,8 @@ def get_price_by_ticker(body: Body):
             }
         }
 
-@app.post("/ec/session/")
-def get_session_by_ISOcode(body: Body):
+@app.post("/ec/session/", tags=["Exchange Session"], description="Exchange Calendar API", response_model=Union[R_Session, R_Error])
+def get_session_by_ISOcode(body: B_ISO_Code) -> Union[R_Session, R_Error]:
     ISO_Code = body.ISO_Code
     print(ISO_Code, os.getpid())
     try:
@@ -100,7 +125,7 @@ def get_session_by_ISOcode(body: Body):
             }
         }
 
-def getPrice(Ticker: yf.Ticker):
+def getPrice(Ticker: yf.Ticker) -> Price:
     priceChart = Ticker.history(period="7d")
     return {
         "regularMarketPrice": priceChart['Close'][-1],
