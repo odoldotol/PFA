@@ -1,4 +1,4 @@
-import { CallHandler, ExecutionContext, NestInterceptor, ValidationPipe, Logger } from '@nestjs/common';
+import { CallHandler, ExecutionContext, NestInterceptor, ValidationPipe, Logger, VersioningType } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { ConfigService } from '@nestjs/config';
 import { AppModule } from './app.module';
@@ -9,7 +9,8 @@ async function bootstrap() {
   const logger = new Logger("NestApplication");
   let keepAlive = true;
 
-  const app = await NestFactory.create(AppModule).then(app => (logger.log('App created'), app));
+  const app = await NestFactory.create(AppModule)
+    .then(app => (logger.log('App created'), app));
 
   const configService = app.get(ConfigService);
 
@@ -35,6 +36,12 @@ async function bootstrap() {
     appTerminator();
   });
   
+  app.enableVersioning({
+    type: VersioningType.URI,
+    prefix: 'api/v',
+    defaultVersion: '1',
+  });
+
   await app.listen(configService.get<number>("PORT", 6000));
   
   logger.log('App listen');
