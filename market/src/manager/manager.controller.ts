@@ -1,75 +1,40 @@
-import { BadRequestException, Body, Controller, Delete, Get, HttpCode, Param, ParseArrayPipe, Patch, Post, Put, Query, UseGuards } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Delete, Get, HttpCode, Param, ParseArrayPipe, Patch, Post, Put, Query, UseGuards, Version } from '@nestjs/common';
 import { ManagerService } from './manager.service';
 import { UpdaterService } from '../updater/updater.service';
 import { ConfigExchangeDto } from './dto/configExchange.dto';
-import { DBRepository } from '../database/database.repository';
-import { UpperCasePipe } from './pipe/upperCasePipe';
+import { UpperCasePipe } from '../pipe/upperCasePipe';
 import { CreateAssetsDto } from './dto/createAssets.dto';
 import { KeyGuard } from './guard/key.guard';
 
-@Controller('manager')
+@Controller()
 @UseGuards(KeyGuard)
 export class ManagerController {
 
     constructor(
         private readonly managerService: ManagerService,
-        private readonly updaterService: UpdaterService,
-        private readonly dbRepo: DBRepository,
-    ) {}
+        private readonly updaterService: UpdaterService) {}
 
-    /**
-     * ### tickerArr 로 Assets 생성해보고 그 작업의 결과 반환
-     */
     @Post('asset')
     @HttpCode(200)
-    createAssets(@Body(UpperCasePipe) body: CreateAssetsDto) {
-        return this.updaterService.createAssetByTickerArr(body.tickerArr);
-    }
+    createAssets (@Body(UpperCasePipe) body: CreateAssetsDto) {
+        return this.updaterService.createAssetByTickerArr(body.tickerArr);} // Refac: addAsset
 
-    @Post('read_asset')
-    getAllAssetsInfo() {
-        return this.dbRepo.readAllAssetsInfo();
-    }
-
-    @Post('read_status_price')
-    getAllStatusPrice() {
-        return this.dbRepo.readAllStatusPrice();
-    }
-
-    /**
-     * ### price 조회
-     * - ISO_Code 로 조회 => [ticker, price][]
-     * - ticker 로 조회 => price
-     */
     @Post('price')
+    @HttpCode(200)
     getPrice(@Body(UpperCasePipe) body: {ISO_Code?: string, ticker?: string}) {
-        if (body.ISO_Code && !body.ticker) {
-            return this.dbRepo.readPriceByISOcode(body.ISO_Code);
-        } else if (body.ticker && !body.ISO_Code) {
-            return this.managerService.getPriceByTicker(body.ticker);
-        } else {
-            throw new BadRequestException('Either ISO_Code or ticker must be provided')
-        }
-    }
-
-    @Post('read_price_update_log')
-    getUpdateLog(@Query('ISO_Code', UpperCasePipe) ISO_Code?: string, @Query('limit') limit?: number) {
-        return this.dbRepo.readUpdateLog(ISO_Code, limit);
-    }
+        return this.managerService.getPrice(body);}
 
     @Post('updater/initiate')
     Initiator() {
-        return this.updaterService.initiator();
-    }
-
-    @Post('dev/updater/test_generalInitiate/:ISO_Code')
-    testInitiator(@Param('ISO_Code', UpperCasePipe) ISO_Code: string) {
-        return this.updaterService.testGeneralInitiate(ISO_Code);
-    }
+        return this.updaterService.initiator();}
 
     @Post('config_exchange')
     createConfigExchange(@Body() body: ConfigExchangeDto) {
-        return this.dbRepo.createConfigExchange(body);
-    }
+        return this.managerService.createConfigExchange(body);}
+
+    // TODO: 제거하고 진짜 제너럴 이니시에이터 실행하는 api 열기
+    @Post('updater/test_generalInitiate/:ISO_Code')
+    testInitiator(@Param('ISO_Code', UpperCasePipe) ISO_Code: string) {
+        return this.updaterService.testGeneralInitiate(ISO_Code);}
 
 }

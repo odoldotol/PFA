@@ -2,10 +2,9 @@ import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ScheduleModule } from '@nestjs/schedule';
-import { AppController } from './app/app.controller';
-import { AppService } from './app/app.service';
 import { ManagerModule } from './manager/manager.module';
 import { Pm2Module } from './pm2/pm2.module';
+import { DevModule } from './dev/dev.module';
 
 @Module({
   imports: [
@@ -23,8 +22,7 @@ import { Pm2Module } from './pm2/pm2.module';
     ScheduleModule.forRoot(),
     Pm2Module,
     ManagerModule,
+    DevModule,
   ],
-  controllers: [AppController],
-  providers: [AppService],
 })
 export class AppModule {}

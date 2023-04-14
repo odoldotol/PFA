@@ -13,6 +13,21 @@ export class ManagerService {
     ) {}
 
     /**
+     * ### price 조회
+     * - ISO_Code 로 조회 => [ticker, price][]
+     * - ticker 로 조회 => price
+     */
+    getPrice = (body) => {
+        if (body.ISO_Code && !body.ticker) {
+            return this.getPriceByISOcode(body.ISO_Code);
+        } else if (body.ticker && !body.ISO_Code) {
+            return this.getPriceByTicker(body.ticker);
+        } else {
+            throw new BadRequestException('Either ISO_Code or ticker must be provided')
+        }
+    }
+
+    /**
      * ### TODO - Refac
      * - 없는건 생성해보고 알려준다
      */
@@ -42,5 +57,8 @@ export class ManagerService {
             currency: price.quoteType === "INDEX" ? "INDEX" : price.currency, status_price
         };
     }
+
+    getPriceByISOcode = this.dbRepo.readPriceByISOcode;
+    createConfigExchange = this.dbRepo.createConfigExchange;
 
 }
