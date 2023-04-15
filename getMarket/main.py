@@ -35,13 +35,9 @@ class R_Error(BaseModel): # Refac: 그냥 에러를 던지도록 하기
     error: dict
 
 app = FastAPI(
-    title="Get Market API",
+    title="Market Child API",
     description="Yahoo Finance API, Exchange Calendar API",
 )
-
-@app.get("/", tags=["root"], include_in_schema=False)
-def read_root():
-    return "Welcome to the PFA's Get Market API"
 
 @app.post("/yf/info/", tags=["Asset Info"], description="Yahoo Finance API Info", response_model=Union[R_Info, R_Error])
 def get_info_by_ticker(body: B_Ticker) -> Union[R_Info, R_Error]:
