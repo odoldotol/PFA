@@ -18,7 +18,6 @@ export class KeyGuard implements CanActivate {
     if (request.body.key === this.TEMP_KEY) {
       delete request.body.key;
       return true;
-    };
-    return false;
+    } else return false;
   }
 }

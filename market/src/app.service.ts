@@ -1,11 +1,9 @@
-import { BadRequestException, Injectable, InternalServerErrorException, Logger } from '@nestjs/common';
-import { UpdaterService } from '../updater/updater.service';
-import { DBRepository } from '../database/database.repository';
+import { BadRequestException, Injectable, InternalServerErrorException } from '@nestjs/common';
+import { UpdaterService } from './updater/updater.service';
+import { DBRepository } from './database/database.repository';
 
 @Injectable()
-export class ManagerService {
-
-    private readonly logger = new Logger(ManagerService.name);
+export class AppService {
 
     constructor(
         private readonly updaterService: UpdaterService,
@@ -17,7 +15,7 @@ export class ManagerService {
      * - ISO_Code 로 조회 => [ticker, price][]
      * - ticker 로 조회 => price
      */
-    getPrice = (body) => {
+    getPrice = (body) => { // TODO: Refac - 검증부분 파이프로 빼
         if (body.ISO_Code && !body.ticker) {
             return this.getPriceByISOcode(body.ISO_Code);
         } else if (body.ticker && !body.ISO_Code) {
@@ -28,7 +26,7 @@ export class ManagerService {
     }
 
     /**
-     * ### TODO - Refac
+     * ### TODO - Refac - http 모듈
      * - 없는건 생성해보고 알려준다
      */
     async getPriceByTicker(ticker: string) {
