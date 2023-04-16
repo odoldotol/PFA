@@ -8,6 +8,7 @@ import { catchError, firstValueFrom } from 'rxjs';
 import { DBRepository } from '@database.repository';
 import { pipe, map, toArray, toAsync, tap, each, filter, concurrent, peek, curry } from "@fxts/core";
 import { Either } from "@common/class/either.class";
+import { AddAssetsResponse } from './response/addAssets.response';
 
 @Injectable()
 export class UpdaterService implements OnModuleInit {
@@ -63,15 +64,15 @@ export class UpdaterService implements OnModuleInit {
         await this.schedulerForPrice(ISO_Code, yf_exchangeTimezoneName, exchangeSession);
     }
 
-    // [DEV]
-    async testGeneralInitiate(ISO_Code: string) {
+    // TODO: 테스터 -> 강제이니시에이터로 젼환시키기: 트랜젝션 실패시 에러던지던가 실패를 리턴하도록, 로그 그냥 마지막 로그 리턴하는것 수정하기, 응답폼 수정하기
+    async initiateForce(ISO_Code: string, launcher: LogPriceUpdate["launcher"]) {
         const spObj = await this.dbRepo.readStatusPrice(ISO_Code);
         if (!spObj) throw new BadRequestException("ISO_Code is not valid");
         const yf_exchangeTimezoneName = spObj.yf_exchangeTimezoneName;
         const exchangeSession = (await this.marketService.fetchExchangeSession(ISO_Code))
             .getRight2(InternalServerErrorException);
         const isNotMarketOpen = await this.isNotMarketOpen(exchangeSession);
-        await this.updaterForPrice(ISO_Code, yf_exchangeTimezoneName, exchangeSession, isNotMarketOpen, "test");
+        await this.updaterForPrice(ISO_Code, yf_exchangeTimezoneName, exchangeSession, isNotMarketOpen, launcher);
         await this.schedulerForPrice(ISO_Code, yf_exchangeTimezoneName, exchangeSession);
         return {
             spObj: await this.dbRepo.readStatusPrice(ISO_Code),
@@ -162,6 +163,7 @@ export class UpdaterService implements OnModuleInit {
     } ] );
 
     // TODO - Refac
+    // productApi 모듈로 기능 분리
     private regularUpdater(
         ISO_Code: string,
         previous_close: ExchangeSession["previous_close"],
@@ -209,71 +211,50 @@ export class UpdaterService implements OnModuleInit {
     private isPriceStatusUpToDate = (lastMarketDate: string, {previous_close}: ExchangeSession) => 
         lastMarketDate === new Date(previous_close).toISOString() ? true : false;
 
-    async addAssets(tickerArr: string[]) {
-        const result: AddAssetsResponseI = { // 응답
-            success: {
-                info: [],
-                status_price: [],
-            },
-            failure: {
-                info: [],
-                status_price: [],
-            }
-        };
+    // TODO: Refac - 기능 분리
+    addAssets = async (tickerArr: string[]) => {
+        const response = new AddAssetsResponse();
         const spMap: Map<string, string[]> = new Map();
+
         await pipe( // 중복제거와 exists필터 부분은 단일 티커처리시 필요없음. 이 부분 보완하기
             new Set(tickerArr).values(), toAsync,
-            map(this.createAssetTickerFilter), // exists?
+            map(this.eitherFilter_existsAsset),
             map(ele => ele.flatMapPromise(this.marketService.fetchInfo)),
             map(ele => ele.flatMapPromise(this.fulfillYfInfo)),
-            filter(ele => ele.isLeft ? // *
-            (result.failure.info.push(ele.getLeft), false)
-            : true),
+            filter(ele => ele.isLeft ? (response.failure.info.push(ele.getLeft), false) : true),
             map(ele => ele.getRight),
             concurrent(this.GETMARKET_CONCURRENCY),
             toArray,
-            tap(async arr => { // *
-                await this.dbRepo.createAssets(arr)
-                .then(res => result.success.info = res)
-                .catch(err =>
-                    (result.failure.info = result.failure.info.concat(err.writeErrors),
-                    result.success.info = result.success.info.concat(err.insertedDocs))
-                )
-            }),
-            each(ele => spMap.has(ele.exchangeTimezoneName) ? // *
+            tap(arr => this.dbRepo.createAssets(arr)
+                .then(res => response.success.info = res)
+                .catch(err => (response.failure.info = response.failure.info.concat(err.writeErrors),
+                    response.success.info = response.success.info.concat(err.insertedDocs)))),
+            each(ele => spMap.has(ele.exchangeTimezoneName) ?
                 spMap.get(ele.exchangeTimezoneName).push(ele.symbol)
-                : spMap.set(ele.exchangeTimezoneName, [ele.symbol])
-            )
-        );
+                : spMap.set(ele.exchangeTimezoneName, [ele.symbol])));
         await pipe(
             spMap, toAsync,
             filter(this.isNewExchange),
             map(this.applyNewExchange),
-            each(ele => ele.isRight ? // *
-                result.success.status_price.push(ele.getRight)
-                : result.failure.status_price.push(ele.getLeft)
-            )
-        );
-        return result;
-    }
+            each(ele => ele.isRight ?
+                response.success.status_price.push(ele.getRight)
+                : response.failure.status_price.push(ele.getLeft)));
+        return response;};
 
-    private createAssetTickerFilter = async (ticker: string): Promise<Either<any, string>> =>
+    private eitherFilter_existsAsset = async (ticker: string): Promise<Either<any, string>> =>
         (await this.dbRepo.existsAssetByTicker(ticker) === null) ?
         Either.right(ticker) : Either.left({ msg: "Already exists", ticker });
 
     private fulfillYfInfo = async (info: YfInfo): Promise<Either<any, FulfilledYfInfo>> => {
         const ISO_Code = await this.dbRepo.isoCodeToTimezone(info.exchangeTimezoneName);
-        return ISO_Code === undefined ? // ISO_Code 를 못찾은 경우 실패처리
-        Either.left({
-            msg: "Could not find ISO_Code",
-            yf_exchangeTimezoneName: info.exchangeTimezoneName,
-            yfSymbol: info.symbol
-        })
-        : Either.right({
-            ...info,
-            regularMarketLastClose: await this.isNotMarketOpen(ISO_Code) ? info.regularMarketPrice : info.regularMarketPreviousClose
-        });
-    }
+        return ISO_Code === undefined ?
+            Either.left({
+                msg: "Could not find ISO_Code",
+                yf_exchangeTimezoneName: info.exchangeTimezoneName,
+                yfSymbol: info.symbol})
+            : Either.right({
+                ...info,
+                regularMarketLastClose: await this.isNotMarketOpen(ISO_Code) ? info.regularMarketPrice : info.regularMarketPreviousClose})};
 
     /**
      * #### TODO - Refac - DB 모듈로 일부분 분리
@@ -295,7 +276,7 @@ export class UpdaterService implements OnModuleInit {
         } else {
             return f(prop);
         };
-    }
+    };
 
     private isNewExchange = async ([yf_exchangeTimezoneName, _]: [string, string[]]) =>
         await this.dbRepo.existsStatusPrice({ yf_exchangeTimezoneName }) === null;

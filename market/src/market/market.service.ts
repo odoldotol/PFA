@@ -23,8 +23,9 @@ export class MarketService implements OnApplicationBootstrap {
     ) {}
 
     onApplicationBootstrap = () => {
-        this.pyLibChecker()
-    };
+        this.pyLibChecker()};
+
+    // TODO: Refac - ChildApi Module 로 기능 분히하기
 
     fetchInfo = (ticker: string) => this.fetchSomething("Info", ticker)
         .then((res: Either<YfInfoError, GetMarketInfo>) => res.map(v => Object.assign(v.info, v.fastinfo, v.metadata, v.price) as YfInfo));
