@@ -1,7 +1,7 @@
 import { CallHandler, ExecutionContext, NestInterceptor, ValidationPipe, Logger, VersioningType } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { ConfigService } from '@nestjs/config';
-import { AppModule } from './app.module';
+import { AppModule } from '@app.module';
 import { Response } from 'express';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
@@ -38,7 +38,11 @@ async function bootstrap() {
     .setTitle('LAPIKI Market Server API')
     .setVersion('1.0')
     .setDescription('Market Data Server')
-    .setContact('Lygorithm', 'lygorithm@gmail.com', 'lygorithm@gmail.com')
+    .setContact('Lygorithm', 'https://github.com/odoldotol', 'lygorithm@gmail.com')
+    .addTag('App', 'default')
+    .addTag('Updater')
+    .addTag('Config')
+    .addTag('Development')
     .build()));
 
   const configService = app.get(ConfigService);

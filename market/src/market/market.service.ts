@@ -6,7 +6,7 @@ import { ChildProcessWithoutNullStreams, spawn } from 'child_process';
 import { SchedulerRegistry } from '@nestjs/schedule';
 import { CronJob } from 'cron';
 import { pipe, map, toArray, toAsync, curry, concurrent } from "@fxts/core";
-import { Either } from "../class/either.class";
+import { Either } from "@common/class/either.class";
 
 @Injectable()
 export class MarketService implements OnApplicationBootstrap {

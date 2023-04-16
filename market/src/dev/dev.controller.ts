@@ -1,7 +1,7 @@
 import { Controller, Get, HttpCode, Post, Query } from '@nestjs/common';
 import { DevService } from './dev.service';
-import { UpperCasePipe } from '../pipe/upperCasePipe';
-import { ApiCommonResponse } from '../decorator/apiCommonResponse.decorator';
+import { UpperCasePipe } from '@common/pipe/upperCasePipe';
+import { ApiCommonResponse } from '@common/decorator/apiCommonResponse.decorator';
 import { ApiOperation, ApiQuery, ApiTags, ApiQueryOptions } from '@nestjs/swagger';
 
 @Controller('dev')

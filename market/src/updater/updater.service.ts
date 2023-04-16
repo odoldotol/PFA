@@ -1,13 +1,13 @@
 import { HttpService } from '@nestjs/axios';
 import { BadRequestException, Injectable, InternalServerErrorException, Logger, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { MarketService } from '../market/market.service';
+import { MarketService } from '@market.service';
 import { SchedulerRegistry } from '@nestjs/schedule';
 import { CronJob, CronTime } from 'cron';
 import { catchError, firstValueFrom } from 'rxjs';
-import { DBRepository } from '../database/database.repository';
+import { DBRepository } from '@database.repository';
 import { pipe, map, toArray, toAsync, tap, each, filter, concurrent, peek, curry } from "@fxts/core";
-import { Either } from "../class/either.class";
+import { Either } from "@common/class/either.class";
 
 @Injectable()
 export class UpdaterService implements OnModuleInit {
@@ -209,8 +209,8 @@ export class UpdaterService implements OnModuleInit {
     private isPriceStatusUpToDate = (lastMarketDate: string, {previous_close}: ExchangeSession) => 
         lastMarketDate === new Date(previous_close).toISOString() ? true : false;
 
-    async createAssetByTickerArr(tickerArr: string[]) {
-        const result = { // 응답
+    async addAssets(tickerArr: string[]) {
+        const result: AddAssetsResponseI = { // 응답
             success: {
                 info: [],
                 status_price: [],

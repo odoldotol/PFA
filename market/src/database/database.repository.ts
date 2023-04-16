@@ -5,7 +5,7 @@ import { Config_exchangeRepository } from "./mongodb/repository/config_exchane.r
 import { Log_priceUpdateRepository } from "./mongodb/repository/log_priceUpdate.repository";
 import { Cache } from 'cache-manager';
 import { curry, each, map, pipe, toArray, toAsync } from "@fxts/core";
-import { Either } from "../class/either.class";
+import { Either } from "@common/class/either.class";
 import mongoose, { ClientSession } from "mongoose";
 
 @Injectable()
@@ -51,7 +51,7 @@ export class DBRepository {
         .map(doc => doc.symbol);
 
     /**
-     * ### ISO_Code 로 조회 => [ticker, price][]
+     * ### ISO_Code 로 조회 => [symbol, price, currency][]
      */
     readPriceByISOcode = async (ISO_Code: string) =>
         this.yf_infoRepo.findPricesByExchange(await this.isoCodeToTimezone(ISO_Code))

@@ -1,8 +1,9 @@
 import { HttpModule } from '@nestjs/axios';
 import { Module } from '@nestjs/common';
+import { UpdaterController } from './updater.controller';
 import { UpdaterService } from './updater.service';
-import { MarketModule } from '../market/market.module';
-import { DBModule } from '../database/database.module';
+import { MarketModule } from '@market.module';
+import { DBModule } from '@database.module';
 
 @Module({
   imports: [
@@ -12,6 +13,7 @@ import { DBModule } from '../database/database.module';
       timeout: 90000,
     }),
   ],
+  controllers: [UpdaterController],
   providers: [UpdaterService],
   exports: [UpdaterService]
 })
