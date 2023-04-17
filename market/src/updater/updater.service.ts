@@ -183,7 +183,7 @@ export class UpdaterService implements OnModuleInit {
                     this.schedulerRegistry.deleteCronJob(ISO_Code + "_requestRegularUpdater");
                 }
                 this.logger.verbose(`${ISO_Code} : RegularUpdater Product Response status ${(await firstValueFrom(
-                    this.httpService.post(`${this.PRODUCT_URL}market/updater`, this.addKey({ ISO_Code, marketDate, priceArrs }))
+                    this.httpService.post(`${this.PRODUCT_URL}api/v1/market/update/price/exchange/${ISO_Code}`, this.addKey({ marketDate, priceArrs }))
                     .pipe(catchError(error => {
                         throw error; // 
                     }))

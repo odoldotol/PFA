@@ -1,6 +1,6 @@
 import { Injectable, Logger } from "@nestjs/common";
 import { IMCacheRepository } from "./iMCache/iMCache.repository";
-import { MarketDate } from "../class/marketDate.class";
+import { MarketDate } from "../common/class/marketDate.class";
 import { apply, compactObject, curry, each, filter, head, last, map, partition, peek, pipe, tap, toAsync } from "@fxts/core";
 
 @Injectable()
@@ -22,7 +22,8 @@ export class DBRepository {
     cacheRecovery = this.iMCache.localFileCacheRecovery;
     getAllCcKeys = this.iMCache.getAllKeys;
 
-    regularUpdater = (initSet: SpPSetsSet | SpPSetsSet2) => pipe(initSet,
+    // TODO: 각 업데이트 Asset이 해당 Sp 에 속한게 맞는지 검사하고 있지 않다. 이거 문제될 가능성 있는지 찾아봐.
+    updatePriceBySpPSets = (initSet: SpPSets | SpPSet2s) => pipe(initSet,
         this.setSpAndReturnPSets, toAsync,
         partition(this.iMCache.isGteMinCount), ([ updatePSets, deletePSets ]) => (
             pipe(updatePSets,
@@ -32,12 +33,12 @@ export class DBRepository {
                 each(a => this.iMCache.deleteOne(head(a))))
         )).then(() => this.logger.verbose(`${head(head(initSet))} : Regular Updated`));
 
-    cacheHardInit = (initSet: SpPSetsSet2) => pipe(initSet,
+    cacheHardInit = (initSet: SpPSet2s) => pipe(initSet,
         this.setSpAndReturnPSets,
         map(this.toCachedPriceSet(head(initSet))),
         each(this.createCcPrice));
 
-    private setSpAndReturnPSets = (initSet: SpPSetsSet2) => pipe(initSet,
+    private setSpAndReturnPSets = (initSet: SpPSet2s) => pipe(initSet,
         tap(set => this.iMCache.createMarketDate(head(set))),
         last);
 

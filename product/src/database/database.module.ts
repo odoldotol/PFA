@@ -3,9 +3,7 @@ import { DBRepository } from "./database.repository";
 import { IMCache } from "./iMCache/iMCache.module";
 
 @Module({
-    imports: [
-        IMCache
-    ],
+    imports: [IMCache],
     providers: [DBRepository],
     exports: [DBRepository]
 })

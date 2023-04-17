@@ -3,10 +3,10 @@ import { HttpService } from '@nestjs/axios';
 import { ConfigService } from '@nestjs/config';
 import { catchError, firstValueFrom } from 'rxjs';
 import { spawn } from 'child_process';
-import { DBRepository } from '../database/database.repository';
-import { Pm2Service } from '../pm2/pm2.service';
-import { MarketDate } from '../class/marketDate.class';
-import { append, apply, compact, compactObject, concurrent, curry, delay, drop, each, entries, filter, flat, head, isNil, isObject, isString, isUndefined, join, last, map, not, nth, partition, peek, pick, pipe, reduce, reject, tap, toArray, toAsync } from '@fxts/core';
+import { DBRepository } from '@database.repository';
+import { Pm2Service } from '@pm2.service';
+import { MarketDate } from '@common/class/marketDate.class';
+import { append, apply, compact, compactObject, concurrent, curry, delay, drop, each, entries, filter, flat, fromEntries, head, isNil, isObject, isString, isUndefined, join, last, map, not, nth, partition, peek, pick, pipe, reduce, reject, tap, toArray, toAsync } from '@fxts/core';
 
 @Injectable()
 export class MarketService implements OnModuleInit, OnApplicationBootstrap {
@@ -38,7 +38,7 @@ export class MarketService implements OnModuleInit, OnApplicationBootstrap {
         this.spAsyncIter(),
         reject(this.isSpLatest),
         map(this.withPriceSetArr),
-        each(this.dbRepo.regularUpdater)
+        each(this.dbRepo.updatePriceBySpPSets)
     ).then(() => this.logger.verbose(`SelectiveUpdate Success`))
     .catch(e => {this.logger.error(e), this.logger.error(`SelectiveUpdate Failed`); throw e});
 
@@ -59,7 +59,8 @@ export class MarketService implements OnModuleInit, OnApplicationBootstrap {
 
     private withPriceSetArr = async (sp: Sp) => [ sp, await this.fetchPriceByISOcode(head(sp)) ] as [Sp, PSet2[]];
 
-    regularUpdater =  this.dbRepo.regularUpdater;
+    updatePriceByExchange = (ISO_Code: string, body: UpdatePriceByExchangeBodyI) => 
+        this.dbRepo.updatePriceBySpPSets([[ ISO_Code, new MarketDate(body.marketDate) ], body.priceArrs]); // 그냥 spDoc 이랑 priceArrs 을 받으면 깔끔한데, 마켓서버도 괜히 구조분해해서 쓰지말고 spDoc이 통째로 흘러가면서 작업하는게 좋지 않을까?
 
     getPrice = async (ticker: string, id: string = "") => pipe(
         [ ticker, [] ] as GPSet,
@@ -125,13 +126,13 @@ export class MarketService implements OnModuleInit, OnApplicationBootstrap {
             Object.assign(rP, { marketDate: await this.dbRepo.readCcStatusPrice(rP.ISO_Code) }))
         ] as CacheUpdateSet<CachedPriceI>);
 
-    private fetchPriceByISOcode = (ISO_Code: string): Promise<PSet2[]> => this.fetchPrice(ISO_Code, "ISO_Code");
+    private fetchPriceByISOcode = (ISO_Code: string): Promise<PSet2[]> => this.fetchPrice(ISO_Code, "exchange");
     private fetchPriceByTicker = (ticker: string): Promise<RequestedPrice> => this.fetchPrice(ticker, "ticker");
 
     // TODO: Refac
-    private async fetchPrice(value: string, key: "ISO_Code" | "ticker") {
+    private async fetchPrice(value: string, key: "exchange" | "ticker") {
         return (await firstValueFrom(
-            this.httpService.post(`${this.MARKET_URL}manager/price`, this.addKey({ [key]: value }))
+            this.httpService.post(`${this.MARKET_URL}api/v1/price/${key}/${value}`)
             .pipe(catchError(error => {
                 if (error.response) {
                     if (error.response.data.error === "Bad Request") {
@@ -149,86 +150,18 @@ export class MarketService implements OnModuleInit, OnApplicationBootstrap {
     // TODO: Refac
     private async fetchAllSpDoc(): Promise<StatusPrice[]> {
         return (await firstValueFrom(
-            this.httpService.post(`${this.MARKET_URL}manager/read_status_price`, this.addKey({}))
+            this.httpService.get(`${this.MARKET_URL}api/v1/dev/status_price/info`)
             .pipe(catchError(error => {
                 throw error; //
             }))
         )).data;
     }
 
-    private addKey = <T>(body: T) => (body["key"] = this.TEMP_KEY, body);
-
-    /**
-     * ### [DEV] 거래소별 상태를 리턴
-     * - cache : 캐시상태
-     * - market : 마켓서버상태
-     */
-    async fetchPriceStatus(where: "cache" | "market") {
-        try {
-            const spDocArr = await this.fetchAllSpDoc();
-            if (where === "market") {
-                // return spDocArr
-                return spDocArr.map((spDoc) => {
-                    return {
-                        ISO_Code: spDoc.ISO_Code,
-                        priceStatus: MarketDate.fromSpDoc(spDoc),
-                        exchangeTimezoneName: spDoc.yf_exchangeTimezoneName,
-                    };
-                })
-            } else if (where === "cache") {
-                const result: {[ISO_Code: string]: MarketDateI} = {};
-                await Promise.all(spDocArr.map(async (spDoc) => {
-                    result[spDoc.ISO_Code] = await this.dbRepo.readCcStatusPrice(spDoc.ISO_Code);
-                }));
-                return result;
-            };
-        } catch (error) {
-            throw new InternalServerErrorException(error);
-        };
-    }
-
-    /**
-     * ### [DEV] assets 조회
-     * - cache : 캐시에서
-     * - market : 마켓서버에서
-     */
-    async fetchAssets(where: "cache" | "market"): Promise<Array<string> | object> {
-        if (where === "cache") {
-            return this.dbRepo.getAllCcKeys();
-        } else if (where === "market") {
-            const result = {};
-            const yf_infoArr = (await firstValueFrom(
-                this.httpService.post(`${this.MARKET_URL}manager/read_asset`, this.addKey({}))
-                .pipe(catchError(error => {
-                    throw error;
-                }))
-            )).data;
-            yf_infoArr.forEach(yf_info => {
-                result[yf_info.symbol] = yf_info;
-                delete yf_info.symbol;
-            });
-            return result;
-        };
-    }
-
-    /**
-     * ### [DEV] request ReadPriceUpdateLog To Market
-     */
-    async fetchPriceUpdateLog(body: object) {
-        const q = pipe(
-            entries(body),
-            filter(arr => head(arr) !== "key"),
-            filter(arr => last(arr)),
-            map(arr => `${head(arr)}=${last(arr)}`),
-            reduce((acc, cur) => acc + "&" + cur)
-          );
-        return (await firstValueFrom(
-            this.httpService.post(`${this.MARKET_URL}manager/read_price_update_log${q ? "?" + q : ""}`, this.addKey({}))
-            .pipe(catchError(error => {
-                throw error;
-            }))
-        )).data;
-    }
+    getAllStatusPrice = async () => pipe(
+        this.fetchAllSpDoc(), toAsync,
+        map(sp => sp.ISO_Code),
+        map(async c => [c, await this.dbRepo.readCcStatusPrice(c)] as Sp),
+        fromEntries);
 
     /**
      * ### [DEV] 차일드프로세스로 Market 서버 실행하고 이니시에이터 완료되면 resolve 반환하는 프로미스 리턴

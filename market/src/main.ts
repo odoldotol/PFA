@@ -35,9 +35,9 @@ async function bootstrap() {
     appTerminator();});
 
   SwaggerModule.setup('docs', app, SwaggerModule.createDocument(app, new DocumentBuilder()
-    .setTitle('LAPIKI Market Server API')
+    .setTitle('LAPIKI Market API')
     .setVersion('1.0')
-    .setDescription('Market Data Server')
+    .setDescription('Market Data')
     .setContact('Lygorithm', 'https://github.com/odoldotol', 'lygorithm@gmail.com')
     .addTag('App', 'default')
     .addTag('Updater')

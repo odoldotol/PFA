@@ -1,60 +1,27 @@
-import { Body, Controller, Get, HttpCode, Param, Post, Query, UnauthorizedException, UseGuards } from '@nestjs/common';
+import { Body, Controller, HttpCode, Param, Post, UseGuards } from '@nestjs/common';
 import { MarketService } from './market.service';
-import { RegularUpdateForPriceBodyDto } from './dto/regularUpdateForPriceBody.dto';
-import { UpperCasePipe } from './pipe/upperCasePipe';
-import { KeyGuard } from './guard/key.guard';
-import { MarketDateParser } from './pipe/marketDateParser';
+import { UpdatePriceByExchangeBodyDto } from './dto/updatePriceByExchangeBody.dto';
+import { UpperCasePipe } from '../common/pipe/upperCasePipe';
+import { ApiTags } from '@nestjs/swagger';
+import { ApiCommonResponse } from '@common/decorator/apiCommonResponse.decorator';
+import { Api_updatePriceByExchange } from './decorator/api-updatePriceByExchange.decorator';
+import { KeyGuard } from '@common/guard/key.guard';
 
 @Controller('market')
+@ApiTags('Market')
+@ApiCommonResponse()
 export class MarketController {
 
     constructor(
-        private readonly marketService: MarketService
-    ) {}
+        private readonly marketService: MarketService) {}
 
-    /**
-     * ### 마켓서버로부터의 레귤러업데이트
-     */
-    @Post('updater')
-    @UseGuards(KeyGuard)
-    regularUpdaterForPrice(@Body(UpperCasePipe, MarketDateParser) body: RegularUpdateForPriceBodyDto) {
-        return this.marketService.regularUpdater([[ body.ISO_Code, body.marketDateClass ], body.priceArrs]);
-    }
-
-    /**
-     * ### 가격조회
-     */
-    @Post('dev')
-    devGetPrice(@Body(UpperCasePipe) body: {ticker: string, id?: string}) {
-        return this.marketService.getPrice(body.ticker, body.id);
-    }
-
-    /**
-     * ### 가격의 상태를 조회
-     * - cache: 캐시의 상태
-     * - market: 마켓서버의 상태
-     */
-    @Get('dev/price_status/:where')
-    devGetMarketPriceStatus(@Param('where') where: "cache" | "market") {
-        return this.marketService.fetchPriceStatus(where);
-    }
-
-    /**
-     * ### 서비스하는 assets 조회
-     * - cache: 캐시에서
-     * - market: 마켓서버에서
-     */
-    @Get('dev/assets/:where')
-    devGetAssets(@Param('where') where: "cache" | "market") {
-        return this.marketService.fetchAssets(where);
-    }
-
-    /**
-     * ### [임시] POST MarketServer/manager/read_price_update_log
-     */
-    @Get('market_server/read_price_update_log')
-    requestReadPriceUpdateLogToMarket(@Query('ISO_Code', UpperCasePipe) ISO_Code?: string, @Query('limit') limit?: number) {
-        return this.marketService.fetchPriceUpdateLog({ ISO_Code, limit });
-    }
+    @Post('update/price/exchange/:ISO_Code')
+    @HttpCode(200)
+    @UseGuards(KeyGuard) // TODO: 마켓서버 가드 세우기
+    @Api_updatePriceByExchange()
+    updatePriceByExchange(
+        @Param('ISO_Code') ISO_Code: string,
+        @Body(UpperCasePipe) body: UpdatePriceByExchangeBodyDto) {
+        return this.marketService.updatePriceByExchange(ISO_Code, body);}
 
 }

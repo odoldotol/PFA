@@ -4,9 +4,9 @@ import { SchedulerRegistry } from "@nestjs/schedule";
 import { Cache } from 'cache-manager';
 import { CronJob } from "cron";
 import { readdir, readFile, writeFile } from 'node:fs/promises';
-import { Pm2Service } from "../../pm2/pm2.service";
-import { MarketDate } from "../../class/marketDate.class";
-import { CachedPrice } from "../../class/cachedPrice.class";
+import { Pm2Service } from "@pm2.service";
+import { MarketDate } from "@common/class/marketDate.class";
+import { CachedPrice } from "@common/class/cachedPrice.class";
 import { curry, each, gte, head, isObject, isString, last, lte, map, not, pipe, tap, toArray, toAsync, zip } from "@fxts/core";
 
 @Injectable()

@@ -12,7 +12,7 @@ export class KakaoCBService {
         private readonly marketService: MarketService,
     ) {}
 
-    inquire = async (body: SkillPayload): Promise<SkillResponse> => {
+    inquire = async (body: SkillPayloadI): Promise<SkillResponseI> => {
         let kakaoText: string;
         const price = await this.marketService.getPrice(
             body.action.params.ticker.toUpperCase(),

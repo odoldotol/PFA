@@ -28,10 +28,10 @@ export class UpdaterController {
         return this.updaterService.initiator();}
 
     // TODO: launcher Validation 추가하기
-    @Post('force-initiate/:ISO_Code/:launcher')
+    @Post('force-initiate/:ISO_Code')
     @HttpCode(200)
     @Api_initiateForce()
-    initiateForce(@Param('ISO_Code', UpperCasePipe) ISO_Code: string, @Param('launcher') launcher: LogPriceUpdate["launcher"]) {
+    initiateForce(@Param('ISO_Code', UpperCasePipe) ISO_Code: string, @Query('launcher') launcher: LogPriceUpdate["launcher"]) {
         return this.updaterService.initiateForce(ISO_Code, launcher);} // 메서드 전환중
 
 }

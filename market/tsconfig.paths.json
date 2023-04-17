@@ -1,15 +1,15 @@
 {
-    "compilerOptions": {
-      "baseUrl": "./",
-      "paths": {
-        "@common/*": ["./src/common/*"],
-        "@app.*": ["./src/app/app.*"],
-        "@database.*": ["./src/database/database.*"],
-        "@dev.*": ["./src/dev/dev.*"],
-        "@market.*": ["./src/market/market.*"],
-        "@pm2.*": ["./src/pm2/pm2.*"],
-        "@updater.*": ["./src/updater/updater.*"],
-        "@child-api.*": ["./src/child-api/child-api.*"],
-      }
+  "compilerOptions": {
+    "baseUrl": "./",
+    "paths": {
+      "@common/*": ["./src/common/*"],
+      "@app.*": ["./src/app/app.*"],
+      "@database.*": ["./src/database/database.*"],
+      "@dev.*": ["./src/dev/dev.*"],
+      "@market.*": ["./src/market/market.*"],
+      "@pm2.*": ["./src/pm2/pm2.*"],
+      "@updater.*": ["./src/updater/updater.*"],
+      "@child-api.*": ["./src/child-api/child-api.*"],
     }
   }
+}

@@ -1,55 +1,63 @@
-import { CallHandler, ExecutionContext, Logger, NestInterceptor, ValidationPipe } from '@nestjs/common';
+import { CallHandler, ExecutionContext, Logger, NestInterceptor, ValidationPipe, VersioningType } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { ConfigService } from '@nestjs/config';
-import { AppModule } from './app.module';
+import { AppModule } from './app/app.module';
 import { Response } from 'express';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+
+bootstrap();
 
 async function bootstrap() {
-
   const logger = new Logger("NestApplication");
   let keepAlive = true;
 
-  const app = await NestFactory.create(AppModule).then(app => (logger.log('App created'), app));
+  const app = await NestFactory.create(AppModule);
 
-  const configService = app.get(ConfigService);
-
-  app.enableCors(); // adminFE, 서비스FE + 기타 서비스(Kakao 등) 허용하면 됨
+  app.enableVersioning({
+    type: VersioningType.URI,
+    prefix: 'api/v',
+    defaultVersion: '1',});
 
   app.useGlobalInterceptors(
     new class KeepAliveInterceptor implements NestInterceptor {
       intercept(context: ExecutionContext, next: CallHandler) {
         if (keepAlive === false) {
           logger.verbose('KeepAliveInterceptor : Disable keepAlive');
-          context.switchToHttp().getResponse<Response>().set('Connection', 'close');
-        };
-        return next.handle();
-      }});
+          context.switchToHttp().getResponse<Response>().set('Connection', 'close');};
+        return next.handle();}});
 
   app.useGlobalPipes(new ValidationPipe({
     whitelist: true,
     forbidNonWhitelisted: true,
-    transform: true
-  }));
+    transform: true}));
 
   process.on('SIGINT', () => {
-    appTerminator();
-  });
+    appTerminator();});
+
+  SwaggerModule.setup('docs', app, SwaggerModule.createDocument(app, new DocumentBuilder()
+  .setTitle('LAPIKI Product API')
+  .setVersion('1.0')
+  .setDescription('Product')
+  .setContact('Lygorithm', 'https://github.com/odoldotol', 'lygorithm@gmail.com')
+  .addTag('Kakao Chatbot')
+  .addTag('Market')
+  .addTag('Development')
+  .build()));
   
-  await app.listen(configService.get<number>("PORT", 7000));
+  const configService = app.get(ConfigService);
+  await app.listen(configService.get<number>("PORT", 7001)); logger.log('App listen');
   
-  logger.log('App listen');
-  
-  if (configService.get<string>("PM2_NAME")) process.send('ready',
-    logger.log("Send Ready to Parent Process"),
-    { swallowErrors: true}, (err) => err && logger.error(err)
-  );
+  configService.get<string>("PM2_NAME") &&
+    process.send(
+      'ready',
+      logger.log("Send Ready to Parent Process"),
+      { swallowErrors: true},
+      err => err && logger.error(err));
 
   const appTerminator = async () => {
     keepAlive = false;
     await app.close();
     logger.log('Server closed');
-    process.exit(0);
-  };
+    process.exit(0);};
 
 }
-bootstrap();

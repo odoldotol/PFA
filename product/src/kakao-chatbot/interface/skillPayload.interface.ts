@@ -1,4 +1,5 @@
-interface SkillPayload {
+// TODO: SkillPayloadI 구현
+interface SkillPayloadI {
   bot?: { id: string, name: string }
   intent?: { id: string, name: string, extra?: any }
   action?: {

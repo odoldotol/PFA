@@ -3,8 +3,8 @@ type Sp = [ISO_Code, MarketDateI]
 type PSet = [TickerSymbol, number]
 type PSet2 = [TickerSymbol, number, Currency]
 
-type SpPSetsSet = [Sp, PSet[]]
-type SpPSetsSet2 = [Sp, PSet2[]]
+type SpPSets = [Sp, PSet[]]
+type SpPSet2s = [Sp, PSet2[]]
 
 type GPSet = [TickerSymbol, CachedPriceI[]]
 
@@ -15,10 +15,8 @@ interface RequestedPrice {
     status_price?: StatusPrice;
 }
 
-interface RegularUpdatePrice {
-    ISO_Code: ISO_Code;
+interface UpdatePriceByExchangeBodyI {
     marketDate: string;
-    marketDateClass: MarketDateI;
     priceArrs: PSet[];
 }
 

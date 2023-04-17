@@ -1,0 +1,14 @@
+{
+    "compilerOptions": {
+        "baseUrl": "./",
+        "paths": {
+            "@common/*": ["./src/common/*"],
+            "@app.*": ["./src/app/app.*"],
+            "@database.*": ["./src/database/database.*"],
+            "@market.*": ["./src/market/market.*"],
+            "@dev.*": ["./src/dev/dev.*"],
+            "@pm2.*": ["./src/pm2/pm2.*"],
+            "@kakao-chatbot.*": ["./src/kakao-chatbot/kakao-chatbot.*"]
+        }
+    }
+}

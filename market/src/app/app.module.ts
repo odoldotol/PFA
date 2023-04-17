@@ -25,11 +25,10 @@ import { HttpLoggerMiddleware } from './middleware/httpLogger.middleware';
     Pm2Module,
     DevModule,
     UpdaterModule,
-    DBModule,
-  ],
+    DBModule,],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService]
 })
 export class AppModule implements NestModule {
-  configure(consumer: MiddlewareConsumer) {
-    consumer.apply(HttpLoggerMiddleware).forRoutes('*');}}
+  configure = (consumer: MiddlewareConsumer) => consumer.apply(HttpLoggerMiddleware).forRoutes('*');
+}

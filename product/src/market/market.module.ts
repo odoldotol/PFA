@@ -4,9 +4,11 @@ import { MarketService } from './market.service';
 import { MarketController } from './market.controller';
 import { DBModule } from '../database/database.module';
 import { Pm2Module } from 'src/pm2/pm2.module';
+import { MarketApiModule } from './market-api/market-api.module';
 
 @Module({
   imports: [
+    MarketApiModule,
     HttpModule.register({
       timeout: 90000,
     }),
