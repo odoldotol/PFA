@@ -17,7 +17,7 @@ export class UpdaterService implements OnModuleInit {
     private readonly PRODUCT_URL = this.configService.get<string>('PRODUCT_URL');
     private readonly TEMP_KEY = this.configService.get<string>('TEMP_KEY');
     private readonly DE_UP_MARGIN = this.configService.get<number>('DefaultUpdateMarginMilliseconds');
-    private readonly GETMARKET_CONCURRENCY = this.configService.get<number>('GETMARKET_CONCURRENCY') * 50;
+    private readonly CHILD_CONCURRENCY = this.configService.get<number>('CHILD_CONCURRENCY') * 50;
 
     constructor(
         private readonly configService: ConfigService,
@@ -138,7 +138,7 @@ export class UpdaterService implements OnModuleInit {
                 await this.dbRepo.readSymbolArr({exchangeTimezoneName: yf_exchangeTimezoneName}), toAsync,
                 map(this.marketService.fetchPrice),
                 map(ele => ele.map(this.fulfillUpdatePriceSet(isNotMarketOpen))),
-                concurrent(this.GETMARKET_CONCURRENCY),
+                concurrent(this.CHILD_CONCURRENCY),
                 toArray
             ),
             ISO_Code,
@@ -223,7 +223,7 @@ export class UpdaterService implements OnModuleInit {
             map(ele => ele.flatMapPromise(this.fulfillYfInfo)),
             filter(ele => ele.isLeft ? (response.failure.info.push(ele.getLeft), false) : true),
             map(ele => ele.getRight),
-            concurrent(this.GETMARKET_CONCURRENCY),
+            concurrent(this.CHILD_CONCURRENCY),
             toArray,
             tap(arr => this.dbRepo.createAssets(arr)
                 .then(res => response.success.info = res)
