@@ -7,7 +7,7 @@ $ docker build . -t pfa-market-child
 ```
 - 컨테이너 실행
 ```shell
-$ docker run -p 8000:8000 --name market-child pfa-market-child
+$ docker run -p 8001:8001 --name market-child pfa-market-child
 ```
 ---
-### API Doc http://localhost:8000/docs
+### API Doc http://localhost:8001/docs
