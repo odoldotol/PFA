@@ -1,13 +1,9 @@
-import { HttpModule } from '@nestjs/axios';
 import { Module } from '@nestjs/common';
 import { MarketService } from './market.service';
+import { ChildApiModule } from './child-api/child-api.module';
 
 @Module({
-  imports: [
-    HttpModule.register({
-      timeout: 90000,
-    }),
-  ],
+  imports: [ChildApiModule],
   providers: [MarketService],
   exports: [MarketService]
 })

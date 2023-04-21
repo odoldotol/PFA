@@ -1,5 +1,5 @@
 import { Controller, Get, Query } from '@nestjs/common';
-import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiTags } from '@nestjs/swagger';
 import { DevService } from './dev.service';
 import { UpperCasePipe } from '@common/pipe/upperCasePipe';
 import { ApiCommonResponse } from '@common/decorator/apiCommonResponse.decorator';
@@ -29,15 +29,5 @@ export class DevController {
     @Api_getUpdateLog()
     getUpdateLog(@Query('ISO_Code', UpperCasePipe) ISO_Code?: string, @Query('limit') limit?: number) {
         return this.devService.getUpdateLog(ISO_Code, limit);}
-
-    @Get('child/docs')
-    @ApiOperation({ summary: 'Market Child API Docs', deprecated: true })
-    getChildApiDocs() {
-        return this.devService.getChildApiDocs();}
-
-    @Get('child/openapi.json')
-    @ApiOperation({ summary: 'Market Child API Openapi.json', deprecated: true })
-    getChildApiOpenapiJson() {
-        return this.devService.getChildApiOpenapiJson();}
 
 }

@@ -9,7 +9,6 @@
       "@market.*": ["./src/market/market.*"],
       "@pm2.*": ["./src/pm2/pm2.*"],
       "@updater.*": ["./src/updater/updater.*"],
-      "@child-api.*": ["./src/child-api/child-api.*"],
     }
   }
 }

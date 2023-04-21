@@ -135,7 +135,7 @@ export class UpdaterService implements OnModuleInit {
         const startTime = new Date().toISOString();
         await this.dbRepo.updatePriceStandard(
             await pipe(
-                await this.dbRepo.readSymbolArr({exchangeTimezoneName: yf_exchangeTimezoneName}), toAsync,
+                this.dbRepo.readSymbolArr({exchangeTimezoneName: yf_exchangeTimezoneName}), toAsync,
                 map(this.marketService.fetchPrice),
                 map(ele => ele.map(this.fulfillUpdatePriceSet(isNotMarketOpen))),
                 concurrent(this.CHILD_CONCURRENCY),
