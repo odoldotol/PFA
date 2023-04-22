@@ -1,10 +1,8 @@
-import { BadRequestException, Injectable, InternalServerErrorException, Logger, OnApplicationBootstrap, OnModuleInit } from '@nestjs/common';
-import { HttpService } from '@nestjs/axios';
+import { Injectable, Logger, OnApplicationBootstrap, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { catchError, firstValueFrom } from 'rxjs';
-import { spawn } from 'child_process';
 import { DBRepository } from '@database.repository';
 import { Pm2Service } from '@pm2.service';
+import { MarketApiService } from './market-api/market-api.service';
 import { MarketDate } from '@common/class/marketDate.class';
 import { append, apply, compact, compactObject, concurrent, curry, delay, drop, each, entries, filter, flat, fromEntries, head, isNil, isObject, isString, isUndefined, join, last, map, not, nth, partition, peek, pick, pipe, reduce, reject, tap, toArray, toAsync } from '@fxts/core';
 
@@ -12,14 +10,11 @@ import { append, apply, compact, compactObject, concurrent, curry, delay, drop, 
 export class MarketService implements OnModuleInit, OnApplicationBootstrap {
 
     private readonly logger = new Logger(MarketService.name);
-    private readonly MARKET_URL = this.configService.get<string>('MARKET_URL');
-    private readonly TEMP_KEY = this.configService.get<string>('TEMP_KEY');
 
     constructor(
-        private readonly configService: ConfigService,
-        private readonly httpService: HttpService,
         private readonly dbRepo: DBRepository,
         private readonly pm2Service: Pm2Service,
+        private readonly marketApiSrv: MarketApiService
     ) {}
 
     onModuleInit = async () => {
@@ -50,14 +45,14 @@ export class MarketService implements OnModuleInit, OnApplicationBootstrap {
     .catch(error => (this.logger.error(error), this.logger.error(`CacheHardInit Failed`)));
 
     private spAsyncIter = () => pipe(
-        this.fetchAllSpDoc(), toAsync,
+        this.marketApiSrv.fetchAllSpDoc(), toAsync,
         map(this.spDocToSp));
 
     private spDocToSp = (spDoc: StatusPrice) => [ spDoc.ISO_Code, MarketDate.fromSpDoc(spDoc) ] as Sp;
 
     private isSpLatest = async (sp: Sp) => last(sp).isEqualTo(await this.dbRepo.readCcStatusPrice(head(sp)));
 
-    private withPriceSetArr = async (sp: Sp) => [ sp, await this.fetchPriceByISOcode(head(sp)) ] as [Sp, PSet2[]];
+    private withPriceSetArr = async (sp: Sp) => [ sp, await this.marketApiSrv.fetchPriceByISOcode(head(sp)) ] as [Sp, PSet2[]];
 
     updatePriceByExchange = (ISO_Code: string, body: UpdatePriceByExchangeBodyI) => 
         this.dbRepo.updatePriceBySpPSets([[ ISO_Code, new MarketDate(body.marketDate) ], body.priceArrs]); // 그냥 spDoc 이랑 priceArrs 을 받으면 깔끔한데, 마켓서버도 괜히 구조분해해서 쓰지말고 spDoc이 통째로 흘러가면서 작업하는게 좋지 않을까?
@@ -109,7 +104,7 @@ export class MarketService implements OnModuleInit, OnApplicationBootstrap {
 
     // TODO - Refac
     private fetchPriceSet = (ticker: string) => pipe(ticker,
-        this.fetchPriceByTicker,
+        this.marketApiSrv.fetchPriceByTicker,
         tap(rP => rP.status_price && this.dbRepo.createCcPriceStatusWithRP(rP)),
         async (rP) => [
             ticker,
@@ -120,80 +115,16 @@ export class MarketService implements OnModuleInit, OnApplicationBootstrap {
 
     // TODO - Refac
     private fetchPriceUpdateSet = (ticker: string) => pipe(ticker,
-        this.fetchPriceByTicker,
+        this.marketApiSrv.fetchPriceByTicker,
         async (rP) => [ ticker, pick(
             ["price", "marketDate"],
             Object.assign(rP, { marketDate: await this.dbRepo.readCcStatusPrice(rP.ISO_Code) }))
         ] as CacheUpdateSet<CachedPriceI>);
 
-    private fetchPriceByISOcode = (ISO_Code: string): Promise<PSet2[]> => this.fetchPrice(ISO_Code, "exchange");
-    private fetchPriceByTicker = (ticker: string): Promise<RequestedPrice> => this.fetchPrice(ticker, "ticker");
-
-    // TODO: Refac
-    private async fetchPrice(value: string, key: "exchange" | "ticker") {
-        return (await firstValueFrom(
-            this.httpService.post(`${this.MARKET_URL}api/v1/price/${key}/${value}`)
-            .pipe(catchError(error => {
-                if (error.response) {
-                    if (error.response.data.error === "Bad Request") {
-                        throw new BadRequestException(error.response.data);
-                    } else {
-                        throw new InternalServerErrorException(error.response.data);
-                    };
-                } else {
-                    throw new InternalServerErrorException(error);
-                };
-            }))
-        )).data;
-    }
-
-    // TODO: Refac
-    private async fetchAllSpDoc(): Promise<StatusPrice[]> {
-        return (await firstValueFrom(
-            this.httpService.get(`${this.MARKET_URL}api/v1/dev/status_price/info`)
-            .pipe(catchError(error => {
-                throw error; //
-            }))
-        )).data;
-    }
-
     getAllStatusPrice = async () => pipe(
-        this.fetchAllSpDoc(), toAsync,
+        this.marketApiSrv.fetchAllSpDoc(), toAsync,
         map(sp => sp.ISO_Code),
         map(async c => [c, await this.dbRepo.readCcStatusPrice(c)] as Sp),
         fromEntries);
-
-    /**
-     * ### [DEV] 차일드프로세스로 Market 서버 실행하고 이니시에이터 완료되면 resolve 반환하는 프로미스 리턴
-     * - MARKET 로그는 \<MARKET\> ... \</MARKET\> 사이에 출력
-     * - 에러는 그대로 출력
-     * - close 이벤트시 code 와 signal 을 담은 메세지 출력
-     */
-    private runMarket = () => new Promise<void>((resolve, reject) => {
-        const marketCp = spawn('npm', ["run", "start:prod"], {cwd: '../market/'});
-        marketCp.stdout.on('data', (data) => {
-            const dataArr = data.toString().split('\x1B');
-            const str = dataArr[dataArr.length - 2]
-            if (str !== undefined && str.slice(-16) === 'Initiator End!!!') {
-                resolve();
-            };
-            // 출력
-            dataArr.pop()
-            if (dataArr.length === 0) {
-                console.log("<MARKET>", data.toString(), "</MARKET>");
-            } else {
-                console.log("\x1B[39m<MARKET>", dataArr.join('\x1B'), "\x1B[39m</MARKET>");
-            };
-        });
-        marketCp.on('error', (err) => {
-            console.log(err);
-        });
-        marketCp.stderr.on('data', (data) => {
-            console.log(data.toString());
-        });
-        marketCp.on('close', (code, signal) => {
-            console.log(`MarketCp closed with code: ${code} and signal: ${signal}`);
-        });
-    });
 
 }
