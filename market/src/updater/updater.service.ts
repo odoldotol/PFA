@@ -1,14 +1,14 @@
-import { HttpService } from '@nestjs/axios';
 import { BadRequestException, Injectable, InternalServerErrorException, Logger, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { MarketService } from '@market.service';
 import { SchedulerRegistry } from '@nestjs/schedule';
 import { CronJob, CronTime } from 'cron';
 import { catchError, firstValueFrom } from 'rxjs';
+import { MarketService } from '@market.service';
 import { DBRepository } from '@database.repository';
-import { pipe, map, toArray, toAsync, tap, each, filter, concurrent, peek, curry } from "@fxts/core";
-import { Either } from "@common/class/either.class";
+import { ProductApiService } from '@product-api.service';
 import { AddAssetsResponse } from './response/addAssets.response';
+import { Either } from "@common/class/either.class";
+import { pipe, map, toArray, toAsync, tap, each, filter, concurrent, peek, curry } from "@fxts/core";
 
 @Injectable()
 export class UpdaterService implements OnModuleInit {
@@ -21,10 +21,11 @@ export class UpdaterService implements OnModuleInit {
 
     constructor(
         private readonly configService: ConfigService,
-        private readonly httpService: HttpService,
-        private readonly marketService: MarketService,
         private readonly schedulerRegistry: SchedulerRegistry,
-        private readonly dbRepo: DBRepository
+        private readonly marketService: MarketService,
+        private readonly dbRepo: DBRepository,
+        private readonly productApiSvc: ProductApiService
+        
     ) {}
 
     onModuleInit = () => this.initiator() 
@@ -163,50 +164,35 @@ export class UpdaterService implements OnModuleInit {
     } ] );
 
     // TODO - Refac
-    // productApi 모듈로 기능 분리
-    private regularUpdater(
+    private regularUpdater = (
         ISO_Code: string,
         previous_close: ExchangeSession["previous_close"],
         updatePriceResult: UpdatePriceResult
-    ) {
+    ) => {
         const marketDate = previous_close.slice(0, 10);
-        let priceArrs = pipe(
+        const priceArrs = pipe(
             updatePriceResult,
             filter(ele => ele.isRight),
             map(ele => ele.getRight),
-            map(ele => [ele[0], ele[1].regularMarketLastClose]),
-            toArray
-        );
+            map(ele => [ele[0], ele[1].regularMarketLastClose] as [string, number]),
+            toArray);
         const rq = async (retry: boolean = false) => {
             try {
-                if (retry) {
-                    this.schedulerRegistry.deleteCronJob(ISO_Code + "_requestRegularUpdater");
-                }
-                this.logger.verbose(`${ISO_Code} : RegularUpdater Product Response status ${(await firstValueFrom(
-                    this.httpService.post(`${this.PRODUCT_URL}api/v1/market/update/price/exchange/${ISO_Code}`, this.addKey({ marketDate, priceArrs }))
-                    .pipe(catchError(error => {
-                        throw error; // 
-                    }))
-                ).catch(error => {
-                    if (error.response) this.logger.error(error.response.data);
-                    throw error;
-                })).status}`);
+                retry && this.schedulerRegistry.deleteCronJob(ISO_Code + "_requestRegularUpdater");
+                this.logger.verbose(`${ISO_Code} : RegularUpdater Product Response status ${
+                    await this.productApiSvc.updatePriceByExchange(ISO_Code, this.addKey({marketDate, priceArrs}))}`);
             } catch (error) {
                 this.logger.error(error);
-                if (retry) {
-                    this.logger.warn(`${ISO_Code} : RequestRegularUpdater Failed`);
-                } else {
+                if (retry) this.logger.warn(`${ISO_Code} : RequestRegularUpdater Failed`);
+                else {
                     const retryDate = new Date();
                     retryDate.setMinutes(retryDate.getMinutes() + 5);
                     const retry = new CronJob(retryDate, rq.bind(this, true));
                     this.schedulerRegistry.addCronJob(ISO_Code + "_requestRegularUpdater", retry);
                     retry.start();
-                    this.logger.warn(`${ISO_Code} : Retry RequestRegularUpdater after 5 Min. ${retryDate.toLocaleString()}`);
-                };
-            };
-        };
-        rq();
-    }
+                    this.logger.warn(`${ISO_Code} : Retry RequestRegularUpdater after 5 Min. ${retryDate.toLocaleString()}`)};
+            };};
+        rq()};
 
     private isPriceStatusUpToDate = (lastMarketDate: string, {previous_close}: ExchangeSession) => 
         lastMarketDate === new Date(previous_close).toISOString() ? true : false;
