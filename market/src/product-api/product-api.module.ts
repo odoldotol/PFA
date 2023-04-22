@@ -8,7 +8,7 @@ import { ProductApiService } from './product-api.service';
         HttpModule.registerAsync({
             imports: [ConfigModule],
             useFactory: async (configService: ConfigService) => ({
-                baseURL: configService.get('PRODUCT_API_BASE_URL') || 'http://localhost:7001',
+                baseURL: configService.get('PRODUCT_API_BASE_URL', 'http://localhost:7001'),
                 timeout: 10000,
             }),
             inject: [ConfigService]})],
