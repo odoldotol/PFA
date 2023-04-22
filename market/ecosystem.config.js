@@ -15,7 +15,7 @@ module.exports = {
 
       env: {
         NODE_ENV: 'production',
-        PORT: 6000,
+        PORT: 6001,
         PM2_NAME: 'pfa_market_prod',
       },
     },
@@ -34,7 +34,7 @@ module.exports = {
 
       env: {
         NODE_ENV: 'development',
-        PORT: 6000,
+        PORT: 6001,
         PM2_NAME: 'pfa_market_dev',
       },
     },
