@@ -1,0 +1,13 @@
+cacheBackup
+coverage
+dist
+node_modules
+test
+npm-debug.log
+.git
+.gitignore
+.DS_Store
+README.md
+.env.guide
+.env.development.local
+.env.production.local
