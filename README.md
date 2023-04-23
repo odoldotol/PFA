@@ -1,6 +1,6 @@
 # PFA
 
-Docker, Bash, and Curl should be available
+docker, bash, and cURL should be available
 - Build and Run
 ```shell
 $ bash start_docker
