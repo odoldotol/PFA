@@ -1,9 +1,8 @@
 import { Injectable, CanActivate, ExecutionContext } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { Observable } from 'rxjs';
 
 @Injectable()
-export class KeyGuard implements CanActivate {
+export class TempKeyGuard implements CanActivate {
 
   private readonly TEMP_KEY = this.configService.get('TEMP_KEY');
 
@@ -17,4 +16,5 @@ export class KeyGuard implements CanActivate {
       delete request.body.key;
       return true;
     } else return false;};
+
 }

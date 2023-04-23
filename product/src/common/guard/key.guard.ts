@@ -2,7 +2,7 @@ import { Injectable, CanActivate, ExecutionContext } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 
 @Injectable()
-export class KeyGuard implements CanActivate {
+export class TempKeyGuard implements CanActivate {
 
   private readonly TEMP_KEY = this.configService.get('TEMP_KEY');
 

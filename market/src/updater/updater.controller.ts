@@ -1,7 +1,8 @@
-import { Body, Controller, HttpCode, Param, ParseArrayPipe, Post, Query } from '@nestjs/common';
+import { Body, Controller, HttpCode, Param, ParseArrayPipe, Post, Query, UseGuards } from '@nestjs/common';
 import { UpdaterService } from './updater.service';
 import { ApiTags } from '@nestjs/swagger';
 import { UpperCasePipe } from '@common/pipe/upperCasePipe';
+import { TempKeyGuard } from '@common/guard/key.guard';
 import { ApiCommonResponse } from '@common/decorator/apiCommonResponse.decorator';
 import { Api_addAssets } from './decorator/api-addAssets.decorator';
 import { Api_initiator } from './decorator/api-initiator.decorator';
@@ -23,6 +24,7 @@ export class UpdaterController {
 
     @Post('relaunch')
     @HttpCode(200)
+    @UseGuards(TempKeyGuard)
     @Api_initiator()
     initiator() {
         return this.updaterService.initiator();}
@@ -30,6 +32,7 @@ export class UpdaterController {
     // TODO: launcher Validation 추가하기
     @Post('force-initiate/:ISO_Code')
     @HttpCode(200)
+    @UseGuards(TempKeyGuard)
     @Api_initiateForce()
     initiateForce(@Param('ISO_Code', UpperCasePipe) ISO_Code: string, @Query('launcher') launcher: LogPriceUpdate["launcher"]) {
         return this.updaterService.initiateForce(ISO_Code, launcher);} // 메서드 전환중

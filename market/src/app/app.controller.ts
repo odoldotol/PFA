@@ -2,6 +2,7 @@ import { Body, Controller, Delete, Get, HttpCode, Param, ParseArrayPipe, ParseEn
 import { AppService } from './app.service';
 import { ConfigExchangeDto } from './dto/configExchange.dto';
 import { UpperCasePipe } from '@common/pipe/upperCasePipe';
+import { TempKeyGuard } from '@common/guard/key.guard';
 import { ApiCommonResponse } from '@common/decorator/apiCommonResponse.decorator';
 import { Api_getPriceByExchange } from './decorator/api-getPriceByExchange.decorator';
 import { Api_getPriceByTicker } from './decorator/api-getPriceByTicker.decorator';
@@ -34,6 +35,7 @@ export class AppController {
         return this.appService.getPriceByTicker(ticker);}
 
     @Post('config/exchange')
+    @UseGuards(TempKeyGuard)
     @Api_createConfigExchange() // TODO: detail
     createConfigExchange(@Body() body: ConfigExchangeDto) {
         return this.appService.createConfigExchange(body);}

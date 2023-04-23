@@ -2,10 +2,10 @@ import { Body, Controller, HttpCode, Param, Post, UseGuards } from '@nestjs/comm
 import { MarketService } from './market.service';
 import { UpdatePriceByExchangeBodyDto } from './dto/updatePriceByExchangeBody.dto';
 import { UpperCasePipe } from '../common/pipe/upperCasePipe';
+import { TempKeyGuard } from '@common/guard/key.guard';
 import { ApiTags } from '@nestjs/swagger';
 import { ApiCommonResponse } from '@common/decorator/apiCommonResponse.decorator';
 import { Api_updatePriceByExchange } from './decorator/api-updatePriceByExchange.decorator';
-import { KeyGuard } from '@common/guard/key.guard';
 
 @Controller('market')
 @ApiTags('Market')
@@ -17,7 +17,7 @@ export class MarketController {
 
     @Post('update/price/exchange/:ISO_Code')
     @HttpCode(200)
-    @UseGuards(KeyGuard) // TODO: 마켓서버 가드 세우기
+    @UseGuards(TempKeyGuard)
     @Api_updatePriceByExchange()
     updatePriceByExchange(
         @Param('ISO_Code') ISO_Code: string,
