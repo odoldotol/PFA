@@ -24,7 +24,7 @@ function wait_ready {
     done
 }
 
-docker run -d -p 80:80 --name nginx pfa-nginx
+docker run --network pfa-bridge -d -p 80:80 --name nginx pfa-nginx
 wait
 docker run --network pfa-bridge -d -p 8001:8001 --name market-child pfa-market-child
 wait
