@@ -1,0 +1,35 @@
+docker network create pfa-bridge
+wait
+
+docker build ./getMarket -t pfa-market-child
+wait
+docker build ./market -t pfa-market
+wait
+docker build ./product -t pfa-product
+wait
+
+function wait_ready {
+    while :
+    do
+        sleep $3
+        code=$(curl -sSLw '%{http_code}' http:/localhost:$1/health -o /dev/null)
+        if [ $code -eq 200 ]; then
+            echo "$2 is Ready!!!"
+            break
+        else
+            echo "waiting for $2 ..."
+        fi
+    done
+}
+
+docker run --network pfa-bridge -d -p 8001:8001 --name market-child pfa-market-child
+wait
+wait_ready 8001 "market-child" 0.5
+docker run --network pfa-bridge -d -p 6001:6001 --name market pfa-market
+wait
+wait_ready 6001 "market" 2
+docker run --network pfa-bridge -d -p 7001:7001 --name product pfa-product
+wait
+wait_ready 7001 "product" 1
+
+echo "PFA Ready!!"
