@@ -7,7 +7,7 @@ import { ChildApiService } from './child-api/child-api.service';
 export class MarketService {
 
     private readonly logger = new Logger(MarketService.name);
-    private readonly YFCCC_ISO_Code = this.configService.get<string>('YahooFinance_CCC_ISO_Code');
+    private readonly YFCCC_ISO_Code = this.configService.get<string>('YahooFinance_CCC_ISO_Code', "XCCC");
 
     constructor(
         private readonly configService: ConfigService,

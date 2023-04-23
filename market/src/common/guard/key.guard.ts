@@ -4,7 +4,7 @@ import { ConfigService } from '@nestjs/config';
 @Injectable()
 export class TempKeyGuard implements CanActivate {
 
-  private readonly TEMP_KEY = this.configService.get('TEMP_KEY');
+  private readonly TEMP_KEY = this.configService.get('TEMP_KEY', 'TEMP_KEY');
 
   constructor(
       private readonly configService: ConfigService,

@@ -2,7 +2,6 @@ import { BadRequestException, Injectable, InternalServerErrorException, Logger, 
 import { ConfigService } from '@nestjs/config';
 import { SchedulerRegistry } from '@nestjs/schedule';
 import { CronJob, CronTime } from 'cron';
-import { catchError, firstValueFrom } from 'rxjs';
 import { MarketService } from '@market.service';
 import { DBRepository } from '@database.repository';
 import { ProductApiService } from '@product-api.service';
@@ -14,10 +13,9 @@ import { pipe, map, toArray, toAsync, tap, each, filter, concurrent, peek, curry
 export class UpdaterService implements OnModuleInit {
 
     private readonly logger = new Logger(UpdaterService.name);
-    private readonly PRODUCT_URL = this.configService.get<string>('PRODUCT_URL');
     private readonly TEMP_KEY = this.configService.get<string>('TEMP_KEY');
-    private readonly DE_UP_MARGIN = this.configService.get<number>('DefaultUpdateMarginMilliseconds');
-    private readonly CHILD_CONCURRENCY = this.configService.get<number>('CHILD_CONCURRENCY') * 50;
+    private readonly DE_UP_MARGIN = this.configService.get<number>('DefaultUpdateMarginMilliseconds', 1800000);
+    private readonly CHILD_CONCURRENCY = this.configService.get<number>('CHILD_CONCURRENCY', 1) * 50;
 
     constructor(
         private readonly configService: ConfigService,
