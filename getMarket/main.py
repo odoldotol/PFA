@@ -33,6 +33,10 @@ app = FastAPI(
     description="Yahoo Finance API, Exchange Calendar API",
 )
 
+@app.get("/health", tags=["Health Check"], description="Health Check")
+def health_check():
+    return {"status": "ok"}
+
 @app.post("/yf/info/{ticker}", tags=["Asset Info"], description="Yahoo Finance API Info", response_model=Union[R_Info, R_Error])
 def get_info_by_ticker(ticker: str) -> Union[R_Info, R_Error]:
     print(ticker, os.getpid())

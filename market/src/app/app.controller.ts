@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, HttpCode, Param, ParseArrayPipe, ParseEnumPipe, Patch, Post, Put, Query, UseGuards, Version } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpCode, Param, ParseArrayPipe, ParseEnumPipe, Patch, Post, Put, Query, UseGuards, VERSION_NEUTRAL, Version } from '@nestjs/common';
 import { AppService } from './app.service';
 import { ConfigExchangeDto } from './dto/configExchange.dto';
 import { UpperCasePipe } from '@common/pipe/upperCasePipe';
@@ -6,6 +6,7 @@ import { ApiCommonResponse } from '@common/decorator/apiCommonResponse.decorator
 import { Api_getPriceByExchange } from './decorator/api-getPriceByExchange.decorator';
 import { Api_getPriceByTicker } from './decorator/api-getPriceByTicker.decorator';
 import { Api_createConfigExchange } from './decorator/api-createConfigExchange.decorator';
+import { ApiTags } from '@nestjs/swagger';
 
 @Controller()
 @ApiCommonResponse()
@@ -13,8 +14,13 @@ export class AppController {
 
     constructor(
         private readonly appService: AppService,) {}
+    
+    @Get('health')
+    @Version(VERSION_NEUTRAL)
+    @ApiTags('App')
+    health_check() {
+        return {status: 'ok'};}
 
-    // API Docs 에 https://www.iso20022.org/market-identifier-codes 사이트 링크 넣기
     @Post('price/exchange/:ISO_Code')
     @HttpCode(200)
     @Api_getPriceByExchange()
