@@ -1,6 +1,8 @@
 docker network create pfa-bridge
 wait
 
+docker build ./nginx -t pfa-nginx
+wait
 docker build ./getMarket -t pfa-market-child
 wait
 docker build ./market -t pfa-market
@@ -22,14 +24,16 @@ function wait_ready {
     done
 }
 
+docker run -d -p 80:80 --name nginx pfa-nginx
+wait
 docker run --network pfa-bridge -d -p 8001:8001 --name market-child pfa-market-child
 wait
-wait_ready 8001 "market-child" 0.5
+wait_ready 8001 "market-child" 1
 docker run --network pfa-bridge -d -p 6001:6001 --name market pfa-market
 wait
-wait_ready 6001 "market" 2
+wait_ready 6001 "market" 5
 docker run --network pfa-bridge -d -p 7001:7001 --name product pfa-product
 wait
-wait_ready 7001 "product" 1
+wait_ready 7001 "product" 3
 
 echo "PFA Ready!!"
