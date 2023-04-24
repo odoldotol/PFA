@@ -28,12 +28,13 @@ docker run --network pfa-bridge -d -p 80:80 --name nginx pfa-nginx
 wait
 docker run --network pfa-bridge -d -p 8001:8001 --name market-child pfa-market-child
 wait
-wait_ready 8001 "market-child" 1
+wait_ready 8001 "market-child" 2
 docker run --network pfa-bridge -d -p 6001:6001 --name market pfa-market
 wait
 wait_ready 6001 "market" 5
 docker run --network pfa-bridge -d -p 7001:7001 --name product pfa-product
 wait
 wait_ready 7001 "product" 3
+wait_ready 80 "nginx" 1
 
-echo "PFA Ready!!"
+echo "PFA is Ready!!"
