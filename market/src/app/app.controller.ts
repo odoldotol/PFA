@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, HttpCode, Param, ParseArrayPipe, ParseEnumPipe, Patch, Post, Put, Query, UseGuards, VERSION_NEUTRAL, Version } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, Param, Post, UseGuards, VERSION_NEUTRAL, Version } from '@nestjs/common';
 import { AppService } from './app.service';
 import { ConfigExchangeDto } from './dto/configExchange.dto';
 import { UpperCasePipe } from '@common/pipe/upperCasePipe';
