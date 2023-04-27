@@ -1,4 +1,4 @@
-interface ConfigExchange {
+interface ConfigExchangeI {
     readonly market: string
     readonly ISO_Code: string
     readonly country?: string
