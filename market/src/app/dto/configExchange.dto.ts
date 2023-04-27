@@ -1,5 +1,5 @@
 import { IsNotEmpty, IsNumber, IsOptional, IsString } from "class-validator";
-import { ApiProperty, ApiPropertyOptions } from "@nestjs/swagger";
+import { ApiProperty } from "@nestjs/swagger";
 
 export class ConfigExchangeDto implements ConfigExchangeI {
     
