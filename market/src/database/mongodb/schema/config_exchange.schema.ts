@@ -6,9 +6,9 @@ export type Config_exchangeDocument = Config_exchange & mongoose.Document;
 @Schema({
     timestamps: true
  })
-export class Config_exchange implements ConfigExchange {
+export class Config_exchange {
 
-    /**
+    /*
      * 참고
      * https://github.com/gerrymanoim/exchange_calendars#calendars
      * https://www.iso20022.org/market-identifier-codes
@@ -18,14 +18,14 @@ export class Config_exchange implements ConfigExchange {
         required: true,
         type: String
     })
-    market: string
+    market!: string
 
     @Prop({
         required: true,
         unique: true,
         type: String
     })
-    ISO_Code: string
+    ISO_Code!: string
 
     @Prop({
         type: String
@@ -41,7 +41,7 @@ export class Config_exchange implements ConfigExchange {
         required: true,
         type: String
     })
-    ISO_TimezoneName: string
+    ISO_TimezoneName!: string
 
     @Prop({
         type: Number

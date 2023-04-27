@@ -5,6 +5,7 @@
       "@common/*": ["./src/common/*"],
       "@app.*": ["./src/app/app.*"],
       "@database.*": ["./src/database/database.*"],
+      "@mongodb/*": ["./src/database/mongodb/schema/*"],
       "@dev.*": ["./src/dev/dev.*"],
       "@market.*": ["./src/market/market.*"],
       "@pm2.*": ["./src/pm2/pm2.*"],
