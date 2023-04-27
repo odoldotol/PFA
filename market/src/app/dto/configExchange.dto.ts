@@ -1,17 +1,17 @@
 import { IsNotEmpty, IsNumber, IsOptional, IsString } from "class-validator";
 import { ApiProperty, ApiPropertyOptions } from "@nestjs/swagger";
 
-export class ConfigExchangeDto implements ConfigExchange {
+export class ConfigExchangeDto implements ConfigExchangeI {
     
     @IsString()
     @IsNotEmpty()
     @ApiProperty({type: String, required: true, description: 'Exchange 이름', example: 'Hong Kong Stock Exchange'})
-    readonly market: string;
+    readonly market!: string;
 
     @IsString()
     @IsNotEmpty()
     @ApiProperty({type: String, required: true, description: 'ISO Code', example: 'XHKG'})
-    readonly ISO_Code: string;
+    readonly ISO_Code!: string;
 
     @IsString()
     @IsOptional()
@@ -26,7 +26,7 @@ export class ConfigExchangeDto implements ConfigExchange {
     @IsString()
     @IsNotEmpty()
     @ApiProperty({type: String, required: true, description: 'ISO timezone', example: 'Asia/Hong_Kong'})
-    readonly ISO_TimezoneName: string;
+    readonly ISO_TimezoneName!: string;
 
     @IsNumber()
     @IsOptional()
