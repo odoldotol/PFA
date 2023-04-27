@@ -12,9 +12,9 @@ export class AppService {
         private readonly dbRepo: DBRepository
     ) {}
 
-    // TODO - Refac - http 모듈
+    // TODO - Refac
     async getPriceByTicker(ticker: string) {
-        let status_price: StatusPrice = undefined;
+        let status_price: StatusPrice | undefined = undefined;
         const price: FulfilledYfInfo = await this.dbRepo.readPriceByTicker(ticker)
         .then(async res => {
             if (res === null) {
