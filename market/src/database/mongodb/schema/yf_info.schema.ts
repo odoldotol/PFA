@@ -13,19 +13,19 @@ export class Yf_info implements FulfilledYfInfo {
         unique: true,
         type: String,
     })
-    symbol: string; // 거의 id 역할 가능
+    symbol!: string; // 거의 id 역할 가능
     
     @Prop({
         // required: true,
         type: String,
     })
-    currency?: string // 표현 통화
+    currency!: string // 표현 통화
     
     @Prop({
         // required: true,
         type: String,
     })
-    quoteType?: string // 카테고리 역할
+    quoteType!: string // 카테고리 역할
     /* 
         중요한 공통 props (99% 신뢰)
         
@@ -55,25 +55,25 @@ export class Yf_info implements FulfilledYfInfo {
         required: true,
         type: String,
     })
-    exchangeTimezoneName: string;
+    exchangeTimezoneName!: string;
 
     @Prop({
         required: true,
         type: Number,
     })
-    regularMarketPrice: number; // 장중 아닐때 접근
+    regularMarketPrice!: number; // 장중 아닐때 접근
 
     @Prop({
         required: true,
         type: Number,
     })
-    regularMarketPreviousClose: number; // 장중일때 접근
+    regularMarketPreviousClose!: number; // 장중일때 접근
 
     @Prop({
         required: true,
         type: Number,
     })
-    regularMarketLastClose: number; // 우리가 실제 조회할 가격 (생성)
+    regularMarketLastClose!: number; // 우리가 실제 조회할 가격 (생성)
 
 }
 

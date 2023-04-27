@@ -13,8 +13,8 @@ interface YfInfo extends YfPrice {
 
 interface FulfilledYfInfo extends FulfilledYfPrice {
     readonly symbol: string
-    readonly quoteType?: string
-    readonly currency?: string
+    readonly quoteType: string
+    readonly currency: string
     readonly shortName?: string
     readonly market?: string
     readonly exchange?: string
