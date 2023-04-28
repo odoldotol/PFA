@@ -41,4 +41,20 @@ describe('Either', () => {
         });
     });
 
+    describe('get value', () => {
+        it('Right', () => {
+            const eitherRight = Either.right<string, string>('right_value');
+            expect(eitherRight.getWhatever()).toBe('right_value');
+            expect(eitherRight.getRight()).toBe('right_value');
+            expect(() => eitherRight.getLeft()).toThrow();
+        });
+    
+        it('Left', () => {
+            const eitherLeft = Either.left<string, string>('left_value');
+            expect(eitherLeft.getWhatever()).toBe('left_value');
+            expect(eitherLeft.getLeft()).toBe('left_value');
+            expect(() => eitherLeft.getRight()).toThrow();
+        });
+    });
+
 });
