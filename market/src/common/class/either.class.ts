@@ -5,6 +5,7 @@ export abstract class Either<L, R> {
     /*
      * Either.right, Either.left 으로 Either 를 생성하도록 하고싶어서 이렇게 구현하지만
      * 하위클래스에서도 right, left 를 사용할 수 있는것이 마음에 들지 않는다.
+     * export 하지 않고싶지만, 테스트...
      */
     static right = <L, R>(v: R): Either<L, R> => new EitherRight(v);
     static left = <L, R>(v: L): Either<L, R> => new EitherLeft(v);
