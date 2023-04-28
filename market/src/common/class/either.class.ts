@@ -6,6 +6,10 @@ export abstract class Either<L, R> {
     isRight = () => this instanceof EitherRight;
     isLeft = () => this instanceof EitherLeft;
 
+    abstract get getWhatever(): L|R;
+    abstract get getRight(): R|never;
+    abstract get getLeft(): L|never;
+
     // get getWhatever() {
     //     return this.isRight() ? this.getRight : this.getLeft;}
 
@@ -31,10 +35,34 @@ export class EitherRight<R> extends Either<never, R> {
     constructor(private readonly rightValue: R) {
         super();
     }
+
+    get getWhatever() {
+        return this.rightValue
+    }
+
+    get getRight() {
+        return this.rightValue
+    }
+
+    get getLeft(): never {
+        throw new Error(`Either getLeftError. Either is Right: ${this.getRight}`);
+    }
 }
 
 export class EitherLeft<L> extends Either<L, never> {
     constructor(private readonly leftValue: L) {
         super();
+    }
+
+    get getWhatever() {
+        return this.leftValue
+    }
+
+    get getRight(): never {
+        throw new Error(`Either getRightError. Either is Left: ${this.getLeft}`);
+    }
+
+    get getLeft() {
+        return this.leftValue
     }
 }
