@@ -18,8 +18,7 @@ export abstract class Either<L, R> {
     abstract flatMap<T, S>(fn: (v: R) => Either<T, S>): Either<L|T, S>;
     abstract flatMapPromise<T, S>(fn: (v: R) => Promise<Either<T, S>>): Promise<Either<L|T, S>>;
     
-    // map = <S>(fn: (v: R) => S) =>
-    //     this.flatMap<L, S>(v => Either.right(fn(v)));
+    map = <S>(fn: (v: R) => S) => this.flatMap<L, S>(v => Either.right(fn(v)));
 }
 
 export class EitherRight<R> extends Either<never, R> {
