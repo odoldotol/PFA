@@ -1,9 +1,9 @@
 import { Body, Controller, HttpCode, Param, ParseArrayPipe, Post, Query, UseGuards } from '@nestjs/common';
 import { UpdaterService } from './updater.service';
 import { ApiTags } from '@nestjs/swagger';
-import { UpperCasePipe } from '@common/pipe/upperCasePipe';
-import { TempKeyGuard } from '@common/guard/key.guard';
-import { ApiCommonResponse } from '@common/decorator/apiCommonResponse.decorator';
+import { UpperCasePipe } from 'src/common/pipe/upperCasePipe';
+import { TempKeyGuard } from 'src/common/guard/key.guard';
+import { ApiCommonResponse } from 'src/common/decorator/apiCommonResponse.decorator';
 import { Api_addAssets } from './decorator/api-addAssets.decorator';
 import { Api_initiator } from './decorator/api-initiator.decorator';
 import { Api_initiateForce } from './decorator/api-initiateForce.decorator';

@@ -1,9 +1,9 @@
 import { Body, Controller, Get, HttpCode, Param, Post, UseGuards, VERSION_NEUTRAL, Version } from '@nestjs/common';
 import { AppService } from './app.service';
 import { ConfigExchangeDto } from './dto/configExchange.dto';
-import { UpperCasePipe } from '@common/pipe/upperCasePipe';
-import { TempKeyGuard } from '@common/guard/key.guard';
-import { ApiCommonResponse } from '@common/decorator/apiCommonResponse.decorator';
+import { UpperCasePipe } from 'src/common/pipe/upperCasePipe';
+import { TempKeyGuard } from 'src/common/guard/key.guard';
+import { ApiCommonResponse } from 'src/common/decorator/apiCommonResponse.decorator';
 import { Api_getPriceByExchange } from './decorator/api-getPriceByExchange.decorator';
 import { Api_getPriceByTicker } from './decorator/api-getPriceByTicker.decorator';
 import { Api_createConfigExchange } from './decorator/api-createConfigExchange.decorator';

@@ -1,7 +1,7 @@
 import { CallHandler, ExecutionContext, NestInterceptor, ValidationPipe, Logger, VersioningType } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { ConfigService } from '@nestjs/config';
-import { AppModule } from '@app.module';
+import { AppModule } from 'src/app/app.module';
 import { Response } from 'express';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 

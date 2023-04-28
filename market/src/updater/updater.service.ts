@@ -2,11 +2,11 @@ import { BadRequestException, Injectable, InternalServerErrorException, Logger, 
 import { ConfigService } from '@nestjs/config';
 import { SchedulerRegistry } from '@nestjs/schedule';
 import { CronJob, CronTime } from 'cron';
-import { MarketService } from '@market.service';
-import { DBRepository } from '@database.repository';
-import { ProductApiService } from '@product-api.service';
+import { MarketService } from 'src/market/market.service';
+import { DBRepository } from 'src/database/database.repository';
+import { ProductApiService } from 'src/product-api/product-api.service';
 import { AddAssetsResponse } from './response/addAssets.response';
-import { Either } from "@common/class/either.class";
+import { Either } from "src/common/class/either.class";
 import { pipe, map, toArray, toAsync, tap, each, filter, concurrent, peek, curry } from "@fxts/core";
 
 @Injectable()

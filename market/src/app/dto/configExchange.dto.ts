@@ -1,6 +1,6 @@
 import { IsNotEmpty, IsNumber, IsOptional, IsString } from "class-validator";
 import { ApiProperty } from "@nestjs/swagger";
-import { Config_exchange } from "@mongodb/config_exchange.schema";
+import { Config_exchange } from "src/database/mongodb/schema/config_exchange.schema";
 
 export class ConfigExchangeDto implements Config_exchange {
     

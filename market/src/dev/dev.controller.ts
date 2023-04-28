@@ -1,8 +1,8 @@
 import { Controller, Get, Query } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { DevService } from './dev.service';
-import { UpperCasePipe } from '@common/pipe/upperCasePipe';
-import { ApiCommonResponse } from '@common/decorator/apiCommonResponse.decorator';
+import { UpperCasePipe } from 'src/common/pipe/upperCasePipe';
+import { ApiCommonResponse } from 'src/common/decorator/apiCommonResponse.decorator';
 import { Api_getAllAssetsInfo } from './decorator/api-getAllAssetsInfo.decorator';
 import { Api_getAllStatusPrice } from './decorator/api-getAllStatusPrice.decorator';
 import { Api_getUpdateLog } from './decorator/api-getUpdateLog.decorator';

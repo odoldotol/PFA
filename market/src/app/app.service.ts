@@ -1,6 +1,6 @@
 import { BadRequestException, Injectable, InternalServerErrorException } from '@nestjs/common';
-import { UpdaterService } from '@updater.service';
-import { DBRepository } from '@database.repository';
+import { UpdaterService } from 'src/updater/updater.service';
+import { DBRepository } from 'src/database/database.repository';
 import { ResponseGetPriceByTicker } from './response/getPriceByTicker.response';
 import F from '@fxts/core';
 
