@@ -11,18 +11,20 @@ describe('Either', () => {
     it('EitherLeft should be defined', () => {
         expect(EitherLeft).toBeDefined();});
     
-    it('Either.right', () => {
-        const eitherRight = Either.right<string, string>('right_value');
-        expect(eitherRight).toBeInstanceOf(EitherRight);
-        expect(eitherRight).toBeInstanceOf(Either);
-        expect(eitherRight).not.toBeInstanceOf(EitherLeft);
-    });
-
-    it('Either.left', () => {
-        const eitherLeft = Either.left<string, string>('left_value');
-        expect(eitherLeft).toBeInstanceOf(EitherLeft);
-        expect(eitherLeft).toBeInstanceOf(Either);
-        expect(eitherLeft).not.toBeInstanceOf(EitherRight);
+    describe('creation', () => {
+        it('Either.right', () => {
+            const eitherRight = Either.right<string, string>('right_value');
+            expect(eitherRight).toBeInstanceOf(EitherRight);
+            expect(eitherRight).toBeInstanceOf(Either);
+            expect(eitherRight).not.toBeInstanceOf(EitherLeft);
+        });
+    
+        it('Either.left', () => {
+            const eitherLeft = Either.left<string, string>('left_value');
+            expect(eitherLeft).toBeInstanceOf(EitherLeft);
+            expect(eitherLeft).toBeInstanceOf(Either);
+            expect(eitherLeft).not.toBeInstanceOf(EitherRight);
+        });
     });
 
 });
