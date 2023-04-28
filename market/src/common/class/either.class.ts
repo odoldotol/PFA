@@ -1,4 +1,6 @@
 export abstract class Either<L, R> {
+
+    constructor(protected readonly eitherValue: L|R) {}
   
     static right = <L, R>(v: R): Either<L, R> => new EitherRight(v);
     static left = <L, R>(v: L): Either<L, R> => new EitherLeft(v);
@@ -6,20 +8,12 @@ export abstract class Either<L, R> {
     isRight = () => this instanceof EitherRight;
     isLeft = () => this instanceof EitherLeft;
 
-    abstract get getWhatever(): L|R;
+    get getWhatever() {
+        return this.eitherValue
+    }
+
     abstract get getRight(): R|never;
     abstract get getLeft(): L|never;
-
-    // get getWhatever() {
-    //     return this.isRight() ? this.getRight : this.getLeft;}
-
-    // get getRight() {
-    //     if (this.isLeft()) throw new Error(`Either getRightError. Either is Left: ${this.getLeft}`);
-    //     return this.rightValue;}
-
-    // get getLeft() {
-    //     if (this.isRight()) throw new Error(`Either getLeftError. Either is Right: ${this.getRight}`);
-    //     return this.leftValue;}
 
     // flatMap = <T, S>(fn: (v: R) => Either<T, S>): Either<T|L, S> =>
     //     this.isRight() ? fn(this.getRight) : Either.left<L, S>(this.getLeft);
@@ -32,37 +26,23 @@ export abstract class Either<L, R> {
 }
 
 export class EitherRight<R> extends Either<never, R> {
-    constructor(private readonly rightValue: R) {
-        super();
-    }
-
-    get getWhatever() {
-        return this.rightValue
-    }
+    
+    constructor(v: R) { super(v); }
 
     get getRight() {
-        return this.rightValue
-    }
+        return this.eitherValue;}
 
     get getLeft(): never {
-        throw new Error(`Either getLeftError. Either is Right: ${this.getRight}`);
-    }
+        throw new Error(`Either getLeft Error. Either is Right, value: ${this.eitherValue}`);}
 }
 
 export class EitherLeft<L> extends Either<L, never> {
-    constructor(private readonly leftValue: L) {
-        super();
-    }
 
-    get getWhatever() {
-        return this.leftValue
-    }
+    constructor(v: L) { super(v); }
 
     get getRight(): never {
-        throw new Error(`Either getRightError. Either is Left: ${this.getLeft}`);
-    }
+        throw new Error(`Either getRight Error. Either is Left, value: ${this.eitherValue}`);}
 
     get getLeft() {
-        return this.leftValue
-    }
+        return this.eitherValue;}
 }
