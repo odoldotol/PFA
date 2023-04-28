@@ -48,5 +48,25 @@ describe('Either', () => {
             expect(eitherLeft.getWhatever).toBe('left_value');
             expect(eitherLeft.getLeft).toBe('left_value');
             expect(() => eitherLeft.getRight).toThrow();});});
+    
+    describe('flatMap', () => {
+        const fnR = (v: string): Either<boolean, number> => Either.right(v.length);
+        const fnL = (v: string): Either<boolean, number> => Either.left(v.length > 10);
+        it('Right', () => {
+            const newEitherRight = eitherRight.flatMap(fnR);
+            const newEitherLeft = eitherRight.flatMap(fnL);
+            expect(newEitherRight).toBeInstanceOf(EitherRight);
+            expect(newEitherLeft).toBeInstanceOf(EitherLeft);
+            expect(newEitherRight.getRight).toBe(11);
+            expect(newEitherLeft.getLeft).toBe(false);});
+        
+        it('Left', () => {
+            const newEitherRight = eitherLeft.flatMap(fnR);
+            const newEitherLeft = eitherLeft.flatMap(fnL);
+            expect(newEitherRight).toBeInstanceOf(EitherLeft);
+            expect(newEitherLeft).toBeInstanceOf(EitherLeft);
+            expect(newEitherRight.getRight).toBe('left_value');
+            expect(newEitherLeft.getLeft).toBe('left_value');});
+    });
 
 });
