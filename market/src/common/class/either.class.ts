@@ -4,8 +4,7 @@ export abstract class Either<L, R> {
   
     /*
      * Either.right, Either.left 으로 Either 를 생성하도록 하고싶어서 이렇게 구현하지만
-     * 하위클래스에서도 right, left 를 사용할 수 있는것이 마음에 들지 않는다.
-     * export 하지 않고싶지만, 테스트...
+     * 하위클래스에서도 right, left 를 사용할 수 있는것이 마음에 들지 않지만 export 하지 않는걸로 만족하자.
      */
     static right = <L, R>(v: R): Either<L, R> => new EitherRight(v);
     static left = <L, R>(v: L): Either<L, R> => new EitherLeft(v);
@@ -32,7 +31,7 @@ export abstract class Either<L, R> {
     map = <S>(fn: (v: R) => S) => this.flatMap<L, S>(v => Either.right(fn(v)));
 }
 
-export class EitherRight<R> extends Either<never, R> {
+class EitherRight<R> extends Either<never, R> {
     
     constructor(v: R) { super(v); }
 
@@ -46,7 +45,7 @@ export class EitherRight<R> extends Either<never, R> {
     flatMapPromise = async <T, S>(fn: (v: R) => Promise<Either<T, S>>) => await fn(this.getWhatever);
 }
 
-export class EitherLeft<L> extends Either<L, never> {
+class EitherLeft<L> extends Either<L, never> {
 
     constructor(v: L) { super(v); }
 

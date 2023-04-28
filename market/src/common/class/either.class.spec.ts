@@ -1,15 +1,9 @@
-import { Either, EitherRight, EitherLeft } from "./either.class";
+import { Either } from "./either.class";
 
 describe('Either', () => {
 
     it('Either should be defined', () => {
         expect(Either).toBeDefined();});
-    
-    it('EitherRight should be defined', () => {
-        expect(EitherRight).toBeDefined();});
-    
-    it('EitherLeft should be defined', () => {
-        expect(EitherLeft).toBeDefined();});
     
     let eitherRight: Either<string, string>
     let eitherLeft: Either<string, string>
@@ -17,17 +11,6 @@ describe('Either', () => {
     beforeEach(() => {
         eitherRight = Either.right('right_value');
         eitherLeft = Either.left('left_value');});
-    
-    describe('creation', () => {
-        it('Either.right', () => {
-            expect(eitherRight).toBeInstanceOf(EitherRight);
-            expect(eitherRight).toBeInstanceOf(Either);
-            expect(eitherRight).not.toBeInstanceOf(EitherLeft);});
-    
-        it('Either.left', () => {
-            expect(eitherLeft).toBeInstanceOf(EitherLeft);
-            expect(eitherLeft).toBeInstanceOf(Either);
-            expect(eitherLeft).not.toBeInstanceOf(EitherRight);});});
 
     describe('check either Right or Left', () => {
         it('isRight', () => {
@@ -37,6 +20,17 @@ describe('Either', () => {
         it('isLeft', () => {
             expect(eitherRight.isLeft()).toBeFalsy();
             expect(eitherLeft.isLeft()).toBeTruthy();});});
+    
+    describe('creation', () => {
+        it('Either.right', () => {
+            expect(eitherRight).toBeInstanceOf(Either);
+            expect(eitherRight.isRight()).toBeTruthy();
+            expect(eitherRight.isLeft()).toBeFalsy()});
+    
+        it('Either.left', () => {
+            expect(eitherLeft).toBeInstanceOf(Either);
+            expect(eitherLeft.isLeft()).toBeTruthy();
+            expect(eitherLeft.isRight()).toBeFalsy()});});
 
     describe('get value', () => {
         it('getWhatever', () => {
@@ -57,19 +51,19 @@ describe('Either', () => {
 
         it('eitherRight, if fn return right', () => {
             const newEitherRight = eitherRight.flatMap(fnR);
-            expect(newEitherRight).toBeInstanceOf(EitherRight);
+            expect(newEitherRight.isRight()).toBeTruthy();
             expect(newEitherRight.getRight).toBe(11);});
 
         it('eitherRight, if fn return left', () => {
             const newEitherRight = eitherRight.flatMap(fnL);
-            expect(newEitherRight).toBeInstanceOf(EitherLeft);
+            expect(newEitherRight.isLeft()).toBeTruthy();
             expect(newEitherRight.getLeft).toBe(true);});
 
         it('eitherLeft', () => {
             const newEitherLeft1 = eitherLeft.flatMap(fnR);
             const newEitherLeft2 = eitherLeft.flatMap(fnL);
-            expect(newEitherLeft1).toBeInstanceOf(EitherLeft);
-            expect(newEitherLeft2).toBeInstanceOf(EitherLeft);
+            expect(newEitherLeft1.isLeft()).toBeTruthy();
+            expect(newEitherLeft2.isLeft()).toBeTruthy();
             expect(newEitherLeft1.getLeft).toBe('left_value');
             expect(newEitherLeft2.getLeft).toBe('left_value');});});
 
@@ -80,19 +74,19 @@ describe('Either', () => {
 
         it('eitherRight, if fn return right', async () => {
             const newEitherRight = await eitherRight.flatMapPromise(fnR);
-            expect(newEitherRight).toBeInstanceOf(EitherRight);
+            expect(newEitherRight.isRight()).toBeTruthy();
             expect(newEitherRight.getRight).toBe(11);});
 
         it('eitherRight, if fn return left', async () => {
             const newEitherRight = await eitherRight.flatMapPromise(fnL);
-            expect(newEitherRight).toBeInstanceOf(EitherLeft);
+            expect(newEitherRight.isLeft()).toBeTruthy();
             expect(newEitherRight.getLeft).toBe(true);});
 
         it('eitherLeft', async () => {
             const newEitherLeft1 = await eitherLeft.flatMapPromise(fnR);
             const newEitherLeft2 = await eitherLeft.flatMapPromise(fnL);
-            expect(newEitherLeft1).toBeInstanceOf(EitherLeft);
-            expect(newEitherLeft2).toBeInstanceOf(EitherLeft);
+            expect(newEitherLeft1.isLeft()).toBeTruthy();
+            expect(newEitherLeft2.isLeft()).toBeTruthy();
             expect(newEitherLeft1.getLeft).toBe('left_value');
             expect(newEitherLeft2.getLeft).toBe('left_value');});});
     
@@ -101,12 +95,12 @@ describe('Either', () => {
 
         it('eitherRight', () => {
             const newEitherRight = eitherRight.map(fn);
-            expect(newEitherRight).toBeInstanceOf(EitherRight);
+            expect(newEitherRight.isRight()).toBeTruthy();
             expect(newEitherRight.getRight).toBe(11);});
 
         it('eitherLeft', () => {
             const newEitherLeft = eitherLeft.map(fn);
-            expect(newEitherLeft).toBeInstanceOf(EitherLeft);
+            expect(newEitherLeft.isLeft()).toBeTruthy();
             expect(newEitherLeft.getLeft).toBe('left_value');});});
 
 });
