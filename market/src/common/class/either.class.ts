@@ -16,12 +16,7 @@ export abstract class Either<L, R> {
     abstract get getLeft(): L|never;
 
     abstract flatMap<T, S>(fn: (v: R) => Either<T, S>): Either<L|T, S>;
-
-    // flatMap = <T, S>(fn: (v: R) => Either<T, S>): Either<T|L, S> =>
-    //     this.isRight() ? fn(this.getRight) : Either.left<L, S>(this.getLeft);
-
-    // flatMapPromise = async <T, S>(fn: (v: R) => Promise<Either<T, S>>): Promise<Either<T|L, S>> =>
-    //     this.isRight() ? await fn(this.getRight) : Either.left<L, S>(this.getLeft);
+    abstract flatMapPromise<T, S>(fn: (v: R) => Promise<Either<T, S>>): Promise<Either<L|T, S>>;
     
     // map = <S>(fn: (v: R) => S) =>
     //     this.flatMap<L, S>(v => Either.right(fn(v)));
@@ -38,6 +33,7 @@ export class EitherRight<R> extends Either<never, R> {
         throw new Error(`Either getLeft Error. Either is Right, value: ${this.getWhatever}`);}
 
     flatMap = <T, S>(fn: (v: R) => Either<T, S>) => fn(this.getWhatever);
+    flatMapPromise = async <T, S>(fn: (v: R) => Promise<Either<T, S>>) => await fn(this.getWhatever);
 }
 
 export class EitherLeft<L> extends Either<L, never> {
@@ -51,4 +47,5 @@ export class EitherLeft<L> extends Either<L, never> {
         return this.getWhatever;}
     
     flatMap = <T, S>(fn: (v: never) => Either<T, S>) => Either.left<L, S>(this.getWhatever);
+    flatMapPromise = async <T, S>(fn: (v: never) => Promise<Either<T, S>>) => Either.left<L, S>(this.getWhatever);
 }
