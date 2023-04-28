@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { Either } from "@common/class/either.class";
+import { Either } from "src/common/class/either.class";
 import { ChildApiService } from './child-api/child-api.service';
 
 @Injectable()
@@ -17,7 +17,7 @@ export class MarketService {
         .then((res: Either<YfInfoError, GetMarketInfo>) => res.map(v => Object.assign(v.info, v.fastinfo, v.metadata, v.price) as YfInfo));
 
     fetchPrice = (ticker: string) => this.childApiService.fetchYfPrice(ticker)
-        .then((res: Either<YfPriceError, Price>) => res.map(v => (v['symbol'] = ticker, v) as YfPrice));
+        .then((res: Either<YfPriceError, Price>) => res.map(v => Object.assign(v, {symbol: ticker}) as YfPrice));
 
     // TODO - Refac
     fetchExchangeSession = async (ISO_Code: string): Promise<Either<ExchangeSessionError, ExchangeSession>> => {

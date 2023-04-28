@@ -1,60 +1,37 @@
-export class Either<L, R> implements EitherI<L, R> {
+export class Either<L, R> {
 
     constructor(
         private readonly leftValue: L,
-        private readonly rightValue: R,
+        private readonly rightValue: R
     ) {
         if ((this.leftValue === undefined && this.rightValue === undefined) ||
         (this.leftValue !== undefined && this.rightValue !== undefined))
         throw new Error('Either must have a value');
     }
   
-    static right = <R>(value: R): Either<undefined, R> => new this(undefined, value);
-  
-    static left = <L>(value: L): Either<L, undefined> => new this(value, undefined);
+    static right = <L, R>(value: R): Either<L, R> => new this(undefined, value) as Either<L, R>;
+    static left = <L, R>(value: L): Either<L, R> => new this(value, undefined) as Either<L, R>;
 
-    get isRight() {
-        return this.leftValue === undefined;
-    }
-
-    get isLeft() {
-        return this.rightValue === undefined;
-    }
+    isRight = () => this.getLeft === undefined;
+    isLeft = () => this.getRight === undefined;
 
     get getWhatever() {
-        return this.isRight ? this.rightValue : this.leftValue;
-    }
+        return this.isRight() ? this.getRight : this.getLeft;}
 
-    /**
-     * ### Get Right Or Throw Error
-     */
     get getRight() {
-        if (this.isLeft) throw new Error(`Either GetRightOrThrowError. Either is Left: ${this.leftValue}`);
-        return this.rightValue;
-    }
+        if (this.isLeft()) throw new Error(`Either getRightError. Either is Left: ${this.getLeft}`);
+        return this.rightValue;}
 
-    /**
-     * ### Get Left Or Throw Error
-     */
     get getLeft() {
-        if (this.isRight) throw new Error(`Either GetLeftOrThrowError. Either is Right: ${this.rightValue}`);
-        return this.leftValue;
-    }
+        if (this.isRight()) throw new Error(`Either getLeftError. Either is Right: ${this.getRight}`);
+        return this.leftValue;}
 
-    /**
-     * ### Get Right Or Throw Custom Error
-     */
-    getRight2(error: any) {
-        if (this.isLeft) throw new error(this.leftValue);
-        return this.rightValue;
-    }
+    flatMap = <T, S>(fn: (v: R) => Either<T, S>): Either<T|L, S> =>
+        this.isRight() ? fn(this.getRight) : Either.left<L, S>(this.getLeft);
 
-    map = <S>(fn: (v: R) => S): Either<L, S> =>
-        this.flatMap(v => Either.right(fn(v)));
-
-    flatMap = <T, S>(fn: (v: R) => Either<S, T>): Either<S|L, T> =>
-        this.isRight ? fn(this.rightValue) : Either.left(this.leftValue);
-
-    flatMapPromise = async <T, S>(fn: (v: R) => Promise<Either<S, T>>): Promise<Either<S|L, T>> =>
-        this.isRight ? await fn(this.rightValue) : Either.left(this.leftValue);
+    flatMapPromise = async <T, S>(fn: (v: R) => Promise<Either<T, S>>): Promise<Either<T|L, S>> =>
+        this.isRight() ? await fn(this.getRight) : Either.left<L, S>(this.getLeft);
+    
+    map = <S>(fn: (v: R) => S) =>
+        this.flatMap<L, S>(v => Either.right(fn(v)));
 }
