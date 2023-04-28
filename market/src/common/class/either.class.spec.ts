@@ -72,4 +72,28 @@ describe('Either', () => {
             expect(newEitherLeft2.getLeft).toBe('left_value');});
     });
 
+    // Todo: Refac - flatMap 과 중복
+    describe('flatMapPromise', () => {
+        const fnR = (v: string): Promise<Either<boolean, number>> => Promise.resolve(Either.right(v.length));
+        const fnL = (v: string): Promise<Either<boolean, number>> => Promise.resolve(Either.left(v === "right_value"));
+
+        it('eitherRight, if fn return right', () => {
+            const newEitherRight = eitherRight.flatMapPromise(fnR);
+            expect(newEitherRight).toBeInstanceOf(EitherRight);
+            expect(newEitherRight.getRight).toBe(11);});
+
+        it('eitherRight, if fn return left', () => {
+            const newEitherRight = eitherRight.flatMapPromise(fnL);
+            expect(newEitherRight).toBeInstanceOf(EitherLeft);
+            expect(newEitherRight.getLeft).toBe(true);});
+
+        it('eitherLeft, if fn return right', () => {
+            const newEitherLeft1 = eitherLeft.flatMapPromise(fnR);
+            const newEitherLeft2 = eitherLeft.flatMapPromise(fnL);
+            expect(newEitherLeft1).toBeInstanceOf(EitherLeft);
+            expect(newEitherLeft2).toBeInstanceOf(EitherLeft);
+            expect(newEitherLeft1.getLeft).toBe('left_value');
+            expect(newEitherLeft2.getLeft).toBe('left_value');});
+    });
+
 });
