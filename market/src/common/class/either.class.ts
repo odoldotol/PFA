@@ -1,6 +1,6 @@
 export abstract class Either<L, R> {
 
-    constructor(protected readonly eitherValue: L|R) {}
+    constructor(private readonly eitherValue: L|R) {}
   
     static right = <L, R>(v: R): Either<L, R> => new EitherRight(v);
     static left = <L, R>(v: L): Either<L, R> => new EitherLeft(v);
@@ -32,12 +32,12 @@ export class EitherRight<R> extends Either<never, R> {
     constructor(v: R) { super(v); }
 
     get getRight() {
-        return this.eitherValue;}
+        return this.getWhatever;}
 
     get getLeft(): never {
-        throw new Error(`Either getLeft Error. Either is Right, value: ${this.eitherValue}`);}
+        throw new Error(`Either getLeft Error. Either is Right, value: ${this.getWhatever}`);}
 
-    flatMap = <T, S>(fn: (v: R) => Either<T, S>) => fn(this.getRight);
+    flatMap = <T, S>(fn: (v: R) => Either<T, S>) => fn(this.getWhatever);
 }
 
 export class EitherLeft<L> extends Either<L, never> {
@@ -45,10 +45,10 @@ export class EitherLeft<L> extends Either<L, never> {
     constructor(v: L) { super(v); }
 
     get getRight(): never {
-        throw new Error(`Either getRight Error. Either is Left, value: ${this.eitherValue}`);}
+        throw new Error(`Either getRight Error. Either is Left, value: ${this.getWhatever}`);}
 
     get getLeft() {
-        return this.eitherValue;}
+        return this.getWhatever;}
     
-    flatMap = <T, S>(fn: (v: never) => Either<T, S>) => Either.left<L, S>(this.getLeft);
+    flatMap = <T, S>(fn: (v: never) => Either<T, S>) => Either.left<L, S>(this.getWhatever);
 }
