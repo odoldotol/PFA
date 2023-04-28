@@ -10,5 +10,13 @@ describe('Either', () => {
     
     it('EitherLeft should be defined', () => {
         expect(EitherLeft).toBeDefined();});
+    
+    it('Either.right', () => {
+        expect(Either.right('right_value')).toBeInstanceOf(EitherRight);
+    });
+
+    it('Either.left', () => {
+        expect(Either.left('left_value')).toBeInstanceOf(EitherLeft);
+    });
 
 });
