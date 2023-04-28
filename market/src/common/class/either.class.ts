@@ -15,6 +15,8 @@ export abstract class Either<L, R> {
     abstract get getRight(): R|never;
     abstract get getLeft(): L|never;
 
+    abstract flatMap<T, S>(fn: (v: R) => Either<T, S>): Either<L|T, S>;
+
     // flatMap = <T, S>(fn: (v: R) => Either<T, S>): Either<T|L, S> =>
     //     this.isRight() ? fn(this.getRight) : Either.left<L, S>(this.getLeft);
 
@@ -34,6 +36,8 @@ export class EitherRight<R> extends Either<never, R> {
 
     get getLeft(): never {
         throw new Error(`Either getLeft Error. Either is Right, value: ${this.eitherValue}`);}
+
+    flatMap = <T, S>(fn: (v: R) => Either<T, S>) => fn(this.getRight);
 }
 
 export class EitherLeft<L> extends Either<L, never> {
@@ -45,4 +49,6 @@ export class EitherLeft<L> extends Either<L, never> {
 
     get getLeft() {
         return this.eitherValue;}
+    
+    flatMap = <T, S>(fn: (v: never) => Either<T, S>) => Either.left<L, S>(this.getLeft);
 }
