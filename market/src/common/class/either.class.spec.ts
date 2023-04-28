@@ -27,4 +27,18 @@ describe('Either', () => {
         });
     });
 
+    describe('check either Right or Left', () => {
+        it('Right', () => {
+            const eitherRight = Either.right<string, string>('right_value');
+            expect(eitherRight.isRight()).toBeTruthy();
+            expect(eitherRight.isLeft()).toBeFalsy();
+        });
+    
+        it('Left', () => {
+            const eitherLeft = Either.left<string, string>('left_value');
+            expect(eitherLeft.isRight()).toBeFalsy();
+            expect(eitherLeft.isLeft()).toBeTruthy();
+        });
+    });
+
 });
