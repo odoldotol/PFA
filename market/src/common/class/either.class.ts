@@ -1,16 +1,7 @@
-export class Either<L, R> {
-
-    // constructor(
-    //     private readonly leftValue: L,
-    //     private readonly rightValue: R
-    // ) {
-    //     if ((this.leftValue === undefined && this.rightValue === undefined) ||
-    //     (this.leftValue !== undefined && this.rightValue !== undefined))
-    //     throw new Error('Either must have a value');
-    // }
+export abstract class Either<L, R> {
   
-    static right = <R>(v: R) => new EitherRight(v);
-    static left = <L>(v: L) => new EitherLeft(v);
+    static right = <L, R>(v: R): Either<L, R> => new EitherRight(v);
+    static left = <L, R>(v: L): Either<L, R> => new EitherLeft(v);
 
     // isRight = () => this.getLeft === undefined;
     // isLeft = () => this.getRight === undefined;
