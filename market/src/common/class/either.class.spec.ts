@@ -12,11 +12,17 @@ describe('Either', () => {
         expect(EitherLeft).toBeDefined();});
     
     it('Either.right', () => {
-        expect(Either.right('right_value')).toBeInstanceOf(EitherRight);
+        const eitherRight = Either.right<string, string>('right_value');
+        expect(eitherRight).toBeInstanceOf(EitherRight);
+        expect(eitherRight).toBeInstanceOf(Either);
+        expect(eitherRight).not.toBeInstanceOf(EitherLeft);
     });
 
     it('Either.left', () => {
-        expect(Either.left('left_value')).toBeInstanceOf(EitherLeft);
+        const eitherLeft = Either.left<string, string>('left_value');
+        expect(eitherLeft).toBeInstanceOf(EitherLeft);
+        expect(eitherLeft).toBeInstanceOf(Either);
+        expect(eitherLeft).not.toBeInstanceOf(EitherRight);
     });
 
 });
