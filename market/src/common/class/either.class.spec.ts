@@ -95,5 +95,18 @@ describe('Either', () => {
             expect(newEitherLeft2).toBeInstanceOf(EitherLeft);
             expect(newEitherLeft1.getLeft).toBe('left_value');
             expect(newEitherLeft2.getLeft).toBe('left_value');});});
+    
+    describe('map', () => {
+        const fn = (v: string) => v.length;
+
+        it('eitherRight', () => {
+            const newEitherRight = eitherRight.map(fn);
+            expect(newEitherRight).toBeInstanceOf(EitherRight);
+            expect(newEitherRight.getRight).toBe(11);});
+
+        it('eitherLeft', () => {
+            const newEitherLeft = eitherLeft.map(fn);
+            expect(newEitherLeft).toBeInstanceOf(EitherLeft);
+            expect(newEitherLeft.getLeft).toBe('left_value');});});
 
 });
