@@ -3,8 +3,8 @@ export abstract class Either<L, R> {
     static right = <L, R>(v: R): Either<L, R> => new EitherRight(v);
     static left = <L, R>(v: L): Either<L, R> => new EitherLeft(v);
 
-    // isRight = () => this.getLeft === undefined;
-    // isLeft = () => this.getRight === undefined;
+    isRight = () => this instanceof EitherRight;
+    isLeft = () => this instanceof EitherLeft;
 
     // get getWhatever() {
     //     return this.isRight() ? this.getRight : this.getLeft;}
