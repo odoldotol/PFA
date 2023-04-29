@@ -9,15 +9,20 @@ export class UpperCasePipe implements PipeTransform {
         this.arrToUpperCasePipe,
         this.objToUpperCasePipe);
 
-    private strToUpperCasePipe = (val: any) => typeof val === 'string' ? val.toUpperCase() : val;
+    private strToUpperCasePipe = (val: any) =>
+        typeof val === 'string' ? val.toUpperCase(): val;
 
-    private arrToUpperCasePipe = (val: any) => F.isArray(val) ? val.map(this.transform) : val;
+    private arrToUpperCasePipe = (val: any) =>
+        F.isArray(val) ? val.map(this.transform) : val;
 
-    private objToUpperCasePipe = (val: any) => F.not(F.isNil(val)) && typeof val === 'object' && F.not(F.isArray(val)) ?
-        F.pipe(
+    private objToUpperCasePipe = (val: any) => 
+        typeof val === 'object' &&
+        F.not(F.isArray(val)) &&
+        F.not(F.isNil(val)) ? F.pipe(
             val,
             Object.entries,
             F.map(([k,v]) => [k, this.transform(v)] as [string, any]),
-            F.fromEntries)
-        : val;
+            F.fromEntries
+        ) : val;
+        
 }
