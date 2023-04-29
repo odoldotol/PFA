@@ -53,8 +53,8 @@ describe('UpperCasePipe', () => {
             .toEqual([...successArr.case1, successObj.case1]));
 
         it('combination in nested array', () =>
-            expect(pipe.transform([[...testArr.case1, testArr.case1, testObj.case1]]))
-            .toEqual([[...successArr.case1, successArr.case1, successObj.case1]]));});
+            expect(pipe.transform([[...testArr.case1, [...testArr.case1, testObj.case1]]]))
+            .toEqual([[...successArr.case1, [...successArr.case1, successObj.case1]]]));});
 
     describe('Case: object', () => {
         it('should return upper case object', () =>
