@@ -46,7 +46,10 @@ describe('UpperCasePipe', () => {
             expect(result).toEqual(['ABCDEFG', undefined, 'HIJKLMN', null, 123, { a: 'ABCDEFG', b: undefined, c: 'HIJKLMN', d: null, e: 123 }]);
         });
 
-        it.todo('combination in nested array');
+        it('combination in nested array', () => {
+            const result = pipe.transform([['abCdEFg', undefined, 'HiJKlmn', null, 123, ['abCdEFg', undefined, 'HiJKlmn', null, 123], { a: 'abCdEFg', b: undefined, c: 'HiJKlmn', d: null, e: 123 }]]);
+            expect(result).toEqual([['ABCDEFG', undefined, 'HIJKLMN', null, 123, ['ABCDEFG', undefined, 'HIJKLMN', null, 123], { a: 'ABCDEFG', b: undefined, c: 'HIJKLMN', d: null, e: 123 }]]);
+        });
         
     });
 
