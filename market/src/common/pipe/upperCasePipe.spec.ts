@@ -54,8 +54,10 @@ describe('UpperCasePipe', () => {
             expect(result).toEqual({ a: { b: { c: { d: { a: 'ABCDEFG', b: undefined, c: 'HIJKLMN', d: null, e: 123 } } } } });
         });
 
-        it.todo('combination in object');
-
+        it('combination in object', () => {
+            const result = pipe.transform({ a: 'abCdEFg', b: undefined, c: ['HiJKlmn', null, 123] });
+            expect(result).toEqual({ a: 'ABCDEFG', b: undefined, c: ['HIJKLMN', null, 123] });
+        });
     });
 
 });
