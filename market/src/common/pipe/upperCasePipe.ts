@@ -6,15 +6,13 @@ export class UpperCasePipe implements PipeTransform {
         if (Array.isArray(value)) {
             return value.map((ele) => this.strToUpperCasePipe(ele));
         } else if (value instanceof Object) {
+            const r: {[key: string]: any} = {}; 
             return Object.entries(value).reduce((acc, [key, value]) => {
-                // @ts-ignore
                 if (typeof value === 'string') acc[key] = value.toUpperCase();
-                // @ts-ignore
                 else if (Array.isArray(value)) acc[key] = value.map((ele) => typeof ele === 'string' ? ele.toUpperCase() : ele);
-                // @ts-ignore
                 else acc[key] = value;
                 return acc;
-            }, {});
+            }, r);
         } else return this.strToUpperCasePipe(value);
     }
 
