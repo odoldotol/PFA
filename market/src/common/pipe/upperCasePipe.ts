@@ -2,7 +2,7 @@ import { PipeTransform } from "@nestjs/common";
 
 export class UpperCasePipe implements PipeTransform {
     // TODO: Refac
-    transform(value: string | Array<any> | object) {
+    transform(value?: string | Array<any> | object) {
         if (value !== undefined) {
             if (Array.isArray(value)) {
                 return value.map((ele) => typeof ele === 'string' ? ele.toUpperCase() : ele);
