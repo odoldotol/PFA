@@ -2,9 +2,15 @@ import { UpperCasePipe } from "./upperCasePipe";
 
 describe('UpperCasePipe', () => {
 
-    it('should be defined', () => {
-        expect(new UpperCasePipe()).toBeDefined();
+    let pipe: UpperCasePipe;
+
+    beforeEach(() => {
+        pipe = new UpperCasePipe();
     });
 
-    
+    it('should be defined', () => {
+        expect(pipe.transform).toBeDefined();
+    });
+
+
 });
