@@ -12,5 +12,12 @@ describe('UpperCasePipe', () => {
         expect(pipe.transform).toBeDefined();
     });
 
+    describe('Case: undefined', () => {
+                
+        it('should return undefined', () => {
+            const result = pipe.transform(undefined);
+            expect(result).toBeUndefined();
+        });
+    });
 
 });
