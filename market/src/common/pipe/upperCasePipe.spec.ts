@@ -29,4 +29,27 @@ describe('UpperCasePipe', () => {
     
     });
 
+    describe('Case: array', () => {
+                
+        it('should return upper case array', () => {
+            const result = pipe.transform(['abCdEFg', undefined, 'HiJKlmn', null, 123]);
+            expect(result).toEqual(['ABCDEFG', undefined, 'HIJKLMN', null, 123]);
+        });
+
+        it.todo('multiple nested array');
+
+        it.todo('combination in array');
+        
+    });
+
+    describe('Case: object', () => {
+
+        it.todo('should return upper case object');
+
+        it.todo('multiple nested object');
+
+        it.todo('combination in object');
+
+    });
+
 });
