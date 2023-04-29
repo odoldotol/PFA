@@ -44,7 +44,10 @@ describe('UpperCasePipe', () => {
 
     describe('Case: object', () => {
 
-        it.todo('should return upper case object');
+        it('should return upper case object', () => {
+            const result = pipe.transform({ a: 'abCdEFg', b: undefined, c: 'HiJKlmn', d: null, e: 123 });
+            expect(result).toEqual({ a: 'ABCDEFG', b: undefined, c: 'HIJKLMN', d: null, e: 123 });
+        });
 
         it.todo('multiple nested object');
 
