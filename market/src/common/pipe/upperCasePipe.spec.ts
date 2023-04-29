@@ -49,7 +49,10 @@ describe('UpperCasePipe', () => {
             expect(result).toEqual({ a: 'ABCDEFG', b: undefined, c: 'HIJKLMN', d: null, e: 123 });
         });
 
-        it.todo('multiple nested object');
+        it('multiple nested object', () => {
+            const result = pipe.transform({ a: { b: { c: { d: { a: 'abCdEFg', b: undefined, c: 'HiJKlmn', d: null, e: 123 } } } } });
+            expect(result).toEqual({ a: { b: { c: { d: { a: 'ABCDEFG', b: undefined, c: 'HIJKLMN', d: null, e: 123 } } } } });
+        });
 
         it.todo('combination in object');
 
