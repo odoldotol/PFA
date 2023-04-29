@@ -58,6 +58,11 @@ describe('UpperCasePipe', () => {
             const result = pipe.transform({ a: 'abCdEFg', b: undefined, c: ['HiJKlmn', null, 123] });
             expect(result).toEqual({ a: 'ABCDEFG', b: undefined, c: ['HIJKLMN', null, 123] });
         });
+
+        it('combination in nested object', () => {
+            const result = pipe.transform({ a: { b: { c: { d: { a: 'abCdEFg', b: undefined, c: 'HiJKlmn', d: null, e: 123 } }, f: ['abCdEFg', undefined, 'HiJKlmn', null, 123] } } });
+            expect(result).toEqual({ a: { b: { c: { d: { a: 'ABCDEFG', b: undefined, c: 'HIJKLMN', d: null, e: 123 } }, f: ['ABCDEFG', undefined, 'HIJKLMN', null, 123] } } });
+        });
     });
 
 });
