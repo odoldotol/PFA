@@ -20,4 +20,13 @@ describe('UpperCasePipe', () => {
         });
     });
 
+    describe('Case: string', () => {
+            
+        it('should return upper case string', () => {
+            const result = pipe.transform('abCdEFg');
+            expect(result).toBe('ABCDEFG');
+        });
+    
+    });
+
 });
