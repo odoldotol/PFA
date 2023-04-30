@@ -46,5 +46,5 @@ class EitherLeft<L> extends Either<L, never> {
     
     flatMap = <T, S>(fn: (v: never) => Either<T, S>) => Either.left<L, S>(this.getWhatever);
     flatMapPromise = async <T, S>(fn: (v: never) => Promise<Either<T, S>>) => Either.left<L, S>(this.getWhatever);
-    map = <S>(fn: (v: never) => S) => Either.left<L, never>(this.getWhatever);
+    map = <S>(fn: (v: never) => S) => Either.left<L, S>(this.getWhatever);
 }
