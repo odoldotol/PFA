@@ -2,15 +2,17 @@ import { Either } from "./either";
 
 describe('Either', () => {
 
-    it('Either should be defined', () => {
-        expect(Either).toBeDefined();});
-    
     let eitherRight: Either<string, string>
     let eitherLeft: Either<string, string>
 
     beforeEach(() => {
         eitherRight = Either.right('right_value');
         eitherLeft = Either.left('left_value');});
+
+    it('Either should be defined', () => {
+        expect(Either).toBeDefined();
+        expect(eitherRight).toBeDefined();
+        expect(eitherLeft).toBeDefined();});
 
     describe('check either Right or Left', () => {
         it('isRight', () => {
