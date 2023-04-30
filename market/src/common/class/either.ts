@@ -29,9 +29,14 @@ class EitherRight<R> extends Either<never, R> {
     get getLeft(): never {
         throw new Error(`Either getLeft Error. Either is Right, value: ${this.getWhatever}`);}
 
-    flatMap = <T, S>(fn: (v: R) => Either<T, S>) => fn(this.getWhatever);
-    flatMapPromise = async <T, S>(fn: (v: R) => Promise<Either<T, S>>) => await fn(this.getWhatever);
-    map = <S>(fn: (v: R) => S) => Either.right<never, S>(fn(this.getWhatever));
+    flatMap = <T, S>(fn: (v: R) => Either<T, S>) =>
+        fn(this.getWhatever);
+    
+    flatMapPromise = <T, S>(fn: (v: R) => Promise<Either<T, S>>) =>
+        fn(this.getWhatever);
+    
+    map = <S>(fn: (v: R) => S) =>
+        Either.right<never, S>(fn(this.getWhatever));
 }
 
 class EitherLeft<L> extends Either<L, never> {
@@ -44,7 +49,12 @@ class EitherLeft<L> extends Either<L, never> {
     get getLeft() {
         return this.getWhatever;}
     
-    flatMap = <T, S>(fn: (v: never) => Either<T, S>) => Either.left<L, S>(this.getWhatever);
-    flatMapPromise = async <T, S>(fn: (v: never) => Promise<Either<T, S>>) => Either.left<L, S>(this.getWhatever);
-    map = <S>(fn: (v: never) => S) => Either.left<L, S>(this.getWhatever);
+    flatMap = <T, S>(_fn: (v: never) => Either<T, S>) =>
+        Either.left<L, S>(this.getWhatever);
+    
+    flatMapPromise = async <T, S>(_fn: (v: never) => Promise<Either<T, S>>) =>
+        Either.left<L, S>(this.getWhatever);
+    
+    map = <S>(_fn: (v: never) => S) =>
+        Either.left<L, S>(this.getWhatever);
 }
