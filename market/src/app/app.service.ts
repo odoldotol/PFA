@@ -35,7 +35,7 @@ export class AppService {
         });
         return new ResponseGetPriceByTicker(
             price.regularMarketLastClose,
-            await this.dbRepo.isoCodeToTimezone(price["exchangeTimezoneName"]),
+            await this.dbRepo.isoCodeToTimezone(price["exchangeTimezoneName"]) as string, // as
             price.quoteType === "INDEX" ? "INDEX" : price.currency,
             status_price);
     }
