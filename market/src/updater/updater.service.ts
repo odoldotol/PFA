@@ -8,17 +8,19 @@ import { ProductApiService } from 'src/product-api/product-api.service';
 import { AddAssetsResponse } from './response/addAssets.response';
 import { Either } from "src/common/class/either";
 import { pipe, map, toArray, toAsync, tap, each, filter, concurrent, peek, curry } from "@fxts/core";
+import { EnvironmentVariables } from 'src/common/interface/environmentVariables.interface';
+import { EnvKey } from 'src/common/enum/envKey.emun';
 
 @Injectable()
 export class UpdaterService implements OnModuleInit {
 
     private readonly logger = new Logger(UpdaterService.name);
-    private readonly TEMP_KEY = this.configService.get<string>('TEMP_KEY');
-    private readonly DE_UP_MARGIN = this.configService.get<number>('DefaultUpdateMarginMilliseconds', 1800000);
-    private readonly CHILD_CONCURRENCY = this.configService.get<number>('CHILD_CONCURRENCY', 1) * 50;
+    private readonly TEMP_KEY = this.configService.get(EnvKey.TempKey, 'TEMP_KEY', { infer: true });
+    private readonly DE_UP_MARGIN = this.configService.get(EnvKey.Yf_update_margin_ms_default, 1800000, { infer: true });
+    private readonly CHILD_CONCURRENCY = this.configService.get(EnvKey.Child_concurrency, 1, { infer: true }) * 50;
 
     constructor(
-        private readonly configService: ConfigService,
+        private readonly configService: ConfigService<EnvironmentVariables>,
         private readonly schedulerRegistry: SchedulerRegistry,
         private readonly marketService: MarketService,
         private readonly dbRepo: DBRepository,

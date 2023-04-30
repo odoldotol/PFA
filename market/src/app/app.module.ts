@@ -9,6 +9,9 @@ import { DBModule } from 'src/database/database.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { HttpLoggerMiddleware } from './middleware/httpLogger.middleware';
+import { EnvKey } from 'src/common/enum/envKey.emun'
+import { EnvironmentVariables } from 'src/common/interface/environmentVariables.interface';
+
 
 @Module({
   imports: [
@@ -17,8 +20,8 @@ import { HttpLoggerMiddleware } from './middleware/httpLogger.middleware';
       envFilePath: ".env"}),
     MongooseModule.forRootAsync({
       imports: [ConfigModule],
-      useFactory: (configService: ConfigService) => ({
-        uri: `${configService.get('MONGO_URL')}${configService.get('MONGO_database')}${configService.get('MONGO_Query')}`
+      useFactory: (configService: ConfigService<EnvironmentVariables>) => ({
+        uri: `${configService.get(EnvKey.MongoDB_url)}${configService.get(EnvKey.MongoDB_name)}${configService.get(EnvKey.MongoDB_query)}`
       }),
       inject: [ConfigService],}),
     ScheduleModule.forRoot(),

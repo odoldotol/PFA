@@ -4,6 +4,8 @@ import { ConfigService } from '@nestjs/config';
 import { AppModule } from 'src/app/app.module';
 import { Response } from 'express';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { EnvironmentVariables } from 'src/common/interface/environmentVariables.interface';
+import { EnvKey } from 'src/common/enum/envKey.emun';
 
 bootstrap();
 
@@ -45,10 +47,10 @@ async function bootstrap() {
     .addTag('Development')
     .build()));
 
-  const configService = app.get(ConfigService);
-  await app.listen(configService.get<number>("PORT", 6001)); logger.log('App listen');
+  const configService = app.get(ConfigService<EnvironmentVariables>);
+  await app.listen(configService.get(EnvKey.Port, 6001, {infer: true})); logger.log('App listen');
 
-  configService.get<string>("PM2_NAME") && process.send &&
+  configService.get(EnvKey.Pm2_name, {infer: true}) && process.send &&
     process.send(
       'ready',
       logger.log("Send Ready to Parent Process"),

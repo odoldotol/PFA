@@ -2,20 +2,22 @@ import { Injectable, Logger, OnApplicationBootstrap, OnModuleInit } from "@nestj
 import { ConfigService } from "@nestjs/config";
 import * as pm2 from "pm2";
 import { curry, delay, filter, find, isUndefined, not, pipe, range, toAsync } from "@fxts/core";
+import { EnvKey } from "src/common/enum/envKey.emun";
+import { EnvironmentVariables } from "src/common/interface/environmentVariables.interface";
 
 @Injectable()
 export class Pm2Service implements OnModuleInit {
 
     private readonly logger = new Logger(Pm2Service.name);
-    private readonly PM2_NAME = this.configService.get<string>('PM2_NAME');
+    private readonly PM2_NAME = this.configService.get(EnvKey.Pm2_name, { infer: true });
     readonly IS_RUN_BY_PM2: boolean;
-    private readonly PM2_listen_timeout = this.configService.get<number>('listen_timeout');
+    private readonly PM2_listen_timeout = this.configService.get(EnvKey.PM2_listen_timeout, { infer: true });
     private readonly PM2_ID!: number;
     private msgBus: any;
     private isOld: boolean = false;
 
     constructor(
-        private readonly configService: ConfigService,
+        private readonly configService: ConfigService<EnvironmentVariables>,
     ) {
         if (this.IS_RUN_BY_PM2 = not(isUndefined(this.PM2_NAME))) Pm2Service.identify(this);
     }

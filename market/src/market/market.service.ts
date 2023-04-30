@@ -1,16 +1,18 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Either } from "src/common/class/either";
+import { EnvKey } from 'src/common/enum/envKey.emun';
+import { EnvironmentVariables } from 'src/common/interface/environmentVariables.interface';
 import { ChildApiService } from './child-api/child-api.service';
 
 @Injectable()
 export class MarketService {
 
     private readonly logger = new Logger(MarketService.name);
-    private readonly YFCCC_ISO_Code = this.configService.get<string>('YahooFinance_CCC_ISO_Code', "XCCC");
+    private readonly YFCCC_ISO_Code = this.configService.get(EnvKey.Yf_CCC_Code, "XCCC", { infer: true });
 
     constructor(
-        private readonly configService: ConfigService,
+        private readonly configService: ConfigService<EnvironmentVariables>,
         private readonly childApiService: ChildApiService) {}
 
     fetchInfo = (ticker: string) => this.childApiService.fetchYfInfo(ticker)

@@ -2,14 +2,16 @@ import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { HttpModule } from '@nestjs/axios';
 import { ProductApiService } from './product-api.service';
+import { EnvKey } from 'src/common/enum/envKey.emun';
+import { EnvironmentVariables } from 'src/common/interface/environmentVariables.interface';
 
 @Module({
     imports: [
         HttpModule.registerAsync({
             imports: [ConfigModule],
-            useFactory: async (configService: ConfigService) => ({
-                baseURL: configService.get('PRODUCT_API_BASE_URL', 'http://localhost:7001'),
-                timeout: 10000,
+            useFactory: async (configService: ConfigService<EnvironmentVariables>) => ({
+                baseURL: configService.get(EnvKey.Docker_productApiBaseUrl, 'http://localhost:7001', { infer: true }),
+                timeout: configService.get(EnvKey.ProductApiTimeout, 10000, { infer: true }),
             }),
             inject: [ConfigService]})],
     providers: [ProductApiService],
