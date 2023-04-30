@@ -1,10 +1,10 @@
-interface LogPriceUpdate {
-    readonly launcher: "initiator" | "scheduler" | "admin" | "product" | "test"
-    readonly isStandard: boolean
-    readonly key: string | Array<string | Object>
-    readonly success: UpdatePriceSet[]
-    readonly failure: any[]
-    readonly startTime: string
-    readonly endTime: string
-    readonly duration: number
-}
+type LogPriceUpdate = Readonly<{
+    launcher: "initiator" | "scheduler" | "admin" | "product" | "test"
+    isStandard: boolean
+    key: string | Array<string | Object>
+    success: UpdatePriceSet[]
+    failure: any[]
+    startTime: string
+    endTime: string
+    duration: number
+}>

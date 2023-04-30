@@ -1,6 +1,6 @@
 import { ApiProperty } from "@nestjs/swagger";
 
-export class AddAssetsResponse implements AddAssetsResponseI {
+export class AddAssetsResponse {
     
     @ApiProperty({ type: Object, example: {info: [{
 		"symbol": "MSFT",

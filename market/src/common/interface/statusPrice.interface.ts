@@ -1,5 +1,5 @@
-interface StatusPrice {
-    readonly ISO_Code: string
-    readonly lastMarketDate: string
-    readonly yf_exchangeTimezoneName: string
-}
+type StatusPrice = Readonly<{
+    ISO_Code: string
+    lastMarketDate: string
+    yf_exchangeTimezoneName: string
+}>
