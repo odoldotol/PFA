@@ -15,7 +15,7 @@ export class Config_exchangeRepository {
     
     findMarginMilliseconds = (ISO_Code: string) => this.config_exchangeModel.findOne({ ISO_Code },
         "-_id update_margin_milliseconds").lean().exec()
-        .then(obj => obj.update_margin_milliseconds);
+        .then(obj => obj?.update_margin_milliseconds); // ?
 
     createOne = (reqBody: Config_exchange) => this.config_exchangeModel.create(reqBody);
 

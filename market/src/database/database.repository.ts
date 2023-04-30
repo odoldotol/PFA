@@ -54,7 +54,7 @@ export class DBRepository {
      * ### ISO_Code 로 조회 => [symbol, price, currency][]
      */
     readPriceByISOcode = async (ISO_Code: string) =>
-        this.yf_infoRepo.findPricesByExchange(await this.isoCodeToTimezone(ISO_Code))
+        this.yf_infoRepo.findPricesByExchange(await this.isoCodeToTimezone(ISO_Code) as string) // TODO - Refac(as)
         .then(arr => arr.map(ele => [ele.symbol, ele.regularMarketLastClose, ele.quoteType === "INDEX" ? "INDEX" : ele.currency]));
 
     /**
@@ -146,7 +146,7 @@ export class DBRepository {
         }
         pipe(
             updateResult.updatePriceResult,
-            each(ele => ele.isRight ?
+            each(ele => ele.isRight() ?
             newLogDoc.success.push(ele.getRight) : newLogDoc.failure.push(ele.getLeft)
             )
         );
@@ -159,22 +159,20 @@ export class DBRepository {
         });
     }
 
+    // Todo - Refac
     /**
      * ### ISO code 를 yahoofinance exchangeTimezoneName 로 변환 혹은 그 반대를 수행
      * - 없으면 전체 갱신후 재시도
      */
-    async isoCodeToTimezone(something: string): Promise<string> {
-        const result: string = await this.cacheManager.get(something);
+    async isoCodeToTimezone(something: string) {
+        const result: string | undefined = await this.cacheManager.get(something);
         if (!result) {
             await this.setIsoCodeToTimezone();
-            return await this.cacheManager.get(something);
+            return await this.cacheManager.get(something) as string | undefined;
         };
         return result;
     }
 
-    /**
-     * isoCodeToTimezone 갱신
-     */
     setIsoCodeToTimezone = async () => Promise.all(
         (await this.config_exchangeRepo.findAllIsoCodeAndTimezone())
         .map(async isoCodeAndTimezone => {
@@ -188,6 +186,7 @@ export class DBRepository {
      */
     setIsNotMarketOpen = (ISO_Code: string, isNotMarketOpen: boolean) => this.cacheManager.set(ISO_Code + "_isNotMarketOpen", isNotMarketOpen, { ttl: 60 - new Date().getSeconds() });
 
-    getIsNotMarketOpen = (ISO_Code: string): Promise<boolean> => this.cacheManager.get(ISO_Code + "_isNotMarketOpen");
+    // Todo - Refac(as)
+    getIsNotMarketOpen = (ISO_Code: string) => this.cacheManager.get(ISO_Code + "_isNotMarketOpen") as Promise<boolean>;
 
 }

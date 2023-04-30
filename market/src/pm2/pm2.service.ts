@@ -10,7 +10,7 @@ export class Pm2Service implements OnModuleInit {
     private readonly PM2_NAME = this.configService.get<string>('PM2_NAME');
     readonly IS_RUN_BY_PM2: boolean;
     private readonly PM2_listen_timeout = this.configService.get<number>('listen_timeout');
-    private readonly PM2_ID: number;
+    private readonly PM2_ID!: number;
     private msgBus: any;
     private isOld: boolean = false;
 
@@ -27,11 +27,11 @@ export class Pm2Service implements OnModuleInit {
             () => this.logger.verbose(`I confirmed that New ${this.PM2_ID+'|'+this.PM2_NAME} was ready`));};
 
     private newProcessReadyListener = (action: Function) => new Promise(resolve =>
-        this.listener(async packet => await this.isReadyMsgFromNewProcess(packet) && resolve(action())));
+        this.listener(async (packet: any) => await this.isReadyMsgFromNewProcess(packet) && resolve(action()))); // any
 
     private listener = (msgCallBack: Function) => this.msgBus.on('process:msg', msgCallBack);
 
-    private isReadyMsgFromNewProcess = async packet => 
+    private isReadyMsgFromNewProcess = async (packet: any) => // any
         packet.raw === 'ready' &&
         packet.process.name === this.PM2_NAME &&
         packet.process.pm_id === this.PM2_ID &&
@@ -44,7 +44,7 @@ export class Pm2Service implements OnModuleInit {
         find(this.isPm2IdEqualMine),
         this.isProcessIdEqualMine, not);
     
-    private isProcessIdEqualMine = (pm2_p: pm2.ProcessDescription) => pm2_p.pid === process.pid;
+    private isProcessIdEqualMine = (pm2_p?: pm2.ProcessDescription) => pm2_p?.pid === process.pid; // ?
     
     private isPm2IdEqualMine = (pm2_p: pm2.ProcessDescription) => pm2_p.pm_id === this.PM2_ID;
 

@@ -7,7 +7,7 @@ export type Yf_infoDocument = Yf_info & Document;
     timestamps: true,
     strict: false //
  })
-export class Yf_info implements FulfilledYfInfo {
+export class Yf_info {
     @Prop({
         required: true,
         unique: true,

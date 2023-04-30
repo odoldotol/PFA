@@ -14,5 +14,5 @@ export class Log_priceUpdateRepository {
         new this.log_priceUpdateModel(newDoc).save({session: session? session : null});
 
     find1 = (filter?: FilterQuery<Log_priceUpdateDocument>, limit: number = 1) =>
-        this.log_priceUpdateModel.find(filter).sort({createdAt: -1}).limit(limit).lean().exec();
+        this.log_priceUpdateModel.find(filter || {}).sort({createdAt: -1}).limit(limit).lean().exec();
 }

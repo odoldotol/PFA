@@ -7,6 +7,6 @@ export class CreateAssetsDto {
     @ArrayNotEmpty()
     @IsArray()
     @ApiProperty({type: [String], required: true, description: 'ticker 배열', example: ['aapl', 'AAPL']})
-    readonly tickerArr: Array<string>;
+    readonly tickerArr!: Array<string>;
     
 };

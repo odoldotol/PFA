@@ -1,6 +1,6 @@
 interface YfInfo extends YfPrice {
-    readonly quoteType?: string
-    readonly currency?: string
+    readonly quoteType: string
+    readonly currency: string
     readonly shortName?: string
     readonly market?: string
     readonly exchange?: string
