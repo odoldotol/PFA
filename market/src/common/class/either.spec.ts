@@ -1,4 +1,4 @@
-import { Either } from "./either.class";
+import { Either } from "./either";
 
 describe('Either', () => {
 
