@@ -6,7 +6,7 @@ import { MarketService } from 'src/market/market.service';
 import { DBRepository } from 'src/database/database.repository';
 import { ProductApiService } from 'src/product-api/product-api.service';
 import { AddAssetsResponse } from './response/addAssets.response';
-import { Either } from "src/common/class/either.class";
+import { Either } from "src/common/class/either";
 import { pipe, map, toArray, toAsync, tap, each, filter, concurrent, peek, curry } from "@fxts/core";
 
 @Injectable()
@@ -49,8 +49,7 @@ export class UpdaterService implements OnModuleInit {
      *      - 장중이면 "다음마감시간에 업데이트스케줄 생성하기"
      */
     private async generalInitiate({ISO_Code, lastMarketDate, yf_exchangeTimezoneName}: StatusPrice) {
-        const exchangeSession = (await this.marketService.fetchExchangeSession(ISO_Code))
-            .getRight2(InternalServerErrorException);
+        const exchangeSession = (await this.marketService.fetchExchangeSession(ISO_Code)).getRight // TODO - Refac(Error Handling)
         if (this.isPriceStatusUpToDate(lastMarketDate, exchangeSession)) { // status 최신이면
             this.logger.verbose(`${ISO_Code} : UpToDate`);
         } else { // 최신 아니면 // Yf_CCC 는 항상 현재가로 초기화 되는점 알기 (isNotMarketOpen)
@@ -68,8 +67,7 @@ export class UpdaterService implements OnModuleInit {
         const spObj = await this.dbRepo.readStatusPrice(ISO_Code);
         if (!spObj) throw new BadRequestException("ISO_Code is not valid");
         const yf_exchangeTimezoneName = spObj.yf_exchangeTimezoneName;
-        const exchangeSession = (await this.marketService.fetchExchangeSession(ISO_Code))
-            .getRight2(InternalServerErrorException);
+        const exchangeSession = (await this.marketService.fetchExchangeSession(ISO_Code)).getRight; // TODO - Refac(Error Handling)
         const isNotMarketOpen = await this.isNotMarketOpen(exchangeSession);
         await this.updaterForPrice(ISO_Code, yf_exchangeTimezoneName, exchangeSession, isNotMarketOpen, launcher);
         await this.schedulerForPrice(ISO_Code, yf_exchangeTimezoneName, exchangeSession);
@@ -108,7 +106,7 @@ export class UpdaterService implements OnModuleInit {
     private async getMarginClose(ISO_Code: string, exchangeSession: ExchangeSession) {
         const previousCloseDate = new Date(exchangeSession.previous_close);
         const nextCloseDate = new Date(exchangeSession.next_close);
-        let marginMilliseconds: number = await this.dbRepo.readMarginMs(ISO_Code);
+        let marginMilliseconds: number | undefined = await this.dbRepo.readMarginMs(ISO_Code);
         if (marginMilliseconds === undefined) marginMilliseconds = this.DE_UP_MARGIN;
         previousCloseDate.setMilliseconds(previousCloseDate.getMilliseconds() + marginMilliseconds);
         nextCloseDate.setMilliseconds(nextCloseDate.getMilliseconds() + marginMilliseconds);
@@ -117,8 +115,7 @@ export class UpdaterService implements OnModuleInit {
 
     // TODO - Refac
     private async recusiveUpdaterForPrice(ISO_Code: string, yf_exchangeTimezoneName: string) {
-        const exchangeSession = (await this.marketService.fetchExchangeSession(ISO_Code))
-            .getRight2(InternalServerErrorException);
+        const exchangeSession = (await this.marketService.fetchExchangeSession(ISO_Code)).getRight; // TODO - Refac(Error Handling)
         await this.updaterForPrice(ISO_Code, yf_exchangeTimezoneName, exchangeSession, true, "scheduler");
         await this.schedulerForPrice(ISO_Code, yf_exchangeTimezoneName, exchangeSession);
     }
@@ -205,7 +202,7 @@ export class UpdaterService implements OnModuleInit {
             map(this.eitherFilter_existsAsset),
             map(ele => ele.flatMapPromise(this.marketService.fetchInfo)),
             map(ele => ele.flatMapPromise(this.fulfillYfInfo)),
-            filter(ele => ele.isLeft ? (response.failure.info.push(ele.getLeft), false) : true),
+            filter(ele => ele.isLeft() ? (response.failure.info.push(ele.getLeft), false) : true),
             map(ele => ele.getRight),
             concurrent(this.CHILD_CONCURRENCY),
             toArray,
@@ -214,13 +211,13 @@ export class UpdaterService implements OnModuleInit {
                 .catch(err => (response.failure.info = response.failure.info.concat(err.writeErrors),
                     response.success.info = response.success.info.concat(err.insertedDocs)))),
             each(ele => spMap.has(ele.exchangeTimezoneName) ?
-                spMap.get(ele.exchangeTimezoneName).push(ele.symbol)
+                spMap.get(ele.exchangeTimezoneName)?.push(ele.symbol) // ?
                 : spMap.set(ele.exchangeTimezoneName, [ele.symbol])));
         await pipe(
             spMap, toAsync,
             filter(this.isNewExchange),
             map(this.applyNewExchange),
-            each(ele => ele.isRight ?
+            each(ele => ele.isRight() ?
                 response.success.status_price.push(ele.getRight)
                 : response.failure.status_price.push(ele.getLeft)));
         return response;};
@@ -255,7 +252,7 @@ export class UpdaterService implements OnModuleInit {
         if (typeof prop === 'string') {
             const res = await this.dbRepo.getIsNotMarketOpen(prop);
             return res === undefined ? 
-            this.dbRepo.setIsNotMarketOpen(prop, f((await this.marketService.fetchExchangeSession(prop)).getRight2(InternalServerErrorException)))
+            this.dbRepo.setIsNotMarketOpen(prop, f((await this.marketService.fetchExchangeSession(prop)).getRight)) // TODO - Refac(Error Handling)
             : res;
         } else {
             return f(prop);
@@ -276,8 +273,7 @@ export class UpdaterService implements OnModuleInit {
                 symbol: symbolArr
             });
         } else {
-            const exchangeSession = (await this.marketService.fetchExchangeSession(ISO_Code))
-                .getRight2(InternalServerErrorException);
+            const exchangeSession = (await this.marketService.fetchExchangeSession(ISO_Code)).getRight; // TODO - Refac(Error Handling)
             return await this.dbRepo.createStatusPrice(ISO_Code, exchangeSession.previous_close, yf_exchangeTimezoneName)
             .then(async res => {
                 this.logger.verbose(`${ISO_Code} : Created new status_price`);
@@ -293,6 +289,7 @@ export class UpdaterService implements OnModuleInit {
             });
         };};
 
+    // @ts-ignore
     addKey = <T>(body: T) => (body["key"] = this.TEMP_KEY, body);
     
 }

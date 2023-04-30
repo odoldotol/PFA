@@ -2,7 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { catchError, firstValueFrom, map } from 'rxjs';
 import { AxiosError, AxiosResponse } from 'axios';
-import { Either } from "src/common/class/either.class";
+import { Either } from "src/common/class/either";
 
 @Injectable()
 export class ChildApiService {

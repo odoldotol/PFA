@@ -10,7 +10,7 @@ type UpdatePriceResult = EitherI<YfPriceError | UpdatePriceError, UpdatePriceSet
 
 interface StandardUpdatePriceResult {
     readonly updatePriceResult: UpdatePriceResult
-    readonly updateSatusPriceResult: StatusPrice
+    readonly updateSatusPriceResult: StatusPrice | null
     readonly startTime: string
     readonly endTime: string
 }

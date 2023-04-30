@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { Either } from "src/common/class/either.class";
+import { Either } from "src/common/class/either";
 import { ChildApiService } from './child-api/child-api.service';
 
 @Injectable()
