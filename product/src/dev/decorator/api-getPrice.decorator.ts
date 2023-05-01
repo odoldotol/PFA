@@ -1,4 +1,4 @@
-import { CachedPrice } from "@common/class/cachedPrice.class";
+import { CachedPrice } from "src/common/class/cachedPrice.class";
 import { applyDecorators } from "@nestjs/common";
 import { ApiOkResponse, ApiOperation, ApiParam, ApiQuery } from "@nestjs/swagger";
 

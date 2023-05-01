@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { DBRepository } from '@database.repository';
-import { MarketService } from '@market.service';
+import { DBRepository } from 'src/database/database.repository';
+import { MarketService } from 'src/market/market.service';
 
 @Injectable()
 export class DevService {

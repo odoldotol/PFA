@@ -2,9 +2,9 @@ import { Body, Controller, HttpCode, Param, Post, UseGuards } from '@nestjs/comm
 import { MarketService } from './market.service';
 import { UpdatePriceByExchangeBodyDto } from './dto/updatePriceByExchangeBody.dto';
 import { UpperCasePipe } from '../common/pipe/upperCasePipe';
-import { TempKeyGuard } from '@common/guard/key.guard';
+import { TempKeyGuard } from 'src/common/guard/key.guard';
 import { ApiTags } from '@nestjs/swagger';
-import { ApiCommonResponse } from '@common/decorator/apiCommonResponse.decorator';
+import { ApiCommonResponse } from 'src/common/decorator/apiCommonResponse.decorator';
 import { Api_updatePriceByExchange } from './decorator/api-updatePriceByExchange.decorator';
 
 @Controller('market')

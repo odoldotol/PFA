@@ -1,7 +1,7 @@
 import { EnvironmentVariables } from 'src/common/interface/environmentVariables.interface';
 import { Injectable, CanActivate, ExecutionContext } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { EnvKey } from '@common/enum/envKey.emun';
+import { EnvKey } from 'src/common/enum/envKey.emun';
 
 @Injectable()
 export class TempKeyGuard implements CanActivate {

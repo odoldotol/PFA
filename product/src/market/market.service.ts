@@ -1,10 +1,10 @@
 import { Injectable, Logger, OnApplicationBootstrap, OnModuleInit } from '@nestjs/common';
-import { DBRepository } from '@database.repository';
-import { Pm2Service } from '@pm2.service';
+import { DBRepository } from 'src/database/database.repository';
+import { Pm2Service } from 'src/pm2/pm2.service';
 import { MarketApiService } from './market-api/market-api.service';
-import { MarketDate } from '@common/class/marketDate.class';
+import { MarketDate } from 'src/common/class/marketDate.class';
 import { append, apply, compact, compactObject, concurrent, curry, delay, drop, each, entries, filter, flat, fromEntries, head, isNil, isObject, isString, isUndefined, join, last, map, not, nth, partition, peek, pick, pipe, reduce, reject, tap, toArray, toAsync } from '@fxts/core';
-import { CachedPrice } from '@common/class/cachedPrice.class'; //
+import { CachedPrice } from 'src/common/class/cachedPrice.class'; //
 
 @Injectable()
 export class MarketService implements OnModuleInit, OnApplicationBootstrap {

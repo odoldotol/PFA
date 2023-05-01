@@ -3,7 +3,7 @@ import { KakaoCBService } from './kakao-chatbot.service';
 import { KakaoChatbotGuard } from './guard/kakao-chatbot.guard';
 import { SkillPayloadDto } from './dto/SkillPayload.dto';
 import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
-import { ApiCommonResponse } from '@common/decorator/apiCommonResponse.decorator';
+import { ApiCommonResponse } from 'src/common/decorator/apiCommonResponse.decorator';
 import { SkillResponse } from './response/skill.response';
 
 @Controller('kakao-chatbot')

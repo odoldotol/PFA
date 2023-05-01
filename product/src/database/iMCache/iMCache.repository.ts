@@ -4,12 +4,12 @@ import { SchedulerRegistry } from "@nestjs/schedule";
 import { Cache } from 'cache-manager';
 import { CronJob } from "cron";
 import { readdir, readFile, writeFile } from 'node:fs/promises';
-import { Pm2Service } from "@pm2.service";
-import { MarketDate } from "@common/class/marketDate.class";
-import { CachedPrice } from "@common/class/cachedPrice.class";
+import { Pm2Service } from "src/pm2/pm2.service";
+import { MarketDate } from "src/common/class/marketDate.class";
+import { CachedPrice } from "src/common/class/cachedPrice.class";
 import { curry, each, gte, head, isObject, isString, last, lte, map, not, nth, pipe, tap, toArray, toAsync, zip } from "@fxts/core";
 import { EnvironmentVariables } from "src/common/interface/environmentVariables.interface";
-import { EnvKey } from "@common/enum/envKey.emun";
+import { EnvKey } from "src/common/enum/envKey.emun";
 
 @Injectable()
 export class IMCacheRepository implements OnApplicationBootstrap, OnModuleDestroy {

@@ -3,7 +3,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { HttpModule } from '@nestjs/axios';
 import { MarketApiService } from './market-api.service';
 import { EnvironmentVariables } from 'src/common/interface/environmentVariables.interface';
-import { EnvKey } from '@common/enum/envKey.emun';
+import { EnvKey } from 'src/common/enum/envKey.emun';
 
 @Module({
   imports: [

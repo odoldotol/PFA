@@ -2,7 +2,7 @@ import { EnvironmentVariables } from 'src/common/interface/environmentVariables.
 import { Injectable, CanActivate, ExecutionContext } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Observable } from 'rxjs';
-import { EnvKey } from '@common/enum/envKey.emun';
+import { EnvKey } from 'src/common/enum/envKey.emun';
 
 @Injectable()
 export class KakaoChatbotGuard implements CanActivate {

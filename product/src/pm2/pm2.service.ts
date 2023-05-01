@@ -3,7 +3,7 @@ import { ConfigService } from "@nestjs/config";
 import * as pm2 from "pm2";
 import { curry, delay, filter, find, isUndefined, not, pipe, range, toAsync } from "@fxts/core";
 import { EnvironmentVariables } from "src/common/interface/environmentVariables.interface";
-import { EnvKey } from "@common/enum/envKey.emun";
+import { EnvKey } from "src/common/enum/envKey.emun";
 
 @Injectable()
 export class Pm2Service implements OnModuleInit {

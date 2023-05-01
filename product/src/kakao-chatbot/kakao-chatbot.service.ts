@@ -2,7 +2,7 @@ import { EnvironmentVariables } from 'src/common/interface/environmentVariables.
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { MarketService } from '../market/market.service';
-import { EnvKey } from '@common/enum/envKey.emun';
+import { EnvKey } from 'src/common/enum/envKey.emun';
 
 @Injectable()
 export class KakaoCBService {

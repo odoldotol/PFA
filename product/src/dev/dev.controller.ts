@@ -1,8 +1,8 @@
 import { Controller, Get, HttpCode, Param, Post, Query } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
-import { ApiCommonResponse } from '@common/decorator/apiCommonResponse.decorator';
-import { DevService } from '@dev.service';
-import { UpperCasePipe } from '@common/pipe/upperCasePipe';
+import { ApiCommonResponse } from 'src/common/decorator/apiCommonResponse.decorator';
+import { DevService } from './dev.service';
+import { UpperCasePipe } from 'src/common/pipe/upperCasePipe';
 import { Api_getPrice } from './decorator/api-getPrice.decorator';
 
 @Controller('dev')
