@@ -21,7 +21,7 @@ export class MarketApiService {
         catchError((error: AxiosError) => {
             this.logger.error(error);
             throw error;}),
-        map(res => res.data as PSet2[])));
+        map(res => res.data as PSet[])));
 
     fetchPriceByTicker = (ticker: string) => firstValueFrom(this.httpService.post(`api/v1/price/ticker/${ticker}`).pipe(
         catchError(error => {

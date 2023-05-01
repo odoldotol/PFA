@@ -48,8 +48,8 @@ async function bootstrap() {
   const configService = app.get(ConfigService);
   await app.listen(configService.get<number>("PORT", 7001)); logger.log('App listen');
   
-  configService.get<string>("PM2_NAME") &&
-    process.send(
+  configService.get<string>("PM2_NAME") && process.send &&
+  process.send(
       'ready',
       logger.log("Send Ready to Parent Process"),
       { swallowErrors: true},

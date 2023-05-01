@@ -16,7 +16,7 @@ export class MarketDate extends String implements MarketDateI {
         return this.valueOf();
     }
 
-    isEqualTo = (marketDate: MarketDate | string) => 
+    isEqualTo = (marketDate: MarketDate | string | null) => 
         marketDate instanceof MarketDate ?
         this.get === marketDate.get
         : this.get === marketDate;

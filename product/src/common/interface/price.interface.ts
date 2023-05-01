@@ -1,10 +1,10 @@
 type Sp = [ISO_Code, MarketDateI]
 
-type PSet = [TickerSymbol, number]
-type PSet2 = [TickerSymbol, number, Currency]
+type PSet = [TickerSymbol, number, Currency?]
+// type PSet2 = [TickerSymbol, number, Currency]
 
 type SpPSets = [Sp, PSet[]]
-type SpPSet2s = [Sp, PSet2[]]
+// type SpPSet2s = [Sp, PSet2[]]
 
 type GPSet = [TickerSymbol, CachedPriceI[]]
 

@@ -6,22 +6,22 @@ export class SkillPayloadDto implements SkillPayloadI {
     
     @IsOptional()
     @ApiProperty()
-    readonly intent
+    readonly intent: any //
 
     @IsNotEmpty()
     @ApiProperty()
-    readonly userRequest
+    readonly userRequest: any //
 
     @IsNotEmpty()
     @ApiProperty()
-    readonly bot
+    readonly bot: any //
 
     @IsNotEmpty()
     @ApiProperty()
-    readonly action
+    readonly action: any //
 
     @IsOptional()
     @ApiProperty()
-    readonly contexts
+    readonly contexts: any //
 
 };

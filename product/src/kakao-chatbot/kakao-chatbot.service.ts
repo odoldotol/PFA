@@ -5,7 +5,7 @@ import { MarketService } from '../market/market.service';
 @Injectable()
 export class KakaoCBService {
 
-    private readonly KAKAO_CHATBOT_VERSION = this.configService.get<string>('KAKAO_CHATBOT_VERSION');
+    private readonly KAKAO_CHATBOT_VERSION = this.configService.get<string>('KAKAO_CHATBOT_VERSION', '2.0');
 
     constructor(
         private readonly configService: ConfigService,
@@ -13,11 +13,11 @@ export class KakaoCBService {
     ) {}
 
     inquire = async (body: SkillPayloadI): Promise<SkillResponseI> => {
-        let kakaoText: string;
+        let kakaoText: string = '';
         const price = await this.marketService.getPrice(
             body.action.params.ticker.toUpperCase(),
-            body.userRequest.user.id
-        ).then(p => (kakaoText = `${(p.price + Number.EPSILON).toFixed(2)}${this.currencyToSign(p.currency)} (${p.marketDate})`, p)
+            body.userRequest?.user.id
+        ).then(p => p && (kakaoText = `${(p.price + Number.EPSILON).toFixed(2)}${this.currencyToSign(p.currency)} (${p.marketDate})`, p)
         ).catch((err): undefined => (kakaoText = err.message, undefined));
         return {
             version: this.KAKAO_CHATBOT_VERSION,

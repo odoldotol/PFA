@@ -4,11 +4,11 @@ import { ApiProperty } from "@nestjs/swagger";
 export abstract class SkillResponse implements SkillResponseI {
     
     @ApiProperty()
-    readonly version: string;
+    readonly version!: string;
     @ApiProperty()
-    readonly template: object;
+    readonly template!: object;
     @ApiProperty()
-    readonly context: object;
+    readonly context!: object;
     @ApiProperty()
-    readonly data: object;
+    readonly data!: object;
 }

@@ -2,10 +2,10 @@
 interface SkillPayloadI {
   bot?: { id: string, name: string }
   intent?: { id: string, name: string, extra?: any }
-  action?: {
+  action: {
     id: string,
     name: string,
-    params: { ticker?: string },
+    params: { ticker: string },
     detailParams: { ticker?: any }
     clientExtra: any,
   }

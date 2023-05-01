@@ -5,7 +5,7 @@ import { Observable } from 'rxjs';
 @Injectable()
 export class KakaoChatbotGuard implements CanActivate {
 
-  private readonly KAKAO_CHATBOT_ID: string = this.configService.get('KAKAO_CHATBOT_ID');
+  private readonly KAKAO_CHATBOT_ID = this.configService.get<string>('KAKAO_CHATBOT_ID'); //
 
   constructor(
       private readonly configService: ConfigService,) {}

@@ -5,6 +5,7 @@ import { Pm2Service } from '@pm2.service';
 import { MarketApiService } from './market-api/market-api.service';
 import { MarketDate } from '@common/class/marketDate.class';
 import { append, apply, compact, compactObject, concurrent, curry, delay, drop, each, entries, filter, flat, fromEntries, head, isNil, isObject, isString, isUndefined, join, last, map, not, nth, partition, peek, pick, pipe, reduce, reject, tap, toArray, toAsync } from '@fxts/core';
+import { CachedPrice } from '@common/class/cachedPrice.class'; //
 
 @Injectable()
 export class MarketService implements OnModuleInit, OnApplicationBootstrap {
@@ -52,7 +53,7 @@ export class MarketService implements OnModuleInit, OnApplicationBootstrap {
 
     private isSpLatest = async (sp: Sp) => last(sp).isEqualTo(await this.dbRepo.readCcStatusPrice(head(sp)));
 
-    private withPriceSetArr = async (sp: Sp) => [ sp, await this.marketApiSrv.fetchPriceByISOcode(head(sp)) ] as [Sp, PSet2[]];
+    private withPriceSetArr = async (sp: Sp) => [ sp, await this.marketApiSrv.fetchPriceByISOcode(head(sp)) ] as [Sp, PSet[]];
 
     updatePriceByExchange = (ISO_Code: string, body: UpdatePriceByExchangeBodyI) => 
         this.dbRepo.updatePriceBySpPSets([[ ISO_Code, new MarketDate(body.marketDate) ], body.priceArrs]); // 그냥 spDoc 이랑 priceArrs 을 받으면 깔끔한데, 마켓서버도 괜히 구조분해해서 쓰지말고 spDoc이 통째로 흘러가면서 작업하는게 좋지 않을까?
@@ -72,7 +73,7 @@ export class MarketService implements OnModuleInit, OnApplicationBootstrap {
     private ifNoCache_setNew = async (...[ ticker, stack ]: GPSet) =>
         [ ticker, toArray(append(
             isNil(head(stack)) &&
-            await this.createPriceWithFetching(ticker), stack)) ] as GPSet;
+            await this.createPriceWithFetching(ticker), stack as CachedPrice[])) ] as GPSet; // TODO - Refac
     
     private ifOutdated_updateIt = async (...[ ticker, stack ]: GPSet) =>
         [ ticker, toArray(append(
@@ -105,7 +106,7 @@ export class MarketService implements OnModuleInit, OnApplicationBootstrap {
     // TODO - Refac
     private fetchPriceSet = (ticker: string) => pipe(ticker,
         this.marketApiSrv.fetchPriceByTicker,
-        tap(rP => rP.status_price && this.dbRepo.createCcPriceStatusWithRP(rP)),
+        tap(this.dbRepo.createCcPriceStatusWithRP),
         async (rP) => [
             ticker,
             Object.assign(rP, {

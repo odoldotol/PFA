@@ -7,7 +7,7 @@ import { readdir, readFile, writeFile } from 'node:fs/promises';
 import { Pm2Service } from "@pm2.service";
 import { MarketDate } from "@common/class/marketDate.class";
 import { CachedPrice } from "@common/class/cachedPrice.class";
-import { curry, each, gte, head, isObject, isString, last, lte, map, not, pipe, tap, toArray, toAsync, zip } from "@fxts/core";
+import { curry, each, gte, head, isObject, isString, last, lte, map, not, nth, pipe, tap, toArray, toAsync, zip } from "@fxts/core";
 
 @Injectable()
 export class IMCacheRepository implements OnApplicationBootstrap, OnModuleDestroy {
@@ -23,11 +23,13 @@ export class IMCacheRepository implements OnApplicationBootstrap, OnModuleDestro
         @Inject(CACHE_MANAGER) private readonly cacheManager: Cache
     ) {}
 
+    // Todo: Refac - 캐시모듈 전체적으로 조악하다.
+
     onApplicationBootstrap = () => this.backupPlanner();
 
     onModuleDestroy = async () => {
         await this.backupCache();
-        this.pm2Service.IS_RUN_BY_PM2 && process.send('cache_backup_end');};
+        this.pm2Service.IS_RUN_BY_PM2 && process.send && process.send('cache_backup_end');};
 
     backupPlanner = () => this.schedulerRegistry.doesExist("cron", "dailyCacheBackup") ?
         this.backupCache().then(() => this.logger_backupPlan(this.schedulerRegistry.getCronJob("dailyCacheBackup")))
@@ -56,7 +58,12 @@ export class IMCacheRepository implements OnApplicationBootstrap, OnModuleDestro
     ).then(() => this.logger.verbose(`Cache Recovered : ${fileName}`)
     ).catch(e => {this.logger.error(e.stack), this.logger.error(`Failed to Cache Recovery`); throw e});
     
-    private getLastCacheBackupFileName = async () => last(await readdir('cacheBackup'));
+    private getLastCacheBackupFileName = async () => await readdir('cacheBackup')
+        .then(a => {
+            const res = last(a);
+            if (res) return res;
+            else throw new Error(`Cache Backup File Not Found`);
+        });
 
     private readCacheBackupFile = async (fileName: string): Promise<CacheSet<BackupCacheValue>[]> =>
         JSON.parse(await readFile(`cacheBackup/${fileName}`, 'utf8'));
@@ -73,7 +80,7 @@ export class IMCacheRepository implements OnApplicationBootstrap, OnModuleDestro
 
     private toMarketDate = (cache: CacheSet<BackupCacheValue>) => 
         ( this.isPriceStatus(cache) && isString(cache[1]) ) ?
-        [ head(cache), new MarketDate(cache[1]), 0 ] as CacheSet2<MarketDate>
+        [ head(cache), new MarketDate(cache[1]), 0 ] as CacheSet<MarketDate>
         : cache;
     
     createMarketDate = (sp: Sp) => this.setOne(head(sp)+this.PS, last(sp), 0);
@@ -92,34 +99,37 @@ export class IMCacheRepository implements OnApplicationBootstrap, OnModuleDestro
     updatePrice = async ([symbol, update]: CacheUpdateSet<CachedPriceI>) =>
         this.update(await this.readPrice(symbol), update);
 
-    isGteMinCount = async (set: PSet | PSet2) => pipe(head(set),
+    isGteMinCount = async (set: PSet) => pipe(head(set),
         this.readPrice,
         p => p && this.priceCacheCount <= p.count);
 
-    private readPrice = (symbol: TickerSymbol) => pipe(symbol,
+    private readPrice = (symbol: TickerSymbol): Promise<CachedPriceI | null> => pipe(symbol,
         this.getValue,
         this.passCachedPrice);
 
     private isPriceStatus = <T>(cacheSet: CacheSet<T>) => head(cacheSet).slice(-12) === this.PS;
     
-    private passMarketDate = (v: CacheValue) => v instanceof MarketDate ? v : null;
+    private passMarketDate = (v: CacheValue | undefined) => v instanceof MarketDate ? v : null;
     
-    private passCachedPrice = (v: CacheValue) => v instanceof CachedPrice ? v : null;
+    private passCachedPrice = (v: CacheValue | undefined) => v instanceof CachedPrice ? v : null;
     
-    private counting = (v: CachedPrice) => v && v.counting();
+    private counting = (v: CachedPriceI | null) => v && v.counting && v.counting(); // Todo: Refac
     
     private copy = <T>(v: T): T => v && Object.assign({copy: true}, v);
 
+    // Todo: Refac
     private setOne<T>(cacheSet: CacheSet<T>): Promise<T>
     private setOne<T>(key: CacheKey, value: T): Promise<T>
     private setOne<T>(key: CacheKey, value: T, ttl: number): Promise<T>
     private setOne<T>(arg: CacheKey | CacheSet<T>, value?: T, ttl?: number) {
-        return Array.isArray(arg) ? this.cacheManager.set(...arg) : this.cacheManager.set(arg, value, ttl);
+        return Array.isArray(arg) ? 
+            arg[2] === undefined ? this.cacheManager.set<T>(arg[0], arg[1]) : this.cacheManager.set<T>(arg[0], arg[1], arg[2])
+            : this.cacheManager.set<T>(arg, value!, ttl!);
     }
 
     private getKeyValueSet = async (key: CacheKey) => [ key, await this.getValue(key) ] as CacheSet<CacheValue>;
 
-    private getValue = (key: CacheKey): Promise<CacheValue> => this.cacheManager.get(key);
+    private getValue = (key: CacheKey): Promise<CacheValue | undefined> => this.cacheManager.get(key);
 
     private update = <T>(v: T, update: Partial<T>): T => v && Object.assign(v, update);
 
@@ -128,9 +138,9 @@ export class IMCacheRepository implements OnApplicationBootstrap, OnModuleDestro
     private getAllCache = async (): Promise<CacheSet<CacheValue>[]> =>
         toArray(zip(await this.getAllKeys(), await this.getAllValues()));
 
-    private getAllValues = async (): Promise<CacheValue[]> => this.cacheManager.store.mget(...await this.getAllKeys());
+    private getAllValues = async (): Promise<CacheValue[]> => this.cacheManager.store.mget!(...await this.getAllKeys());
 
-    getAllKeys = (): Promise<CacheKey[]> => this.cacheManager.store.keys();
+    getAllKeys = (): Promise<CacheKey[]> => this.cacheManager.store.keys!();
 
     private reset = () => this.cacheManager.reset();
 

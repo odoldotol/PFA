@@ -2,7 +2,7 @@ import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateCol
 
 @Entity()
 export class Asset { // 유가 쓰거나 수정,삭제할 수 없는 테이블
-
+/*
     @PrimaryGeneratedColumn()
     id: number;
 
@@ -23,7 +23,7 @@ export class Asset { // 유가 쓰거나 수정,삭제할 수 없는 테이블
     
     @ Column()
     amount: number;
-
+*/
 
     // -------------------------------------------------- lapiki
     // # 포멧 종속

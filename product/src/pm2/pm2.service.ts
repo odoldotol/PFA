@@ -9,8 +9,8 @@ export class Pm2Service implements OnModuleInit {
     private readonly logger = new Logger(Pm2Service.name);
     private readonly PM2_NAME = this.configService.get<string>('PM2_NAME');
     readonly IS_RUN_BY_PM2: boolean;
-    private readonly PM2_listen_timeout = this.configService.get<number>('listen_timeout');
-    private readonly PM2_ID: number;
+    private readonly PM2_listen_timeout = this.configService.get<number>('listen_timeout', 0); // Todo: Refac - 0 일 리가 없음.
+    private readonly PM2_ID!: number;
     private msgBus: any;
     private isOld: boolean = false;
 
@@ -27,10 +27,10 @@ export class Pm2Service implements OnModuleInit {
             () => this.logger.verbose(`I confirmed that New ${this.PM2_ID+'|'+this.PM2_NAME} was ready`));};
 
     private newProcessReadyListener = (action: Function) => new Promise(resolve =>
-        this.listener(async packet => await this.isReadyMsgFromNewProcess(packet) && resolve(action())));
+        this.listener(async (packet: any) => await this.isReadyMsgFromNewProcess(packet) && resolve(action())));
 
     cacheRecoveryListener = (action: Function) => new Promise<void>(resolve => {
-        this.listener(packet => this.isCacheRecoveryMsgFromOldProcess(packet) && resolve(
+        this.listener((packet: any) => this.isCacheRecoveryMsgFromOldProcess(packet) && resolve(
             (this.logger.warn("Cache Recovery listener closed"), action())));
         delay(this.PM2_listen_timeout + 3000).then(() => resolve(
             this.logger.warn("Cache Recovery listener closed")));
@@ -39,13 +39,13 @@ export class Pm2Service implements OnModuleInit {
 
     private listener = (msgCallBack: Function) => this.msgBus.on('process:msg', msgCallBack);
 
-    private isReadyMsgFromNewProcess = async packet => 
+    private isReadyMsgFromNewProcess = async (packet: any) => 
         packet.raw === 'ready' &&
         packet.process.name === this.PM2_NAME &&
         packet.process.pm_id === this.PM2_ID &&
         await this.am_I_old_process_now();
 
-    private isCacheRecoveryMsgFromOldProcess = packet =>
+    private isCacheRecoveryMsgFromOldProcess = (packet: any) =>
         packet.process.pm_id === `_old_${this.PM2_ID}` &&
         packet.raw === 'cache_backup_end' &&
         packet.process.name === this.PM2_NAME &&
@@ -58,7 +58,7 @@ export class Pm2Service implements OnModuleInit {
         find(this.isPm2IdEqualMine),
         this.isProcessIdEqualMine, not);
     
-    private isProcessIdEqualMine = (pm2_p: pm2.ProcessDescription) => pm2_p.pid === process.pid;
+    private isProcessIdEqualMine = (pm2_p?: pm2.ProcessDescription) => pm2_p?.pid === process.pid; // ?
     
     private isPm2IdEqualMine = (pm2_p: pm2.ProcessDescription) => pm2_p.pm_id === this.PM2_ID;
 
@@ -75,7 +75,7 @@ export class Pm2Service implements OnModuleInit {
 
     private static identify = (pm2Service: Pm2Service) => pipe(
         pm2Service.getPm2List(),
-        find(pm2Service.isProcessIdEqualMine),
+        find(pm2Service.isProcessIdEqualMine) as (pm2_p: pm2.ProcessDescription[]) => pm2.ProcessDescription, // as
         Pm2Service.setPM2_ID(pm2Service));
 
     private static setPM2_ID = curry((pm2Service: Pm2Service, pm2_p: pm2.ProcessDescription) =>

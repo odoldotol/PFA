@@ -2,7 +2,7 @@ import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateCol
 
 @Entity()
 export class Account {
-
+/*
     @PrimaryGeneratedColumn()
     id: number;
 
@@ -26,7 +26,7 @@ export class Account {
 
     @UpdateDateColumn()
     updatedAt: Date;
-
+*/
     // 최근 엑섹스 일시 ??
 
     // 포트폴리오 종속 many to many

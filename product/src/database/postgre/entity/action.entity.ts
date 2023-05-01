@@ -2,7 +2,7 @@ import { CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } fr
 
 @Entity()
 export class Action {
-    
+/*
     @PrimaryGeneratedColumn()
     id: number;
 
@@ -12,7 +12,7 @@ export class Action {
 
     @UpdateDateColumn()
     updatedAt: Date;
-
+*/
     // -------------------------------------------------- lapiki
     // DEFAULT = 'DF'
     // QUICK = 'QK'
