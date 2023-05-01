@@ -1,20 +1,30 @@
+// 원본 - market/src/common/pipe/upperCasePipe.ts
+
 import { PipeTransform } from "@nestjs/common";
+import * as F from '@fxts/core'
 
 export class UpperCasePipe implements PipeTransform {
-    transform(value: string | Array<any> | object) {
-        if (value !== undefined) {
-            if (Array.isArray(value)) {
-                return value.map((ele) => typeof ele === 'string' ? ele.toUpperCase() : ele);
-            } else if (value instanceof Object) {
-                return Object.entries(value).reduce((acc, [key, value]) => {
-                    if (typeof value === 'string') acc[key] = value.toUpperCase();
-                    else if (Array.isArray(value)) acc[key] = value.map((ele) => typeof ele === 'string' ? ele.toUpperCase() : ele);
-                    else acc[key] = value;
-                    return acc;
-                }, {});
-            } else if (typeof value === 'string') {
-                return value.toUpperCase();
-            }
-        }
-    }
+
+    transform = (value?: string | Array<any> | object): string | Array<any> | object => F.pipe(
+        value,
+        this.strToUpperCasePipe,
+        this.arrToUpperCasePipe,
+        this.objToUpperCasePipe);
+
+    private strToUpperCasePipe = (val: any) =>
+        typeof val === 'string' ? val.toUpperCase(): val;
+
+    private arrToUpperCasePipe = (val: any) =>
+        F.isArray(val) ? val.map(this.transform) : val;
+
+    private objToUpperCasePipe = (val: any) => 
+        typeof val === 'object' &&
+        F.not(F.isArray(val)) &&
+        F.not(F.isNil(val)) ? F.pipe(
+            val,
+            Object.entries,
+            F.map(([k,v]) => [k, this.transform(v)] as [string, any]),
+            F.fromEntries
+        ) : val;
+        
 }
