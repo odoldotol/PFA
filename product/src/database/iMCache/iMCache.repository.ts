@@ -8,17 +8,19 @@ import { Pm2Service } from "@pm2.service";
 import { MarketDate } from "@common/class/marketDate.class";
 import { CachedPrice } from "@common/class/cachedPrice.class";
 import { curry, each, gte, head, isObject, isString, last, lte, map, not, nth, pipe, tap, toArray, toAsync, zip } from "@fxts/core";
+import { EnvironmentVariables } from "src/common/interface/environmentVariables.interface";
+import { EnvKey } from "@common/enum/envKey.emun";
 
 @Injectable()
 export class IMCacheRepository implements OnApplicationBootstrap, OnModuleDestroy {
 
     private readonly logger = new Logger(IMCacheRepository.name);
     private readonly PS = "_priceStatus";
-    private readonly priceCacheCount = this.configService.get<number>('PRICE_CACHE_COUNT', 1);
+    private readonly minTreshold = this.configService.get(EnvKey.MinThreshold_priceCache, 1, { infer: true });
 
     constructor(
         private readonly schedulerRegistry: SchedulerRegistry,
-        private readonly configService: ConfigService,
+        private readonly configService: ConfigService<EnvironmentVariables>,
         private readonly pm2Service: Pm2Service,
         @Inject(CACHE_MANAGER) private readonly cacheManager: Cache
     ) {}
@@ -101,7 +103,7 @@ export class IMCacheRepository implements OnApplicationBootstrap, OnModuleDestro
 
     isGteMinCount = async (set: PSet) => pipe(head(set),
         this.readPrice,
-        p => p && this.priceCacheCount <= p.count);
+        p => p && this.minTreshold <= p.count);
 
     private readPrice = (symbol: TickerSymbol): Promise<CachedPriceI | null> => pipe(symbol,
         this.getValue,

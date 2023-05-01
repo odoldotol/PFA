@@ -1,5 +1,4 @@
 import { Injectable, Logger, OnApplicationBootstrap, OnModuleInit } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import { DBRepository } from '@database.repository';
 import { Pm2Service } from '@pm2.service';
 import { MarketApiService } from './market-api/market-api.service';

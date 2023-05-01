@@ -1,14 +1,16 @@
+import { EnvironmentVariables } from 'src/common/interface/environmentVariables.interface';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { MarketService } from '../market/market.service';
+import { EnvKey } from '@common/enum/envKey.emun';
 
 @Injectable()
 export class KakaoCBService {
 
-    private readonly KAKAO_CHATBOT_VERSION = this.configService.get<string>('KAKAO_CHATBOT_VERSION', '2.0');
+    private readonly KAKAO_CHATBOT_VERSION = this.configService.get(EnvKey.KakaoChatbotVersion, '2.0', { infer: true });
 
     constructor(
-        private readonly configService: ConfigService,
+        private readonly configService: ConfigService<EnvironmentVariables>,
         private readonly marketService: MarketService,
     ) {}
 
