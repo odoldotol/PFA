@@ -11,7 +11,7 @@ import { EnvironmentVariables } from 'src/common/interface/environmentVariables.
             imports: [ConfigModule],
             useFactory: async (configService: ConfigService<EnvironmentVariables>) => ({
                 baseURL: configService.get(EnvKey.Docker_childApiBaseUrl, 'http://localhost:8001', { infer: true }),
-                timeout: configService.get(EnvKey.ChildApiTimeout, 3000, { infer: true }),
+                timeout: configService.get(EnvKey.ChildApiTimeout, 30000, { infer: true }),
             }),
             inject: [ConfigService]})],
     providers: [ChildApiService],
