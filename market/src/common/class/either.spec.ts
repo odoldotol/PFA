@@ -70,23 +70,23 @@ describe('Either', () => {
             expect(newEitherLeft2.getLeft).toBe('left_value');});});
 
     // Todo: Refac - flatMap 과 중복
-    describe('flatMapPromise', () => {
+    describe('flatMapAsync', () => {
         const fnR = (v: string): Promise<Either<boolean, number>> => Promise.resolve(Either.right(v.length));
         const fnL = (v: string): Promise<Either<boolean, number>> => Promise.resolve(Either.left(v === "right_value"));
 
         it('eitherRight, if fn return right', async () => {
-            const newEitherRight = await eitherRight.flatMapPromise(fnR);
+            const newEitherRight = await eitherRight.flatMapAsync(fnR);
             expect(newEitherRight.isRight()).toBeTruthy();
             expect(newEitherRight.getRight).toBe(11);});
 
         it('eitherRight, if fn return left', async () => {
-            const newEitherRight = await eitherRight.flatMapPromise(fnL);
+            const newEitherRight = await eitherRight.flatMapAsync(fnL);
             expect(newEitherRight.isLeft()).toBeTruthy();
             expect(newEitherRight.getLeft).toBe(true);});
 
         it('eitherLeft', async () => {
-            const newEitherLeft1 = await eitherLeft.flatMapPromise(fnR);
-            const newEitherLeft2 = await eitherLeft.flatMapPromise(fnL);
+            const newEitherLeft1 = await eitherLeft.flatMapAsync(fnR);
+            const newEitherLeft2 = await eitherLeft.flatMapAsync(fnL);
             expect(newEitherLeft1.isLeft()).toBeTruthy();
             expect(newEitherLeft2.isLeft()).toBeTruthy();
             expect(newEitherLeft1.getLeft).toBe('left_value');
