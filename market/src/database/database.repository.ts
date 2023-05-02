@@ -7,6 +7,7 @@ import { Cache } from 'cache-manager';
 import { curry, each, map, pipe, toArray, toAsync } from "@fxts/core";
 import { Either } from "src/common/class/either";
 import mongoose, { ClientSession } from "mongoose";
+import { StandardUpdatePriceResult } from "src/common/interface/updatePriceResult.interface";
 
 @Injectable()
 export class DBRepository {

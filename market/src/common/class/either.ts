@@ -1,4 +1,4 @@
-export abstract class Either<L, R> implements EitherI<L, R> {
+export abstract class Either<L, R> {
 
     constructor(private readonly eitherValue: L|R) {}
   
@@ -14,14 +14,14 @@ export abstract class Either<L, R> implements EitherI<L, R> {
     abstract get getRight(): R;
     abstract get getLeft(): L;
 
-    abstract flatMap<T, S>(fn: (v: R) => EitherI<T, S>): Either<L|T, S>;
-    abstract flatMapPromise<T, S>(fn: (v: R) => Promise<EitherI<T, S>>): Promise<Either<L|T, S>>;
-    abstract map<S>(fn: (v: R) => S): Either<L, S>;
+    abstract flatMap<T, S>(fn: (v: R) => Either<T, S>): Either<L|T, S>;
+    abstract flatMapPromise<T, S>(fn: (v: R) => Promise<Either<T, S>>): Promise<Either<L|T, S>>;
+
+    map = <S>(fn: (v: R) => S): Either<L, S> =>
+        this.flatMap(v => Either.right(fn(v)));
 }
 
 class EitherRight<R> extends Either<never, R> {
-    
-    constructor(v: R) { super(v); }
 
     get getRight() {
         return this.getWhatever;}
@@ -34,14 +34,9 @@ class EitherRight<R> extends Either<never, R> {
     
     flatMapPromise = <T, S>(fn: (v: R) => Promise<Either<T, S>>) =>
         fn(this.getWhatever);
-    
-    map = <S>(fn: (v: R) => S) =>
-        Either.right<never, S>(fn(this.getWhatever));
 }
 
 class EitherLeft<L> extends Either<L, never> {
-
-    constructor(v: L) { super(v); }
 
     get getRight(): never {
         throw new Error(`Either getRight Error. Either is Left, value: ${this.getWhatever}`);}
@@ -53,8 +48,5 @@ class EitherLeft<L> extends Either<L, never> {
         Either.left<L, S>(this.getWhatever);
     
     flatMapPromise = async <T, S>(_fn: (v: never) => Promise<Either<T, S>>) =>
-        Either.left<L, S>(this.getWhatever);
-    
-    map = <S>(_fn: (v: never) => S) =>
         Either.left<L, S>(this.getWhatever);
 }

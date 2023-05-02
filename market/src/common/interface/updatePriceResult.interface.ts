@@ -1,16 +1,10 @@
-type UpdatePriceSet = [string, FulfilledPrice]
+import { Either } from "../class/either"
 
-interface UpdatePriceError {
-    readonly error: any
-    readonly ticker: string
-    readonly res: any
-}
+export type UpdatePriceResult = Either<YfPriceError | UpdatePriceError, UpdatePriceSet>[];
 
-type UpdatePriceResult = EitherI<YfPriceError | UpdatePriceError, UpdatePriceSet>[]
-
-interface StandardUpdatePriceResult {
-    readonly updatePriceResult: UpdatePriceResult
-    readonly updateSatusPriceResult: StatusPrice | null
-    readonly startTime: string
-    readonly endTime: string
-}
+export type StandardUpdatePriceResult = Readonly<{
+    updatePriceResult: UpdatePriceResult
+    updateSatusPriceResult: StatusPrice | null
+    startTime: string
+    endTime: string
+}>;
