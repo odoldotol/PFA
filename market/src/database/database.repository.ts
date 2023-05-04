@@ -77,7 +77,7 @@ export class DBRepository {
             const updateResult = {
                 updatePriceResult: await pipe(
                     arr, toAsync,
-                    map(ele => ele.flatMapAsync(this.updatePrice(session))),
+                    map(ele => ele.flatMap(this.updatePrice(session))),
                     toArray
                 ),
                 updateSatusPriceResult: await this.updateStatusPriceByRegularUpdater(ISO_Code, previous_close, session),

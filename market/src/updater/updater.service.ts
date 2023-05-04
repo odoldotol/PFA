@@ -203,8 +203,8 @@ export class UpdaterService implements OnModuleInit {
         await pipe( // 중복제거와 exists필터 부분은 단일 티커처리시 필요없음. 이 부분 보완하기
             new Set(tickerArr).values(), toAsync,
             map(this.eitherFilter_existsAsset),
-            map(ele => ele.flatMapAsync(this.marketService.fetchInfo)),
-            map(ele => ele.flatMapAsync(this.fulfillYfInfo)),
+            map(ele => ele.flatMap(this.marketService.fetchInfo)),
+            map(ele => ele.flatMap(this.fulfillYfInfo)),
             filter(ele => ele.isLeft() ? (response.failure.info.push(ele.getLeft), false) : true),
             map(ele => ele.getRight),
             concurrent(this.CHILD_CONCURRENCY),
