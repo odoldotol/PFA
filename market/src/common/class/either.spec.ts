@@ -5,9 +5,11 @@ describe('Either', () => {
     let eitherRight: Either<string, string>
     let eitherLeft: Either<string, string>
 
+    enum testValue { right = 'right_value', left = 'left_value' }
+
     beforeEach(() => {
-        eitherRight = Either.right('right_value');
-        eitherLeft = Either.left('left_value');});
+        eitherRight = Either.right(testValue.right);
+        eitherLeft = Either.left(testValue.left);});
 
     it('Either should be defined', () => {
         expect(Either).toBeDefined();
@@ -36,24 +38,24 @@ describe('Either', () => {
 
     describe('get value', () => {
         it('getWhatever', () => {
-            expect(eitherRight.getWhatever).toBe('right_value');
-            expect(eitherLeft.getWhatever).toBe('left_value');});
+            expect(eitherRight.getWhatever).toBe(testValue.right);
+            expect(eitherLeft.getWhatever).toBe(testValue.left);});
 
         it('getRight', () => {
-            expect(eitherRight.getRight).toBe('right_value');
+            expect(eitherRight.getRight).toBe(testValue.right);
             expect(() => eitherLeft.getRight).toThrow();});
 
         it('getLeft', () => {
             expect(() => eitherRight.getLeft).toThrow();
-            expect(eitherLeft.getLeft).toBe('left_value');});});
+            expect(eitherLeft.getLeft).toBe(testValue.left);});});
     
     describe('flatMap', () => {
         const fnR = (v: string): Either<boolean, number> => Either.right(v.length);
-        const fnL = (v: string): Either<boolean, number> => Either.left(v === "right_value");
+        const fnL = (v: string): Either<boolean, number> => Either.left(v === testValue.right);
         const promiseFnR = (v: string): Promise<Either<boolean, number>> => Promise.resolve(Either.right(v.length));
-        const promiseFnL = (v: string): Promise<Either<boolean, number>> => Promise.resolve(Either.left(v === "right_value"));
+        const promiseFnL = (v: string): Promise<Either<boolean, number>> => Promise.resolve(Either.left(v === testValue.right));
         const asyncFnR = async (v: string): Promise<Either<boolean, number>> => Either.right(v.length);
-        const asyncFnL = async (v: string): Promise<Either<boolean, number>> => Either.left(v === "right_value");
+        const asyncFnL = async (v: string): Promise<Either<boolean, number>> => Either.left(v === testValue.right);
 
         describe('Sync', () => { flatMapTest(fnL, fnR); });
         describe('Async', () => { flatMapTest(asyncFnL, asyncFnR); });
@@ -94,8 +96,8 @@ describe('Either', () => {
             expect(newEitherLeft2).toBeInstanceOf(Promise);
             expect((await newEitherLeft1).isLeft()).toBeTruthy();
             expect((await newEitherLeft2).isLeft()).toBeTruthy();
-            expect((await newEitherLeft1).getLeft).toBe('left_value');
-            expect((await newEitherLeft2).getLeft).toBe('left_value');});
+            expect((await newEitherLeft1).getLeft).toBe(testValue.left);
+            expect((await newEitherLeft2).getLeft).toBe(testValue.left);});
     }
 
     function mapTest(fn: (p: any) => any|Promise<any>) {
@@ -109,6 +111,6 @@ describe('Either', () => {
             const newEitherLeft = eitherLeft.map(fn);
             expect(newEitherLeft).toBeInstanceOf(Promise);
             expect((await newEitherLeft).isLeft()).toBeTruthy();
-            expect((await newEitherLeft).getLeft).toBe('left_value');});
+            expect((await newEitherLeft).getLeft).toBe(testValue.left);});
     }
 });
