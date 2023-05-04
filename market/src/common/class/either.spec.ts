@@ -47,9 +47,12 @@ describe('Either', () => {
             expect(() => eitherRight.getLeft).toThrow();
             expect(eitherLeft.getLeft).toBe('left_value');});});
     
+    // Todo: Dedup
     describe('flatMap', () => {
         const fnR = (v: string): Either<boolean, number> => Either.right(v.length);
         const fnL = (v: string): Either<boolean, number> => Either.left(v === "right_value");
+        const asyncFnR = (v: string): Promise<Either<boolean, number>> => Promise.resolve(Either.right(v.length));
+        const asyncFnL = (v: string): Promise<Either<boolean, number>> => Promise.resolve(Either.left(v === "right_value"));
 
         it('eitherRight, if fn return right', () => {
             const newEitherRight = eitherRight.flatMap(fnR);
@@ -67,30 +70,27 @@ describe('Either', () => {
             expect(newEitherLeft1.isLeft()).toBeTruthy();
             expect(newEitherLeft2.isLeft()).toBeTruthy();
             expect(newEitherLeft1.getLeft).toBe('left_value');
-            expect(newEitherLeft2.getLeft).toBe('left_value');});});
+            expect(newEitherLeft2.getLeft).toBe('left_value');});
 
-    // Todo: Refac - flatMap 과 중복
-    describe('flatMapAsync', () => {
-        const fnR = (v: string): Promise<Either<boolean, number>> => Promise.resolve(Either.right(v.length));
-        const fnL = (v: string): Promise<Either<boolean, number>> => Promise.resolve(Either.left(v === "right_value"));
+        describe('Async', () => {
+            it('eitherRight, if async fn return right', async () => {
+                const newEitherRight = await eitherRight.flatMap(asyncFnR);
+                expect(newEitherRight.isRight()).toBeTruthy();
+                expect(newEitherRight.getRight).toBe(11);});
 
-        it('eitherRight, if fn return right', async () => {
-            const newEitherRight = await eitherRight.flatMapAsync(fnR);
-            expect(newEitherRight.isRight()).toBeTruthy();
-            expect(newEitherRight.getRight).toBe(11);});
+            it('eitherRight, if async fn return left', async () => {
+                const newEitherRight = await eitherRight.flatMap(asyncFnL);
+                expect(newEitherRight.isLeft()).toBeTruthy();
+                expect(newEitherRight.getLeft).toBe(true);});
 
-        it('eitherRight, if fn return left', async () => {
-            const newEitherRight = await eitherRight.flatMapAsync(fnL);
-            expect(newEitherRight.isLeft()).toBeTruthy();
-            expect(newEitherRight.getLeft).toBe(true);});
-
-        it('eitherLeft', async () => {
-            const newEitherLeft1 = await eitherLeft.flatMapAsync(fnR);
-            const newEitherLeft2 = await eitherLeft.flatMapAsync(fnL);
-            expect(newEitherLeft1.isLeft()).toBeTruthy();
-            expect(newEitherLeft2.isLeft()).toBeTruthy();
-            expect(newEitherLeft1.getLeft).toBe('left_value');
-            expect(newEitherLeft2.getLeft).toBe('left_value');});});
+            it('eitherLeft', async () => {
+                const newEitherLeft1 = await eitherLeft.flatMap(asyncFnR);
+                const newEitherLeft2 = await eitherLeft.flatMap(asyncFnL);
+                expect(newEitherLeft1.isLeft()).toBeTruthy();
+                expect(newEitherLeft2.isLeft()).toBeTruthy();
+                expect(newEitherLeft1.getLeft).toBe('left_value');
+                expect(newEitherLeft2.getLeft).toBe('left_value');});});
+    });
     
     describe('map', () => {
         const fn = (v: string) => v.length;
