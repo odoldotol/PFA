@@ -91,6 +91,7 @@ describe('Either', () => {
                 expect(newEitherLeft1.getLeft).toBe('left_value');
                 expect(newEitherLeft2.getLeft).toBe('left_value');});});});
     
+    // Todo: Dedup
     describe('map', () => {
         const fn = (v: string) => v.length;
         const asyncFn = (v: string) => Promise.resolve(v.length);
