@@ -47,7 +47,6 @@ describe('Either', () => {
             expect(() => eitherRight.getLeft).toThrow();
             expect(eitherLeft.getLeft).toBe('left_value');});});
     
-    // Todo: Dedup
     describe('flatMap', () => {
         const fnR = (v: string): Either<boolean, number> => Either.right(v.length);
         const fnL = (v: string): Either<boolean, number> => Either.left(v === "right_value");
@@ -56,82 +55,50 @@ describe('Either', () => {
         const asyncFnR = async (v: string): Promise<Either<boolean, number>> => Either.right(v.length);
         const asyncFnL = async (v: string): Promise<Either<boolean, number>> => Either.left(v === "right_value");
 
+        describe('Sync', () => { flatMapTest(fnL, fnR); });
+        describe('Async', () => { flatMapTest(asyncFnL, asyncFnR); });
+        describe('Promise', () => { flatMapTest(promiseFnL, promiseFnR); });
+    });
+    
+    describe('map', () => {
+        const fn = (v: string) => v.length;
+        const promiseFn = (v: string) => Promise.resolve(v.length);
+        const asyncFn = async (v: string) => v.length;
+
+        describe('Sync', () => { mapTest(fn); });
+        describe('Async', () => { mapTest(asyncFn); });
+        describe('Promise', () => { mapTest(promiseFn); });
+    });
+
+
+    function flatMapTest(
+        leftFn: (p: any) => Either<any, any>|Promise<Either<any, any>>,
+        rightFn: (p: any) => Either<any, any>|Promise<Either<any, any>>,
+    ) {
         it('eitherRight, if fn return right', async () => {
-            const newEitherRight = eitherRight.flatMap(fnR);
+            const newEitherRight = eitherRight.flatMap(rightFn);
             expect(newEitherRight).toBeInstanceOf(Promise);
             expect((await newEitherRight).isRight()).toBeTruthy();
             expect((await newEitherRight).getRight).toBe(11);});
 
         it('eitherRight, if fn return left', async () => {
-            const newEitherRight = eitherRight.flatMap(fnL);
+            const newEitherRight = eitherRight.flatMap(leftFn);
             expect(newEitherRight).toBeInstanceOf(Promise);
             expect((await newEitherRight).isLeft()).toBeTruthy();
             expect((await newEitherRight).getLeft).toBe(true);});
 
         it('eitherLeft', async () => {
-            const newEitherLeft1 = eitherLeft.flatMap(fnR);
-            const newEitherLeft2 = eitherLeft.flatMap(fnL);
+            const newEitherLeft1 = eitherLeft.flatMap(rightFn);
+            const newEitherLeft2 = eitherLeft.flatMap(leftFn);
             expect(newEitherLeft1).toBeInstanceOf(Promise);
             expect(newEitherLeft2).toBeInstanceOf(Promise);
             expect((await newEitherLeft1).isLeft()).toBeTruthy();
             expect((await newEitherLeft2).isLeft()).toBeTruthy();
             expect((await newEitherLeft1).getLeft).toBe('left_value');
             expect((await newEitherLeft2).getLeft).toBe('left_value');});
-        
-        describe('Promise', () => {
-            it('eitherRight, if promised fn return right', async () => {
-                const newEitherRight = eitherRight.flatMap(promiseFnR);
-                expect(newEitherRight).toBeInstanceOf(Promise);
-                expect((await newEitherRight).isRight()).toBeTruthy();
-                expect((await newEitherRight).getRight).toBe(11);});
+    }
 
-            it('eitherRight, if promised fn return left', async () => {
-                const newEitherRight = eitherRight.flatMap(promiseFnL);
-                expect(newEitherRight).toBeInstanceOf(Promise);
-                expect((await newEitherRight).isLeft()).toBeTruthy();
-                expect((await newEitherRight).getLeft).toBe(true);});
-
-            it('eitherLeft', async () => {
-                const newEitherLeft1 = eitherLeft.flatMap(promiseFnR);
-                const newEitherLeft2 = eitherLeft.flatMap(promiseFnL);
-                expect(newEitherLeft1).toBeInstanceOf(Promise); //
-                expect(newEitherLeft2).toBeInstanceOf(Promise); //
-                expect((await newEitherLeft1).isLeft()).toBeTruthy();
-                expect((await newEitherLeft2).isLeft()).toBeTruthy();
-                expect((await newEitherLeft1).getLeft).toBe('left_value');
-                expect((await newEitherLeft2).getLeft).toBe('left_value');
-            });});
-
-        describe('Async', () => {
-            it('eitherRight, if async fn return right', async () => {
-                const newEitherRight = eitherRight.flatMap(asyncFnR);
-                expect(newEitherRight).toBeInstanceOf(Promise);
-                expect((await newEitherRight).isRight()).toBeTruthy();
-                expect((await newEitherRight).getRight).toBe(11);});
-
-            it('eitherRight, if async fn return left', async () => {
-                const newEitherRight = eitherRight.flatMap(asyncFnL);
-                expect(newEitherRight).toBeInstanceOf(Promise);
-                expect((await newEitherRight).isLeft()).toBeTruthy();
-                expect((await newEitherRight).getLeft).toBe(true);});
-
-            it('eitherLeft', async () => {
-                const newEitherLeft1 = eitherLeft.flatMap(asyncFnR);
-                const newEitherLeft2 = eitherLeft.flatMap(asyncFnL);
-                expect(newEitherLeft1).toBeInstanceOf(Promise);
-                expect(newEitherLeft2).toBeInstanceOf(Promise);
-                expect((await newEitherLeft1).isLeft()).toBeTruthy();
-                expect((await newEitherLeft2).isLeft()).toBeTruthy();
-                expect((await newEitherLeft1).getLeft).toBe('left_value');
-                expect((await newEitherLeft2).getLeft).toBe('left_value');
-            });});});
-    
-    // Todo: Dedup
-    describe('map', () => {
-        const fn = (v: string) => v.length;
-        const promiseFn = (v: string) => Promise.resolve(v.length);
-        const asyncFn = async (v: string) => v.length;
-
+    function mapTest(fn: (p: any) => any|Promise<any>) {
         it('eitherRight', async () => {
             const newEitherRight = eitherRight.map(fn);
             expect(newEitherRight).toBeInstanceOf(Promise);
@@ -143,33 +110,5 @@ describe('Either', () => {
             expect(newEitherLeft).toBeInstanceOf(Promise);
             expect((await newEitherLeft).isLeft()).toBeTruthy();
             expect((await newEitherLeft).getLeft).toBe('left_value');});
-
-        describe('Promise', () => {
-            it('eitherRight', async () => {
-                const newEitherRight = eitherRight.map(promiseFn);
-                expect(newEitherRight).toBeInstanceOf(Promise);
-                expect((await newEitherRight).isRight()).toBeTruthy();
-                expect((await newEitherRight).getRight).toBe(11);});
-
-            it('eitherLeft', async () => {
-                const newEitherLeft = eitherLeft.map(promiseFn);
-                expect(newEitherLeft).toBeInstanceOf(Promise); //
-                expect((await newEitherLeft).isLeft()).toBeTruthy();
-                expect((await newEitherLeft).getLeft).toBe('left_value');
-            });});
-        
-        describe('Async', () => {
-            it('eitherRight', async () => {
-                const newEitherRight = eitherRight.map(asyncFn);
-                expect(newEitherRight).toBeInstanceOf(Promise);
-                expect((await newEitherRight).isRight()).toBeTruthy();
-                expect((await newEitherRight).getRight).toBe(11);});
-
-            it('eitherLeft', async () => {
-                const newEitherLeft = eitherLeft.map(asyncFn);
-                expect(newEitherLeft).toBeInstanceOf(Promise);
-                expect((await newEitherLeft).isLeft()).toBeTruthy();
-                expect((await newEitherLeft).getLeft).toBe('left_value');
-            });});});
-
+    }
 });
