@@ -14,14 +14,17 @@ export abstract class Either<L, R> {
     abstract get getRight(): R;
     abstract get getLeft(): L;
 
-    flatMap<T, S>(fn: (v: R) => Either<T, S>): Either<L|T, S>; // right&right | left&_ | right&left
-    flatMap<T, S>(fn: (v: R) => Promise<Either<T, S>>): Promise<Either<T, S>>; // right&right | right&left
-    flatMap<T, S>(fn: (v: R) => Promise<Either<T, S>>): Either<L, S>; // left&_
+    flatMap<T, S>(fn: (v: R) => Either<T, S>): Either<L|T, S>;
+    flatMap<T, S>(fn: (v: R) => Promise<Either<T, S>>): Promise<Either<T, S>>; // Either<L, S>
     flatMap<T, S>(fn: (v: R) => Either<T, S> | Promise<Either<T, S>>): Either<L|T, S> | Promise<Either<T, S>> {
         return this.isRight() ? fn(this.getRight) : Either.left(this.getLeft);}
-
-    map<S>(fn: (v: R) => S): Either<L, S> {
-        return this.flatMap(v => Either.right(fn(v)));}
+    
+    map<S extends (arg: R) => Promise<any>>(fn: S): Promise<Either<L, Awaited<ReturnType<S>>>>; // Either<L, Awaited<ReturnType<S>>>
+    map<S>(fn: (v: R) => S): Either<L, S>;
+    map<S>(fn: (v: R) => S): Either<L, S> | Promise<Either<L, Awaited<S>>> {
+        if (fn.constructor.name === 'AsyncFunction' || (this.isRight() && fn(this.getRight) instanceof Promise))
+            return this.flatMap(async v => Either.right(await fn(v)));
+        else return this.flatMap(v => Either.right(fn(v)));}
 }
 
 class EitherRight<R> extends Either<never, R> {
