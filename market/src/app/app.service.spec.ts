@@ -36,4 +36,10 @@ describe('AppService', () => {
   it('should be defined', () => {
     expect(service).toBeDefined();
   });
+
+  describe('getPriceByTicker', () => {
+    it.todo('db 에서 조회');
+    it.todo('없으면 생성');
+    it.todo('응답 객체');
+  });
 });
