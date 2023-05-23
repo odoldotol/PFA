@@ -15,9 +15,9 @@ class Price(BaseModel):
 
 class R_Info(BaseModel):
     info: dict
+    metadata: Union[dict, None]
     fastinfo: Union[dict, None]
     price: Union[Price, None]
-    metadata: Union[dict, None]
 
 class R_Session(BaseModel):
     previous_open: str
@@ -40,36 +40,29 @@ def health_check():
 @app.post("/yf/info/{ticker}", tags=["Asset Info"], description="Yahoo Finance API Info", response_model=Union[R_Info, R_Error])
 def get_info_by_ticker(ticker: str) -> Union[R_Info, R_Error]:
     print(ticker, os.getpid())
+    result = {}
     try:
         Ticker = yf.Ticker(ticker)
         Ticker.fast_info.currency # 잘못된 티커 빠르게 에러던지기 위한
         try:
             # raise Exception("info") # 성능상 info 건너뛰기
             info = Ticker.info
+            metadata = Ticker.get_history_metadata()
         except:
             info = {"symbol": None}
         
+        result["info"] = info
+        result["metadata"] = metadata
+
         if info["symbol"]:
-            return {"info": info}
+            return result
         else:
             fastinfo = Ticker.fast_info
             price = getPrice(Ticker)
-            metadata = Ticker.get_history_metadata()
-            return {
-                "info": info,
-                "fastinfo": {
-                    "currency": fastinfo["currency"],
-                    "exchange": fastinfo["exchange"],
-                    "quoteType": fastinfo["quoteType"]
-                },
-                "price": price,
-                "metadata": {
-                    "symbol": metadata["symbol"],
-                    "instrumentType": metadata["instrumentType"],
-                    "exchangeTimezoneShortName": metadata["timezone"],
-                    "exchangeTimezoneName": metadata["exchangeTimezoneName"]
-                }
-            }
+            result["fastinfo"] = fastinfo
+            result["price"] = price
+            return result
+
     except Exception as e:
         return {
             'error': {
