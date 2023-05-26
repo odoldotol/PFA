@@ -1,10 +1,10 @@
 import { Injectable, Logger, OnModuleInit } from "@nestjs/common";
-import { createClient } from 'redis';
+import { createClient, SetOptions } from 'redis';
 
 @Injectable()
-export class RedisConnectService implements OnModuleInit {
+export class ConnectService implements OnModuleInit {
 
-    private readonly logger = new Logger(RedisConnectService.name);
+    private readonly logger = new Logger(ConnectService.name);
     private readonly client = createClient();
 
     constructor() {}
@@ -18,6 +18,10 @@ export class RedisConnectService implements OnModuleInit {
         });
 
         await this.client.connect();
+
+        // await this.client.set("aapl", 125, {
+        //     EX: 10
+        // });
     }
 
 }

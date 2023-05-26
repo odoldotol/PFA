@@ -1,4 +1,4 @@
-import { RedisConnectService } from "./redis_connect.service";
+import { ConnectService } from "./connect.service";
 
 describe('RedisConnectService', () => {
     it.todo("연결 잘 되나")
