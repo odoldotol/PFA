@@ -30,7 +30,7 @@ export class BackupService implements OnApplicationBootstrap, OnModuleDestroy {
         await this.backupCache();
         this.pm2Service.IS_RUN_BY_PM2 && process.send && process.send('cache_backup_end');};
 
-    backupPlanner = () => this.schedulerRegistry.doesExist("cron", "dailyCacheBackup") ?
+    private backupPlanner = () => this.schedulerRegistry.doesExist("cron", "dailyCacheBackup") ?
         this.backupCache().then(() => this.logger_backupPlan(this.schedulerRegistry.getCronJob("dailyCacheBackup")))
         : pipe(
             new CronJob("0 0 11 * * *", this.backupPlanner),
