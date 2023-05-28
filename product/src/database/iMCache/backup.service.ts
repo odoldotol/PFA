@@ -6,6 +6,7 @@ import { readdir, readFile, writeFile } from 'node:fs/promises';
 import { Pm2Service } from "src/pm2/pm2.service";
 import { MarketDate } from "src/common/class/marketDate.class";
 import { CachedPrice } from "src/common/class/cachedPrice.class";
+import { IMCacheRepository } from "./iMCache.repository";
 import { curry, each, gte, head, isObject, isString, last, lte, map, not, nth, pipe, tap, toArray, toAsync, zip } from "@fxts/core";
 
 @Injectable()
@@ -17,6 +18,7 @@ export class BackupService implements OnApplicationBootstrap, OnModuleDestroy {
     constructor(
         private readonly schedulerRegistry: SchedulerRegistry,
         private readonly pm2Service: Pm2Service,
+        private readonly iMCacheRepo: IMCacheRepository,
         @Inject(CACHE_MANAGER) private readonly cacheManager: Cache
     ) {}
 
@@ -83,10 +85,8 @@ export class BackupService implements OnApplicationBootstrap, OnModuleDestroy {
     private isPriceStatus = <T>(cacheSet: CacheSet<T>) => head(cacheSet).slice(-12) === this.PS;
 
     private getAllCache = async (): Promise<CacheSet<CacheValue>[]> =>
-        toArray(zip(await this.getAllKeys(), await this.getAllValues()));
+        toArray(zip(await this.iMCacheRepo.getAllKeys(), await this.getAllValues()));
 
-    private getAllValues = async (): Promise<CacheValue[]> => this.cacheManager.store.mget!(...await this.getAllKeys());
-
-    getAllKeys = (): Promise<CacheKey[]> => this.cacheManager.store.keys!();
+    private getAllValues = async (): Promise<CacheValue[]> => this.cacheManager.store.mget!(...await this.iMCacheRepo.getAllKeys());
 
 }
