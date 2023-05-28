@@ -20,10 +20,10 @@ export class DatabaseService {
     
     createCcPriceStatusWithRP = (rP: RequestedPrice) => rP.status_price &&
         this.marketDateRepo.create([rP.status_price.ISO_Code, MarketDate.fromSpDoc(rP.status_price)]);
-    createCcPrice = this.priceRepo.createPrice;
+    createCcPrice = this.priceRepo.create;
     readCcStatusPrice = this.marketDateRepo.read;
-    readCcPriceCounting = this.priceRepo.readPriceCounting;
-    updateCcPrice = this.priceRepo.updatePrice;
+    readCcPriceCounting = this.priceRepo.read_with_counting;
+    updateCcPrice = this.priceRepo.update;
     
     cacheRecovery = this.cacheBackupSrv.localFileCacheRecovery;
     getAllCcKeys = this.iMCache.getAllKeys;
