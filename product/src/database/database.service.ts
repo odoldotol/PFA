@@ -1,5 +1,6 @@
 import { Injectable, Logger } from "@nestjs/common";
 import { IMCacheRepository } from "./iMCache/iMCache.repository";
+import { BackupService } from "./iMCache/backup.service";
 import { MarketDate } from "../common/class/marketDate.class";
 import { apply, compactObject, curry, each, filter, head, last, map, partition, peek, pipe, tap, toAsync } from "@fxts/core";
 
@@ -9,7 +10,8 @@ export class DatabaseService {
     private readonly logger = new Logger(DatabaseService.name);
 
     constructor(
-        private readonly iMCache: IMCacheRepository
+        private readonly iMCache: IMCacheRepository,
+        private readonly cacheBackupSrv: BackupService
     ) {}
     
     createCcPriceStatusWithRP = (rP: RequestedPrice) => rP.status_price &&
@@ -19,7 +21,7 @@ export class DatabaseService {
     readCcPriceCounting = this.iMCache.readPriceCounting;
     updateCcPrice = this.iMCache.updatePrice;
     
-    cacheRecovery = this.iMCache.localFileCacheRecovery;
+    cacheRecovery = this.cacheBackupSrv.localFileCacheRecovery;
     getAllCcKeys = this.iMCache.getAllKeys;
 
     // TODO: 각 업데이트 Asset이 해당 Sp 에 속한게 맞는지 검사하고 있지 않다. 이거 문제될 가능성 있는지 찾아봐.
