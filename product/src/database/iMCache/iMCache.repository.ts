@@ -16,7 +16,7 @@ export class IMCacheRepository implements OnApplicationBootstrap, OnModuleDestro
 
     private readonly logger = new Logger(IMCacheRepository.name);
     private readonly PS = "_priceStatus";
-    private readonly minTreshold = this.configService.get(EnvKey.MinThreshold_priceCache, 1, { infer: true });
+    private readonly minThreshold = this.configService.get(EnvKey.MinThreshold_priceCache, 1, { infer: true });
 
     constructor(
         private readonly schedulerRegistry: SchedulerRegistry,
@@ -103,7 +103,7 @@ export class IMCacheRepository implements OnApplicationBootstrap, OnModuleDestro
 
     isGteMinCount = async (set: PSet) => pipe(head(set),
         this.readPrice,
-        p => p && this.minTreshold <= p.count);
+        p => p && this.minThreshold <= p.count);
 
     private readPrice = (symbol: TickerSymbol): Promise<CachedPriceI | null> => pipe(symbol,
         this.getValue,
