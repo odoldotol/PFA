@@ -1,5 +1,5 @@
 import { Module } from "@nestjs/common";
-import { DBRepository } from "./database.repository";
+import { DatabaseService } from "./database.service";
 import { IMCache } from "./iMCache/iMCache.module";
 import { RedisModule } from "./redis/redis.module";
 
@@ -8,7 +8,7 @@ import { RedisModule } from "./redis/redis.module";
         IMCache,
         RedisModule
     ],
-    providers: [DBRepository],
-    exports: [DBRepository]
+    providers: [DatabaseService],
+    exports: [DatabaseService]
 })
 export class DBModule {}

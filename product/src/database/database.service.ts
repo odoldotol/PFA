@@ -4,9 +4,9 @@ import { MarketDate } from "../common/class/marketDate.class";
 import { apply, compactObject, curry, each, filter, head, last, map, partition, peek, pipe, tap, toAsync } from "@fxts/core";
 
 @Injectable()
-export class DBRepository {
+export class DatabaseService {
 
-    private readonly logger = new Logger(DBRepository.name);
+    private readonly logger = new Logger(DatabaseService.name);
 
     constructor(
         private readonly iMCache: IMCacheRepository
