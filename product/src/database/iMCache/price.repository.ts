@@ -20,21 +20,25 @@ export class PriceRepository {
         this.cacheManager.set(symbol, new CachedPrice(price));
 
     read_with_counting = (symbol: TickerSymbol) => F.pipe(
-        this.read(symbol),
-        v => v && v.counting && v.counting()); // Todo: Refac
+        this.get(symbol),
+        v => v && v.counting ? v.counting() : null, // Todo: Refac
+        this.copy);
 
     update = async ([symbol, update]: CacheUpdateSet<CachedPriceI>) => F.pipe(
-        this.read(symbol),
-        v => v && Object.assign(v, update));
+        this.get(symbol),
+        v => v && Object.assign(v, update),
+        this.copy);
 
     isGteMinCount = async (set: PSet) => F.pipe(
-        this.read(F.head(set)),
+        this.get(F.head(set)),
         v => v && this.minThreshold <= v.count);
 
-    private read = (symbol: TickerSymbol): Promise<CachedPriceI | null> => F.pipe(
+    private get = (symbol: TickerSymbol) => F.pipe(
         this.cacheManager.get(symbol),
         this.passCachedPrice);
     
-    private passCachedPrice = (v: any) => v instanceof CachedPrice ? v : null;
+    private passCachedPrice = (v: any) => v instanceof CachedPrice ? v as CachedPriceI : null;
 
+    private copy = (p: CachedPriceI | null) => p && new CachedPrice(p) as CachedPriceI;
+    
 }
