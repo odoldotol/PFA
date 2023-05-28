@@ -1,27 +1,37 @@
 import { Injectable, Logger, OnModuleInit } from "@nestjs/common";
-import { createClient, SetOptions } from 'redis';
+import { createClient } from 'redis';
 
 @Injectable()
 export class ConnectService implements OnModuleInit {
 
-    private readonly logger = new Logger(ConnectService.name);
-    private readonly client = createClient();
+    private readonly logger = new Logger("Redis-" + ConnectService.name);
+    private readonly redisClient = createClient();
 
-    constructor() {}
+    constructor() {
+        this.listenEvents();}
 
     async onModuleInit() {
-        this.client.on('connect', () => {
-            this.logger.log('Redis connected');
-        });
-        this.client.on('error', (err) => {
-            this.logger.error(err);
-        });
+        await this.client.connect();}
 
-        await this.client.connect();
+    get client() {
+        return this.redisClient;
+    }
 
-        // await this.client.set("aapl", 125, {
-        //     EX: 10
-        // });
+    private listenEvents() {
+        this.redisClient.on('connect', () => {
+            this.logger.log('Initiating a connection to the server');});
+
+        this.redisClient.on('ready', () => {
+            this.logger.log('Client is ready to use');});
+
+        this.redisClient.on('reconnecting', () => {
+            this.logger.log('Client is trying to reconnect to the server');});
+
+        this.redisClient.on('end', () => {
+            this.logger.log('Connection has been closed');});
+
+        this.redisClient.on('error', (err) => {
+            this.logger.error(err);});
     }
 
 }
