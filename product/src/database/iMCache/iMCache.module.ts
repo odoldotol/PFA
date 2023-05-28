@@ -3,6 +3,7 @@ import { Pm2Module } from "src/pm2/pm2.module";
 import { BackupService } from "./backup.service";
 import { IMCacheRepository } from "./iMCache.repository";
 import { MarketDateRepository } from "./marketDate.repository";
+import { PriceRepository } from "./price.repository";
 
 @Module({
     imports: [
@@ -14,12 +15,14 @@ import { MarketDateRepository } from "./marketDate.repository";
     providers: [
         IMCacheRepository,
         BackupService,
-        MarketDateRepository
+        MarketDateRepository,
+        PriceRepository
     ],
     exports: [
         IMCacheRepository,
         BackupService,
-        MarketDateRepository
+        MarketDateRepository,
+        PriceRepository
     ]
 })
 export class IMCache {}

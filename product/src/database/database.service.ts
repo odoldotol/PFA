@@ -2,6 +2,7 @@ import { Injectable, Logger } from "@nestjs/common";
 import { IMCacheRepository } from "./iMCache/iMCache.repository";
 import { BackupService } from "./iMCache/backup.service";
 import { MarketDateRepository } from "./iMCache/marketDate.repository";
+import { PriceRepository } from "./iMCache/price.repository";
 import { MarketDate } from "../common/class/marketDate.class";
 import { apply, compactObject, curry, each, filter, head, last, map, partition, peek, pipe, tap, toAsync } from "@fxts/core";
 
@@ -13,15 +14,16 @@ export class DatabaseService {
     constructor(
         private readonly iMCache: IMCacheRepository,
         private readonly cacheBackupSrv: BackupService,
-        private readonly marketDateRepo: MarketDateRepository
+        private readonly marketDateRepo: MarketDateRepository,
+        private readonly priceRepo: PriceRepository
     ) {}
     
     createCcPriceStatusWithRP = (rP: RequestedPrice) => rP.status_price &&
         this.marketDateRepo.createMarketDate([rP.status_price.ISO_Code, MarketDate.fromSpDoc(rP.status_price)]);
-    createCcPrice = this.iMCache.createPrice;
+    createCcPrice = this.priceRepo.createPrice;
     readCcStatusPrice = this.marketDateRepo.readMarketDate;
-    readCcPriceCounting = this.iMCache.readPriceCounting;
-    updateCcPrice = this.iMCache.updatePrice;
+    readCcPriceCounting = this.priceRepo.readPriceCounting;
+    updateCcPrice = this.priceRepo.updatePrice;
     
     cacheRecovery = this.cacheBackupSrv.localFileCacheRecovery;
     getAllCcKeys = this.iMCache.getAllKeys;
@@ -29,7 +31,7 @@ export class DatabaseService {
     // TODO: 각 업데이트 Asset이 해당 Sp 에 속한게 맞는지 검사하고 있지 않다. 이거 문제될 가능성 있는지 찾아봐.
     updatePriceBySpPSets = (initSet: SpPSets) => pipe(initSet,
         this.setSpAndReturnPSets, toAsync,
-        partition(this.iMCache.isGteMinCount), ([ updatePSets, deletePSets ]) => (
+        partition(this.priceRepo.isGteMinCount), ([ updatePSets, deletePSets ]) => (
             pipe(updatePSets,
                 map(this.toCacheUpdateSet(head(initSet))),
                 each(this.updateCcPrice)),
