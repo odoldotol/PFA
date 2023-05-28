@@ -19,9 +19,9 @@ export class DatabaseService {
     ) {}
     
     createCcPriceStatusWithRP = (rP: RequestedPrice) => rP.status_price &&
-        this.marketDateRepo.createMarketDate([rP.status_price.ISO_Code, MarketDate.fromSpDoc(rP.status_price)]);
+        this.marketDateRepo.create([rP.status_price.ISO_Code, MarketDate.fromSpDoc(rP.status_price)]);
     createCcPrice = this.priceRepo.createPrice;
-    readCcStatusPrice = this.marketDateRepo.readMarketDate;
+    readCcStatusPrice = this.marketDateRepo.read;
     readCcPriceCounting = this.priceRepo.readPriceCounting;
     updateCcPrice = this.priceRepo.updatePrice;
     
@@ -45,7 +45,7 @@ export class DatabaseService {
         each(this.createCcPrice));
 
     private setSpAndReturnPSets = (initSet: SpPSets) => pipe(initSet,
-        tap(set => this.marketDateRepo.createMarketDate(head(set))),
+        tap(set => this.marketDateRepo.create(head(set))),
         last);
 
     // Todo: Refac - toCacheUpdateSet, toCachedPriceSet 중복함수
