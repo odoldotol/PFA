@@ -14,8 +14,8 @@ export class MarketDateRepository {
     
     create = (sp: Sp) => this.cacheManager.set(F.head(sp)+this.PS, F.last(sp), 0);
 
-    read = (ISO_Code: ISO_Code) => F.pipe(ISO_Code+this.PS,
-        this.cacheManager.get,
+    read = (ISO_Code: ISO_Code) => F.pipe(
+        this.cacheManager.get(ISO_Code+this.PS),
         this.passMarketDate);
     
     private passMarketDate = (v: any) => v instanceof MarketDate ? v : null;
