@@ -2,6 +2,7 @@ import { CacheModule, Module } from "@nestjs/common";
 import { Pm2Module } from "src/pm2/pm2.module";
 import { BackupService } from "./backup.service";
 import { IMCacheRepository } from "./iMCache.repository";
+import { MarketDateRepository } from "./marketDate.repository";
 
 @Module({
     imports: [
@@ -12,11 +13,13 @@ import { IMCacheRepository } from "./iMCache.repository";
     ],
     providers: [
         IMCacheRepository,
-        BackupService
+        BackupService,
+        MarketDateRepository
     ],
     exports: [
         IMCacheRepository,
-        BackupService
+        BackupService,
+        MarketDateRepository
     ]
 })
 export class IMCache {}

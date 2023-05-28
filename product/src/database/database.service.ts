@@ -1,6 +1,7 @@
 import { Injectable, Logger } from "@nestjs/common";
 import { IMCacheRepository } from "./iMCache/iMCache.repository";
 import { BackupService } from "./iMCache/backup.service";
+import { MarketDateRepository } from "./iMCache/marketDate.repository";
 import { MarketDate } from "../common/class/marketDate.class";
 import { apply, compactObject, curry, each, filter, head, last, map, partition, peek, pipe, tap, toAsync } from "@fxts/core";
 
@@ -11,13 +12,14 @@ export class DatabaseService {
 
     constructor(
         private readonly iMCache: IMCacheRepository,
-        private readonly cacheBackupSrv: BackupService
+        private readonly cacheBackupSrv: BackupService,
+        private readonly marketDateRepo: MarketDateRepository
     ) {}
     
     createCcPriceStatusWithRP = (rP: RequestedPrice) => rP.status_price &&
-        this.iMCache.createMarketDate([rP.status_price.ISO_Code, MarketDate.fromSpDoc(rP.status_price)]);
+        this.marketDateRepo.createMarketDate([rP.status_price.ISO_Code, MarketDate.fromSpDoc(rP.status_price)]);
     createCcPrice = this.iMCache.createPrice;
-    readCcStatusPrice = this.iMCache.readMarketDate;
+    readCcStatusPrice = this.marketDateRepo.readMarketDate;
     readCcPriceCounting = this.iMCache.readPriceCounting;
     updateCcPrice = this.iMCache.updatePrice;
     
@@ -41,7 +43,7 @@ export class DatabaseService {
         each(this.createCcPrice));
 
     private setSpAndReturnPSets = (initSet: SpPSets) => pipe(initSet,
-        tap(set => this.iMCache.createMarketDate(head(set))),
+        tap(set => this.marketDateRepo.createMarketDate(head(set))),
         last);
 
     // Todo: Refac - toCacheUpdateSet, toCachedPriceSet 중복함수
