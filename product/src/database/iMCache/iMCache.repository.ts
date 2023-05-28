@@ -21,14 +21,8 @@ export class IMCacheRepository {
 
     // Todo: Refac - 캐시모듈 전체적으로 조악하다.
     
-    createMarketDate = (sp: Sp) => this.setOne(head(sp)+this.PS, last(sp), 0);
-    
     createPrice = ([symbol, price]: CacheSet<CachedPriceI>, ttl?: number) => 
         this.setOne(symbol, new CachedPrice(price));
-
-    readMarketDate = (ISO_Code: ISO_Code) => pipe(ISO_Code+this.PS,
-        this.getValue,
-        this.passMarketDate);
 
     readPriceCounting = (symbol: TickerSymbol) => pipe(symbol,
         this.readPrice,
@@ -44,8 +38,6 @@ export class IMCacheRepository {
     private readPrice = (symbol: TickerSymbol): Promise<CachedPriceI | null> => pipe(symbol,
         this.getValue,
         this.passCachedPrice);
-    
-    private passMarketDate = (v: CacheValue | undefined) => v instanceof MarketDate ? v : null;
     
     private passCachedPrice = (v: CacheValue | undefined) => v instanceof CachedPrice ? v : null;
     
