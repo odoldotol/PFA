@@ -51,7 +51,7 @@ export class BackupService implements OnApplicationBootstrap, OnModuleDestroy {
         fileName ? fileName : fileName = await this.getLastCacheBackupFileName(),
         this.readCacheBackupFile,
         map(this.toCacheSet),
-        each(this.setOne.bind(this))
+        each(cacheSet => this.cacheManager.set(cacheSet[0], cacheSet[1], {ttl: cacheSet[2]}))
     ).then(() => this.logger.verbose(`Cache Recovered : ${fileName}`)
     ).catch(e => {this.logger.error(e.stack), this.logger.error(`Failed to Cache Recovery`); throw e});
     
@@ -81,16 +81,6 @@ export class BackupService implements OnApplicationBootstrap, OnModuleDestroy {
         : cache;
 
     private isPriceStatus = <T>(cacheSet: CacheSet<T>) => head(cacheSet).slice(-12) === this.PS;
-
-    // Todo: Refac
-    private setOne<T>(cacheSet: CacheSet<T>): Promise<T>
-    private setOne<T>(key: CacheKey, value: T): Promise<T>
-    private setOne<T>(key: CacheKey, value: T, ttl: number): Promise<T>
-    private setOne<T>(arg: CacheKey | CacheSet<T>, value?: T, ttl?: number) {
-        return Array.isArray(arg) ? 
-            arg[2] === undefined ? this.cacheManager.set<T>(arg[0], arg[1]) : this.cacheManager.set<T>(arg[0], arg[1], arg[2])
-            : this.cacheManager.set<T>(arg, value!, ttl!);
-    }
 
     private getAllCache = async (): Promise<CacheSet<CacheValue>[]> =>
         toArray(zip(await this.getAllKeys(), await this.getAllValues()));
