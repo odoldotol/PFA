@@ -1,4 +1,4 @@
-import { CACHE_MANAGER, Inject, Injectable, Logger } from "@nestjs/common";
+import { CACHE_MANAGER, Inject, Injectable } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { Cache } from 'cache-manager';
 import { CachedPrice } from "src/common/class/cachedPrice.class";
@@ -39,6 +39,6 @@ export class PriceRepository {
     
     private passCachedPrice = (v: any) => v instanceof CachedPrice ? v as CachedPriceI : null;
 
-    private copy = (p: CachedPriceI | null) => p && new CachedPrice(p) as CachedPriceI;
+    private copy = (v: CachedPriceI | null) => v && new CachedPrice(v) as CachedPriceI;
     
 }
