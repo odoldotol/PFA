@@ -10,8 +10,6 @@ export class IMCacheRepository {
         @Inject(CACHE_MANAGER) private readonly cacheManager: Cache
     ) {}
 
-    deleteOne = (key: CacheKey) => this.cacheManager.del(key);
-
     getAllKeys = (): Promise<CacheKey[]> => this.cacheManager.store.keys!();
 
     get marketDate_keySuffix() { return this.MarketDate_KEY_SUFFIX };

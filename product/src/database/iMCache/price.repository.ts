@@ -28,6 +28,8 @@ export class PriceRepository {
         this.get(symbol),
         v => v && Object.assign(v, update),
         this.copy);
+    
+    delete = (symbol: TickerSymbol) => this.cacheManager.del(symbol);
 
     isGteMinCount = async (set: PSet) => F.pipe(
         this.get(F.head(set)),

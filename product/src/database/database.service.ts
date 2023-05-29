@@ -36,8 +36,8 @@ export class DatabaseService {
                 map(this.toCacheUpdateSet(head(initSet))),
                 each(this.updateCcPrice)),
             pipe(deletePSets,
-                each(a => this.iMCache.deleteOne(head(a))))
-        )).then(() => this.logger.verbose(`${head(head(initSet))} : Regular Updated`));
+                each(a => this.priceRepo.delete(head(a))))))
+    .then(() => this.logger.verbose(`${head(head(initSet))} : Regular Updated`));
 
     cacheHardInit = (initSet: SpPSets) => pipe(initSet,
         this.setSpAndReturnPSets,
