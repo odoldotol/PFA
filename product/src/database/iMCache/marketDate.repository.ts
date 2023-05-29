@@ -23,6 +23,6 @@ export class MarketDateRepository {
     
     private passMarketDate = (v: any) => v instanceof MarketDate ? v : null;
 
-    copy = (v: MarketDate | null) => v && new MarketDate(v);
+    private copy = (v: MarketDate | null) => v && new MarketDate(v);
 
 }
