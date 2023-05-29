@@ -16,22 +16,24 @@ export class PriceRepository {
         @Inject(CACHE_MANAGER) private readonly cacheManager: Cache
     ) {}
     
-    create = ([symbol, price]: CacheSet<CachedPriceI>) => 
-        this.cacheManager.set(symbol, new CachedPrice(price));
+    create = ([symbol, price]: CacheSet<CachedPriceI>) => F.pipe(
+        this.cacheManager.set(symbol, new CachedPrice(price)),
+        this.copy);
 
     read_with_counting = (symbol: TickerSymbol) => F.pipe(
         this.get(symbol),
         v => v && v.counting ? v.counting() : null, // Todo: Refac
         this.copy);
 
-    update = async ([symbol, update]: CacheUpdateSet<CachedPriceI>) => F.pipe(
+    update = ([symbol, update]: CacheUpdateSet<CachedPriceI>) => F.pipe(
         this.get(symbol),
+        this.copy,
         v => v && Object.assign(v, update),
-        this.copy);
+        v => v && this.create([symbol, v]));
     
     delete = (symbol: TickerSymbol) => this.cacheManager.del(symbol);
 
-    isGteMinCount = async (set: PSet) => F.pipe(
+    isGteMinCount = (set: PSet) => F.pipe(
         this.get(F.head(set)),
         v => v && this.minThreshold <= v.count);
 
