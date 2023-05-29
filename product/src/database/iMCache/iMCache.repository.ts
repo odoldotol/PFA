@@ -4,6 +4,8 @@ import { Cache } from 'cache-manager';
 @Injectable()
 export class IMCacheRepository {
 
+    private readonly MarketDate_KEY_SUFFIX = "_priceStatus";
+
     constructor(
         @Inject(CACHE_MANAGER) private readonly cacheManager: Cache
     ) {}
@@ -11,5 +13,7 @@ export class IMCacheRepository {
     deleteOne = (key: CacheKey) => this.cacheManager.del(key);
 
     getAllKeys = (): Promise<CacheKey[]> => this.cacheManager.store.keys!();
+
+    get marketDate_keySuffix() { return this.MarketDate_KEY_SUFFIX };
 
 }

@@ -13,7 +13,6 @@ import { curry, each, gte, head, isObject, isString, last, lte, map, not, nth, p
 export class BackupService implements OnApplicationBootstrap, OnModuleDestroy {
 
     private readonly logger = new Logger("IMCache" + BackupService.name);
-    private readonly PS = "_priceStatus";
 
     constructor(
         private readonly schedulerRegistry: SchedulerRegistry,
@@ -82,7 +81,7 @@ export class BackupService implements OnApplicationBootstrap, OnModuleDestroy {
         [ head(cache), new MarketDate(cache[1]), 0 ] as CacheSet<MarketDate>
         : cache;
 
-    private isPriceStatus = <T>(cacheSet: CacheSet<T>) => head(cacheSet).slice(-12) === this.PS;
+    private isPriceStatus = <T>(cacheSet: CacheSet<T>) => head(cacheSet).slice(-12) === this.iMCacheRepo.marketDate_keySuffix;
 
     private getAllCache = async (): Promise<CacheSet<CacheValue>[]> =>
         toArray(zip(await this.iMCacheRepo.getAllKeys(), await this.getAllValues()));
