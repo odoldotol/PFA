@@ -1,7 +1,7 @@
 import { CacheModule, Module } from "@nestjs/common";
 import { Pm2Module } from "src/pm2/pm2.module";
 import { BackupService } from "./backup.service";
-import { IMCacheRepository } from "./iMCache.repository";
+import { AppMemoryService } from "./appMemory.service";
 import { MarketDateRepository } from "./marketDate.repository";
 import { PriceRepository } from "./price.repository";
 
@@ -13,16 +13,16 @@ import { PriceRepository } from "./price.repository";
         Pm2Module
     ],
     providers: [
-        IMCacheRepository,
+        AppMemoryService,
         BackupService,
         MarketDateRepository,
         PriceRepository
     ],
     exports: [
-        IMCacheRepository,
+        AppMemoryService,
         BackupService,
         MarketDateRepository,
         PriceRepository
     ]
 })
-export class IMCache {}
+export class AppMemoryModule {}

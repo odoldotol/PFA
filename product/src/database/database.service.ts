@@ -1,8 +1,8 @@
 import { Injectable, Logger } from "@nestjs/common";
-import { IMCacheRepository } from "./iMCache/iMCache.repository";
-import { BackupService } from "./iMCache/backup.service";
-import { MarketDateRepository } from "./iMCache/marketDate.repository";
-import { PriceRepository } from "./iMCache/price.repository";
+import { AppMemoryService } from "./appMemory/appMemory.service";
+import { BackupService } from "./appMemory/backup.service";
+import { MarketDateRepository } from "./appMemory/marketDate.repository";
+import { PriceRepository } from "./appMemory/price.repository";
 import { MarketDate } from "../common/class/marketDate.class";
 import { apply, compactObject, curry, each, filter, head, last, map, partition, peek, pipe, tap, toAsync } from "@fxts/core";
 
@@ -12,7 +12,7 @@ export class DatabaseService {
     private readonly logger = new Logger(DatabaseService.name);
 
     constructor(
-        private readonly iMCache: IMCacheRepository,
+        private readonly appMemSrv: AppMemoryService,
         private readonly cacheBackupSrv: BackupService,
         private readonly marketDateRepo: MarketDateRepository,
         private readonly priceRepo: PriceRepository
@@ -26,7 +26,7 @@ export class DatabaseService {
     updateCcPrice = this.priceRepo.update;
     
     cacheRecovery = this.cacheBackupSrv.localFileCacheRecovery;
-    getAllCcKeys = this.iMCache.getAllKeys;
+    getAllCcKeys = this.appMemSrv.getAllKeys;
 
     // TODO: 각 업데이트 Asset이 해당 Sp 에 속한게 맞는지 검사하고 있지 않다. 이거 문제될 가능성 있는지 찾아봐.
     updatePriceBySpPSets = (initSet: SpPSets) => pipe(initSet,
