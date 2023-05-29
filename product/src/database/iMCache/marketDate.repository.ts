@@ -16,8 +16,11 @@ export class MarketDateRepository {
 
     read = (ISO_Code: ISO_Code) => F.pipe(
         this.cacheManager.get(ISO_Code+this.PS),
-        this.passMarketDate);
+        this.passMarketDate,
+        this.copy);
     
     private passMarketDate = (v: any) => v instanceof MarketDate ? v : null;
+
+    copy = (v: MarketDate | null) => v && new MarketDate(v);
 
 }
