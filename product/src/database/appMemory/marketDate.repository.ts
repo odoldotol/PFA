@@ -14,12 +14,17 @@ export class MarketDateRepository {
         private readonly appMemSrv: AppMemoryService
     ) {}
     
-    create = (sp: Sp) => this.cacheManager.set(F.head(sp) + this.KEY_SUFFIX, F.last(sp), 0);
+    create = (sp: Sp) => F.pipe(
+        this.cacheManager.set(F.head(sp) + this.KEY_SUFFIX, F.last(sp), 0),
+        this.copy);
 
     read = (ISO_Code: ISO_Code) => F.pipe(
-        this.cacheManager.get(ISO_Code + this.KEY_SUFFIX),
-        this.passMarketDate,
+        this.get(ISO_Code),
         this.copy);
+
+    private get = (ISO_Code: ISO_Code) => F.pipe(
+        this.cacheManager.get(ISO_Code + this.KEY_SUFFIX),
+        this.passMarketDate);
     
     private passMarketDate = (v: any) => v instanceof MarketDate ? v : null;
 
