@@ -1,9 +1,9 @@
 import { Injectable, Logger } from "@nestjs/common";
-import { AppMemoryService } from "./appMemory/appMemory.service";
-import { BackupService } from "./appMemory/backup.service";
-import { MarketDateRepository } from "./appMemory/marketDate.repository";
-import { PriceRepository } from "./appMemory/price.repository";
-import { MarketDate } from "../common/class/marketDate.class";
+import { AppMemoryService } from "./inMemory/appMemory/appMemory.service";
+import { BackupService } from "./inMemory/appMemory/backup.service";
+import { MarketDateRepository } from "./inMemory/appMemory/marketDate.repository";
+import { PriceRepository } from "./inMemory/appMemory/price.repository";
+import { MarketDate } from "src/common/class/marketDate.class";
 import { apply, compactObject, curry, each, filter, head, last, map, partition, peek, pipe, tap, toAsync } from "@fxts/core";
 
 @Injectable()
