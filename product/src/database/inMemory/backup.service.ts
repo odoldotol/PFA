@@ -1,6 +1,5 @@
-import { CACHE_MANAGER, Inject, Injectable, Logger, OnApplicationBootstrap, OnModuleDestroy } from "@nestjs/common";
+import { Injectable, Logger, OnApplicationBootstrap, OnModuleDestroy } from "@nestjs/common";
 import { SchedulerRegistry } from "@nestjs/schedule";
-import { Cache } from 'cache-manager';
 import { CronJob } from "cron";
 import { readdir, readFile, writeFile } from 'node:fs/promises';
 import { Pm2Service } from "src/pm2/pm2.service";
@@ -18,7 +17,6 @@ export class BackupService implements OnApplicationBootstrap, OnModuleDestroy {
         private readonly schedulerRegistry: SchedulerRegistry,
         private readonly pm2Service: Pm2Service,
         private readonly appMemSrv: AppMemoryService,
-        @Inject(CACHE_MANAGER) private readonly cacheManager: Cache
     ) {}
 
     // Todo: Refac - 캐시모듈 전체적으로 조악하다.
@@ -52,7 +50,7 @@ export class BackupService implements OnApplicationBootstrap, OnModuleDestroy {
         fileName ? fileName : fileName = await this.getLastCacheBackupFileName(),
         this.readCacheBackupFile,
         map(this.toCacheSet),
-        each(cacheSet => this.cacheManager.set(cacheSet[0], cacheSet[1], {ttl: cacheSet[2]}))
+        each(this.appMemSrv.setCache)
     ).then(() => this.logger.verbose(`Cache Recovered : ${fileName}`)
     ).catch(e => {this.logger.error(e.stack), this.logger.error(`Failed to Cache Recovery`); throw e});
     
@@ -84,8 +82,6 @@ export class BackupService implements OnApplicationBootstrap, OnModuleDestroy {
     private isPriceStatus = <T>(cacheSet: CacheSet<T>) => head(cacheSet).slice(-12) === this.appMemSrv.marketDate_keySuffix;
 
     private getAllCache = async (): Promise<CacheSet<CacheValue>[]> =>
-        toArray(zip(await this.appMemSrv.getAllKeys(), await this.getAllValues()));
-
-    private getAllValues = async (): Promise<CacheValue[]> => this.cacheManager.store.mget!(...await this.appMemSrv.getAllKeys());
+        toArray(zip(await this.appMemSrv.getAllKeys(), await this.appMemSrv.getAllValues()));
 
 }
