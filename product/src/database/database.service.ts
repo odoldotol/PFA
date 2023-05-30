@@ -1,6 +1,6 @@
 import { Injectable, Logger } from "@nestjs/common";
-import { AppMemoryService } from "./inMemory/appMemory/appMemory.service";
-import { BackupService } from "./inMemory/appMemory/backup.service";
+import { InMemoryService } from "./inMemory/inMemory.service";
+import { BackupService } from "./inMemory/backup.service";
 import { MarketDateService } from "./inMemory/marketDate.service";
 import { PriceService } from "./inMemory/price.service";
 import { MarketDate } from "src/common/class/marketDate.class";
@@ -12,7 +12,7 @@ export class DatabaseService {
     private readonly logger = new Logger(DatabaseService.name);
 
     constructor(
-        private readonly appMemSrv: AppMemoryService,
+        private readonly appMemSrv: InMemoryService,
         private readonly cacheBackupSrv: BackupService,
         private readonly marketDateRepo: MarketDateService,
         private readonly priceRepo: PriceService

@@ -2,7 +2,7 @@ import { CACHE_MANAGER, Inject, Injectable } from "@nestjs/common";
 import { Cache } from 'cache-manager';
 
 @Injectable()
-export class AppMemoryService {
+export class InMemoryService {
 
     private readonly MarketDate_KEY_SUFFIX = "_priceStatus";
 
