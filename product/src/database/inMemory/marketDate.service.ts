@@ -1,11 +1,11 @@
 import { CACHE_MANAGER, Inject, Injectable } from "@nestjs/common";
 import { Cache } from 'cache-manager';
 import { MarketDate } from "src/common/class/marketDate.class";
-import { AppMemoryService } from "./appMemory.service";
+import { AppMemoryService } from "./appMemory/appMemory.service";
 import * as F from "@fxts/core";
 
 @Injectable()
-export class MarketDateRepository {
+export class MarketDateService {
 
     private readonly KEY_SUFFIX = this.appMemSrv.marketDate_keySuffix;
 

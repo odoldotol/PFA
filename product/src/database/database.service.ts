@@ -1,8 +1,8 @@
 import { Injectable, Logger } from "@nestjs/common";
 import { AppMemoryService } from "./inMemory/appMemory/appMemory.service";
 import { BackupService } from "./inMemory/appMemory/backup.service";
-import { MarketDateRepository } from "./inMemory/appMemory/marketDate.repository";
-import { PriceRepository } from "./inMemory/appMemory/price.repository";
+import { MarketDateService } from "./inMemory/marketDate.service";
+import { PriceService } from "./inMemory/price.service";
 import { MarketDate } from "src/common/class/marketDate.class";
 import { apply, compactObject, curry, each, filter, head, last, map, partition, peek, pipe, tap, toAsync } from "@fxts/core";
 
@@ -14,8 +14,8 @@ export class DatabaseService {
     constructor(
         private readonly appMemSrv: AppMemoryService,
         private readonly cacheBackupSrv: BackupService,
-        private readonly marketDateRepo: MarketDateRepository,
-        private readonly priceRepo: PriceRepository
+        private readonly marketDateRepo: MarketDateService,
+        private readonly priceRepo: PriceService
     ) {}
     
     createCcPriceStatusWithRP = (rP: RequestedPrice) => rP.status_price &&

@@ -7,7 +7,7 @@ import { EnvKey } from "src/common/enum/envKey.emun";
 import * as F from "@fxts/core";
 
 @Injectable()
-export class PriceRepository {
+export class PriceService {
 
     private readonly minThreshold = this.configService.get(EnvKey.MinThreshold_priceCache, 1, { infer: true });
 

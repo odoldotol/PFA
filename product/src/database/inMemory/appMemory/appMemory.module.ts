@@ -2,8 +2,6 @@ import { CacheModule, Module } from "@nestjs/common";
 import { Pm2Module } from "src/pm2/pm2.module";
 import { BackupService } from "./backup.service";
 import { AppMemoryService } from "./appMemory.service";
-import { MarketDateRepository } from "./marketDate.repository";
-import { PriceRepository } from "./price.repository";
 
 @Module({
     imports: [
@@ -15,14 +13,10 @@ import { PriceRepository } from "./price.repository";
     providers: [
         AppMemoryService,
         BackupService,
-        MarketDateRepository,
-        PriceRepository
     ],
     exports: [
         AppMemoryService,
         BackupService,
-        MarketDateRepository,
-        PriceRepository
     ]
 })
 export class AppMemoryModule {}
