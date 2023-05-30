@@ -7,15 +7,13 @@ import * as F from "@fxts/core";
 @Injectable()
 export class MarketDateService {
 
-    private readonly KEY_SUFFIX = this.appMemSrv.marketDate_keySuffix;
-
     constructor(
         @Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
         private readonly appMemSrv: AppMemoryService
     ) {}
     
     create = (sp: Sp) => F.pipe(
-        this.cacheManager.set(F.head(sp) + this.KEY_SUFFIX, F.last(sp), 0),
+        this.cacheManager.set(F.head(sp) + MarketDate.KEY_SUFFIX, F.last(sp), 0),
         this.copy);
 
     read = (ISO_Code: ISO_Code) => F.pipe(
@@ -23,7 +21,7 @@ export class MarketDateService {
         this.copy);
 
     private get = (ISO_Code: ISO_Code) => F.pipe(
-        this.cacheManager.get(ISO_Code + this.KEY_SUFFIX),
+        this.cacheManager.get(ISO_Code + MarketDate.KEY_SUFFIX),
         this.passMarketDate);
     
     private passMarketDate = (v: any) => v instanceof MarketDate ? v : null;

@@ -79,6 +79,6 @@ export class BackupService implements OnApplicationBootstrap, OnModuleDestroy {
         [ head(cache), new MarketDate(cache[1]), 0 ] as CacheSet<MarketDate>
         : cache;
 
-    private isPriceStatus = <T>(cacheSet: CacheSet<T>) => head(cacheSet).slice(-12) === this.storeSrv.marketDate_keySuffix;
+    private isPriceStatus = <T>(cacheSet: CacheSet<T>) => head(cacheSet).slice(-12) === MarketDate.KEY_SUFFIX;
 
 }
