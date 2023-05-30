@@ -1,5 +1,6 @@
 import { CacheModule, Module } from "@nestjs/common";
 import { Pm2Module } from "src/pm2/pm2.module";
+import { AppMemoryService } from "./appMemory.service";
 
 @Module({
     imports: [
@@ -8,7 +9,7 @@ import { Pm2Module } from "src/pm2/pm2.module";
         }),
         Pm2Module
     ],
-    providers: [],
-    exports: []
+    providers: [AppMemoryService],
+    exports: [AppMemoryService]
 })
 export class AppMemoryModule {}
