@@ -1,5 +1,6 @@
 import { CACHE_MANAGER, Inject, Injectable } from "@nestjs/common";
 import { Cache } from 'cache-manager';
+import * as F from "@fxts/core";
 
 @Injectable()
 export class AppMemoryService {
@@ -13,6 +14,9 @@ export class AppMemoryService {
     getAllKeys = (): Promise<CacheKey[]> => this.cacheManager.store.keys!();
 
     getAllValues = async (): Promise<CacheValue[]> => this.cacheManager.store.mget!(...await this.getAllKeys());
+
+    getAllCache = async (): Promise<CacheSet<CacheValue>[]> =>
+        F.toArray(F.zip(await this.getAllKeys(), await this.getAllValues()));
 
     get marketDate_keySuffix() { return this.MarketDate_KEY_SUFFIX };
 

@@ -11,12 +11,12 @@ import { curry, each, gte, head, isObject, isString, last, lte, map, not, nth, p
 @Injectable()
 export class BackupService implements OnApplicationBootstrap, OnModuleDestroy {
 
-    private readonly logger = new Logger("IMCache" + BackupService.name);
+    private readonly logger = new Logger("InMemory_" + BackupService.name);
 
     constructor(
         private readonly schedulerRegistry: SchedulerRegistry,
         private readonly pm2Service: Pm2Service,
-        private readonly appMemSrv: AppMemoryService,
+        private readonly storeSrv: AppMemoryService,
     ) {}
 
     // Todo: Refac - 캐시모듈 전체적으로 조악하다.
@@ -38,7 +38,7 @@ export class BackupService implements OnApplicationBootstrap, OnModuleDestroy {
     
     private logger_backupPlan = (cronJob: CronJob) => this.logger.log(`Backup Plan : ${(new Date(cronJob.nextDate().toString())).toLocaleString()}`);
 
-    private backupCache = () => this.backupCacheToLocalfile(this.getAllCache(), new Date().toISOString());
+    private backupCache = () => this.backupCacheToLocalfile(this.storeSrv.getAllCache(), new Date().toISOString());
 
     private backupCacheToLocalfile = async (data: Promise<CacheSet<CacheValue>[]>, fileName: string) => {
         this.logger.warn(`Cache Backup Start`);
@@ -50,7 +50,7 @@ export class BackupService implements OnApplicationBootstrap, OnModuleDestroy {
         fileName ? fileName : fileName = await this.getLastCacheBackupFileName(),
         this.readCacheBackupFile,
         map(this.toCacheSet),
-        each(this.appMemSrv.setCache)
+        each(this.storeSrv.setCache)
     ).then(() => this.logger.verbose(`Cache Recovered : ${fileName}`)
     ).catch(e => {this.logger.error(e.stack), this.logger.error(`Failed to Cache Recovery`); throw e});
     
@@ -79,9 +79,6 @@ export class BackupService implements OnApplicationBootstrap, OnModuleDestroy {
         [ head(cache), new MarketDate(cache[1]), 0 ] as CacheSet<MarketDate>
         : cache;
 
-    private isPriceStatus = <T>(cacheSet: CacheSet<T>) => head(cacheSet).slice(-12) === this.appMemSrv.marketDate_keySuffix;
-
-    private getAllCache = async (): Promise<CacheSet<CacheValue>[]> =>
-        toArray(zip(await this.appMemSrv.getAllKeys(), await this.appMemSrv.getAllValues()));
+    private isPriceStatus = <T>(cacheSet: CacheSet<T>) => head(cacheSet).slice(-12) === this.storeSrv.marketDate_keySuffix;
 
 }
