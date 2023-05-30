@@ -1,12 +1,10 @@
 import { Module } from "@nestjs/common";
 import { DatabaseService } from "./database.service";
-import { AppMemoryModule } from "./appMemory/appMemory.module";
-import { RedisModule } from "./redis/redis.module";
+import { InMemoryModule } from "./inMemory/inMemory.module";
 
 @Module({
     imports: [
-        AppMemoryModule,
-        RedisModule
+        InMemoryModule
     ],
     providers: [DatabaseService],
     exports: [DatabaseService]
