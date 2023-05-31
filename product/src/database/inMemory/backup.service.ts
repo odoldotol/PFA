@@ -76,16 +76,6 @@ export class BackupService implements OnApplicationBootstrap, OnModuleDestroy {
         else if (isObject(data)) return new CachedPrice(data)
         else return data;};
 
-    private toCachedPrice = (cache: CacheSet<BackupCacheValue>) =>
-        ( not(cache[1] instanceof MarketDate) && isObject(cache[1]) ) ?
-        [ head(cache), new CachedPrice(cache[1]) ] as CacheSet<CachedPrice>
-        : cache;
-
-    private toMarketDate = (cache: CacheSet<BackupCacheValue>) => 
-        ( this.isPriceStatus(cache) && isString(cache[1]) ) ?
-        [ head(cache), new MarketDate(cache[1]), 0 ] as CacheSet<MarketDate>
-        : cache;
-
     private isPriceStatus = <T>(cacheSet: CacheSet<T>) => head(cacheSet).slice(-12) === MarketDate.KEY_SUFFIX;
 
 }
