@@ -75,6 +75,6 @@ export class BackupService implements OnApplicationBootstrap, OnModuleDestroy {
     cacheValueFactory = (data: CachedPriceI | MarketDateI | string): MarketDate | CachedPrice => {
         if (data instanceof String || isString(data)) return new MarketDate(data)
         else if (isObject(data)) return new CachedPrice(data)
-        else return data;};
+        else throw new Error(`Invalid Cache Value`);};
 
 }
