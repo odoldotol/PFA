@@ -18,6 +18,6 @@ export class AppMemoryService {
         async allKeys => F.zip(allKeys, await this.getValues(allKeys)),
         F.toArray);
 
-    setCache = (cacheSet: CacheSet<CacheValue | BackupCacheValue>) => this.cacheManager.set(cacheSet[0], cacheSet[1], {ttl: cacheSet[2]})
+    setCache = (cacheSet: CacheSet<CacheValue>) => this.cacheManager.set(cacheSet[0], cacheSet[1], {ttl: cacheSet[2]})
 
 }

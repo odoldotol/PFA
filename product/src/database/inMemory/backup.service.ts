@@ -63,11 +63,12 @@ export class BackupService implements OnApplicationBootstrap, OnModuleDestroy {
 
     private readCacheBackupFile = async (fileName: string): Promise<CacheSet<BackupCacheValue>[]> =>
         JSON.parse(await readFile(`cacheBackup/${fileName}`, 'utf8'));
-
-    // TODO: 그냥통과된 BackupCache 있는지 확인하는 함수 pipe 에 넣기
-    private toCacheSet = (cache: CacheSet<BackupCacheValue>) => pipe(cache,
-        this.toCachedPrice,
-        this.toMarketDate);
+    
+    private toCacheSet = (cache: CacheSet<BackupCacheValue>): CacheSet<CacheValue> => {
+        if (isObject(cache[1])) return [ head(cache), new CachedPrice(cache[1]) ] as CacheSet<CachedPrice>
+        else if (this.isPriceStatus(cache) && isString(cache[1])) return [ head(cache), new MarketDate(cache[1]), 0 ] as CacheSet<MarketDate>
+        else return cache as never;
+    }
 
     private toCachedPrice = (cache: CacheSet<BackupCacheValue>) =>
         ( not(cache[1] instanceof MarketDate) && isObject(cache[1]) ) ?
