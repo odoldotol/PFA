@@ -18,19 +18,19 @@ export class PriceService {
 
     private readonly priceRepo = {
 
-        createOne: ([symbol, price]: CacheSet<CachedPriceI>) => F.pipe(
+        createOne: (symbol: TickerSymbol, price: CachedPriceI) => F.pipe(
             this.cacheManager.set(symbol, new CachedPrice(price)),
             this.copy),
 
         /**
-         *  this calls the count method of the CachedPrice
+         *  this calls the incr_count method of the CachedPrice
          */
         findOne: (symbol: TickerSymbol) => F.pipe(
             this.get(symbol),
-            v => v && v.counting ? v.counting() : null, // Todo: Refac
+            v => v && v.incr_count ? v.incr_count() : null, // Todo: Refac
             this.copy),
 
-        updateOne: ([symbol, update]: CacheUpdateSet<CachedPriceI>) => F.pipe(
+        updateOne: (symbol: TickerSymbol, update: Partial<CachedPriceI>) => F.pipe(
             this.get(symbol),
             this.copy,
             v => v && Object.assign(v, update),
@@ -46,7 +46,7 @@ export class PriceService {
 
     read_with_counting = (symbol: TickerSymbol) => F.pipe(
         this.get(symbol),
-        v => v && v.counting ? v.counting() : null, // Todo: Refac
+        v => v && v.incr_count ? v.incr_count() : null, // Todo: Refac
         this.copy);
 
     update = ([symbol, update]: CacheUpdateSet<CachedPriceI>) => F.pipe(

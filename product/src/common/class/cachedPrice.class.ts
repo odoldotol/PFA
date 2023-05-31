@@ -23,6 +23,6 @@ export class CachedPrice implements CachedPriceI {
     }
 
     // @ts-ignore
-    counting() {this.count++; return this;}
+    incr_count() {this.count++; return this;}
 
 }

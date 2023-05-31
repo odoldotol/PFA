@@ -5,5 +5,5 @@ interface CachedPriceI {
     readonly marketDate: MarketDateI;
     readonly count: number;
 
-    counting?(): CachedPriceI;
+    incr_count?(): CachedPriceI;
 }
