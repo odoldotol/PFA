@@ -64,11 +64,14 @@ export class BackupService implements OnApplicationBootstrap, OnModuleDestroy {
     private readCacheBackupFile = async (fileName: string): Promise<CacheSet<BackupCacheValue>[]> =>
         JSON.parse(await readFile(`cacheBackup/${fileName}`, 'utf8'));
     
-    private toCacheSet = (cache: CacheSet<BackupCacheValue>): CacheSet<CacheValue> => {
-        if (isObject(cache[1])) return [ head(cache), new CachedPrice(cache[1]) ] as CacheSet<CachedPrice>
-        else if (this.isPriceStatus(cache) && isString(cache[1])) return [ head(cache), new MarketDate(cache[1]), 0 ] as CacheSet<MarketDate>
-        else return cache as never;
-    }
+    private toCacheSet = (cache: CacheSet<BackupCacheValue>) => pipe(
+        [ cache[0], this.cacheValueFactory(cache[1]) ] as CacheSet<CacheValue>,
+        cacheSet => cacheSet[1] instanceof MarketDate ? (cacheSet[2] = 0, cacheSet) : cacheSet);
+
+    cacheValueFactory = (data: CachedPriceI | MarketDateI | string): MarketDate | CachedPrice => {
+        if (data instanceof String || isString(data)) return new MarketDate(data)
+        else if (isObject(data)) return new CachedPrice(data)
+        else return data;};
 
     private toCachedPrice = (cache: CacheSet<BackupCacheValue>) =>
         ( not(cache[1] instanceof MarketDate) && isObject(cache[1]) ) ?
