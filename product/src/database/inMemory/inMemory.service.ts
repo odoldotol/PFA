@@ -5,10 +5,10 @@ import { AppMemoryService } from "./appMemory/appMemory.service";
 export class InMemoryService {
 
     constructor(
-        private readonly appMemorySrv: AppMemoryService,
+        private readonly storeSrv: AppMemoryService,
     ) {}
 
     // [DEV]
-    getAllKeys = this.appMemorySrv.getAllKeys;
+    getAllKeys = this.storeSrv.getAllKeys;
 
 }
