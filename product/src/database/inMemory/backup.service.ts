@@ -50,6 +50,7 @@ export class BackupService implements OnApplicationBootstrap, OnModuleDestroy {
         fileName ? fileName : fileName = await this.getLastCacheBackupFileName(),
         this.readCacheBackupFile,
         map(this.toCacheSet),
+        map(this.set_ttl_on_marketDate_cacheSet),
         each(this.storeSrv.setCache)
     ).then(() => this.logger.verbose(`Cache Recovered : ${fileName}`)
     ).catch(e => {this.logger.error(e.stack), this.logger.error(`Failed to Cache Recovery`); throw e});
@@ -64,11 +65,10 @@ export class BackupService implements OnApplicationBootstrap, OnModuleDestroy {
     private readCacheBackupFile = async (fileName: string): Promise<CacheSet<BackupCacheValue>[]> =>
         JSON.parse(await readFile(`cacheBackup/${fileName}`, 'utf8'));
     
-    private toCacheSet = (cache: CacheSet<BackupCacheValue>) => pipe(
-        [ cache[0], this.cacheValueFactory(cache[1]) ] as CacheSet<CacheValue>,
-        this.set_ttl_on_marketDate_cacheSet);
+    private toCacheSet = (cache: CacheSet<BackupCacheValue>): CacheSet<CacheValue> =>
+        [ cache[0], this.cacheValueFactory(cache[1]) ];
     
-    set_ttl_on_marketDate_cacheSet = (cacheSet: CacheSet<CacheValue>) =>
+    private set_ttl_on_marketDate_cacheSet = (cacheSet: CacheSet<CacheValue>) =>
         cacheSet[1] instanceof MarketDate ? (cacheSet[2] = 0, cacheSet) : cacheSet;
 
     cacheValueFactory = (data: CachedPriceI | MarketDateI | string): MarketDate | CachedPrice => {
