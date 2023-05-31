@@ -40,25 +40,16 @@ export class PriceService {
 
     }
     
-    create = ([symbol, price]: CacheSet<CachedPriceI>) => F.pipe(
-        this.cacheManager.set(symbol, new CachedPrice(price)),
-        this.copy);
+    create = ([symbol, price]: CacheSet<CachedPriceI>) => this.priceRepo.createOne(symbol, price);
 
-    read_with_counting = (symbol: TickerSymbol) => F.pipe(
-        this.get(symbol),
-        v => v && v.incr_count ? v.incr_count() : null, // Todo: Refac
-        this.copy);
+    read_with_counting = (symbol: TickerSymbol) => this.priceRepo.findOne(symbol);
 
-    update = ([symbol, update]: CacheUpdateSet<CachedPriceI>) => F.pipe(
-        this.get(symbol),
-        this.copy,
-        v => v && Object.assign(v, update),
-        v => v && this.create([symbol, v]));
+    update = ([symbol, update]: CacheUpdateSet<CachedPriceI>) => this.priceRepo.updateOne(symbol, update);
     
     delete = (symbol: TickerSymbol) => this.cacheManager.del(symbol);
 
     isGteMinCount = (set: PSet) => F.pipe(
-        this.get(F.head(set)),
+        this.priceRepo.findOne(F.head(set)),
         v => v && this.minThreshold <= v.count);
 
     private get = (symbol: TickerSymbol) => F.pipe(
