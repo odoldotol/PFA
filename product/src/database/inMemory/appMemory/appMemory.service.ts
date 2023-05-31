@@ -11,10 +11,12 @@ export class AppMemoryService {
 
     getAllKeys = (): Promise<CacheKey[]> => this.cacheManager.store.keys!();
 
-    getAllValues = async (): Promise<CacheValue[]> => this.cacheManager.store.mget!(...await this.getAllKeys());
+    getValues = (keys: CacheKey[]): Promise<CacheValue[]> => this.cacheManager.store.mget!(...keys);
 
-    getAllCache = async (): Promise<CacheSet<CacheValue>[]> =>
-        F.toArray(F.zip(await this.getAllKeys(), await this.getAllValues()));
+    getAllCache = async (): Promise<CacheSet<CacheValue>[]> => F.pipe(
+        this.getAllKeys(),
+        async allKeys => F.zip(allKeys, await this.getValues(allKeys)),
+        F.toArray);
 
     setCache = (cacheSet: CacheSet<CacheValue | BackupCacheValue>) => this.cacheManager.set(cacheSet[0], cacheSet[1], {ttl: cacheSet[2]})
 
