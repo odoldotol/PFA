@@ -66,7 +66,10 @@ export class BackupService implements OnApplicationBootstrap, OnModuleDestroy {
     
     private toCacheSet = (cache: CacheSet<BackupCacheValue>) => pipe(
         [ cache[0], this.cacheValueFactory(cache[1]) ] as CacheSet<CacheValue>,
-        cacheSet => cacheSet[1] instanceof MarketDate ? (cacheSet[2] = 0, cacheSet) : cacheSet);
+        this.set_ttl_on_marketDate_cacheSet);
+    
+    set_ttl_on_marketDate_cacheSet = (cacheSet: CacheSet<CacheValue>) =>
+        cacheSet[1] instanceof MarketDate ? (cacheSet[2] = 0, cacheSet) : cacheSet;
 
     cacheValueFactory = (data: CachedPriceI | MarketDateI | string): MarketDate | CachedPrice => {
         if (data instanceof String || isString(data)) return new MarketDate(data)
