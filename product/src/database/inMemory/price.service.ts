@@ -15,6 +15,30 @@ export class PriceService {
         private readonly configService: ConfigService<EnvironmentVariables>,
         @Inject(CACHE_MANAGER) private readonly cacheManager: Cache
     ) {}
+
+    private readonly priceRepo = {
+
+        createOne: ([symbol, price]: CacheSet<CachedPriceI>) => F.pipe(
+            this.cacheManager.set(symbol, new CachedPrice(price)),
+            this.copy),
+
+        /**
+         *  this calls the count method of the CachedPrice
+         */
+        findOne: (symbol: TickerSymbol) => F.pipe(
+            this.get(symbol),
+            v => v && v.counting ? v.counting() : null, // Todo: Refac
+            this.copy),
+
+        updateOne: ([symbol, update]: CacheUpdateSet<CachedPriceI>) => F.pipe(
+            this.get(symbol),
+            this.copy,
+            v => v && Object.assign(v, update),
+            v => v && this.create([symbol, v])),
+
+        deleteOne: (symbol: TickerSymbol) => this.cacheManager.del(symbol),
+
+    }
     
     create = ([symbol, price]: CacheSet<CachedPriceI>) => F.pipe(
         this.cacheManager.set(symbol, new CachedPrice(price)),
