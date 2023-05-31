@@ -71,6 +71,7 @@ export class BackupService implements OnApplicationBootstrap, OnModuleDestroy {
     private set_ttl_on_marketDate_cacheSet = (cacheSet: CacheSet<CacheValue>) =>
         cacheSet[1] instanceof MarketDate ? (cacheSet[2] = 0, cacheSet) : cacheSet;
 
+    // Todo: 여기 있으면 안되는 메서드. 다른데로 옮기기
     cacheValueFactory = (data: CachedPriceI | MarketDateI | string): MarketDate | CachedPrice => {
         if (data instanceof String || isString(data)) return new MarketDate(data)
         else if (isObject(data)) return new CachedPrice(data)
