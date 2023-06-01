@@ -35,13 +35,9 @@ export class MarketDateService {
 
     }
     
-    create = (sp: Sp) => F.pipe(
-        this.cacheManager.set(F.head(sp) + MarketDate.KEY_SUFFIX, F.last(sp), 0),
-        this.copy);
+    create = ([ISO_Code, marketDate]: Sp) => this.marketDateRepo.createOne(ISO_Code, marketDate);
 
-    read = (ISO_Code: ISO_Code) => F.pipe(
-        this.get(ISO_Code),
-        this.copy);
+    read = (ISO_Code: ISO_Code) => this.marketDateRepo.findOne(ISO_Code);
 
     private get = (ISO_Code: ISO_Code) => F.pipe(
         this.cacheManager.get(ISO_Code + MarketDate.KEY_SUFFIX),
