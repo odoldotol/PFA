@@ -23,12 +23,8 @@ export class PriceService {
             this.cacheManager.set(symbol, new CachedPrice(price)),
             this.copy),
 
-        /**
-         *  this calls the incr_count method of the CachedPrice
-         */
         findOne: (symbol: TickerSymbol) => F.pipe(
             this.get(symbol),
-            v => v && v.incr_count ? v.incr_count() : null, // Todo: Refac
             this.copy),
 
         // Todo: 존재하는 키만 set 허용하기
@@ -45,7 +41,13 @@ export class PriceService {
     
     create = ([symbol, price]: CacheSet<CachedPriceI>) => this.priceRepo.createOne(symbol, price);
 
-    read_with_counting = (symbol: TickerSymbol) => this.priceRepo.findOne(symbol);
+    /**
+     *  this calls the incr_count method of the CachedPrice
+     */
+    read_with_counting = (symbol: TickerSymbol) => F.pipe(
+        this.get(symbol),
+        v => v && v.incr_count ? v.incr_count() : null, // Todo: Refac
+        this.copy);
 
     update = ([symbol, update]: CacheUpdateSet<CachedPriceI>) => this.priceRepo.updateOne(symbol, update);
     
