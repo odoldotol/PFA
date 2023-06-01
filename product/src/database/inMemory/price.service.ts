@@ -18,6 +18,7 @@ export class PriceService {
 
     private readonly priceRepo = {
 
+        // Todo: 이미 있는 키 set 막기
         createOne: (symbol: TickerSymbol, price: CachedPriceI) => F.pipe(
             this.cacheManager.set(symbol, new CachedPrice(price)),
             this.copy),
@@ -30,12 +31,14 @@ export class PriceService {
             v => v && v.incr_count ? v.incr_count() : null, // Todo: Refac
             this.copy),
 
+        // Todo: 존재하는 키만 set 허용하기
         updateOne: (symbol: TickerSymbol, update: Partial<CachedPriceI>) => F.pipe(
             this.get(symbol),
             this.copy,
             v => v && Object.assign(v, update),
             v => v && this.create([symbol, v])),
 
+        // Todo: 존재하는 키만 del 허용하기
         deleteOne: (symbol: TickerSymbol) => this.cacheManager.del(symbol),
 
     }
