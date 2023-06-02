@@ -48,12 +48,15 @@ export class AppMemoryRepository<T> {
     // Todo: 존재하는 키만 del 허용하기
     deleteOne = (key: string) => this.cacheManager.del(key + this.KEY_SUFFIX);
 
-    private get = (key: string) => F.pipe(
+    /**
+     * ### 사용주의 - copy 하지 않은 원본 객체를 반환함.
+     */
+    get = (key: string) => F.pipe(
         this.cacheManager.get(key + this.KEY_SUFFIX),
-        this.passMarketDate);
+        this.passInstanceOfSchema);
     
-    private passMarketDate = (v: any) => v instanceof this.schema ? v as T : null;
+    private passInstanceOfSchema = (v: any) => v instanceof this.schema ? v as T : null;
 
-    private copy = (v: T | null ) => v && new this.schema(v);
+    copy = (v: T | null ) => v && new this.schema(v);
 
 }

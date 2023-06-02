@@ -1,8 +1,7 @@
-import { CacheModule, DynamicModule, Module, CACHE_MANAGER } from "@nestjs/common";
+import { CacheModule, DynamicModule, Module, CACHE_MANAGER, CacheModuleOptions } from "@nestjs/common";
 import { Cache } from "cache-manager";
 import { AppMemoryService } from "./appMemory.service";
 import { AppMemoryRepository } from "./appMemory.repository";
-import { PriceRepository } from "./price.repository";
 
 @Module({})
 export class AppMemoryModule {
@@ -11,13 +10,10 @@ export class AppMemoryModule {
         return {
             module: AppMemoryModule,
             imports: [
-                CacheModule.register({
-                    ttl: 60 * 60 * 24 * 5, // 5 days
-                }),
+                CacheModule.register(),
             ],
             providers: [
                 AppMemoryService,
-                PriceRepository,
                 ...schemaArr.map(schema => ({
                     provide: schema.name,
                     useValue: schema,
@@ -32,7 +28,6 @@ export class AppMemoryModule {
             ],
             exports: [
                 AppMemoryService,
-                PriceRepository,
                 ...schemaArr.map(schema => schema.name+"REPOSITORY"),
             ]
         }

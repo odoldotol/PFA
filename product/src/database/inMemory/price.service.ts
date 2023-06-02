@@ -1,8 +1,9 @@
-import { Injectable } from "@nestjs/common";
+import { Inject, Injectable } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { EnvironmentVariables } from "src/common/interface/environmentVariables.interface";
 import { EnvKey } from "src/common/enum/envKey.emun";
-import { PriceRepository } from "./appMemory/price.repository";
+import { AppMemoryRepository } from "./appMemory/appMemory.repository";
+import { CachedPrice } from "src/common/class/cachedPrice.class";
 import * as F from "@fxts/core";
 
 @Injectable()
@@ -12,17 +13,17 @@ export class PriceService {
 
     constructor(
         private readonly configService: ConfigService<EnvironmentVariables>,
-        private readonly priceRepo: PriceRepository,
+        @Inject(CachedPrice.name+"REPOSITORY") private readonly priceRepo: AppMemoryRepository<CachedPriceI>,
     ) {}
     
     create = ([symbol, price]: CacheSet<CachedPriceI>) => this.priceRepo.createOne(symbol, price);
 
     /**
-     *  this calls the incr_count method of the CachedPrice
+     *  ### this method calls the incr_count method of the cachedPrice
      */
     read_with_counting = (symbol: TickerSymbol) => F.pipe(
         this.priceRepo.get(symbol),
-        v => v && v.incr_count ? v.incr_count() : null, // Todo: Refac
+        v => v && v.incr_count ? v.incr_count() : null,
         this.priceRepo.copy);
 
     update = ([symbol, update]: CacheUpdateSet<CachedPriceI>) => this.priceRepo.updateOne(symbol, update);
