@@ -1,14 +1,18 @@
-import { CACHE_MANAGER, Inject, Injectable } from "@nestjs/common";
+import { Injectable } from "@nestjs/common";
 import { Cache } from 'cache-manager';
+import { AppMemoryService } from "./appMemory.service";
 import { MarketDate } from "src/common/class/marketDate.class";
 import * as F from "@fxts/core";
 
 
 @Injectable()
-export class MarketDateRepository implements InMemoryRepositoryI<MarketDate> {
+export class AppMemoryRepository {
 
     constructor(
-        @Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
+        private readonly appMemorySrv: AppMemoryService,
+        private readonly schemaClass: Function,
+        // Todo: cacheManager 이용하는 메서드 모두 AppMemoryService 로 옮기고 cacheManager 지우기
+        private readonly cacheManager: Cache
     ) {}
 
     // Todo: 이미 있는 키 set 막기
