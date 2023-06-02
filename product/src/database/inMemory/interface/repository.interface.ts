@@ -4,4 +4,10 @@ interface InMemoryRepositoryI<T> {
     findOne: (key: string) => Promise<T|null>;
     updateOne: (key: string, update: Partial<T>) => Promise<T|null>;
     deleteOne: (key: string) => Promise<T>;
+
+    /**
+     * ### 사용주의 - copy 하지 않은 원본 객체를 반환함.
+     */
+    get: (key: string) => Promise<T|null>;
+    copy: (v: T | null ) => T | null;
 }

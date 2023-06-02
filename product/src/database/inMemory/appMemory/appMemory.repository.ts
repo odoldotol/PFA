@@ -6,7 +6,7 @@ import * as F from "@fxts/core";
 
 
 @Injectable()
-export class AppMemoryRepository<T> {
+export class AppMemoryRepository<T> implements InMemoryRepositoryI<T> {
 
     private readonly KEY_SUFFIX: string;
     private readonly TTL: number;
@@ -27,6 +27,7 @@ export class AppMemoryRepository<T> {
     }
 
     // Todo: 이미 있는 키 set 막기
+    // Todo: null 반환 하지 말고 에러 던져야함
     createOne = (key: string, value: T) => F.pipe(
         this.appMemorySrv.setCache([key + this.KEY_SUFFIX, new this.schema(value), this.TTL]),
         this.copy);

@@ -1,12 +1,11 @@
 import { Inject, Injectable } from "@nestjs/common";
-import { AppMemoryRepository } from "./appMemory/appMemory.repository";
 import { MarketDate } from "src/common/class/marketDate.class";
 
 @Injectable()
 export class MarketDateService {
 
     constructor(
-        @Inject(MarketDate.name+"REPOSITORY") private readonly marketDateRepo: AppMemoryRepository<MarketDate>,
+        @Inject(MarketDate.name+"REPOSITORY") private readonly marketDateRepo: InMemoryRepositoryI<MarketDate>,
     ) {}
     
     create = ([ISO_Code, marketDate]: Sp) => this.marketDateRepo.createOne(ISO_Code, marketDate);
