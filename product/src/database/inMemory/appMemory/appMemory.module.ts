@@ -1,5 +1,4 @@
-import { CacheModule, DynamicModule, Module, CACHE_MANAGER, CacheModuleOptions } from "@nestjs/common";
-import { Cache } from "cache-manager";
+import { CacheModule, DynamicModule, Module } from "@nestjs/common";
 import { AppMemoryService } from "./appMemory.service";
 import { AppMemoryRepository } from "./appMemory.repository";
 
@@ -20,10 +19,10 @@ export class AppMemoryModule {
                 })),
                 ...schemaArr.map(schema => ({
                     provide: schema.name+"REPOSITORY",
-                    useFactory(appMemSrv: AppMemoryService, schema: InMemorySchema, cacheManager: Cache) {
-                        return new AppMemoryRepository(appMemSrv, schema, cacheManager);
+                    useFactory(appMemSrv: AppMemoryService, schema: InMemorySchema) {
+                        return new AppMemoryRepository(appMemSrv, schema);
                     },
-                    inject: [AppMemoryService, schema.name, CACHE_MANAGER],
+                    inject: [AppMemoryService, schema.name],
                 })),
             ],
             exports: [

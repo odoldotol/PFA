@@ -1,5 +1,4 @@
 import { Injectable } from "@nestjs/common";
-import { Cache } from 'cache-manager';
 import { AppMemoryService } from "./appMemory.service";
 import { MarketDate } from "src/common/class/marketDate.class";
 import { CachedPrice } from "src/common/class/cachedPrice.class";
@@ -15,8 +14,6 @@ export class AppMemoryRepository<T> {
     constructor(
         private readonly appMemorySrv: AppMemoryService,
         private readonly schema: InMemorySchema,
-        // Todo: cacheManager 이용하는 메서드 모두 AppMemoryService 로 옮기고 cacheManager 지우기
-        private readonly cacheManager: Cache
     ) {
         if (schema.name === MarketDate.name) {
             this.KEY_SUFFIX = "_priceStatus";
@@ -31,7 +28,7 @@ export class AppMemoryRepository<T> {
 
     // Todo: 이미 있는 키 set 막기
     createOne = (key: string, value: T) => F.pipe(
-        this.cacheManager.set(key + this.KEY_SUFFIX, value, this.TTL),
+        this.appMemorySrv.setCache([key + this.KEY_SUFFIX, value, this.TTL]),
         this.copy);
 
     findOne = (key: string) => F.pipe(
@@ -46,13 +43,13 @@ export class AppMemoryRepository<T> {
         v => v && this.createOne(key, v));
     
     // Todo: 존재하는 키만 del 허용하기
-    deleteOne = (key: string) => this.cacheManager.del(key + this.KEY_SUFFIX);
+    deleteOne = (key: string) => this.appMemorySrv.deleteCache(key + this.KEY_SUFFIX);
 
     /**
      * ### 사용주의 - copy 하지 않은 원본 객체를 반환함.
      */
     get = (key: string) => F.pipe(
-        this.cacheManager.get(key + this.KEY_SUFFIX),
+        this.appMemorySrv.getValue(key + this.KEY_SUFFIX),
         this.passInstanceOfSchema);
     
     private passInstanceOfSchema = (v: any) => v instanceof this.schema ? v as T : null;
