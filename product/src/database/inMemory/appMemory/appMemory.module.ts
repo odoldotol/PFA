@@ -9,7 +9,9 @@ export class AppMemoryModule {
         return {
             module: AppMemoryModule,
             imports: [
-                CacheModule.register(),
+                CacheModule.register({
+                    ttl: 60 * 60 * 24 * 5, // 5 days
+                }),
             ],
             providers: [
                 AppMemoryService,
