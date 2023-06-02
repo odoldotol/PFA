@@ -2,8 +2,6 @@ import { isString, not } from "@fxts/core"
 
 export class MarketDate extends String implements MarketDateI {
 
-    static readonly KEY_SUFFIX = "_priceStatus";
-
     constructor(arg: string | MarketDateI) {
         if (isString(arg) && not(/^\d{4}-\d{2}-\d{2}$/.test(arg))) throw new Error(`Invalid MarketDate : ${arg}`);
         else if (arg instanceof MarketDate) arg = arg.get;

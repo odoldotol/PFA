@@ -24,7 +24,7 @@ export class AppMemoryModule {
                 })),
                 ...schemaArr.map(schema => ({
                     provide: schema.name+"REPOSITORY",
-                    useFactory(appMemSrv: AppMemoryService, schema: Function, cacheManager: Cache) {
+                    useFactory(appMemSrv: AppMemoryService, schema: InMemorySchema, cacheManager: Cache) {
                         return new AppMemoryRepository(appMemSrv, schema, cacheManager);
                     },
                     inject: [AppMemoryService, schema.name, CACHE_MANAGER],

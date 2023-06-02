@@ -6,7 +6,7 @@ import { MarketDate } from "src/common/class/marketDate.class";
 export class MarketDateService {
 
     constructor(
-        @Inject(MarketDate.name+"REPOSITORY") private readonly marketDateRepo: AppMemoryRepository,
+        @Inject(MarketDate.name+"REPOSITORY") private readonly marketDateRepo: AppMemoryRepository<MarketDate>,
     ) {}
     
     create = ([ISO_Code, marketDate]: Sp) => this.marketDateRepo.createOne(ISO_Code, marketDate);
