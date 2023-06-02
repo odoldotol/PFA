@@ -28,7 +28,7 @@ export class AppMemoryRepository<T> {
 
     // Todo: 이미 있는 키 set 막기
     createOne = (key: string, value: T) => F.pipe(
-        this.appMemorySrv.setCache([key + this.KEY_SUFFIX, value, this.TTL]),
+        this.appMemorySrv.setCache([key + this.KEY_SUFFIX, new this.schema(value), this.TTL]),
         this.copy);
 
     findOne = (key: string) => F.pipe(
