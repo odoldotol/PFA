@@ -3,7 +3,7 @@ import { Cache } from 'cache-manager';
 import * as F from "@fxts/core";
 
 @Injectable()
-export class AppMemoryService implements InMemoryStoreService {
+export class AppMemoryService implements InMemoryStoreServiceI {
 
     constructor(
         @Inject(CACHE_MANAGER) private readonly cacheManager: Cache
@@ -20,6 +20,7 @@ export class AppMemoryService implements InMemoryStoreService {
 
     setCache = <T>(cacheSet: CacheSet<T>) => this.cacheManager.set(cacheSet[0], cacheSet[1], {ttl: cacheSet[2]})
 
+    // Todo: delete 성공이면 true 아니면 false 반환
     deleteCache = (key: string) => this.cacheManager.del(key);
 
     getValue = (key: string) => this.cacheManager.get(key);

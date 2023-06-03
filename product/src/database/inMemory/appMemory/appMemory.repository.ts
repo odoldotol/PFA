@@ -36,13 +36,18 @@ export class AppMemoryRepository<T> implements InMemoryRepositoryI<T> {
         this.get(key),
         this.copy);
     
-    // Todo: 존재하는 키만 set 허용하기
+    /**
+     * ### 주의 - 현재 MarketDate(string 같은 불변타입) 지원 안함. 사용 금지.
+     * - Todo: 존재하는 키만 set 허용하기
+     * - Todo: marketDate(string 같은 불변타입) 솔루션 적용하기
+     */
     updateOne = (key: string, update: Partial<T>) => F.pipe(
         this.get(key),
         this.copy,
-        v => v && Object.assign(v, update), // Todo: marketDate(string 같은 불변타입) 솔루션
+        v => v && Object.assign(v, update),
         v => v && this.createOne(key, v));
     
+    // Todo: delete 성공이면 true 아니면 false 반환
     deleteOne = (key: string) => this.appMemorySrv.deleteCache(key + this.KEY_SUFFIX);
 
     /**
