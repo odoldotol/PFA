@@ -43,7 +43,6 @@ export class AppMemoryRepository<T> implements InMemoryRepositoryI<T> {
         v => v && Object.assign(v, update), // Todo: marketDate(string 같은 불변타입) 솔루션
         v => v && this.createOne(key, v));
     
-    // Todo: 존재하는 키만 del 허용하기
     deleteOne = (key: string) => this.appMemorySrv.deleteCache(key + this.KEY_SUFFIX);
 
     /**

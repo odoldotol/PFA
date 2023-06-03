@@ -3,7 +3,7 @@ import { Cache } from 'cache-manager';
 import * as F from "@fxts/core";
 
 @Injectable()
-export class AppMemoryService {
+export class AppMemoryService implements InMemoryStoreService {
 
     constructor(
         @Inject(CACHE_MANAGER) private readonly cacheManager: Cache
