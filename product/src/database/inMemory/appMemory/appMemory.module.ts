@@ -1,5 +1,7 @@
 import { CacheModule, DynamicModule, Module } from "@nestjs/common";
+import { Pm2Module } from "src/pm2/pm2.module";
 import { AppMemoryService } from "./appMemory.service";
+import { BackupService } from "./backup.service";
 import { AppMemoryRepository } from "./appMemory.repository";
 
 @Module({})
@@ -12,9 +14,11 @@ export class AppMemoryModule {
                 CacheModule.register({
                     ttl: 60 * 60 * 24 * 5, // 5 days
                 }),
+                Pm2Module
             ],
             providers: [
                 AppMemoryService,
+                BackupService,
                 ...schemaArr.map(schema => ({
                     provide: schema.name,
                     useValue: schema,
@@ -29,6 +33,7 @@ export class AppMemoryModule {
             ],
             exports: [
                 AppMemoryService,
+                BackupService,
                 ...schemaArr.map(schema => schema.name+"REPOSITORY"),
             ]
         }

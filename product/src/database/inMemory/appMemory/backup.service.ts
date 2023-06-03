@@ -5,7 +5,7 @@ import { readdir, readFile, writeFile } from 'node:fs/promises';
 import { Pm2Service } from "src/pm2/pm2.service";
 import { MarketDate } from "src/common/class/marketDate.class";
 import { CachedPrice } from "src/common/class/cachedPrice.class";
-import { AppMemoryService } from "./appMemory/appMemory.service";
+import { AppMemoryService } from "./appMemory.service";
 import { curry, each, gte, head, isObject, isString, last, lte, map, not, nth, pipe, tap, toArray, toAsync, zip } from "@fxts/core";
 
 @Injectable()
@@ -16,7 +16,7 @@ export class BackupService implements OnApplicationBootstrap, OnModuleDestroy {
     constructor(
         private readonly schedulerRegistry: SchedulerRegistry,
         private readonly pm2Service: Pm2Service,
-        private readonly storeSrv: AppMemoryService,
+        private readonly appMemorySrv: AppMemoryService,
     ) {}
 
     // Todo: Refac - 캐시모듈 전체적으로 조악하다.
@@ -38,7 +38,7 @@ export class BackupService implements OnApplicationBootstrap, OnModuleDestroy {
     
     private logger_backupPlan = (cronJob: CronJob) => this.logger.log(`Backup Plan : ${(new Date(cronJob.nextDate().toString())).toLocaleString()}`);
 
-    private backupCache = () => this.backupCacheToLocalfile(this.storeSrv.getAllCache(), new Date().toISOString());
+    private backupCache = () => this.backupCacheToLocalfile(this.appMemorySrv.getAllCache(), new Date().toISOString());
 
     private backupCacheToLocalfile = async (data: Promise<CacheSet<CacheValue>[]>, fileName: string) => {
         this.logger.warn(`Cache Backup Start`);
@@ -51,7 +51,7 @@ export class BackupService implements OnApplicationBootstrap, OnModuleDestroy {
         this.readCacheBackupFile,
         map(this.toCacheSet),
         map(this.set_ttl_on_marketDate_cacheSet),
-        each(this.storeSrv.setCache)
+        each(this.appMemorySrv.setCache)
     ).then(() => this.logger.verbose(`Cache Recovered : ${fileName}`)
     ).catch(e => {this.logger.error(e.stack), this.logger.error(`Failed to Cache Recovery`); throw e});
     
@@ -72,7 +72,7 @@ export class BackupService implements OnApplicationBootstrap, OnModuleDestroy {
         cacheSet[1] instanceof MarketDate ? (cacheSet[2] = 0, cacheSet) : cacheSet;
 
     // Todo: 여기 있으면 안되는 메서드. 다른데로 옮기기
-    cacheValueFactory = (data: CachedPriceI | MarketDateI | string): MarketDate | CachedPrice => {
+    private cacheValueFactory = (data: CachedPriceI | MarketDateI | string): MarketDate | CachedPrice => {
         if (data instanceof String || isString(data)) return new MarketDate(data)
         else if (isObject(data)) return new CachedPrice(data)
         else throw new Error(`Invalid Cache Value`);};

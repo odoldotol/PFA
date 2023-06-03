@@ -1,6 +1,5 @@
 import { Injectable, Logger } from "@nestjs/common";
 import { InMemoryService } from "./inMemory/inMemory.service";
-import { BackupService } from "./inMemory/backup.service";
 import { MarketDateService } from "./inMemory/marketDate.service";
 import { PriceService } from "./inMemory/price.service";
 import { MarketDate } from "src/common/class/marketDate.class";
@@ -12,8 +11,7 @@ export class DatabaseService {
     private readonly logger = new Logger(DatabaseService.name);
 
     constructor(
-        private readonly appMemSrv: InMemoryService,
-        private readonly cacheBackupSrv: BackupService,
+        private readonly inMemorySrv: InMemoryService,
         private readonly marketDateSrv: MarketDateService,
         private readonly priceSrv: PriceService
     ) {}
@@ -25,8 +23,8 @@ export class DatabaseService {
     readCcPriceCounting = this.priceSrv.read_with_counting;
     updateCcPrice = this.priceSrv.update;
     
-    cacheRecovery = this.cacheBackupSrv.localFileCacheRecovery;
-    getAllCcKeys = this.appMemSrv.getAllKeys;
+    cacheRecovery = this.inMemorySrv.localFileCacheRecovery;
+    getAllCcKeys = this.inMemorySrv.getAllKeys;
 
     // TODO: 각 업데이트 Asset이 해당 Sp 에 속한게 맞는지 검사하고 있지 않다. 이거 문제될 가능성 있는지 찾아봐.
     updatePriceBySpPSets = (initSet: SpPSets) => pipe(initSet,
