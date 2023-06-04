@@ -3,6 +3,7 @@ import { ConfigService } from "@nestjs/config";
 import { EnvironmentVariables } from "src/common/interface/environmentVariables.interface";
 import { EnvKey } from "src/common/enum/envKey.emun";
 import { CachedPrice } from "src/common/class/cachedPrice.class";
+import { INMEMORY_SCHEMA_REPOSITORY_SUFFIX } from "./const/injectionToken.const";
 import * as F from "@fxts/core";
 
 @Injectable()
@@ -13,7 +14,7 @@ export class PriceService {
     constructor(
         private readonly configService: ConfigService<EnvironmentVariables>,
         // Todo1: 제너릭타입 CachedPriceI 말고 CachedPrice 쓸수 있도록 하기.
-        @Inject(CachedPrice.name+"REPOSITORY") private readonly priceRepo: InMemoryRepositoryI<CachedPriceI>,
+        @Inject(CachedPrice.name + INMEMORY_SCHEMA_REPOSITORY_SUFFIX) private readonly priceRepo: InMemoryRepositoryI<CachedPriceI>,
     ) {}
     
     create = ([symbol, price]: CacheSet<CachedPriceI>) => this.priceRepo.createOne(symbol, price);

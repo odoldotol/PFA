@@ -2,6 +2,7 @@ import { DynamicModule, ExistingProvider, FactoryProvider, Module, ValueProvider
 import { ConnectService } from "./connect.service";
 import { RedisService } from "./redis.service";
 import { RedisRepository } from "./redis.repository";
+import { INMEMORY_STORE_SERVICE, INMEMORY_STORE_BACKUP_SERVICE, INMEMORY_SCHEMA_REPOSITORY_SUFFIX } from "../const/injectionToken.const";
 
 @Module({})
 export class RedisModule {
@@ -9,12 +10,12 @@ export class RedisModule {
     static register(schemaArr: Function[]): DynamicModule {
 
         const redisServiceAliasProvider: ExistingProvider<InMemoryStoreServiceI> = {
-            provide: "INMEMORY_STORE_SERVICE",
+            provide: INMEMORY_STORE_SERVICE,
             useExisting: RedisService,
         };
 
         const mockBackupService: ValueProvider<InMemoryStoreBackupServiceI> = {
-            provide: "INMEMORY_STORE_BACKUP_SERVICE",
+            provide: INMEMORY_STORE_BACKUP_SERVICE,
             useValue: {
                 localFileCacheRecovery: () => Promise.resolve(),
             },
@@ -26,11 +27,11 @@ export class RedisModule {
         }));
 
         const schemaRepositorys: FactoryProvider[] = schemaArr.map(schema => ({
-            provide: schema.name+"REPOSITORY",
+            provide: schema.name + INMEMORY_SCHEMA_REPOSITORY_SUFFIX,
             useFactory(redisSrv: RedisService, schema: InMemorySchemaI) {
                 return new RedisRepository(redisSrv, schema);
             },
-            inject: [RedisService, schema.name],
+            inject: [INMEMORY_STORE_SERVICE, schema.name],
         }));
 
         return {

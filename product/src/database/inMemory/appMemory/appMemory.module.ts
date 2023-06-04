@@ -3,6 +3,7 @@ import { Pm2Module } from "src/pm2/pm2.module";
 import { AppMemoryService } from "./appMemory.service";
 import { BackupService } from "./backup.service";
 import { AppMemoryRepository } from "./appMemory.repository";
+import { INMEMORY_STORE_SERVICE, INMEMORY_STORE_BACKUP_SERVICE, INMEMORY_SCHEMA_REPOSITORY_SUFFIX } from "../const/injectionToken.const";
 
 @Module({})
 export class AppMemoryModule {
@@ -10,12 +11,12 @@ export class AppMemoryModule {
     static register(schemaArr: Function[]): DynamicModule {
 
         const appMemoryServiceAliasProvider: ExistingProvider<InMemoryStoreServiceI> = {
-            provide: "INMEMORY_STORE_SERVICE",
+            provide: INMEMORY_STORE_SERVICE,
             useExisting: AppMemoryService,
         };
 
         const backupServiceAliasProvider: ExistingProvider<InMemoryStoreBackupServiceI> = {
-            provide: "INMEMORY_STORE_BACKUP_SERVICE",
+            provide: INMEMORY_STORE_BACKUP_SERVICE,
             useExisting: BackupService,
         };
 
@@ -25,11 +26,11 @@ export class AppMemoryModule {
         }));
 
         const schemaRepositorys: FactoryProvider<InMemoryRepositoryI<InMemorySchemaI>>[] = schemaArr.map(schema => ({
-            provide: schema.name+"REPOSITORY",
+            provide: schema.name + INMEMORY_SCHEMA_REPOSITORY_SUFFIX,
             useFactory(appMemSrv: AppMemoryService, schema: InMemorySchemaI) {
                 return new AppMemoryRepository(appMemSrv, schema);
             },
-            inject: ["INMEMORY_STORE_SERVICE", schema.name],
+            inject: [INMEMORY_STORE_SERVICE, schema.name],
         }));
 
         return {

@@ -11,7 +11,7 @@ import { curry, each, gte, head, isObject, isString, last, lte, map, not, nth, p
 @Injectable()
 export class BackupService implements OnApplicationBootstrap, OnModuleDestroy, InMemoryStoreBackupServiceI {
 
-    private readonly logger = new Logger("InMemory_" + BackupService.name);
+    private readonly logger = new Logger("AppMemory_" + BackupService.name);
 
     constructor(
         private readonly schedulerRegistry: SchedulerRegistry,
