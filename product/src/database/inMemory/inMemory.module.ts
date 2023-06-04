@@ -9,9 +9,9 @@ import { CachedPrice } from "src/common/class/cachedPrice.class";
 
 @Module({
     imports: [
-        // 다이나믹으로 환경변수 읽어서 연결하도록 할까?
-        AppMemoryModule.register([MarketDate, CachedPrice]),
-        // RedisModule
+        // Todo: 다이나믹으로 환경변수 읽어서 연결하도록 해보기
+        // AppMemoryModule.register([MarketDate, CachedPrice]),
+        RedisModule.register([MarketDate, CachedPrice])
     ],
     providers: [
         InMemoryService,

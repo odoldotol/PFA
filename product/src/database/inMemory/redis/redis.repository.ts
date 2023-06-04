@@ -6,7 +6,7 @@ export class RedisRepository<T> implements InMemoryRepositoryI<T> {
 
     constructor(
         private readonly redisSrv: RedisService,
-        private readonly schema: InMemorySchema,
+        private readonly schema: InMemorySchemaI,
     ) {}
 
     createOne = (key: string, value: T) => Promise.resolve(null);

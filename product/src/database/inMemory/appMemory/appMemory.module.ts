@@ -1,4 +1,4 @@
-import { CacheModule, DynamicModule, Module, ValueProvider, FactoryProvider } from "@nestjs/common";
+import { CacheModule, DynamicModule, Module, ValueProvider, FactoryProvider, ExistingProvider } from "@nestjs/common";
 import { Pm2Module } from "src/pm2/pm2.module";
 import { AppMemoryService } from "./appMemory.service";
 import { BackupService } from "./backup.service";
@@ -9,17 +9,27 @@ export class AppMemoryModule {
     // Todo: schema 만들기
     static register(schemaArr: Function[]): DynamicModule {
 
+        const appMemoryServiceAliasProvider: ExistingProvider<InMemoryStoreServiceI> = {
+            provide: "INMEMORY_STORE_SERVICE",
+            useExisting: AppMemoryService,
+        };
+
+        const backupServiceAliasProvider: ExistingProvider<InMemoryStoreBackupServiceI> = {
+            provide: "INMEMORY_STORE_BACKUP_SERVICE",
+            useExisting: BackupService,
+        };
+
         const schemaProviders: ValueProvider[] = schemaArr.map(schema => ({
             provide: schema.name,
             useValue: schema,
         }));
 
-        const schemaRepositorys: FactoryProvider[] = schemaArr.map(schema => ({
+        const schemaRepositorys: FactoryProvider<InMemoryRepositoryI<InMemorySchemaI>>[] = schemaArr.map(schema => ({
             provide: schema.name+"REPOSITORY",
-            useFactory(appMemSrv: AppMemoryService, schema: InMemorySchema) {
+            useFactory(appMemSrv: AppMemoryService, schema: InMemorySchemaI) {
                 return new AppMemoryRepository(appMemSrv, schema);
             },
-            inject: [AppMemoryService, schema.name],
+            inject: ["INMEMORY_STORE_SERVICE", schema.name],
         }));
 
         return {
@@ -33,12 +43,14 @@ export class AppMemoryModule {
             providers: [
                 AppMemoryService,
                 BackupService,
+                appMemoryServiceAliasProvider,
+                backupServiceAliasProvider,
                 ...schemaProviders,
                 ...schemaRepositorys,
             ],
             exports: [
-                AppMemoryService,
-                BackupService,
+                appMemoryServiceAliasProvider,
+                backupServiceAliasProvider,
                 ...schemaRepositorys,
             ]
         }

@@ -9,7 +9,7 @@ import { AppMemoryService } from "./appMemory.service";
 import { curry, each, gte, head, isObject, isString, last, lte, map, not, nth, pipe, tap, toArray, toAsync, zip } from "@fxts/core";
 
 @Injectable()
-export class BackupService implements OnApplicationBootstrap, OnModuleDestroy {
+export class BackupService implements OnApplicationBootstrap, OnModuleDestroy, InMemoryStoreBackupServiceI {
 
     private readonly logger = new Logger("InMemory_" + BackupService.name);
 

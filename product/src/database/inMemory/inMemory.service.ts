@@ -1,13 +1,11 @@
-import { Injectable } from "@nestjs/common";
-import { AppMemoryService } from "./appMemory/appMemory.service";
-import { BackupService } from "./appMemory/backup.service";
+import { Inject, Injectable } from "@nestjs/common";
 
 @Injectable()
 export class InMemoryService {
 
     constructor(
-        private readonly storeSrv: AppMemoryService,
-        private readonly backupSrv: BackupService
+        @Inject("INMEMORY_STORE_SERVICE") private readonly storeSrv: InMemoryStoreServiceI,
+        @Inject("INMEMORY_STORE_BACKUP_SERVICE") private readonly backupSrv: InMemoryStoreBackupServiceI
     ) {}
 
     // [DEV]

@@ -13,7 +13,7 @@ export class AppMemoryRepository<T> implements InMemoryRepositoryI<T> {
 
     constructor(
         private readonly appMemorySrv: AppMemoryService,
-        private readonly schema: InMemorySchema,
+        private readonly schema: InMemorySchemaI,
     ) {
         if (schema.name === MarketDate.name) {
             this.KEY_SUFFIX = "_priceStatus";
