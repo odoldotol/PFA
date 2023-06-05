@@ -10,9 +10,21 @@ export class RedisService implements InMemoryStoreServiceI {
         private readonly connectSrv: ConnectService
     ) {}
 
-    getAllKeys = () => this.client.sendCommand([
-        "KEYS", "*" // scan 사용하기
-    ]) as Promise<string[]>;
+    getAllKeys = async () => {
+        let result: string[] = [];
+        let cursor: number|true = true;
+
+        while (cursor) {
+            cursor === true ? cursor = 0 : cursor;
+            const scanReturn = await this.client.sendCommand([
+                "SCAN", `${cursor}`, "MATCH", "*", "COUNT", "100"
+            ]) as [string, string[]];
+            cursor = parseInt(scanReturn[0]);
+            result = result.concat(scanReturn[1]);
+        };
+
+        return result;
+    }
     
     setCache = <T>([key, value, ttl]: [string, T, number]) => Promise.resolve(value);
 
