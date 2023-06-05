@@ -70,6 +70,8 @@ describe("RedisService", () => {
         });
         it.todo("성공시 value, 실패시 null 반환."); // 실패? null 반환?
         it.todo("ttl(초) 이후에 만료되야 한다.");
+        it.todo("number"); // 9999 이하 vs 9999 이상 차이?, 음수, 0, NaN, Infinity, -Infinity
+        it.todo("object");
     });
 
     describe('deleteCache', () => {
