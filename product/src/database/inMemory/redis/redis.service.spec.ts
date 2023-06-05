@@ -31,7 +31,7 @@ describe("RedisService", () => {
         ));
         const msetCommand = ["MSET"];
         testKeyValueMap.forEach((value, keyBody) => {
-            msetCommand.push(TEST_KEY_PREFIX+keyBody, value);
+            msetCommand.push(makeTestKey(keyBody), value);
         });
         if (msetCommand.length%2 === 1) await client.sendCommand(msetCommand);
         else throw new Error("MSET Command must have key-value pair.");});
@@ -59,12 +59,12 @@ describe("RedisService", () => {
     });
 
     describe('setCache', () => {
-        const setCacheKey = "setCacheKey";
+        const setCacheKeyBody = "setCacheKey";
         const setCacheValue = "setCacheValue";
         it("(key, value, ttl) 튜플배열 받아서 set 한다.", async () => {
-            await service.setCache([TEST_KEY_PREFIX+setCacheKey, setCacheValue, 100]);
+            await service.setCache([makeTestKey(setCacheKeyBody), setCacheValue, 100]);
             expect(await client.sendCommand([
-                "GET", TEST_KEY_PREFIX+setCacheKey
+                "GET", makeTestKey(setCacheKeyBody)
             ])).toBe(setCacheValue);
         });
         it.todo("성공시 value, 실패시 null 반환."); // 실패? null 반환?
@@ -80,5 +80,7 @@ describe("RedisService", () => {
         it.todo("key 하나를 받아서 value 하나를 반환.");
         it.todo("없으면 null 반환.");
     });
+
+    const makeTestKey = (keyBody: string) => TEST_KEY_PREFIX+keyBody;
     
 });
