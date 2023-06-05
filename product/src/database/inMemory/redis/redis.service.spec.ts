@@ -17,7 +17,7 @@ describe("RedisService", () => {
         await module.init();
     });
 
-    beforeAll(async () => {
+    afterAll(async () => {
         await module.close();
     });
 
