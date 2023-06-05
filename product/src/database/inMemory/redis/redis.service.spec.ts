@@ -21,6 +21,7 @@ describe("RedisService", () => {
         await module.close();});
 
     const TEST_KEY_PREFIX = "pfa:unittest:";
+    const makeTestKey = (keyBody: string) => TEST_KEY_PREFIX + keyBody;
     const testKeyValuePairCount = 500;
     let testKeyValueMap: Map<string, string>;
 
@@ -59,12 +60,12 @@ describe("RedisService", () => {
     });
 
     describe('setCache', () => {
-        const setCacheKeyBody = "setCacheKey";
+        const setCacheKey = makeTestKey("setCacheKey");
         const setCacheValue = "setCacheValue";
         it("(key, value, ttl) 튜플배열 받아서 set 한다.", async () => {
-            await service.setCache([makeTestKey(setCacheKeyBody), setCacheValue, 100]);
+            await service.setCache([setCacheKey, setCacheValue, 100]);
             expect(await client.sendCommand([
-                "GET", makeTestKey(setCacheKeyBody)
+                "GET", setCacheKey
             ])).toBe(setCacheValue);
         });
         it.todo("성공시 value, 실패시 null 반환."); // 실패? null 반환?
@@ -80,7 +81,5 @@ describe("RedisService", () => {
         it.todo("key 하나를 받아서 value 하나를 반환.");
         it.todo("없으면 null 반환.");
     });
-
-    const makeTestKey = (keyBody: string) => TEST_KEY_PREFIX+keyBody;
     
 });
