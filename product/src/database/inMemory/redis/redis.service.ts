@@ -10,6 +10,12 @@ export class RedisService implements InMemoryStoreServiceI {
         private readonly connectSrv: ConnectService
     ) {}
 
+    /**
+     * ### Todo: Refac
+     * - 더 작은 함수로 나누기
+     * - while 문 제거하기(재귀적으로 구현하거나 F.range 쓰거나?)
+     * - result, cursor 변수선언을 제거하기
+     */
     getAllKeys = async () => {
         let result: string[] = [];
         let cursor: number|true = true;
