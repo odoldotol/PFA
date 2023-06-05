@@ -24,6 +24,15 @@ describe('RedisConnectService', () => {
 
     it.todo("모듈이 생성될때 연결 잘 하나");
     it.todo("연결 에러시 처리 적절히 하나");
+    
+    describe("앱이 종료될떄 연결을 연결을 끊자.", () => {
+        it("onApplicationShutdown 매서드는 연결을 끊는다", async () => {
+            await service.onApplicationShutdown();
+            expect(service.client.isReady).toBeFalsy();
+            expect(service.client.isOpen).toBeFalsy();
+        });
+    });
+
 
     describe("Getter client", () => {
 
