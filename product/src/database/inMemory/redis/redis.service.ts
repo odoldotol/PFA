@@ -10,7 +10,9 @@ export class RedisService implements InMemoryStoreServiceI {
         private readonly connectSrv: ConnectService
     ) {}
 
-    getAllKeys = () => Promise.resolve(["key1", "key2"]);
+    getAllKeys = () => this.client.sendCommand([
+        "KEYS", "*" // scan 사용하기
+    ]) as Promise<string[]>;
     
     setCache = <T>([key, value, ttl]: [string, T, number]) => Promise.resolve(value);
 
