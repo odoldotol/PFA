@@ -15,7 +15,7 @@ describe('RedisConnectService', () => {
     });
 
     afterEach(async () => {
-        await service.client.disconnect();
+        await service.onApplicationShutdown();
     });
 
     it("should be defined", () => {
