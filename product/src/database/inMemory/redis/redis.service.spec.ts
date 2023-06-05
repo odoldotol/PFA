@@ -61,7 +61,7 @@ describe("RedisService", () => {
     describe('setCache', () => {
         const setCacheKey = "setCacheKey";
         const setCacheValue = "setCacheValue";
-        it("key, value, ttl 튜플 받아서 set 한다.", async () => {
+        it("(key, value, ttl) 튜플배열 받아서 set 한다.", async () => {
             await service.setCache([TEST_KEY_PREFIX+setCacheKey, setCacheValue, 100]);
             expect(await client.sendCommand([
                 "GET", TEST_KEY_PREFIX+setCacheKey
