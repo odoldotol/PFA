@@ -32,7 +32,12 @@ export class RedisService implements InMemoryStoreServiceI {
         return result;
     }
     
-    setCache = <T>([key, value, ttl]: [string, T, number]) => Promise.resolve(value);
+    setCache = <T>([key, value, ttl]: [string, T, number]) => {
+        if (typeof value === "string") return this.client.sendCommand([
+            "SET", key, value, "EX", ttl.toString()
+        ]) as Promise<T>;
+        else throw new Error("Unsupported type of value."); // 임시
+    }
 
     deleteCache = (key: string) => Promise.resolve(true);
 
