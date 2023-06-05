@@ -1,8 +1,8 @@
-import { Injectable, Logger, OnModuleInit } from "@nestjs/common";
+import { Injectable, Logger, OnApplicationShutdown, OnModuleInit } from "@nestjs/common";
 import { createClient } from 'redis';
 
 @Injectable()
-export class ConnectService implements OnModuleInit {
+export class ConnectService implements OnModuleInit, OnApplicationShutdown {
 
     private readonly logger = new Logger("Redis-" + ConnectService.name);
     private readonly redisClient = createClient();
@@ -11,7 +11,10 @@ export class ConnectService implements OnModuleInit {
         this.listenEvents();}
 
     async onModuleInit() {
-        await this.client.connect();}
+        this.client.isOpen || await this.client.connect();}
+
+    async onApplicationShutdown() {
+        this.client.isOpen && await this.client.disconnect();}
 
     get client() {
         return this.redisClient;
