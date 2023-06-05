@@ -18,10 +18,10 @@ export class ConnectService implements OnModuleInit {
     }
 
     private listenEvents() {
-        this.redisClient.on('connect', () => {
+        this.redisClient.on('connect', () => { // isOpen, isNotReady
             this.logger.log('Initiating a connection to the server');});
 
-        this.redisClient.on('ready', () => {
+        this.redisClient.on('ready', () => { // isOpen, isReady
             this.logger.log('Client is ready to use');});
 
         this.redisClient.on('reconnecting', () => {

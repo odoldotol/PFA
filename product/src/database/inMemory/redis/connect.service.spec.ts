@@ -1,11 +1,21 @@
+import { Test } from "@nestjs/testing";
 import { ConnectService } from "./connect.service";
 
 describe('RedisConnectService', () => {
 
     let service: ConnectService;
 
-    beforeEach(() => {
-        service = new ConnectService();
+    beforeEach(async () => {
+        const module = await Test.createTestingModule({
+            providers: [ConnectService],
+        }).compile();
+
+        service = module.get<ConnectService>(ConnectService);
+        await service.onModuleInit();
+    });
+
+    afterEach(async () => {
+        await service.client.disconnect();
     });
 
     it("should be defined", () => {
