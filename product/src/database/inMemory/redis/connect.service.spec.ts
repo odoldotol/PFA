@@ -3,6 +3,8 @@ import { ConnectService } from "./connect.service";
 
 describe('RedisConnectService', () => {
 
+    // 테스팅 레디스 인스턴스가 localhost:6379 에 준비되어야 함
+
     let module: TestingModule;
     let service: ConnectService;
 
