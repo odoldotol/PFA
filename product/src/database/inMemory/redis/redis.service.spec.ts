@@ -9,35 +9,30 @@ describe("RedisService", () => {
     let service: RedisService;
     let client: ConnectService["client"];
 
-    const TEST_KEY_PREFIX = "pfa:unittest:";
-    const testKeyValuePairCount = 500;
-    let testKeyValueMap: Map<string, string>;
-
     beforeAll(async ()  => {
         module = await Test.createTestingModule({
             providers: [ConnectService, RedisService]
         }).compile();
-
         service = module.get<RedisService>(RedisService);
         client = module.get<ConnectService>(ConnectService).client;
-
         await module.init();});
 
     afterAll(async () => {
         await module.close();});
 
+    const TEST_KEY_PREFIX = "pfa:unittest:";
+    const testKeyValuePairCount = 500;
+    let testKeyValueMap: Map<string, string>;
 
     beforeEach(async () => {
         testKeyValueMap = new Map<string, string>(F.pipe(
             F.range(testKeyValuePairCount),
             F.map((i) => [`key${i}`, `value${i}`])
         ));
-
         const msetCommand = ["MSET"];
         testKeyValueMap.forEach((value, keyBody) => {
             msetCommand.push(TEST_KEY_PREFIX+keyBody, value);
         });
-
         if (msetCommand.length%2 === 1) await client.sendCommand(msetCommand);
         else throw new Error("MSET Command must have key-value pair.");});
 
@@ -45,7 +40,6 @@ describe("RedisService", () => {
         const allTestKeys: string[] = await client.sendCommand([
             "KEYS", TEST_KEY_PREFIX+"*"
         ]);
-        
         await client.sendCommand([
             "DEL", ...allTestKeys
         ]);});
