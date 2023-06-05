@@ -58,7 +58,7 @@ describe("RedisService", () => {
         it("모든 키를 배열로 반환.", async () => {
             const allKeys = await service.getAllKeys();
             allKeys.forEach((key) => {
-                if (key.slice(0, TEST_KEY_PREFIX.length) === TEST_KEY_PREFIX) testKeyValueMap.delete(getKeyBody(key));
+                if (key.slice(0, TEST_KEY_PREFIX.length) === TEST_KEY_PREFIX) testKeyValueMap.delete(RedisService.getKeyBody(key));
             });
             expect(testKeyValueMap.size).toBe(0);
         });
@@ -79,11 +79,5 @@ describe("RedisService", () => {
         it.todo("key 하나를 받아서 value 하나를 반환.");
         it.todo("없으면 null 반환.");
     });
-
-    /**
-     * ### redis key prefix 제거
-     * 문자열에서 : 를 찾아서 제일 마지막에 있는 : 를 기준으로 : 포함 앞에 있는 문자열을 제거한 문자열 반환.
-     */
-    const getKeyBody = (key: string) => key.slice(key.lastIndexOf(":")+1);
     
 });

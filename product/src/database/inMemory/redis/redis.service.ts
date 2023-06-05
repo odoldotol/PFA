@@ -20,4 +20,10 @@ export class RedisService implements InMemoryStoreServiceI {
 
     getValue = (key: string) => Promise.resolve("value1");
 
+    /**
+     * ### redis key prefix 제거
+     * 문자열에서 : 를 찾아서 제일 마지막에 있는 : 를 기준으로 : 포함 앞에 있는 문자열을 제거한 문자열 반환.
+     */
+    static getKeyBody = (key: string) => key.slice(key.lastIndexOf(":")+1);
+
 }
