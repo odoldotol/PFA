@@ -59,7 +59,14 @@ describe("RedisService", () => {
     });
 
     describe('setCache', () => {
-        it.todo("key, value, ttl 튜플 받아서 set 한다.");
+        const setCacheKey = "setCacheKey";
+        const setCacheValue = "setCacheValue";
+        it("key, value, ttl 튜플 받아서 set 한다.", async () => {
+            await service.setCache([TEST_KEY_PREFIX+setCacheKey, setCacheValue, 100]);
+            expect(await client.sendCommand([
+                "GET", TEST_KEY_PREFIX+setCacheKey
+            ])).toBe(setCacheValue);
+        });
         it.todo("성공시 value, 실패시 null 반환."); // 실패? null 반환?
         it.todo("ttl(초) 이후에 만료되야 한다.");
     });
