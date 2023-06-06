@@ -68,7 +68,7 @@ describe("RedisService", () => {
     
             it(`${valueDesc}`, async () => {
                 expect(await service.setAsJson([testKey, value, testTtl]))
-                .toStrictEqual(JSON.parse(valueAsJson));
+                    .toStrictEqual(JSON.parse(valueAsJson));
                 expect(await client.sendCommand([
                     "GET", testKey
                 ])).toStrictEqual(valueAsJson);
@@ -105,7 +105,7 @@ describe("RedisService", () => {
 
                 it(`${valueDesc}`, async () => {
                     expect(await service.setAsJson([testKey, wrongValue, 100]))
-                    .toBeNull();
+                        .toBeNull();
                     expect(await client.sendCommand([
                         "EXISTS", testKey
                     ])).toBe(0);
@@ -124,9 +124,18 @@ describe("RedisService", () => {
         });
     });
 
-    describe('deleteCache', () => {
-        it.todo("key 하나를 받아서 삭제한다.");
-        it.todo("성공시 true, 실패시 false 반환.");
+    describe('deleteOne', () => {
+        it("key 하나 삭제하고 value 반환. 삭제할 키가 없을시 null 반환.", async () => {
+            const testKeyBody = testKeyValueMap.keys().next().value;
+            const testKey = makeTestKey(testKeyBody);
+            expect(await service.deleteOne(testKey))
+                .toBe(testKeyValueMap.get(testKeyBody));
+            expect(await client.sendCommand([
+                "EXISTS", testKey
+            ])).toBe(0);
+            expect(await service.deleteOne(testKey))
+                .toBe(null);
+        });
     });
 
     describe('getValue', () => {
