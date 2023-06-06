@@ -59,7 +59,7 @@ describe("RedisService", () => {
         });
     });
 
-    describe('setCache', () => {
+    describe('setAsJson - value를 Json형태로 set하고 value를 반환. 만료시간을 지정한다.', () => {
 
         const testSetCache = (setCacheValue: any, valueDesc: string) => {
             const setCacheKey = makeTestKey("setCacheKey");
@@ -67,14 +67,14 @@ describe("RedisService", () => {
             let setCacheReturn: string;
     
             beforeEach(async () => {
-                setCacheReturn = await service.setCache([setCacheKey, setCacheValue, setCacheTtl]);});
+                setCacheReturn = await service.setAsJson([setCacheKey, setCacheValue, setCacheTtl]);});
             
             afterEach(async () => {
                 await client.sendCommand([
                     "DEL", setCacheKey
                 ]);});
     
-            it(`${valueDesc} - (key: string, value, ttl: number) 튜플배열 받아서 set 하고 성공시 value 를 반환하고 ttl(초) 이후에 만료되야 한다.`, async () => {
+            it(`${valueDesc}`, async () => {
                 expect(setCacheReturn).toBe(setCacheValue);
                 expect(await client.sendCommand([
                     "GET", setCacheKey
