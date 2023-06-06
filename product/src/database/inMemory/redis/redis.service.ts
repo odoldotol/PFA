@@ -33,16 +33,17 @@ export class RedisService implements InMemoryStoreServiceI {
     }
     
     setAsJson = async <T>([key, value, ttl]: [string, T, number]) => {
-        try {
-            const valueAsJson = JSON.stringify(value);
-            await this.client.sendCommand([
-                "SET", key, valueAsJson, "EX", ttl.toString()
-            ]);
-            return JSON.parse(valueAsJson);
-        } catch (error) {
-            throw error;
-            // throw new Error("Unsupported type of value."); // 임시
-        }
+
+        if (typeof value === "string") {}
+        else if (typeof value === "number" && Number.isFinite(value)) {}
+        else if (typeof value === "object" && value !== null) {}
+        else return null;
+
+        const valueAsJson = JSON.stringify(value);
+        await this.client.sendCommand([
+            "SET", key, valueAsJson, "EX", ttl.toString()
+        ]);
+        return JSON.parse(valueAsJson);
     }
 
     deleteCache = (key: string) => Promise.resolve(true);
