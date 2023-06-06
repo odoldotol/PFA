@@ -49,7 +49,9 @@ export class RedisService implements InMemoryStoreServiceI {
         return JSON.parse(valueAsJson) as T;
     }
 
-    deleteCache = (key: string) => Promise.resolve(true);
+    deleteOne = (key: string) => this.client.sendCommand([
+        "GETDEL", key
+    ]);
 
     getValue = (key: string) => Promise.resolve("value1");
 

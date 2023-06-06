@@ -128,6 +128,9 @@ describe("RedisService", () => {
         it("key 하나 삭제하고 value 반환. 삭제할 키가 없을시 null 반환.", async () => {
             const testKeyBody = testKeyValueMap.keys().next().value;
             const testKey = makeTestKey(testKeyBody);
+            expect(await client.sendCommand([
+                "EXISTS", testKey
+            ])).toBe(1);
             expect(await service.deleteOne(testKey))
                 .toBe(testKeyValueMap.get(testKeyBody));
             expect(await client.sendCommand([
