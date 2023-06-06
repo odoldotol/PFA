@@ -94,12 +94,34 @@ describe("RedisService", () => {
         });
         describe('value type: object', () => {
             testSetAsJson({a: 1, b: 2}, "object");
-            testSetAsJson({a: 1, b: ()=>{}}, "object");
+            testSetAsJson({a: 1, b: ()=>{}}, "function prop");
+            testSetAsJson(new Date(), "Date");
         });
 
-        it.todo("object");
-        it.todo("잘못된 타입의 value | set 실패시 null 반환."); // function, nil, undefined, NaN, Infinity, -Infinity, ...
-        // 레디스에 없어야하고 null 반환해야함.
+        describe("잘못된 타입의 value 는 set 하지 않으며, 단지 null 을 반환함.", () => {
+
+            const testSetAsJsonWorngValue = (wrongValue: any, valueDesc: string) => {
+                const testKey = makeTestKey("testKey");
+
+                it(`${valueDesc}`, async () => {
+                    expect(await service.setAsJson([testKey, wrongValue, 100]))
+                    .toBeNull();
+                    expect(await client.sendCommand([
+                        "EXISTS", testKey
+                    ])).toBe(0);
+                    await client.sendCommand([
+                        "DEL", testKey
+                    ]);
+                });
+            };
+
+            testSetAsJsonWorngValue(undefined, "undefined");
+            testSetAsJsonWorngValue(() => {}, "function");
+            testSetAsJsonWorngValue(null, "null");
+            testSetAsJsonWorngValue(NaN, "NaN");
+            testSetAsJsonWorngValue(Infinity, "Infinity");
+            testSetAsJsonWorngValue(-Infinity, "-Infinity");
+        });
     });
 
     describe('deleteCache', () => {
