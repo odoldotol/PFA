@@ -32,7 +32,7 @@ describe("RedisService", () => {
         ));
         const msetCommand = ["MSET"];
         testKeyValueMap.forEach((value, keyBody) => {
-            msetCommand.push(makeTestKey(keyBody), value);
+            msetCommand.push(makeTestKey(keyBody), JSON.stringify(value));
         });
         if (msetCommand.length%2 === 1) await client.sendCommand(msetCommand);
         else throw new Error("MSET Command must have key-value pair.");});
@@ -125,7 +125,7 @@ describe("RedisService", () => {
     });
 
     describe('deleteOne', () => {
-        it("key 하나 삭제하고 value 반환. 삭제할 키가 없을시 null 반환.", async () => {
+        it("key 하나 삭제하고 Json 파싱된 value 반환. 삭제할 키가 없을시 null 반환.", async () => {
             const testKeyBody = testKeyValueMap.keys().next().value;
             const testKey = makeTestKey(testKeyBody);
             expect(await client.sendCommand([
@@ -141,9 +141,8 @@ describe("RedisService", () => {
         });
     });
 
-    describe('getValue', () => {
-        it.todo("key 하나를 받아서 value 하나를 반환.");
-        it.todo("없으면 null 반환.");
+    describe('getOne', () => {
+        it.todo("key 하나 조회하고 value 반환. 없으면 null 반환.");
     });
     
 });
