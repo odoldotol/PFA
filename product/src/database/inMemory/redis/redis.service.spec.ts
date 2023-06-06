@@ -61,36 +61,37 @@ describe("RedisService", () => {
 
     describe('setAsJson - value를 Json형태로 set하고 value를 반환. 만료시간을 지정한다.', () => {
 
-        const testSetCache = (setCacheValue: any, valueDesc: string) => {
-            const setCacheKey = makeTestKey("setCacheKey");
-            const setCacheTtl = 100;
-            let setCacheReturn: string;
+        const testSetAsJson = (value: any, valueDesc: string) => {
+            const testKey = makeTestKey("testKey");
+            const testTtl = 100;
+            const valueAsJson = JSON.stringify(value);
+            let setAsJsonReturn: string;
     
             beforeEach(async () => {
-                setCacheReturn = await service.setAsJson([setCacheKey, setCacheValue, setCacheTtl]);});
+                setAsJsonReturn = await service.setAsJson([testKey, value, testTtl]);});
             
             afterEach(async () => {
                 await client.sendCommand([
-                    "DEL", setCacheKey
+                    "DEL", testKey
                 ]);});
     
             it(`${valueDesc}`, async () => {
-                expect(setCacheReturn).toBe(setCacheValue);
+                expect(setAsJsonReturn).toBe(value);
                 expect(await client.sendCommand([
-                    "GET", setCacheKey
-                ])).toBe(setCacheValue);
+                    "GET", testKey
+                ])).toBe(valueAsJson);
                 expect(await client.sendCommand([
-                    "TTL", setCacheKey
-                ])).toBeLessThanOrEqual(setCacheTtl);
+                    "TTL", testKey
+                ])).toBeLessThanOrEqual(testTtl);
             });
         };
 
         describe('value type: string', () => {
-            testSetCache("setCacheValue", "string");
+            testSetAsJson("setCacheValue", "string");
         });
         describe('value type: number', () => {
             // 9999 이하 vs 9999 이상 차이?, 음수, 0, NaN, Infinity, -Infinity, BigInt
-            testSetCache(7777, "positive integer");
+            testSetAsJson(7777, "positive integer");
         });
 
         it.todo("object");
