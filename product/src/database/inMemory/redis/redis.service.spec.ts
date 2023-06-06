@@ -3,6 +3,8 @@ import { ConnectService } from "./connect.service";
 import { RedisService } from "./redis.service";
 import * as F from '@fxts/core'
 
+// Todo: Refac - 전체적으로 중복제거하기
+
 describe("RedisService", () => {
 
     let module: TestingModule;
@@ -136,8 +138,7 @@ describe("RedisService", () => {
             expect(await client.sendCommand([
                 "EXISTS", testKey
             ])).toBe(0);
-            expect(await service.deleteOne(testKey))
-                .toBe(null);
+            expect(await service.deleteOne(testKey)).toBe(null);
         });
     });
 
@@ -150,8 +151,7 @@ describe("RedisService", () => {
             await client.sendCommand([
                 "DEL", testKey
             ]);
-            expect(await service.getOne(testKey))
-                .resolves.toBe(null);
+            expect(await service.getOne(testKey)).toBe(null);
         });
     });
     

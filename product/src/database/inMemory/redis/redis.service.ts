@@ -19,7 +19,6 @@ export class RedisService implements InMemoryStoreServiceI {
     getAllKeys = async () => {
         let result: string[] = [];
         let cursor: number|true = true;
-
         while (cursor) {
             cursor === true ? cursor = 0 : cursor;
             const scanReturn = await this.client.sendCommand([
@@ -28,7 +27,6 @@ export class RedisService implements InMemoryStoreServiceI {
             cursor = parseInt(scanReturn[0]);
             result = result.concat(scanReturn[1]);
         };
-
         return result;
     }
     
@@ -36,12 +34,11 @@ export class RedisService implements InMemoryStoreServiceI {
      * 리턴타입을 T 로 추론하고 있지만, JSON 변환에 의해 object 내부 함수가 사라지는 등의 차이가 있음에 주의.
      */
     setOne = async <T>([key, value, ttl]: [string, T, number]) => {
-
         if (typeof value === "string") {}
         else if (typeof value === "number" && Number.isFinite(value)) {}
         else if (typeof value === "object" && value !== null) {}
         else return null;
-
+        
         const valueAsJson = JSON.stringify(value);
         await this.client.sendCommand([
             "SET", key, valueAsJson, "EX", ttl.toString()
@@ -56,7 +53,9 @@ export class RedisService implements InMemoryStoreServiceI {
         "GETDEL", key
     ]));
 
-    getOne = (key: string) => Promise.resolve("value1");
+    getOne = async (key: string) => JSON.parse(await this.client.sendCommand([
+        "GET", key
+    ]));
 
     /**
      * ### redis key prefix 제거
