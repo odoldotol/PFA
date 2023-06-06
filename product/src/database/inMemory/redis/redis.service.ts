@@ -35,7 +35,7 @@ export class RedisService implements InMemoryStoreServiceI {
     /**
      * 리턴타입을 T 로 추론하고 있지만, JSON 변환에 의해 object 내부 함수가 사라지는 등의 차이가 있음에 주의.
      */
-    setAsJson = async <T>([key, value, ttl]: [string, T, number]) => {
+    setOne = async <T>([key, value, ttl]: [string, T, number]) => {
 
         if (typeof value === "string") {}
         else if (typeof value === "number" && Number.isFinite(value)) {}
@@ -56,7 +56,7 @@ export class RedisService implements InMemoryStoreServiceI {
         "GETDEL", key
     ]));
 
-    getValue = (key: string) => Promise.resolve("value1");
+    getOne = (key: string) => Promise.resolve("value1");
 
     /**
      * ### redis key prefix 제거

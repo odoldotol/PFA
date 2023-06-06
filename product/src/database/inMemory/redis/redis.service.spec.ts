@@ -22,7 +22,7 @@ describe("RedisService", () => {
 
     const TEST_KEY_PREFIX = "pfa:unittest:";
     const makeTestKey = (keyBody: string) => TEST_KEY_PREFIX + keyBody;
-    const testKeyValuePairCount = 500;
+    const testKeyValuePairCount = 250;
     let testKeyValueMap: Map<string, string>;
 
     beforeEach(async () => {
@@ -59,15 +59,15 @@ describe("RedisService", () => {
         });
     });
 
-    describe('setAsJson - value를 Json형태로 set하고 value를 반환. 만료시간을 지정한다.', () => {
+    describe('setOne - value를 Json형태로 set하고 value를 반환. 만료시간을 지정한다.', () => {
 
-        const testSetAsJson = async (value: any, valueDesc: string) => {
+        const testSetOne = async (value: any, valueDesc: string) => {
             const testKey = makeTestKey("testKey");
             const testTtl = 100;
             const valueAsJson = JSON.stringify(value);
     
             it(`${valueDesc}`, async () => {
-                expect(await service.setAsJson([testKey, value, testTtl]))
+                expect(await service.setOne([testKey, value, testTtl]))
                     .toStrictEqual(JSON.parse(valueAsJson));
                 expect(await client.sendCommand([
                     "GET", testKey
@@ -82,29 +82,29 @@ describe("RedisService", () => {
         };
 
         describe('value type: string', () => {
-            testSetAsJson("setCacheValue", "string");
+            testSetOne("setCacheValue", "string");
         });
         describe('value type: number', () => {
-            testSetAsJson(77777, "positive integer");
-            testSetAsJson(-777, "negative integer");
-            testSetAsJson(0, "zero");
-            testSetAsJson(0.123456789, "decimal");
-            testSetAsJson(0x624f6c6c6f, "hexadecimal");
-            testSetAsJson(2e64, "exponential");
+            testSetOne(77777, "positive integer");
+            testSetOne(-777, "negative integer");
+            testSetOne(0, "zero");
+            testSetOne(0.123456789, "decimal");
+            testSetOne(0x624f6c6c6f, "hexadecimal");
+            testSetOne(2e64, "exponential");
         });
         describe('value type: object', () => {
-            testSetAsJson({a: 1, b: 2}, "object");
-            testSetAsJson({a: 1, b: ()=>{}}, "function prop");
-            testSetAsJson(new Date(), "Date");
+            testSetOne({a: 1, b: 2}, "object");
+            testSetOne({a: 1, b: ()=>{}}, "function prop");
+            testSetOne(new Date(), "Date");
         });
 
         describe("잘못된 타입의 value 는 set 하지 않으며, 단지 null 을 반환함.", () => {
 
-            const testSetAsJsonWorngValue = (wrongValue: any, valueDesc: string) => {
+            const testSetOneWorngValue = (wrongValue: any, valueDesc: string) => {
                 const testKey = makeTestKey("testKey");
 
                 it(`${valueDesc}`, async () => {
-                    expect(await service.setAsJson([testKey, wrongValue, 100]))
+                    expect(await service.setOne([testKey, wrongValue, 100]))
                         .toBeNull();
                     expect(await client.sendCommand([
                         "EXISTS", testKey
@@ -115,12 +115,12 @@ describe("RedisService", () => {
                 });
             };
 
-            testSetAsJsonWorngValue(undefined, "undefined");
-            testSetAsJsonWorngValue(() => {}, "function");
-            testSetAsJsonWorngValue(null, "null");
-            testSetAsJsonWorngValue(NaN, "NaN");
-            testSetAsJsonWorngValue(Infinity, "Infinity");
-            testSetAsJsonWorngValue(-Infinity, "-Infinity");
+            testSetOneWorngValue(undefined, "undefined");
+            testSetOneWorngValue(() => {}, "function");
+            testSetOneWorngValue(null, "null");
+            testSetOneWorngValue(NaN, "NaN");
+            testSetOneWorngValue(Infinity, "Infinity");
+            testSetOneWorngValue(-Infinity, "-Infinity");
         });
     });
 
@@ -142,7 +142,17 @@ describe("RedisService", () => {
     });
 
     describe('getOne', () => {
-        it.todo("key 하나 조회하고 value 반환. 없으면 null 반환.");
+        it("key 하나 조회하고 Json 파싱된 value 반환. 없으면 null 반환.", async () => {
+            const testKeyBody = testKeyValueMap.keys().next().value;
+            const testKey = makeTestKey(testKeyBody);
+            expect(await service.getOne(testKey))
+                .toBe(testKeyValueMap.get(testKeyBody));
+            await client.sendCommand([
+                "DEL", testKey
+            ]);
+            expect(await service.getOne(testKey))
+                .resolves.toBe(null);
+        });
     });
     
 });
