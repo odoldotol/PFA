@@ -61,28 +61,22 @@ describe("RedisService", () => {
 
     describe('setAsJson - value를 Json형태로 set하고 value를 반환. 만료시간을 지정한다.', () => {
 
-        const testSetAsJson = (value: any, valueDesc: string) => {
+        const testSetAsJson = async (value: any, valueDesc: string) => {
             const testKey = makeTestKey("testKey");
             const testTtl = 100;
             const valueAsJson = JSON.stringify(value);
-            let setAsJsonReturn: string;
-    
-            beforeEach(async () => {
-                setAsJsonReturn = await service.setAsJson([testKey, value, testTtl]);});
-            
-            afterEach(async () => {
-                await client.sendCommand([
-                    "DEL", testKey
-                ]);});
     
             it(`${valueDesc}`, async () => {
-                expect(setAsJsonReturn).toBe(value);
+                expect(await service.setAsJson([testKey, value, testTtl])).toBe(value);
                 expect(await client.sendCommand([
                     "GET", testKey
                 ])).toBe(valueAsJson);
                 expect(await client.sendCommand([
                     "TTL", testKey
                 ])).toBeLessThanOrEqual(testTtl);
+                await client.sendCommand([
+                    "DEL", testKey
+                ]);
             });
         };
 
@@ -90,8 +84,15 @@ describe("RedisService", () => {
             testSetAsJson("setCacheValue", "string");
         });
         describe('value type: number', () => {
-            // 9999 이하 vs 9999 이상 차이?, 음수, 0, NaN, Infinity, -Infinity, BigInt
-            testSetAsJson(7777, "positive integer");
+            testSetAsJson(77777, "positive integer");
+            testSetAsJson(-777, "negative integer");
+            testSetAsJson(0, "zero");
+            testSetAsJson(NaN, "NaN");
+            testSetAsJson(Infinity, "Infinity");
+            testSetAsJson(-Infinity, "-Infinity");
+            testSetAsJson(0.123456789, "decimal");
+            testSetAsJson(0x624f6c6c6f, "hexadecimal");
+            testSetAsJson(2e64, "exponential");
         });
 
         it.todo("object");
