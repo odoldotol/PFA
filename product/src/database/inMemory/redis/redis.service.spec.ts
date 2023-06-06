@@ -60,33 +60,39 @@ describe("RedisService", () => {
     });
 
     describe('setCache', () => {
-        const setCacheKey = makeTestKey("setCacheKey");
-        const setCacheValue = "setCacheValue";
-        const setCacheTtl = 100;
-        let setCacheReturn: string;
 
-        beforeEach(async () => {
-            setCacheReturn = await service.setCache([setCacheKey, setCacheValue, setCacheTtl]);});
-        
-        afterEach(async () => {
-            await client.sendCommand([
-                "DEL", setCacheKey
-            ]);});
+        const testSetCache = (setCacheValue: any, valueDesc: string) => {
+            const setCacheKey = makeTestKey("setCacheKey");
+            const setCacheTtl = 100;
+            let setCacheReturn: string;
+    
+            beforeEach(async () => {
+                setCacheReturn = await service.setCache([setCacheKey, setCacheValue, setCacheTtl]);});
+            
+            afterEach(async () => {
+                await client.sendCommand([
+                    "DEL", setCacheKey
+                ]);});
+    
+            it(`${valueDesc} - (key: string, value, ttl: number) 튜플배열 받아서 set 하고 성공시 value 를 반환하고 ttl(초) 이후에 만료되야 한다.`, async () => {
+                expect(setCacheReturn).toBe(setCacheValue);
+                expect(await client.sendCommand([
+                    "GET", setCacheKey
+                ])).toBe(setCacheValue);
+                expect(await client.sendCommand([
+                    "TTL", setCacheKey
+                ])).toBeLessThanOrEqual(setCacheTtl);
+            });
+        };
 
-        it("(key, value, ttl) 튜플배열 받아서 set 하고 성공시 value 를 반환.", async () => {
-            expect(setCacheReturn).toBe(setCacheValue);
-            expect(await client.sendCommand([
-                "GET", setCacheKey
-            ])).toBe(setCacheValue);
+        describe('value type: string', () => {
+            testSetCache("setCacheValue", "string");
+        });
+        describe('value type: number', () => {
+            // 9999 이하 vs 9999 이상 차이?, 음수, 0, NaN, Infinity, -Infinity, BigInt
+            testSetCache(7777, "positive integer");
         });
 
-        it("ttl(초) 이후에 만료되야 한다.", async () => {
-            expect(await client.sendCommand([
-                "TTL", setCacheKey
-            ])).toBeLessThanOrEqual(setCacheTtl);
-        });
-
-        it.todo("number"); // 9999 이하 vs 9999 이상 차이?, 음수, 0, NaN, Infinity, -Infinity
         it.todo("object");
         it.todo("잘못된 타입의 value | set 실패시 null 반환.");
     });
