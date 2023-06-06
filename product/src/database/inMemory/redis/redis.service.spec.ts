@@ -67,7 +67,8 @@ describe("RedisService", () => {
             const valueAsJson = JSON.stringify(value);
     
             it(`${valueDesc}`, async () => {
-                expect(await service.setAsJson([testKey, value, testTtl])).toStrictEqual(value);
+                expect(await service.setAsJson([testKey, value, testTtl]))
+                .toStrictEqual(JSON.parse(valueAsJson));
                 expect(await client.sendCommand([
                     "GET", testKey
                 ])).toStrictEqual(valueAsJson);
