@@ -32,6 +32,9 @@ export class RedisService implements InMemoryStoreServiceI {
         return result;
     }
     
+    /**
+     * 리턴타입을 T 로 추론하고 있지만, JSON 변환에 의해 object 내부 함수가 사라지는 등의 차이가 있음에 주의.
+     */
     setAsJson = async <T>([key, value, ttl]: [string, T, number]) => {
 
         if (typeof value === "string") {}
@@ -43,7 +46,7 @@ export class RedisService implements InMemoryStoreServiceI {
         await this.client.sendCommand([
             "SET", key, valueAsJson, "EX", ttl.toString()
         ]);
-        return JSON.parse(valueAsJson);
+        return JSON.parse(valueAsJson) as T;
     }
 
     deleteCache = (key: string) => Promise.resolve(true);
