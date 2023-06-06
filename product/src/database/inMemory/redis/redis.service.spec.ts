@@ -87,12 +87,13 @@ describe("RedisService", () => {
             testSetAsJson(77777, "positive integer");
             testSetAsJson(-777, "negative integer");
             testSetAsJson(0, "zero");
-            testSetAsJson(NaN, "NaN");
-            testSetAsJson(Infinity, "Infinity");
-            testSetAsJson(-Infinity, "-Infinity");
             testSetAsJson(0.123456789, "decimal");
             testSetAsJson(0x624f6c6c6f, "hexadecimal");
             testSetAsJson(2e64, "exponential");
+            // 아래 3개는 실패하는게 좋을것같은데? 이런걸 왜 저장해야하나?.
+            testSetAsJson(NaN, "NaN");
+            testSetAsJson(Infinity, "Infinity");
+            testSetAsJson(-Infinity, "-Infinity");
         });
 
         it.todo("object");
