@@ -68,7 +68,12 @@ describe("RedisService", () => {
                 "GET", setCacheKey
             ])).toBe(setCacheValue);
         });
-        it.todo("ttl(초) 이후에 만료되야 한다.");
+        it("ttl(초) 이후에 만료되야 한다.", async () => {
+            await service.setCache([setCacheKey, setCacheValue, 100])
+            expect(await client.sendCommand([
+                "TTL", setCacheKey
+            ])).toBeLessThanOrEqual(100);
+        });
         it.todo("number"); // 9999 이하 vs 9999 이상 차이?, 음수, 0, NaN, Infinity, -Infinity
         it.todo("object");
         it.todo("잘못된 타입의 value | set 실패시 null 반환.");
