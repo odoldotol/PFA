@@ -49,9 +49,12 @@ export class RedisService implements InMemoryStoreServiceI {
         return JSON.parse(valueAsJson) as T;
     }
 
-    deleteOne = (key: string) => this.client.sendCommand([
+    /**
+     * Todo: 왜 JSON.parse(null) 이 SyntaxError 가 나지 않을까?
+     */
+    deleteOne = async (key: string) => JSON.parse(await this.client.sendCommand([
         "GETDEL", key
-    ]);
+    ]));
 
     getValue = (key: string) => Promise.resolve("value1");
 
