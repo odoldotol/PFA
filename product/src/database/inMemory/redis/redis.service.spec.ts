@@ -67,10 +67,10 @@ describe("RedisService", () => {
             const valueAsJson = JSON.stringify(value);
     
             it(`${valueDesc}`, async () => {
-                expect(await service.setAsJson([testKey, value, testTtl])).toBe(value);
+                expect(await service.setAsJson([testKey, value, testTtl])).toStrictEqual(value);
                 expect(await client.sendCommand([
                     "GET", testKey
-                ])).toBe(valueAsJson);
+                ])).toStrictEqual(valueAsJson);
                 expect(await client.sendCommand([
                     "TTL", testKey
                 ])).toBeLessThanOrEqual(testTtl);
@@ -95,9 +95,14 @@ describe("RedisService", () => {
             testSetAsJson(Infinity, "Infinity");
             testSetAsJson(-Infinity, "-Infinity");
         });
+        describe('value type: object', () => {
+            testSetAsJson({a: 1, b: 2}, "object");
+            testSetAsJson({a: 1, b: ()=>{}}, "object");
+        });
 
         it.todo("object");
-        it.todo("잘못된 타입의 value | set 실패시 null 반환.");
+        it.todo("잘못된 타입의 value | set 실패시 null 반환."); // function, nil, undefined, NaN, Infinity, -Infinity, ...
+        // 레디스에 없어야하고 null 반환해야함.
     });
 
     describe('deleteCache', () => {
