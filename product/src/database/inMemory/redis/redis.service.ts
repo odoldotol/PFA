@@ -34,10 +34,11 @@ export class RedisService implements InMemoryStoreServiceI {
     
     setAsJson = async <T>([key, value, ttl]: [string, T, number]) => {
         try {
+            const valueAsJson = JSON.stringify(value);
             await this.client.sendCommand([
-                "SET", key, JSON.stringify(value), "EX", ttl.toString()
+                "SET", key, valueAsJson, "EX", ttl.toString()
             ]);
-            return value as T;
+            return JSON.parse(valueAsJson);
         } catch (error) {
             throw error;
             // throw new Error("Unsupported type of value."); // 임시
