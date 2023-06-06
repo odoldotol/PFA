@@ -62,16 +62,16 @@ describe("RedisService", () => {
     describe('setCache', () => {
         const setCacheKey = makeTestKey("setCacheKey");
         const setCacheValue = "setCacheValue";
-        it("(key, value, ttl) 튜플배열 받아서 set 한다.", async () => {
-            await service.setCache([setCacheKey, setCacheValue, 100]);
+        it("(key, value, ttl) 튜플배열 받아서 set 하고 성공시 value 를 반환.", async () => {
+            expect(await service.setCache([setCacheKey, setCacheValue, 100])).toBe(setCacheValue);
             expect(await client.sendCommand([
                 "GET", setCacheKey
             ])).toBe(setCacheValue);
         });
-        it.todo("성공시 value, 실패시 null 반환."); // 실패? null 반환?
         it.todo("ttl(초) 이후에 만료되야 한다.");
         it.todo("number"); // 9999 이하 vs 9999 이상 차이?, 음수, 0, NaN, Infinity, -Infinity
         it.todo("object");
+        it.todo("잘못된 타입의 value | set 실패시 null 반환.");
     });
 
     describe('deleteCache', () => {
