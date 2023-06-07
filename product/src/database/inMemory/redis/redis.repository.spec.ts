@@ -12,7 +12,6 @@ class TestEntityConstructorClass {
     }
 }
 const testSchema = new InMemorySchema(TEST_KEY_PREFIX, TEST_TTL, TestEntityConstructorClass);
-const mockRedisStore = new Map<string, any>();
 const setOneReturn = {prop: Math.random()};
 const getOneReturn = {prop: Math.random()};
 class MockRedisService {
@@ -46,13 +45,11 @@ describe("RedisRepository", () => {
     });
 
     beforeEach(() => {
-        mockRedisStore.set(TEST_KEY_PREFIX+"alreadyKey", "alreadyValue");
         jest.spyOn(service, "setOne").mockResolvedValue(setOneReturn);
         jest.spyOn(service, "getOne").mockResolvedValue(getOneReturn);
     });
 
     afterEach(() => {
-        mockRedisStore.clear();
         jest.clearAllMocks();
     });
 
@@ -88,12 +85,14 @@ describe("RedisRepository", () => {
     });
     
     describe("updateOne", () => {
-        it("service.setOne 실행을 반환. 스키마에 따라서 key prefix, ttl 적용, 존재하는 키에 대해서만 수행.", async () => {
+        it("service.setOne 실행. 스키마에 따라서 key prefix, ttl 적용, 존재하는 키에 대해서만 수행.", async () => {
+            const testReturn = await repository.updateOne("alreadyKey", {prop: "newValue"});
             // expect(await repository.updateOne("alreadyKey", "newValue"))
             //     .toBe(setOneReturn);
             expect(service.setOne).toBeCalledWith([TEST_KEY_PREFIX+"alreadyKey", "newValue"], { expireSec: TEST_TTL, ifExist: true });
             expect(service.setOne).toBeCalledTimes(1);
         });
+        it.todo("String, Number 객체의 인스턴스 같이 RedisService.setOne 에서 불변타입 반환하는 경우")
         it.todo("실패시 null 반환하지 말고 그에 맞는 에러 던지기");
     });
     
@@ -101,21 +100,5 @@ describe("RedisRepository", () => {
         it.todo("service.deleteOne 이용")
         it.todo("하나 삭제하고 value 반환. 삭제할 키가 없을시 null 반환");
     });
-    
-    // 사용하지 않을 예정
-    describe("get", () => {});
-    
-    // 사용하지 않을 예정
-    describe("copy", () => {
-        it("스키마의 객체 생성 클래스의 인스턴스를 새로 만들어서 반환. null 이면 null 반환.", () => {
-            const testObj = new TestEntityConstructorClass({prop: "testValue"});
-            const copyObj = repository.copy(testObj)
-            expect(copyObj).toBeInstanceOf(TestEntityConstructorClass);
-            expect(testObj === copyObj).toBeFalsy();
-            expect(testObj.prop === copyObj!.prop).toBeTruthy();
-            expect(repository.copy(null)).toBe(null);
-        });
-    });
-
     
 });

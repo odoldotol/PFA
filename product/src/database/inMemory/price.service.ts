@@ -22,11 +22,9 @@ export class PriceService {
     /**
      * ### this method calls the incr_count method of the cachedPrice
      * Todo: count 는 따로 키로 빼두고 카운팅 하는게 더 좋은 구조다.
+     * Todo: findOne -> count -> updateOne
      */
-    read_with_counting = (symbol: TickerSymbol) => F.pipe(
-        this.priceRepo.get(symbol),
-        v => v && v.incr_count ? v.incr_count() : null, // Todo2: Refac: CachedPrice 에 incr_count 가 없을리가 없음. (위에 Todo1 과 연결)
-        this.priceRepo.copy);
+    read_with_counting = (symbol: TickerSymbol) => Promise.resolve(null);
 
     update = ([symbol, update]: CacheUpdateSet<CachedPriceI>) => this.priceRepo.updateOne(symbol, update);
     

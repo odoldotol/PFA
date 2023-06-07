@@ -54,12 +54,12 @@ export class AppMemoryRepository<T> implements InMemoryRepositoryI<T> {
     /**
      * ### 사용주의 - copy 하지 않은 원본 객체를 반환함.
      */
-    get = (key: string) => F.pipe(
+    private get = (key: string) => F.pipe(
         this.appMemorySrv.getValue(key + this.KEY_SUFFIX),
         this.passInstanceOfSchema);
     
     private passInstanceOfSchema = (v: any) => v instanceof this.schema.constructorClass ? v as T : null;
 
-    copy = (v: T | null ) => v && new this.schema.constructorClass(v);
+    private copy = (v: T | null ) => v && new this.schema.constructorClass(v);
 
 }
