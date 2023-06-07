@@ -16,9 +16,6 @@ export class MarketDate extends String implements MarketDateI {
         return this.valueOf();
     }
 
-    static areEqual = (a: MarketDateI | string | null, b: MarketDateI | string | null) => {
-        const valueA = a instanceof MarketDate ? a.get : a;
-        const valueB = b instanceof MarketDate ? b.get : b;
-        return valueA === valueB;
-    }
+    static areEqual = (a: MarketDateI | string | null, b: MarketDateI | string | null) =>
+        a && a == b;
 }
