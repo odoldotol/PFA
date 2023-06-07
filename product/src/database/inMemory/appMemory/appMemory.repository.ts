@@ -2,6 +2,7 @@ import { Injectable } from "@nestjs/common";
 import { AppMemoryService } from "./appMemory.service";
 import { MarketDate } from "src/common/class/marketDate.class";
 import { CachedPrice } from "src/common/class/cachedPrice.class";
+import { InMemorySchema } from "../class/schema.class";
 import * as F from "@fxts/core";
 
 
@@ -13,7 +14,7 @@ export class AppMemoryRepository<T> implements InMemoryRepositoryI<T> {
 
     constructor(
         private readonly appMemorySrv: AppMemoryService,
-        private readonly schema: InMemorySchemaI,
+        private readonly schema: InMemorySchema,
     ) {
         if (schema.name === MarketDate.name) {
             this.KEY_SUFFIX = "_priceStatus";
@@ -29,7 +30,7 @@ export class AppMemoryRepository<T> implements InMemoryRepositoryI<T> {
     // Todo: 이미 있는 키 set 막기
     // Todo: null 반환 하지 말고 에러 던져야함
     createOne = (key: string, value: T) => F.pipe(
-        this.appMemorySrv.setCache([key + this.KEY_SUFFIX, new this.schema(value), this.TTL]),
+        this.appMemorySrv.setCache([key + this.KEY_SUFFIX, new this.schema.schemaClass(value), this.TTL]),
         this.copy);
 
     findOne = (key: string) => F.pipe(
@@ -57,8 +58,8 @@ export class AppMemoryRepository<T> implements InMemoryRepositoryI<T> {
         this.appMemorySrv.getValue(key + this.KEY_SUFFIX),
         this.passInstanceOfSchema);
     
-    private passInstanceOfSchema = (v: any) => v instanceof this.schema ? v as T : null;
+    private passInstanceOfSchema = (v: any) => v instanceof this.schema.schemaClass ? v as T : null;
 
-    copy = (v: T | null ) => v && new this.schema(v);
+    copy = (v: T | null ) => v && new this.schema.schemaClass(v);
 
 }

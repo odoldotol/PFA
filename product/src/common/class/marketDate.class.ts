@@ -2,9 +2,6 @@ import { isString, not } from "@fxts/core"
 
 export class MarketDate extends String implements MarketDateI {
 
-    private readonly KEY_PREFIX: string = "marketdate:";
-    private readonly TTL: number = 0;
-
     constructor(arg: string | MarketDateI) {
         if (isString(arg) && not(/^\d{4}-\d{2}-\d{2}$/.test(arg))) throw new Error(`Invalid MarketDate : ${arg}`);
         else if (arg instanceof MarketDate) arg = arg.get;
@@ -24,7 +21,4 @@ export class MarketDate extends String implements MarketDateI {
         const valueB = b instanceof MarketDate ? b.get : b;
         return valueA === valueB;
     }
-
-    get keyPrefix() {return this.KEY_PREFIX;}
-    get ttl() {return this.TTL;}
 }

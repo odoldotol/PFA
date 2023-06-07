@@ -3,12 +3,13 @@ import { Pm2Module } from "src/pm2/pm2.module";
 import { AppMemoryService } from "./appMemory.service";
 import { BackupService } from "./backup.service";
 import { AppMemoryRepository } from "./appMemory.repository";
+import { InMemorySchema } from "../class/schema.class";
 import { INMEMORY_STORE_SERVICE, INMEMORY_STORE_BACKUP_SERVICE, INMEMORY_SCHEMA_REPOSITORY_SUFFIX } from "../const/injectionToken.const";
 
 @Module({})
 export class AppMemoryModule {
     // Todo: schema 만들기
-    static register(schemaArr: Function[]): DynamicModule {
+    static register(schemaArr: InMemorySchema[]): DynamicModule {
 
         const appMemoryServiceAliasProvider: ExistingProvider<InMemoryStoreServiceI> = {
             provide: INMEMORY_STORE_SERVICE,
@@ -25,9 +26,9 @@ export class AppMemoryModule {
             useValue: schema,
         }));
 
-        const schemaRepositorys: FactoryProvider<InMemoryRepositoryI<InMemorySchemaI>>[] = schemaArr.map(schema => ({
+        const schemaRepositorys: FactoryProvider<InMemoryRepositoryI<InMemorySchema>>[] = schemaArr.map(schema => ({
             provide: schema.name + INMEMORY_SCHEMA_REPOSITORY_SUFFIX,
-            useFactory(appMemSrv: AppMemoryService, schema: InMemorySchemaI) {
+            useFactory(appMemSrv: AppMemoryService, schema: InMemorySchema) {
                 return new AppMemoryRepository(appMemSrv, schema);
             },
             inject: [INMEMORY_STORE_SERVICE, schema.name],
