@@ -137,10 +137,11 @@ describe("RedisService", () => {
         });
 
         describe("set if not exist", () => {
-            it("setOptions 에서 키가 존재하지 않을때만 set 하도록 설정", async () => {
+            it("setOptions 에서 키가 존재하지 않을때만 set 하도록 설정 (null 반환)", async () => {
                 const testKeyBody = testKeyValueMap.keys().next().value;
                 const existTestKey = makeTestKey(testKeyBody);
-                await service.setOne([existTestKey, "testValue"], {ifNotExist: true});
+                expect(await service.setOne([existTestKey, "testValue"], {ifNotExist: true}))
+                    .toBe(null);
                 expect(JSON.parse(await client.sendCommand([
                     "GET", existTestKey
                 ]))).toBe((testKeyValueMap.get(testKeyBody)));
@@ -148,9 +149,10 @@ describe("RedisService", () => {
         });
         
         describe("set if exist", () => {
-            it("setOptions 에서 키가 존재할때만 set 하도록 설정", async () => {
+            it("setOptions 에서 키가 존재할때만 set 하도록 설정 (null 반환)", async () => {
                 const notExistTestKey = makeTestKey(`key${testKeyValuePairCount}`);
-                await service.setOne([notExistTestKey, "testValue"], {ifExist: true});
+                expect(await service.setOne([notExistTestKey, "testValue"], {ifExist: true}))
+                    .toBe(null);
                 expect(JSON.parse(await client.sendCommand([
                     "EXISTS", notExistTestKey
                 ]))).toBe(0);
