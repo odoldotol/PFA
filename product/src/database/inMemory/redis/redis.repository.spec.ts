@@ -74,11 +74,16 @@ describe("RedisRepository", () => {
     });
     
     describe("findOne", () => {
-        it("service.getOne 실행을 반환.", async () => {
-            expect(await repository.findOne("alreadyKey"))
-                .toBe(getOneReturn);
-            expect(service.getOne).toBeCalledWith(TEST_KEY_PREFIX+"alreadyKey");
+        it("service.getOne 실행.", async () => {
+            const testReturn = await repository.findOne("alreadyKey");
             expect(service.getOne).toBeCalledTimes(1);
+            expect(service.getOne).toBeCalledWith(TEST_KEY_PREFIX+"alreadyKey");
+            expect(testReturn!.prop).toBe(getOneReturn.prop);
+        });
+
+        it("(임시) 반환하는 value 는 생성 클래스의 인스턴스이어야 함", async () => {
+            expect(await repository.findOne("alreadyKey"))
+                .toBeInstanceOf(TestEntityConstructorClass);
         });
     });
     
