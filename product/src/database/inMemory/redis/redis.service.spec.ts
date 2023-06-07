@@ -62,13 +62,15 @@ describe("RedisService", () => {
     });
 
     describe('setOne - value를 Json형태로 set하고 value를 반환. 만료시간을 지정한다.', () => {
-
-        const testSetOne = async (value: any, valueDesc: string) => {
-            const testKey = makeTestKey("testKey");
-            const testTtl = 100;
-            const valueAsJson = JSON.stringify(value);
-    
-            it(`${valueDesc}`, async () => {
+        type TestCase = [any, string];
+        type TestSetOneTable = TestCase[];
+        const testSetOne = async (table: TestSetOneTable) => {
+            it.each(
+                table.map(ele => ({value: ele[0], desc: ele[1]}))
+            )("$desc", async ({value}) => {
+                const testKey = makeTestKey("testKey");
+                const testTtl = 100;
+                const valueAsJson = JSON.stringify(value);
                 expect(await service.setOne([testKey, value, testTtl]))
                     .toStrictEqual(JSON.parse(valueAsJson));
                 expect(await client.sendCommand([
@@ -84,45 +86,47 @@ describe("RedisService", () => {
         };
 
         describe('value type: string', () => {
-            testSetOne("setCacheValue", "string");
+            testSetOne([
+                ["setOneValue", "string"]
+            ]);
         });
         describe('value type: number', () => {
-            testSetOne(77777, "positive integer");
-            testSetOne(-777, "negative integer");
-            testSetOne(0, "zero");
-            testSetOne(0.123456789, "decimal");
-            testSetOne(0x624f6c6c6f, "hexadecimal");
-            testSetOne(2e64, "exponential");
+            testSetOne([
+                [77777, "positive integer"],
+                [-777, "negative integer"],
+                [0, "zero"],
+                [0.123456789, "decimal"],
+                [0x624f6c6c6f, "hexadecimal"],
+                [2e64, "exponential"]
+            ]);
         });
         describe('value type: object', () => {
-            testSetOne({a: 1, b: 2}, "object");
-            testSetOne({a: 1, b: ()=>{}}, "function prop");
-            testSetOne(new Date(), "Date");
+            testSetOne([
+                [{a: 1, b: 2}, "object"],
+                [{a: 1, b: ()=>{}}, "function prop"],
+                [new Date(), "Date"]
+            ]);
         });
 
         describe("잘못된 타입의 value 는 set 하지 않으며, 단지 null 을 반환함.", () => {
-
-            const testSetOneWorngValue = (wrongValue: any, valueDesc: string) => {
+            it.each([
+                undefined,
+                null,
+                NaN,
+                Infinity,
+                -Infinity,
+                ()=>{}
+            ])("%p", async (wrongValue) => {
                 const testKey = makeTestKey("testKey");
-
-                it(`${valueDesc}`, async () => {
-                    expect(await service.setOne([testKey, wrongValue, 100]))
-                        .toBeNull();
-                    expect(await client.sendCommand([
-                        "EXISTS", testKey
-                    ])).toBe(0);
-                    await client.sendCommand([
-                        "DEL", testKey
-                    ]);
-                });
-            };
-
-            testSetOneWorngValue(undefined, "undefined");
-            testSetOneWorngValue(() => {}, "function");
-            testSetOneWorngValue(null, "null");
-            testSetOneWorngValue(NaN, "NaN");
-            testSetOneWorngValue(Infinity, "Infinity");
-            testSetOneWorngValue(-Infinity, "-Infinity");
+                expect(await service.setOne([testKey, wrongValue, 100]))
+                    .toBeNull();
+                expect(await client.sendCommand([
+                    "EXISTS", testKey
+                ])).toBe(0);
+                await client.sendCommand([
+                    "DEL", testKey
+                ]);
+            });
         });
     });
 
