@@ -1,15 +1,13 @@
 import { Test, TestingModule } from "@nestjs/testing";
 import { RedisService } from "./redis.service";
 import { RedisRepository } from "./redis.repository";
+import { InMemorySchema } from "../class/schema.class";
 
 const TEST_KEY_PREFIX = "test:";
-class TestSchema {
-    keyPrefix = TEST_KEY_PREFIX;
-    ttl = 60
-}
-
+const TEST_TTL = 60;
+class TestSchema {}
+const testSchema = new InMemorySchema(TEST_KEY_PREFIX, TEST_TTL, TestSchema);
 const mockRedisStore = new Map<string, any>();
-
 class MockRedisService {
     setOne = jest.fn();
     getOne = jest.fn();
@@ -25,12 +23,13 @@ describe("RedisRepository", () => {
     beforeAll(async () => {
         module = await Test.createTestingModule({
             providers: [
-                { provide: TestSchema, useValue: TestSchema },
+                { provide: TestSchema, useValue: testSchema },
                 {
                     provide: RedisRepository,
-                    useFactory(redisSrv: RedisService, schema: InMemorySchemaI) {
+                    useFactory(redisSrv: RedisService, schema: InMemorySchema) {
                         return new RedisRepository(redisSrv, schema);
-                    }
+                    },
+                    inject: [RedisService, TestSchema],
                 },
                 { provide: RedisService, useClass: MockRedisService },
             ],
@@ -48,12 +47,11 @@ describe("RedisRepository", () => {
     });
 
     describe("createOne", () => {
-        it.todo("service.setOne 이용")
-        it("하나 생성. 존재하지 않는 키에 대해서만 수행. 성공시 value, 이미 존재하는 키의 경우 null 반환.", async () => {
+        it("service.setOne 이용. 스키마에 따라서 key prefix, ttl 적용, 존재하지 않는 키에 대해서만 수행.", async () => {
             await repository.createOne("key2", "value2");
-        });
-        it.todo("스키마에 따라서 key prefix 다르게 적용");
-        it.todo("스키마에 따라서 ttl 다르게 설정");
+            expect(service.setOne).toBeCalledWith(["key2", "value2"], { expireSec: TEST_TTL, ifNotExist: true });
+        })
+        it.todo("반환: 성공시 value, 이미 존재하는 키의 경우 null.");
         it.todo("실패시 null 반환하지 말고 그에 맞는 에러 던지기");
     });
     
