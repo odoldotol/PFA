@@ -60,7 +60,7 @@ describe("RedisRepository", () => {
     });
     
     describe("findOne", () => {
-        it("service.getOne 이용", async () => {
+        it("service.getOne 실행을 반환.", async () => {
             expect(await repository.findOne("alreadyKey"))
                 .toBe(getOneReturn);
             expect(service.getOne).toBeCalledWith(TEST_KEY_PREFIX+"alreadyKey");
@@ -69,9 +69,13 @@ describe("RedisRepository", () => {
     });
     
     describe("updateOne", () => {
-        it.todo("service.setOne 이용")
-        it.todo("하나 업데이트. 존재하는 키에 대해서만 수행. 성공시 value, 실패시 null 반환");
-        it.todo("실패시 그에 맞는 에러 던지기");
+        it("service.setOne 실행을 반환. 스키마에 따라서 key prefix, ttl 적용, 존재하는 키에 대해서만 수행.", async () => {
+            expect(await repository.updateOne("alreadyKey", "newValue"))
+                .toBe(setOneReturn);
+            expect(service.setOne).toBeCalledWith([TEST_KEY_PREFIX+"alreadyKey", "newValue"], { expireSec: TEST_TTL, ifExist: true });
+            expect(service.setOne).toBeCalledTimes(1);
+        });
+        it.todo("실패시 null 반환하지 말고 그에 맞는 에러 던지기");
     });
     
     describe("deleteOne", () => {
@@ -82,7 +86,7 @@ describe("RedisRepository", () => {
     // 사용하지 않을 예정
     describe("get", () => {});
     
-    // 사용하지 않을 예장
+    // 사용하지 않을 예정
     describe("copy", () => {});
 
     
