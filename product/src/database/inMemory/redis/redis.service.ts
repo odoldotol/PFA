@@ -2,7 +2,7 @@ import { Injectable } from "@nestjs/common";
 import { ConnectService } from "./connect.service";
 
 @Injectable()
-export class RedisService implements InMemoryStoreServiceI {
+export class RedisService implements InMemoryStoreServiceI, RedisServiceI {
 
     private readonly client = this.connectSrv.client;
 
