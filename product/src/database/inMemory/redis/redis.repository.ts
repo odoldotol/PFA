@@ -15,7 +15,7 @@ export class RedisRepository<T> implements InMemoryRepositoryI<T> {
 
     createOne = (key: string, value: T) => this.redisSrv.setOne([this.KEY_PREFIX+key, value], { expireSec: this.TTL, ifNotExist: true });
 
-    findOne = (key: string) => Promise.resolve(null);
+    findOne = (key: string) => this.redisSrv.getOne(this.KEY_PREFIX+key);
 
     updateOne = (key: string, update: Partial<T>) => Promise.resolve(null);
 
