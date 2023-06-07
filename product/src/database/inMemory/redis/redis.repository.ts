@@ -1,6 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { InMemorySchema } from "../class/schema.class";
 import { RedisService } from "./redis.service";
+import * as F from "@fxts/core";
 
 @Injectable()
 export class RedisRepository<T> implements InMemoryRepositoryI<T> {
@@ -13,7 +14,9 @@ export class RedisRepository<T> implements InMemoryRepositoryI<T> {
         private readonly schema: InMemorySchema,
     ) {}
 
-    createOne = (key: string, value: T) => this.redisSrv.setOne([this.makeKey(key), value], { expireSec: this.TTL, ifNotExist: true });
+    createOne = (key: string, value: T) => F.pipe(
+        this.redisSrv.setOne([this.makeKey(key), value], { expireSec: this.TTL, ifNotExist: true }),
+        this.copy);
 
     findOne = (key: string) => this.redisSrv.getOne(this.makeKey(key));
 
