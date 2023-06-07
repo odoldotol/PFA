@@ -20,7 +20,8 @@ export class PriceService {
     create = ([symbol, price]: CacheSet<CachedPriceI>) => this.priceRepo.createOne(symbol, price);
 
     /**
-     *  ### this method calls the incr_count method of the cachedPrice
+     * ### this method calls the incr_count method of the cachedPrice
+     * Todo: count 는 따로 키로 빼두고 카운팅 하는게 더 좋은 구조다.
      */
     read_with_counting = (symbol: TickerSymbol) => F.pipe(
         this.priceRepo.get(symbol),
