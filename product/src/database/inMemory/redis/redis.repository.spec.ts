@@ -2,7 +2,10 @@ import { Test, TestingModule } from "@nestjs/testing";
 import { RedisService } from "./redis.service";
 import { RedisRepository } from "./redis.repository";
 
-class TestSchema {}
+class TestSchema {
+    keyPrefix = "test:";
+    ttl = 60
+}
 
 class MockRedisService {
     setOne = jest.fn();
@@ -34,11 +37,11 @@ describe("RedisRepository", () => {
     });
 
     describe("createOne", () => {
-        it("하나 생성. 존재하지 않는 키에 대해서만 수행. 성공시 value, 실패시 null 반환", async () => {
+        it("하나 생성. 존재하지 않는 키에 대해서만 수행. 성공시 value, 이미 존재하는 키의 경우 null 반환.", async () => {
         });
         it.todo("스키마에 따라서 key prefix 다르게 적용");
         it.todo("스키마에 따라서 ttl 다르게 설정");
-        it.todo("실패시 그에 맞는 에러 던지기");
+        it.todo("실패시 null 반환하지 말고 그에 맞는 에러 던지기");
     });
     
     describe("findOne", () => {
