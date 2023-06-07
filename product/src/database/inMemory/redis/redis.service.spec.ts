@@ -61,7 +61,7 @@ describe("RedisService", () => {
         });
     });
 
-    describe('setOne - value를 Json형태로 set하고 value를 반환. 만료시간을 지정한다.', () => {
+    describe('setOne - value를 Json형태로 set하고 value를 반환', () => {
         type TestCase = [any, string];
         type TestSetOneTable = TestCase[];
         const testSetOne = async (table: TestSetOneTable) => {
@@ -127,6 +127,18 @@ describe("RedisService", () => {
                     "DEL", testKey
                 ]);
             });
+        });
+
+        describe("set expire time", () => {
+            it.todo("setOptions 에서 만료시간 설정");
+        });
+
+        describe("set if not exist", () => {
+            it.todo("setOptions 에서 키가 존재하지 않을때만 set 하도록 설정")
+        });
+        
+        describe("set if exist", () => {
+            it.todo("setOptions 에서 키가 존재할때만 set 하도록 설정")
         });
     });
 
