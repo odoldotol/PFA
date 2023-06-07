@@ -14,7 +14,7 @@ type SetIf = MaximumOneOf<{
 type SetOptions = SetTTL & SetIf;
 
 interface RedisServiceI {
-    setOne: <T>([key, value]: [string, T], setOptions: SetOptions) => Promise<T|null>;
+    setOne: <T>([key, value]: [string, T], setOptions?: SetOptions) => Promise<T|null>;
     deleteOne: (key: string) => Promise<any>;
     getOne: (key: string) => Promise<any>;
 }

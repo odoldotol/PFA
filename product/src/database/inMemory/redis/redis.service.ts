@@ -33,7 +33,7 @@ export class RedisService implements InMemoryStoreServiceI, RedisServiceI {
     /**
      * 리턴타입을 T 로 추론하고 있지만, JSON 변환에 의해 object 내부 함수가 사라지는 등의 차이가 있음에 주의.
      */
-    setOne = async <T>([key, value, ttl]: [string, T, number]) => {
+    setOne = async <T>([key, value]: [string, T]) => {
         if (typeof value === "string") {}
         else if (typeof value === "number" && Number.isFinite(value)) {}
         else if (typeof value === "object" && value !== null) {}
@@ -41,7 +41,7 @@ export class RedisService implements InMemoryStoreServiceI, RedisServiceI {
         
         const valueAsJson = JSON.stringify(value);
         await this.client.sendCommand([
-            "SET", key, valueAsJson, "EX", ttl.toString()
+            "SET", key, valueAsJson
         ]);
         return JSON.parse(valueAsJson) as T;
     }
