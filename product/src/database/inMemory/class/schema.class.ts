@@ -15,7 +15,7 @@ export class InMemorySchema {
 
     get keyPrefix() {return this.KEY_PREFIX;}
     get ttl() {return this.TTL;}
-    get schemaClass() {return this.CLASS;} // 임시
+    get constructorClass() {return this.CLASS;} // 임시
 }
 
 export const priceSchema = new InMemorySchema("price:", 60 * 60 * 24 * 5, CachedPrice);
