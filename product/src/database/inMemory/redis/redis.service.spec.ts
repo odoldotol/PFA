@@ -69,16 +69,12 @@ describe("RedisService", () => {
                 table.map(ele => ({value: ele[0], desc: ele[1]}))
             )("$desc", async ({value}) => {
                 const testKey = makeTestKey("testKey");
-                const testTtl = 100;
                 const valueAsJson = JSON.stringify(value);
-                expect(await service.setOne([testKey, value, testTtl]))
+                expect(await service.setOne([testKey, value]))
                     .toStrictEqual(JSON.parse(valueAsJson));
                 expect(await client.sendCommand([
                     "GET", testKey
                 ])).toStrictEqual(valueAsJson);
-                expect(await client.sendCommand([
-                    "TTL", testKey
-                ])).toBeLessThanOrEqual(testTtl);
                 await client.sendCommand([
                     "DEL", testKey
                 ]);
@@ -118,7 +114,7 @@ describe("RedisService", () => {
                 ()=>{}
             ])("%p", async (wrongValue) => {
                 const testKey = makeTestKey("testKey");
-                expect(await service.setOne([testKey, wrongValue, 100]))
+                expect(await service.setOne([testKey, wrongValue]))
                     .toBeNull();
                 expect(await client.sendCommand([
                     "EXISTS", testKey
