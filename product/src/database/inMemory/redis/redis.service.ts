@@ -51,8 +51,7 @@ export class RedisService implements InMemoryStoreServiceI, RedisServiceI {
             else if (setOptions.ifExist) command.push("XX");
         };
 
-        await this.client.sendCommand(command);
-        return JSON.parse(valueAsJson) as T;
+        return await this.client.sendCommand(command) === null ? null : JSON.parse(valueAsJson) as T;
     }
 
     /**
