@@ -75,9 +75,6 @@ describe("RedisService", () => {
                 expect(await client.sendCommand([
                     "GET", testKey
                 ])).toStrictEqual(valueAsJson);
-                await client.sendCommand([
-                    "DEL", testKey
-                ]);
             });
         };
 
@@ -119,9 +116,6 @@ describe("RedisService", () => {
                 expect(await client.sendCommand([
                     "EXISTS", testKey
                 ])).toBe(0);
-                await client.sendCommand([
-                    "DEL", testKey
-                ]);
             });
         });
 
@@ -132,9 +126,6 @@ describe("RedisService", () => {
                 expect(await client.sendCommand([
                     "TTL", testKey
                 ])).toBe(-1);
-                await client.sendCommand([
-                    "DEL", testKey
-                ]);
             });
             it("setOptions 에서 만료시간 설정.", async () => {
                 const testKey = makeTestKey("testKey");
@@ -142,18 +133,28 @@ describe("RedisService", () => {
                 expect(await client.sendCommand([
                     "TTL", testKey
                 ])).toBe(100);
-                await client.sendCommand([
-                    "DEL", testKey
-                ]);
             });
         });
 
         describe("set if not exist", () => {
-            it.todo("setOptions 에서 키가 존재하지 않을때만 set 하도록 설정")
+            it("setOptions 에서 키가 존재하지 않을때만 set 하도록 설정", async () => {
+                const testKeyBody = testKeyValueMap.keys().next().value;
+                const existTestKey = makeTestKey(testKeyBody);
+                await service.setOne([existTestKey, "testValue"], {ifNotExist: true});
+                expect(JSON.parse(await client.sendCommand([
+                    "GET", existTestKey
+                ]))).toBe((testKeyValueMap.get(testKeyBody)));
+            });
         });
         
         describe("set if exist", () => {
-            it.todo("setOptions 에서 키가 존재할때만 set 하도록 설정")
+            it("setOptions 에서 키가 존재할때만 set 하도록 설정", async () => {
+                const notExistTestKey = makeTestKey(`key${testKeyValuePairCount}`);
+                await service.setOne([notExistTestKey, "testValue"], {ifExist: true});
+                expect(JSON.parse(await client.sendCommand([
+                    "EXISTS", notExistTestKey
+                ]))).toBe(0);
+            });
         });
     });
 
