@@ -3,7 +3,7 @@ type MaximumOneOf<T, K extends keyof T = keyof T> = K extends keyof T ? {
 } & Partial<Record<Exclude<keyof T, K>, never>> : never;
 
 type SetTTL = {
-    expireSec: number;
+    expireSec?: number;
 };
 
 type SetIf = MaximumOneOf<{
