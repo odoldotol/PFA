@@ -126,7 +126,26 @@ describe("RedisService", () => {
         });
 
         describe("set expire time", () => {
-            it.todo("setOptions 에서 만료시간 설정");
+            it("setOptions 에서 만료시간 설정하지 않으면 Expire 안함.", async () => {
+                const testKey = makeTestKey("testKey");
+                await service.setOne([testKey, "testValue"]);
+                expect(await client.sendCommand([
+                    "TTL", testKey
+                ])).toBe(-1);
+                await client.sendCommand([
+                    "DEL", testKey
+                ]);
+            });
+            it("setOptions 에서 만료시간 설정.", async () => {
+                const testKey = makeTestKey("testKey");
+                await service.setOne([testKey, "testValue"], {expireSec: 100});
+                expect(await client.sendCommand([
+                    "TTL", testKey
+                ])).toBe(100);
+                await client.sendCommand([
+                    "DEL", testKey
+                ]);
+            });
         });
 
         describe("set if not exist", () => {
