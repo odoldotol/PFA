@@ -5,14 +5,16 @@ import { InMemorySchema } from "../class/schema.class";
 
 const TEST_KEY_PREFIX = "test:";
 const TEST_TTL = 60;
-class TestEntityConstructorClass {}
+class TestEntityConstructorClass {
+    constructor(public value: any) {}
+}
 const testSchema = new InMemorySchema(TEST_KEY_PREFIX, TEST_TTL, TestEntityConstructorClass);
 const mockRedisStore = new Map<string, any>();
 const setOneReturn = Math.random();
 const getOneReturn = Math.random();
 class MockRedisService {
-    setOne = jest.fn().mockResolvedValue(setOneReturn);
-    getOne = jest.fn().mockResolvedValue(getOneReturn);
+    setOne = jest.fn();
+    getOne = jest.fn();
     deleteOne = jest.fn();
 }
 
@@ -42,20 +44,28 @@ describe("RedisRepository", () => {
 
     beforeEach(() => {
         mockRedisStore.set(TEST_KEY_PREFIX+"alreadyKey", "alreadyValue");
+        jest.spyOn(service, "setOne").mockResolvedValue(setOneReturn);
+        jest.spyOn(service, "getOne").mockResolvedValue(getOneReturn);
     });
 
     afterEach(() => {
         mockRedisStore.clear();
+        jest.clearAllMocks();
     });
 
     describe("createOne", () => {
-        it("service.setOne 실행을 반환. 스키마에 따라서 key prefix, ttl 적용, 존재하지 않는 키에 대해서만 수행.", async () => {
-            service.setOne
-            expect(await repository.createOne("newKey", "newValue"))
-                .toBe(setOneReturn);
+        it("service.setOne 실행. 스키마에 따라서 key prefix, ttl 적용, 존재하지 않는 키에 대해서만 수행.", async () => {
+            await repository.createOne("newKey", "newValue");
             expect(service.setOne).toBeCalledWith([TEST_KEY_PREFIX+"newKey", "newValue"], { expireSec: TEST_TTL, ifNotExist: true });
             expect(service.setOne).toBeCalledTimes(1);
         });
+
+        it("(임시) 반환하는 value 는 생성 클래스의 인스턴스이어야 함", async () => {
+            const testReurn = await repository.createOne("newKey", "newValue");
+            expect(testReurn).toBeInstanceOf(TestEntityConstructorClass);
+            expect(testReurn.value).toBe(setOneReturn);
+        });
+
         it.todo("실패시 null 반환하지 말고 그에 맞는 에러 던지기");
     });
     
@@ -89,10 +99,11 @@ describe("RedisRepository", () => {
     // 사용하지 않을 예정
     describe("copy", () => {
         it("스키마의 객체 생성 클래스의 인스턴스를 새로 만들어서 반환. null 이면 null 반환.", () => {
-            const testObj = new TestEntityConstructorClass();
+            const testObj = new TestEntityConstructorClass("testValue");
             let copyObj: TestEntityConstructorClass
             expect(copyObj = repository.copy(testObj)).toBeInstanceOf(TestEntityConstructorClass);
             expect(testObj === copyObj).toBeFalsy();
+            expect(testObj.value === copyObj.value).toBeTruthy();
             expect(repository.copy(null)).toBe(null);
         });
     });
