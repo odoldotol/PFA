@@ -18,7 +18,9 @@ export class RedisRepository<T> implements InMemoryRepositoryI<T> {
         this.redisSrv.setOne([this.makeKey(key), value], { expireSec: this.TTL, ifNotExist: true }),
         this.copy);
 
-    findOne = (key: string) => this.redisSrv.getOne(this.makeKey(key));
+    findOne = (key: string) => F.pipe(
+        this.redisSrv.getOne(this.makeKey(key)),
+        this.copy);
 
     updateOne = (key: string, update: Partial<T>) => Promise.resolve(null);
 
