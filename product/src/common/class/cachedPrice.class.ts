@@ -3,6 +3,9 @@ import { MarketDate } from "./marketDate.class";
 
 export class CachedPrice implements CachedPriceI {
 
+    private readonly KEY_PREFIX: string = "price:";
+    private readonly TTL: number = 60 * 60 * 24 * 5; // 5 days
+
     @ApiProperty({type: Number, example: 160})
     readonly price: number;
     @ApiProperty({type: String, example: 'XNYS'})
@@ -21,6 +24,9 @@ export class CachedPrice implements CachedPriceI {
         this.marketDate = new MarketDate(price.marketDate);
         this.count = price.count;
     }
+
+    get keyPrefix() {return this.KEY_PREFIX;}
+    get ttl() {return this.TTL;}
 
     // @ts-ignore
     incr_count() {this.count++; return this;}

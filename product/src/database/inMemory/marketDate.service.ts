@@ -9,7 +9,7 @@ export class MarketDateService {
         @InjectRepository(MarketDate.name) private readonly marketDateRepo: InMemoryRepositoryI<MarketDate>,
     ) {}
     
-    create = ([ISO_Code, marketDate]: Sp) => this.marketDateRepo.createOne(ISO_Code, marketDate);
+    create = ([ISO_Code, marketDate]: [ISO_Code, MarketDate]) => this.marketDateRepo.createOne(ISO_Code, marketDate);
 
     read = (ISO_Code: ISO_Code) => this.marketDateRepo.findOne(ISO_Code);
 

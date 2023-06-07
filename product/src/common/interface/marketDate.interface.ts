@@ -1,4 +1,5 @@
 interface MarketDateI extends String {
-    get: string;
-    isEqualTo: (marketDate: MarketDateI | string | null) => boolean;
+    get get(): string;
+    get keyPrefix(): string;
+    get ttl(): number;
 }

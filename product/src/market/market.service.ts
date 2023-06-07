@@ -50,7 +50,7 @@ export class MarketService implements OnModuleInit, OnApplicationBootstrap {
 
     private spDocToSp = (spDoc: StatusPrice) => [ spDoc.ISO_Code, MarketDate.fromSpDoc(spDoc) ] as Sp;
 
-    private isSpLatest = async (sp: Sp) => last(sp).isEqualTo(await this.dbSrv.readCcStatusPrice(head(sp)));
+    private isSpLatest = async (sp: Sp) => MarketDate.areEqual(last(sp), await this.dbSrv.readCcStatusPrice(head(sp)));
 
     private withPriceSetArr = async (sp: Sp) => [ sp, await this.marketApiSrv.fetchPriceByISOcode(head(sp)) ] as [Sp, PSet[]];
 
@@ -96,7 +96,7 @@ export class MarketService implements OnModuleInit, OnApplicationBootstrap {
         this.dbSrv.createCcPrice);
 
     private isPriceUpToDate = async (price: CachedPriceI) =>
-        price.marketDate.isEqualTo(await this.dbSrv.readCcStatusPrice(price.ISO_Code));
+        MarketDate.areEqual(price.marketDate, await this.dbSrv.readCcStatusPrice(price.ISO_Code));
 
     private updateWithFetching = (ticker: string) => pipe(ticker,
         this.fetchPriceUpdateSet,
