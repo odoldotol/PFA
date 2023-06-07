@@ -49,7 +49,7 @@ describe("RedisRepository", () => {
     describe("createOne", () => {
         it("service.setOne 이용. 스키마에 따라서 key prefix, ttl 적용, 존재하지 않는 키에 대해서만 수행.", async () => {
             await repository.createOne("key2", "value2");
-            expect(service.setOne).toBeCalledWith(["key2", "value2"], { expireSec: TEST_TTL, ifNotExist: true });
+            expect(service.setOne).toBeCalledWith([TEST_KEY_PREFIX+"key2", "value2"], { expireSec: TEST_TTL, ifNotExist: true });
         })
         it.todo("반환: 성공시 value, 이미 존재하는 키의 경우 null.");
         it.todo("실패시 null 반환하지 말고 그에 맞는 에러 던지기");
