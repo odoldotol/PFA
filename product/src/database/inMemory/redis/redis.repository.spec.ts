@@ -34,7 +34,10 @@ describe("RedisRepository", () => {
     });
 
     describe("createOne", () => {
-        it.todo("하나 생성. 존재하지 않는 키에 대해서만 수행. 성공시 value, 실패시 null 반환");
+        it("하나 생성. 존재하지 않는 키에 대해서만 수행. 성공시 value, 실패시 null 반환", async () => {
+        });
+        it.todo("스키마에 따라서 key prefix 다르게 적용");
+        it.todo("스키마에 따라서 ttl 다르게 설정");
         it.todo("실패시 그에 맞는 에러 던지기");
     });
     
