@@ -18,6 +18,7 @@ const testSchema = new InMemorySchema(TEST_KEY_PREFIX, TEST_TTL, TestObjEntityCl
 const testStringSchema = new InMemorySchema(TEST_KEY_PREFIX, TEST_TTL, TestStrEntityClass);
 const setOneReturn = {prop: Math.random()};
 const getOneReturn = {prop: Math.random()};
+const deleteOneReturn = {prop: Math.random()};
 class MockRedisService {
     setOne = jest.fn();
     getOne = jest.fn();
@@ -61,6 +62,7 @@ describe("RedisRepository", () => {
     beforeEach(() => {
         jest.spyOn(service, "setOne").mockResolvedValue(setOneReturn);
         jest.spyOn(service, "getOne").mockResolvedValue(getOneReturn);
+        jest.spyOn(service, "deleteOne").mockResolvedValue(deleteOneReturn);
     });
 
     afterEach(() => {
@@ -137,8 +139,16 @@ describe("RedisRepository", () => {
     });
     
     describe("deleteOne", () => {
-        it.todo("service.deleteOne 이용")
-        it.todo("하나 삭제하고 value 반환. 삭제할 키가 없을시 null 반환");
+        it("service.deleteOne 실행.", async () => {
+            await repository_obj.deleteOne("alreadyKey");
+            expect(service.deleteOne).toBeCalledTimes(1);
+            expect(service.deleteOne).toBeCalledWith(TEST_KEY_PREFIX+"alreadyKey");
+        });
+
+        it("(임시) 반환하는 value 는 생성 클래스의 인스턴스이어야 함", async () => {
+            expect(await repository_obj.deleteOne("alreadyKey"))
+                .toBeInstanceOf(TestObjEntityClass);
+        });
     });
     
 });
