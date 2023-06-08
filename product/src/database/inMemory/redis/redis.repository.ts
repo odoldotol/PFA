@@ -22,9 +22,15 @@ export class RedisRepository<T> implements InMemoryRepositoryI<T> {
         this.redisSrv.getOne(this.makeKey(keyBody)),
         this.valueFactory);
 
+    // Todo: 함수 추출하기, 조건문 없에기
     updateOne = (keyBody: string, update: Partial<T>) => F.pipe(
         this.findOne(keyBody),
-        v => v && Object.assign(v, update),
+        (v: T|null) => {
+            if (v instanceof Object) {
+                if (typeof v.valueOf() === "object") return Object.assign(v, update);
+                else return update as T;
+            } else return null;
+        },
         v => v && this.redisSrv.setOne([this.makeKey(keyBody), v], { expireSec: this.TTL, ifExist: true }),
         this.valueFactory);
 
