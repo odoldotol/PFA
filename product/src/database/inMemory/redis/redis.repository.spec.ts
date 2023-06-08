@@ -94,13 +94,20 @@ describe("RedisRepository", () => {
             expect(repository.findOne).toBeCalledWith("alreadyKey");
         });
 
+        const updateValue = {updateProp: "updateValue"};
+        const updatedValue = Object.assign(getOneReturn, updateValue);
+
         it("업데이트된 value 로 service.setOne 실행. 스키마에 따라서 key prefix, ttl 적용, 존재하는 키에 대해서만 수행.", async () => {
-            const testReturn = await repository.updateOne("alreadyKey", {updateProp: "updateValue"});
-            // expect(await repository.updateOne("alreadyKey", "newValue"))
-            //     .toBe(setOneReturn);
-            expect(service.setOne).toBeCalledWith([TEST_KEY_PREFIX+"alreadyKey", "newValue"], { expireSec: TEST_TTL, ifExist: true });
+            await repository.updateOne("alreadyKey", updateValue);
             expect(service.setOne).toBeCalledTimes(1);
+            expect(service.setOne).toBeCalledWith([TEST_KEY_PREFIX+"alreadyKey", updatedValue], { expireSec: TEST_TTL, ifExist: true });
         });
+
+        it("(임시) 반환하는 value 는 생성 클래스의 인스턴스이어야 함", async () => {
+            expect(await repository.updateOne("alreadyKey", updateValue))
+                .toBeInstanceOf(TestEntityConstructorClass);
+        });
+
         it.todo("String, Number 객체의 인스턴스 같이 RedisService.setOne 에서 불변타입 반환하는 경우")
         it.todo("실패시 null 반환하지 말고 그에 맞는 에러 던지기");
     });
