@@ -1,37 +1,41 @@
 import { Injectable, Logger } from "@nestjs/common";
-import { IMCacheRepository } from "./iMCache/iMCache.repository";
-import { MarketDate } from "../common/class/marketDate.class";
+import { InMemoryService } from "./inMemory/inMemory.service";
+import { MarketDateService } from "./inMemory/marketDate.service";
+import { PriceService } from "./inMemory/price.service";
+import { MarketDate } from "src/common/class/marketDate.class";
 import { apply, compactObject, curry, each, filter, head, last, map, partition, peek, pipe, tap, toAsync } from "@fxts/core";
 
 @Injectable()
-export class DBRepository {
+export class DatabaseService {
 
-    private readonly logger = new Logger(DBRepository.name);
+    private readonly logger = new Logger(DatabaseService.name);
 
     constructor(
-        private readonly iMCache: IMCacheRepository
+        private readonly inMemorySrv: InMemoryService,
+        private readonly marketDateSrv: MarketDateService,
+        private readonly priceSrv: PriceService
     ) {}
     
     createCcPriceStatusWithRP = (rP: RequestedPrice) => rP.status_price &&
-        this.iMCache.createMarketDate([rP.status_price.ISO_Code, MarketDate.fromSpDoc(rP.status_price)]);
-    createCcPrice = this.iMCache.createPrice;
-    readCcStatusPrice = this.iMCache.readMarketDate;
-    readCcPriceCounting = this.iMCache.readPriceCounting;
-    updateCcPrice = this.iMCache.updatePrice;
+        this.marketDateSrv.create([rP.status_price.ISO_Code, MarketDate.fromSpDoc(rP.status_price)]);
+    createCcPrice = this.priceSrv.create;
+    readCcStatusPrice = this.marketDateSrv.read;
+    readCcPriceCounting = this.priceSrv.read_with_counting;
+    updateCcPrice = this.priceSrv.update;
     
-    cacheRecovery = this.iMCache.localFileCacheRecovery;
-    getAllCcKeys = this.iMCache.getAllKeys;
+    cacheRecovery = this.inMemorySrv.localFileCacheRecovery;
+    getAllCcKeys = this.inMemorySrv.getAllKeys;
 
     // TODO: 각 업데이트 Asset이 해당 Sp 에 속한게 맞는지 검사하고 있지 않다. 이거 문제될 가능성 있는지 찾아봐.
     updatePriceBySpPSets = (initSet: SpPSets) => pipe(initSet,
         this.setSpAndReturnPSets, toAsync,
-        partition(this.iMCache.isGteMinCount), ([ updatePSets, deletePSets ]) => (
+        partition(this.priceSrv.isGteMinCount), ([ updatePSets, deletePSets ]) => (
             pipe(updatePSets,
                 map(this.toCacheUpdateSet(head(initSet))),
                 each(this.updateCcPrice)),
             pipe(deletePSets,
-                each(a => this.iMCache.deleteOne(head(a))))
-        )).then(() => this.logger.verbose(`${head(head(initSet))} : Regular Updated`));
+                each(a => this.priceSrv.delete(head(a))))))
+    .then(() => this.logger.verbose(`${head(head(initSet))} : Regular Updated`));
 
     cacheHardInit = (initSet: SpPSets) => pipe(initSet,
         this.setSpAndReturnPSets,
@@ -39,7 +43,7 @@ export class DBRepository {
         each(this.createCcPrice));
 
     private setSpAndReturnPSets = (initSet: SpPSets) => pipe(initSet,
-        tap(set => this.iMCache.createMarketDate(head(set))),
+        tap(set => this.marketDateSrv.create(head(set) as [ISO_Code, MarketDate])),
         last);
 
     // Todo: Refac - toCacheUpdateSet, toCachedPriceSet 중복함수
@@ -60,5 +64,7 @@ export class DBRepository {
             marketDate,
             count: 0
         }) ] as CacheUpdateSet<CachedPriceI>);
+
+        isInMemoryStore_AppMemory = this.inMemorySrv.isUseingAppMemory;
 
 }

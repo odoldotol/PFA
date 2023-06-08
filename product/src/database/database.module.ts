@@ -1,10 +1,12 @@
 import { Module } from "@nestjs/common";
-import { DBRepository } from "./database.repository";
-import { IMCache } from "./iMCache/iMCache.module";
+import { DatabaseService } from "./database.service";
+import { InMemoryModule } from "./inMemory/inMemory.module";
 
 @Module({
-    imports: [IMCache],
-    providers: [DBRepository],
-    exports: [DBRepository]
+    imports: [
+        InMemoryModule
+    ],
+    providers: [DatabaseService],
+    exports: [DatabaseService]
 })
 export class DBModule {}
