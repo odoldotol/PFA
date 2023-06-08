@@ -20,11 +20,7 @@ export class AppMemoryService implements InMemoryStoreServiceI {
 
     setCache = <T>(cacheSet: CacheSet<T>) => this.cacheManager.set(cacheSet[0], cacheSet[1], {ttl: cacheSet[2]})
 
-    /**
-     * ### 사용주의 - 반환값을 신뢰하지 말것. delete 연산을 하기는 하지만, 결과는 가짜구현임.
-     * - Todo: delete 성공이면 true 아니면 false 반환
-     */
-    deleteCache = async (key: string) => Boolean(await this.cacheManager.del(key));
+    deleteCache = async (key: string) => this.cacheManager.del(key);
 
     getValue = (key: string) => this.cacheManager.get(key);
 

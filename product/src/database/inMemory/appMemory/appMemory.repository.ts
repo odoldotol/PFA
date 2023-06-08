@@ -48,7 +48,6 @@ export class AppMemoryRepository<T> implements InMemoryRepositoryI<T> {
         v => v && Object.assign(v, update),
         v => v && this.createOne(key, v));
     
-    // Todo: delete 성공이면 true 아니면 false 반환
     deleteOne = (key: string) => this.appMemorySrv.deleteCache(key + this.KEY_SUFFIX);
 
     /**
@@ -60,6 +59,6 @@ export class AppMemoryRepository<T> implements InMemoryRepositoryI<T> {
     
     private passInstanceOfSchema = (v: any) => v instanceof this.schema.constructorClass ? v as T : null;
 
-    private copy = (v: T | null ) => v && new this.schema.constructorClass(v);
+    private copy = (v: T | null ) => v && new this.schema.constructorClass(v) as T;
 
 }
