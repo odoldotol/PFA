@@ -22,7 +22,11 @@ export class RedisRepository<T> implements InMemoryRepositoryI<T> {
         this.redisSrv.getOne(this.makeKey(key)),
         this.valueFactory);
 
-    updateOne = (key: string, update: Partial<T>) => this.findOne(key);
+    updateOne = (key: string, update: Partial<T>) => F.pipe(
+        this.findOne(key),
+        v => v && Object.assign(v, update),
+        v => v && this.redisSrv.setOne([this.makeKey(key), v], { expireSec: this.TTL, ifExist: true }),
+        this.valueFactory);
 
     deleteOne = (key: string) => Promise.resolve(true);
 
