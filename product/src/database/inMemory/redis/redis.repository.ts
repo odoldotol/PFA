@@ -14,21 +14,21 @@ export class RedisRepository<T> implements InMemoryRepositoryI<T> {
         private readonly schema: InMemorySchema,
     ) {}
 
-    createOne = (key: string, value: T) => F.pipe(
-        this.redisSrv.setOne([this.makeKey(key), value], { expireSec: this.TTL, ifNotExist: true }),
+    createOne = (keyBody: string, value: T) => F.pipe(
+        this.redisSrv.setOne([this.makeKey(keyBody), value], { expireSec: this.TTL, ifNotExist: true }),
         this.valueFactory);
 
-    findOne = (key: string) => F.pipe(
-        this.redisSrv.getOne(this.makeKey(key)),
+    findOne = (keyBody: string) => F.pipe(
+        this.redisSrv.getOne(this.makeKey(keyBody)),
         this.valueFactory);
 
-    updateOne = (key: string, update: Partial<T>) => F.pipe(
-        this.findOne(key),
+    updateOne = (keyBody: string, update: Partial<T>) => F.pipe(
+        this.findOne(keyBody),
         v => v && Object.assign(v, update),
-        v => v && this.redisSrv.setOne([this.makeKey(key), v], { expireSec: this.TTL, ifExist: true }),
+        v => v && this.redisSrv.setOne([this.makeKey(keyBody), v], { expireSec: this.TTL, ifExist: true }),
         this.valueFactory);
 
-    deleteOne = (key: string) => Promise.resolve(true);
+    deleteOne = (keyBody: string) => Promise.resolve(true);
 
     private valueFactory = (v: T | null ) => v && new this.schema.constructorClass(v) as T;
 
