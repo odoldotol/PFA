@@ -34,7 +34,9 @@ export class RedisRepository<T> implements InMemoryRepositoryI<T> {
         v => v && this.redisSrv.setOne([this.makeKey(keyBody), v], { expireSec: this.TTL, ifExist: true }),
         this.valueFactory);
 
-    deleteOne = (keyBody: string) => Promise.resolve(true);
+    deleteOne = (keyBody: string) => F.pipe(
+        this.redisSrv.deleteOne(this.makeKey(keyBody)),
+        this.valueFactory);
 
     private valueFactory = (v: T | null ) => v && new this.schema.constructorClass(v) as T;
 
