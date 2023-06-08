@@ -24,7 +24,10 @@ export class PriceService {
      * Todo: count 는 따로 키로 빼두고 카운팅 하는게 더 좋은 구조다.
      * Todo: findOne -> count -> updateOne
      */
-    read_with_counting = (symbol: TickerSymbol) => Promise.resolve(null);
+    read_with_counting = (symbol: TickerSymbol) => F.pipe(
+        this.priceRepo.findOne(symbol),
+        v => v && v.incr_count!(),
+        v => v && this.priceRepo.updateOne(symbol, v));
 
     update = ([symbol, update]: CacheUpdateSet<CachedPriceI>) => this.priceRepo.updateOne(symbol, update);
     
