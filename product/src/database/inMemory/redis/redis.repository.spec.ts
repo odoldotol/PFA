@@ -5,16 +5,17 @@ import { InMemorySchema } from "../class/schema.class";
 
 const TEST_KEY_PREFIX = "test:";
 const TEST_TTL = 60;
-class TestEntityConstructorClass {
+class TestObjEntityClass {
     readonly prop: any;
     readonly updateProp?: any;
-    constructor(obj: TestEntityConstructorClass) {
+    constructor(obj: TestObjEntityClass) {
         this.prop = obj.prop;
         this.updateProp = obj.updateProp;
     }
 }
-const testSchema = new InMemorySchema(TEST_KEY_PREFIX, TEST_TTL, TestEntityConstructorClass);
-const testStringSchema = new InMemorySchema(TEST_KEY_PREFIX, TEST_TTL, String);
+class TestStrEntityClass extends String {}
+const testSchema = new InMemorySchema(TEST_KEY_PREFIX, TEST_TTL, TestObjEntityClass);
+const testStringSchema = new InMemorySchema(TEST_KEY_PREFIX, TEST_TTL, TestStrEntityClass);
 const setOneReturn = {prop: Math.random()};
 const getOneReturn = {prop: Math.random()};
 class MockRedisService {
@@ -26,34 +27,34 @@ class MockRedisService {
 describe("RedisRepository", () => {
 
     let module: TestingModule;
-    let repository_obj: InMemoryRepositoryI<TestEntityConstructorClass>;
-    let repository_str: InMemoryRepositoryI<String>;
+    let repository_obj: InMemoryRepositoryI<TestObjEntityClass>;
+    let repository_str: InMemoryRepositoryI<TestStrEntityClass>;
     let service: RedisService;
 
     beforeAll(async () => {
         module = await Test.createTestingModule({
             providers: [
-                { provide: TestEntityConstructorClass, useValue: testSchema },
-                { provide: String, useValue: testStringSchema },
+                { provide: TestObjEntityClass, useValue: testSchema },
+                { provide: TestStrEntityClass, useValue: testStringSchema },
                 {
                     provide: "TEST_OBJECT_REPO",
                     useFactory(redisSrv: RedisService, schema: InMemorySchema) {
                         return new RedisRepository(redisSrv, schema);
                     },
-                    inject: [RedisService, TestEntityConstructorClass],
+                    inject: [RedisService, TestObjEntityClass],
                 },
                 {
                     provide: "TEST_STRING_REPO",
                     useFactory(redisSrv: RedisService, schema: InMemorySchema) {
                         return new RedisRepository(redisSrv, schema);
                     },
-                    inject: [RedisService, String],
+                    inject: [RedisService, TestStrEntityClass],
                 },
                 { provide: RedisService, useClass: MockRedisService },
             ],
         }).compile();
-        repository_obj = module.get<RedisRepository<TestEntityConstructorClass>>("TEST_OBJECT_REPO");
-        repository_str = module.get<RedisRepository<String>>("TEST_STRING_REPO");
+        repository_obj = module.get<RedisRepository<TestObjEntityClass>>("TEST_OBJECT_REPO");
+        repository_str = module.get<RedisRepository<TestStrEntityClass>>("TEST_STRING_REPO");
         service = module.get<RedisService>(RedisService);
     });
 
@@ -67,7 +68,7 @@ describe("RedisRepository", () => {
     });
 
     describe("createOne", () => {
-        const newValue = new TestEntityConstructorClass({prop: "newValue"});
+        const newValue = new TestObjEntityClass({prop: "newValue"});
         it("service.setOne 실행. 스키마에 따라서 key prefix, ttl 적용, 존재하지 않는 키에 대해서만 수행.", async () => {
             const testReturn = await repository_obj.createOne("newKey", newValue);
             expect(service.setOne).toBeCalledTimes(1);
@@ -79,7 +80,7 @@ describe("RedisRepository", () => {
 
         it("(임시) 반환하는 value 는 생성 클래스의 인스턴스이어야 함", async () => {
             expect(await repository_obj.createOne("newKey", newValue))
-                .toBeInstanceOf(TestEntityConstructorClass);
+                .toBeInstanceOf(TestObjEntityClass);
         });
 
         it.todo("실패시 null 반환하지 말고 그에 맞는 에러 던지기");
@@ -95,7 +96,7 @@ describe("RedisRepository", () => {
 
         it("(임시) 반환하는 value 는 생성 클래스의 인스턴스이어야 함", async () => {
             expect(await repository_obj.findOne("alreadyKey"))
-                .toBeInstanceOf(TestEntityConstructorClass);
+                .toBeInstanceOf(TestObjEntityClass);
         });
     });
     
@@ -120,14 +121,18 @@ describe("RedisRepository", () => {
 
         it("(임시) 반환하는 value 는 생성 클래스의 인스턴스이어야 함", async () => {
             expect(await repository_obj.updateOne("alreadyKey", updateValue))
-                .toBeInstanceOf(TestEntityConstructorClass);
+                .toBeInstanceOf(TestObjEntityClass);
         });
 
         it("String, Number 객체의 인스턴스 같이 RedisService.setOne 에서 불변타입 반환하는 경우", async () => {
-            const testReturn = await repository_str.updateOne("alreadyKey", "updateValue");
-            expect(testReturn).toBe("updateValue");
-        })
-        
+            const testReturn = await repository_str.updateOne("alreadyKey", new TestStrEntityClass("updateValue"));
+            expect(service.setOne).toBeCalledTimes(1);
+            expect(service.setOne).toBeCalledWith(
+                [TEST_KEY_PREFIX+"alreadyKey", new TestStrEntityClass("updateValue")],
+                { expireSec: TEST_TTL, ifExist: true });
+            expect(testReturn).toBeInstanceOf(TestStrEntityClass);
+        });
+
         it.todo("실패시 null 반환하지 말고 그에 맞는 에러 던지기");
     });
     
