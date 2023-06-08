@@ -14,4 +14,6 @@ export class InMemoryService {
 
     localFileCacheRecovery = this.backupSrv.localFileCacheRecovery;
 
+    isUseingAppMemory = () => Object.getPrototypeOf(this.storeSrv).constructor.name as string === "AppMemoryService";
+
 }

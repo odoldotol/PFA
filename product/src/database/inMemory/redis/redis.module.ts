@@ -18,7 +18,7 @@ export class RedisModule {
         const mockBackupService: ValueProvider<InMemoryStoreBackupServiceI> = {
             provide: INMEMORY_STORE_BACKUP_SERVICE,
             useValue: {
-                localFileCacheRecovery: () => Promise.resolve(),
+                localFileCacheRecovery: () => Promise.resolve(console.log("Noop")),
             },
         };
 

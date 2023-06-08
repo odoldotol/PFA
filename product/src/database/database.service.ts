@@ -65,4 +65,6 @@ export class DatabaseService {
             count: 0
         }) ] as CacheUpdateSet<CachedPriceI>);
 
+        isInMemoryStore_AppMemory = this.inMemorySrv.isUseingAppMemory;
+
 }
