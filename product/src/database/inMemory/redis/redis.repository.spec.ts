@@ -7,8 +7,10 @@ const TEST_KEY_PREFIX = "test:";
 const TEST_TTL = 60;
 class TestEntityConstructorClass {
     readonly prop: any;
+    readonly updateProp?: any;
     constructor(obj: TestEntityConstructorClass) {
         this.prop = obj.prop;
+        this.updateProp = obj.updateProp;
     }
 }
 const testSchema = new InMemorySchema(TEST_KEY_PREFIX, TEST_TTL, TestEntityConstructorClass);
@@ -85,8 +87,15 @@ describe("RedisRepository", () => {
     });
     
     describe("updateOne", () => {
-        it("service.setOne 실행. 스키마에 따라서 key prefix, ttl 적용, 존재하는 키에 대해서만 수행.", async () => {
-            const testReturn = await repository.updateOne("alreadyKey", {prop: "newValue"});
+        it("findOne And Update.", async () => {
+            jest.spyOn(repository, "findOne");
+            await repository.updateOne("alreadyKey", {updateProp: "updateValue"});
+            expect(repository.findOne).toBeCalledTimes(1);
+            expect(repository.findOne).toBeCalledWith(TEST_KEY_PREFIX+"alreadyKey");
+        });
+
+        it("업데이트된 value 로 service.setOne 실행. 스키마에 따라서 key prefix, ttl 적용, 존재하는 키에 대해서만 수행.", async () => {
+            const testReturn = await repository.updateOne("alreadyKey", {updateProp: "updateValue"});
             // expect(await repository.updateOne("alreadyKey", "newValue"))
             //     .toBe(setOneReturn);
             expect(service.setOne).toBeCalledWith([TEST_KEY_PREFIX+"alreadyKey", "newValue"], { expireSec: TEST_TTL, ifExist: true });
