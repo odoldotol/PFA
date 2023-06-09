@@ -19,8 +19,9 @@ export class MarketService implements OnModuleInit, OnApplicationBootstrap {
 
     onModuleInit = async () => {
         this.logger.warn("Initiator Run!!!");
-        this.dbSrv.isInMemoryStore_AppMemory() &&
-            await this.restoreCache();};
+        this.dbSrv.isInMemoryStore_AppMemory() ?
+            await this.restoreCache() :
+            await this.selectiveCacheUpdate();};
 
     onApplicationBootstrap = () => {
         this.dbSrv.isInMemoryStore_AppMemory() && this.pm2Service.IS_RUN_BY_PM2 &&
