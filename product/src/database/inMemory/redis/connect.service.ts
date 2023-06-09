@@ -11,7 +11,9 @@ export class ConnectService implements OnModuleInit, OnApplicationShutdown {
         this.listenEvents();}
 
     async onModuleInit() {
-        this.client.isOpen || await this.client.connect();}
+        setTimeout(() => {throw new Error("Redis connection timeout")}, 5000);
+        this.client.isOpen || await this.client.connect();
+    }
 
     async onApplicationShutdown() {
         this.client.isOpen && await this.client.disconnect();}

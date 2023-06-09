@@ -1,9 +1,19 @@
 import { Test, TestingModule } from "@nestjs/testing";
 import { ConnectService } from "./connect.service";
+import { createClient } from 'redis';
+
+const testClient = createClient({
+    socket: { reconnectStrategy: false }
+});
+
+it("test 에 이용할 redis 인스턴스가 6379 포트에 준비되어 있어야함.", async () => {
+    await testClient.connect();
+    expect(testClient.isOpen).toBeTruthy();
+});
+
+if (!testClient.isOpen) throw new Error("test 에 이용할 redis 인스턴스가 로컬:6379 에 준비되어 있어야함.");
 
 describe('RedisConnectService', () => {
-
-    // 테스팅 레디스 인스턴스가 localhost:6379 에 준비되어야 함
 
     let module: TestingModule;
     let service: ConnectService;
@@ -51,6 +61,6 @@ describe('RedisConnectService', () => {
             expect(service.client.isReady).toBeTruthy();});});
 
 
-    it.todo("연결에 문제가 생김에 따른 대처");
+    it.todo("앱 구동중에 연결에 문제가 생김에 따른 대처");
 
 });
