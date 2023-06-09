@@ -3,7 +3,8 @@ FROM keymetrics/pm2:16-alpine
 RUN apk update \
 && apk add --no-cache curl
 
-ENV MARKET_API_BASE_URL=http://market:6001
+ENV MARKET_API_BASE_URL=http://market:6001 \
+    REDIS_URL=redis://redis:6379
 
 RUN npm install -g npm@latest \
 && npm config set fetch-retry-maxtimeout 1200000 \

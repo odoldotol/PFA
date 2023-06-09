@@ -14,4 +14,5 @@ export enum EnvKey {
 
     // docker
     Docker_marketApiBaseUrl = 'MARKET_API_BASE_URL',
+    Docker_redisUrl = 'REDIS_URL',
 }

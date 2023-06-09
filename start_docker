@@ -1,9 +1,10 @@
 docker network create pfa-bridge
 
-docker build ./nginx -t pfa-nginx
+docker build ./redis -t pfa-redis
 docker build ./getMarket -t pfa-market-child
 docker build ./market -t pfa-market
 docker build ./product -t pfa-product
+docker build ./nginx -t pfa-nginx
 
 function wait_ready {
     while :
@@ -25,9 +26,13 @@ function run {
         docker rm -f $2
     fi
     docker run --network pfa-bridge -d -p $1:$1 --name $2 pfa-$2
-    wait_ready $1 $2 $3
+    if [ $3 -gt 0 ]
+    then
+        wait_ready $1 $2 $3
+    fi
 }
 
+run 6379 "redis" 0
 run 8001 "market-child" 2
 run 6001 "market" 5
 run 7001 "product" 3

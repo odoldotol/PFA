@@ -1,13 +1,20 @@
 import { Injectable, Logger, OnApplicationShutdown, OnModuleInit } from "@nestjs/common";
+import { ConfigService } from "@nestjs/config";
 import { createClient } from 'redis';
+import { EnvKey } from "src/common/enum/envKey.emun";
+import { EnvironmentVariables } from "src/common/interface/environmentVariables.interface";
 
 @Injectable()
 export class ConnectService implements OnModuleInit, OnApplicationShutdown {
 
     private readonly logger = new Logger("Redis-" + ConnectService.name);
-    private readonly redisClient = createClient();
+    private readonly redisClient = createClient({
+        url: this.configService.get(EnvKey.Docker_redisUrl, 'redis://localhost:6379'),
+    });
 
-    constructor() {
+    constructor(
+        private readonly configService: ConfigService<EnvironmentVariables>
+    ) {
         this.listenEvents();}
 
     async onModuleInit() {

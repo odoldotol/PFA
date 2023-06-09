@@ -16,4 +16,5 @@ export interface EnvironmentVariables {
 
     // docker
     [EnvKey.Docker_marketApiBaseUrl]: string;
+    [EnvKey.Docker_redisUrl]: string;
 }
