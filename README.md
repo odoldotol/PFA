@@ -23,9 +23,15 @@ $ bash start_docker
 
 <br>
 
-## API Docs
-- ## Product https://product.lapiki-invest.com/docs
+## API
+
+### [getPrice Api](https://product.lapiki-invest.com/docs#/Development/DevController_getPrice)
+
 ![initial](https://file.notion.so/f/s/11866728-fd99-4368-acfa-eb52f136278c/ezgif.com-video-to-gif.gif?id=32256afe-9e18-433c-ac0b-16dd10672293&table=block&spaceId=b8abca23-622d-4f8a-b4fe-55758db06b51&expirationTimestamp=1687464711593&signature=N22L6B3o6ysazC4CApaoAZLSjTHSnUd6PUJyGgwN1Fc&downloadName=ezgif.com-video-to-gif.gif)
+
+## Docs
+- ### Product https://product.lapiki-invest.com/docs
+
 - ### Market https://market.lapiki-invest.com/docs
 - ### [Additional] Market-Child https://child.lapiki-invest.com/docs
 
