@@ -17,7 +17,7 @@ $ bash start_docker
 
 ## [KakaoTalk Chatbot Channel](http://pf.kakao.com/_jxbgxmxj)
 
-![initial](https://file.notion.so/f/s/99590fe7-a0cd-4924-aa12-b2ca33c4baed/ezgif.com-video-to-gif_(1).gif?id=3f9884b3-b2b4-4eb5-9af4-fa67af54871b&table=block&spaceId=b8abca23-622d-4f8a-b4fe-55758db06b51&expirationTimestamp=1687463394621&signature=Qn4W63qjjIWAhdxdyxh2v5RJfCRl48g5SOSrRBhwKps&downloadName=ezgif.com-video-to-gif+%281%29.gif)
+![initial](https://file.notion.so/f/s/d2a7bf06-b8ba-4e49-b309-ae43128a5033/ezgif.com-gif-maker.gif?id=a4b376dd-f7ad-4eb5-9699-116303ddfb25&table=block&spaceId=b8abca23-622d-4f8a-b4fe-55758db06b51&expirationTimestamp=1687512632172&signature=uZEfatBw9vssJgoWxEIdtmY2XVqempJcuLiEIIHmOfM&downloadName=ezgif.com-gif-maker.gif)
 
 ---
 
