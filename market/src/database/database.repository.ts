@@ -177,8 +177,8 @@ export class DBRepository {
     setIsoCodeToTimezone = async () => Promise.all(
         (await this.config_exchangeRepo.findAllIsoCodeAndTimezone())
         .map(async isoCodeAndTimezone => {
-            await this.cacheManager.set(isoCodeAndTimezone.ISO_Code, isoCodeAndTimezone.ISO_TimezoneName);
-            await this.cacheManager.set(isoCodeAndTimezone.ISO_TimezoneName, isoCodeAndTimezone.ISO_Code);
+            await this.cacheManager.set(isoCodeAndTimezone.ISO_Code, isoCodeAndTimezone.ISO_TimezoneName, { ttl: 0 });
+            await this.cacheManager.set(isoCodeAndTimezone.ISO_TimezoneName, isoCodeAndTimezone.ISO_Code, { ttl: 0 });
         })
     );
 

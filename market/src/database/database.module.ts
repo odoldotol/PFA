@@ -5,9 +5,7 @@ import { DBRepository } from "./database.repository";
 @Module({
     imports: [
         MongoModule,
-        CacheModule.register({
-            ttl: 0,
-        }),
+        CacheModule.register(),
     ],
     providers: [DBRepository],
     exports: [DBRepository]
