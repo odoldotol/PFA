@@ -17,7 +17,7 @@ $ bash start_docker
 
 ## [KakaoTalk Chatbot Channel](http://pf.kakao.com/_jxbgxmxj)
 
-![initial](https://file.notion.so/f/s/d2a7bf06-b8ba-4e49-b309-ae43128a5033/ezgif.com-gif-maker.gif?id=a4b376dd-f7ad-4eb5-9699-116303ddfb25&table=block&spaceId=b8abca23-622d-4f8a-b4fe-55758db06b51&expirationTimestamp=1687512632172&signature=uZEfatBw9vssJgoWxEIdtmY2XVqempJcuLiEIIHmOfM&downloadName=ezgif.com-gif-maker.gif)
+![initial](https://storage.googleapis.com/odoldotol-image-store/ezgif.com-gif-maker.gif)
 
 ---
 
@@ -27,7 +27,7 @@ $ bash start_docker
 
 ### [getPrice Api](https://product.lapiki-invest.com/docs#/Development/DevController_getPrice)
 
-![initial](https://file.notion.so/f/s/11866728-fd99-4368-acfa-eb52f136278c/ezgif.com-video-to-gif.gif?id=32256afe-9e18-433c-ac0b-16dd10672293&table=block&spaceId=b8abca23-622d-4f8a-b4fe-55758db06b51&expirationTimestamp=1687464711593&signature=N22L6B3o6ysazC4CApaoAZLSjTHSnUd6PUJyGgwN1Fc&downloadName=ezgif.com-video-to-gif.gif)
+![initial](https://storage.googleapis.com/odoldotol-image-store/ezgif.com-video-to-gif.gif)
 
 ## Docs
 - ### Product https://product.lapiki-invest.com/docs
@@ -47,7 +47,7 @@ $ bash start_docker
 <br>
 
 ## Structure
-![initial](https://file.notion.so/f/s/fb79e2fe-21e0-4557-9e3b-b4d0a92b9ca9/Screen_Shot_2023-06-22_at_3.51.03_AM.png?id=ee07d234-33ee-4d1f-b7ae-e1b98f25eaf8&table=block&spaceId=b8abca23-622d-4f8a-b4fe-55758db06b51&expirationTimestamp=1687460203917&signature=cc21_1YISa-_ZoY4bDLd2jmrOVs5U3sUqHR4BGmHgcM&downloadName=Screen+Shot+2023-06-22+at+3.51.03+AM.png)
+![initial](https://storage.googleapis.com/odoldotol-image-store/Screen%20Shot%202023-06-22%20at%203.51.03%20AM.png)
 
 ---
 
