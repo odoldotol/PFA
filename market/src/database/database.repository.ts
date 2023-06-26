@@ -8,6 +8,7 @@ import { curry, each, map, pipe, toArray, toAsync } from "@fxts/core";
 import { Either } from "src/common/class/either";
 import mongoose, { ClientSession } from "mongoose";
 import { StandardUpdatePriceResult } from "src/common/interface/updatePriceResult.interface";
+import { TEMP_EXCHANGES } from "./temp-exchangeArr.const";
 
 @Injectable()
 export class DBRepository {
@@ -174,13 +175,20 @@ export class DBRepository {
         return result;
     }
 
-    setIsoCodeToTimezone = async () => Promise.all(
-        (await this.config_exchangeRepo.findAllIsoCodeAndTimezone())
-        .map(async isoCodeAndTimezone => {
-            await this.cacheManager.set(isoCodeAndTimezone.ISO_Code, isoCodeAndTimezone.ISO_TimezoneName, { ttl: 0 });
-            await this.cacheManager.set(isoCodeAndTimezone.ISO_TimezoneName, isoCodeAndTimezone.ISO_Code, { ttl: 0 });
-        })
-    );
+    public async setIsoCodeToTimezone() {
+        // TODO(dev): TEMP_EXCHANGES 필요없음
+        let exchanges = await this.config_exchangeRepo.findAllIsoCodeAndTimezone();
+        if (exchanges.length === 0) {
+            this.logger.warn("No exchanges in DB. Use TEMP_EXCHANGES");
+            exchanges = TEMP_EXCHANGES as any;
+        };
+        return Promise.all(exchanges.map(
+            async isoCodeAndTimezone => {
+                await this.cacheManager.set(isoCodeAndTimezone.ISO_Code, isoCodeAndTimezone.ISO_TimezoneName, { ttl: 0 });
+                await this.cacheManager.set(isoCodeAndTimezone.ISO_TimezoneName, isoCodeAndTimezone.ISO_Code, { ttl: 0 });
+            }
+        ));
+    }
 
     /**
      * - 1뷴에 한번만 갱신할 수 있도록 ttl 설정
