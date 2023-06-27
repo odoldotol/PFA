@@ -4,4 +4,4 @@ FROM redis:7.2-rc2-alpine3.18
 
 EXPOSE 6379
 
-HEALTHCHECK --interval=10m --timeout=5s CMD redis-cli ping || exit 1
+HEALTHCHECK --start-period=20s --interval=5s --timeout=2s CMD redis-cli ping || exit 1

@@ -96,14 +96,14 @@ export class MarketService implements OnModuleInit, OnApplicationBootstrap {
 
     private createPriceWithFetching = (ticker: string) => pipe(ticker,
         this.fetchPriceSet,
-        this.dbSrv.createCcPrice);
+        this.dbSrv.createCcPrice.bind(this.dbSrv));
 
     private isPriceUpToDate = async (price: CachedPriceI) =>
         MarketDate.areEqual(price.marketDate, await this.dbSrv.readCcStatusPrice(price.ISO_Code));
 
     private updateWithFetching = (ticker: string) => pipe(ticker,
         this.fetchPriceUpdateSet,
-        this.dbSrv.updateCcPrice);
+        this.dbSrv.updateCcPrice.bind(this.dbSrv));
 
     // TODO - Refac
     private fetchPriceSet = (ticker: string) => pipe(ticker,

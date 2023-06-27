@@ -1,3 +1,4 @@
+import { ConfigModule } from "@nestjs/config";
 import { Test, TestingModule } from "@nestjs/testing";
 import { ConnectService } from "./connect.service";
 import { createClient } from 'redis';
@@ -9,10 +10,24 @@ const testClient = createClient({
 it("test 에 이용할 redis 인스턴스가 6379 포트에 준비되어 있어야함.", async () => {
     await testClient.connect();
     expect(testClient.isOpen).toBeTruthy();
+    testClient.isOpen && await testClient.disconnect();
 });
 
-if (!testClient.isOpen) throw new Error("test 에 이용할 redis 인스턴스가 로컬:6379 에 준비되어 있어야함.");
-
+/**
+ * TODO: 왜 Redis 연결을 다 끈어도
+ * 
+ * A worker process has failed to exit gracefully and has been force exited.
+ * This is likely caused by tests leaking due to improper teardown.
+ * Try running with --detectOpenHandles to find leaks.
+ * Active timers can also cause this, ensure that .unref() was called on them.
+ * 
+ * 위 경고 메세지가 사라지지 않는지 알아내기.
+ * 
+ * 맨 위의 테스트 케이스에서 처럼, spec 파일 내에서 연결하고 끊으면 괜찮은데,
+ * 테스트모듈에서 연결하고 끊는것은 경고메시지가 뜬다.
+ * 
+ * => jest 동작 원리 더 이해하기
+ */
 describe('RedisConnectService', () => {
 
     let module: TestingModule;
@@ -20,6 +35,7 @@ describe('RedisConnectService', () => {
 
     beforeEach(async () => {
         module = await Test.createTestingModule({
+            imports: [ConfigModule],
             providers: [ConnectService],
         }).compile();
 

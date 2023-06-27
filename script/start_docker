@@ -1,3 +1,5 @@
+# deprecated
+
 docker network create pfa-bridge
 
 docker build ./redis -t pfa-redis

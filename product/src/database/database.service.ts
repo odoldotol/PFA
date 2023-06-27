@@ -18,10 +18,16 @@ export class DatabaseService {
     
     createCcPriceStatusWithRP = (rP: RequestedPrice) => rP.status_price &&
         this.marketDateSrv.create([rP.status_price.ISO_Code, MarketDate.fromSpDoc(rP.status_price)]);
-    createCcPrice = this.priceSrv.create;
+    createCcPrice(arg: CacheSet<CachedPriceI>) {
+        return this.priceSrv.create(arg);
+    }
     readCcStatusPrice = this.marketDateSrv.read;
-    readCcPriceCounting = this.priceSrv.read_with_counting;
-    updateCcPrice = this.priceSrv.update;
+    readCcPriceCounting(arg: TickerSymbol) {
+        return this.priceSrv.read_with_counting(arg);
+    }
+    updateCcPrice(arg: CacheUpdateSet<CachedPriceI>) {
+        return this.priceSrv.update(arg);
+    }
     
     cacheRecovery = this.inMemorySrv.localFileCacheRecovery;
     getAllCcKeys = this.inMemorySrv.getAllKeys;

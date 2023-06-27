@@ -2,23 +2,123 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
 import { AppModule } from '../src/app/app.module';
+import { PriceService } from 'src/database/inMemory/price.service';
+import { MarketApiService } from 'src/market/market-api/market-api.service';
+import { MarketDate } from 'src/common/class/marketDate.class';
 
-describe('AppController (e2e)', () => {
+describe('Price', () => {
   let app: INestApplication;
+  let marketApiService: MarketApiService;
+  let priceService: PriceService;
 
-  beforeEach(async () => {
+  const SYMBOL = 'AAPL';
+  const CURRENCY = 'USD';
+  const PRICE = 185.27000427246094;
+  const ISO_CODE = 'XNYS';
+
+  const MOCK_FETCHED_ASSET = {
+    "price": PRICE,
+    "ISO_Code": ISO_CODE,
+    "currency": CURRENCY,
+  };
+  const MOCK_FETCHED_SPDOCS = [{
+      "ISO_Code": ISO_CODE,
+      "lastMarketDate": "2023-06-26T20:00:00.000Z",
+      "yf_exchangeTimezoneName": "America/New_York",
+  }];
+  const MOCK_FETCHED_ASSETS_BY_ISO_CODE: PSet[] = [[
+    SYMBOL,
+    PRICE,
+    CURRENCY
+  ]];
+
+  beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
     }).compile();
 
     app = moduleFixture.createNestApplication();
+    priceService = app.get(PriceService);
+    marketApiService = app.get(MarketApiService);
+    
+    jest.spyOn(marketApiService, 'fetchAllSpDoc').mockResolvedValue(MOCK_FETCHED_SPDOCS);
+    jest.spyOn(marketApiService, 'fetchPriceByISOcode').mockResolvedValue(MOCK_FETCHED_ASSETS_BY_ISO_CODE);
+
     await app.init();
+    await priceService.delete(SYMBOL);
   });
 
-  it('/ (GET)', () => {
+  afterAll(async () => {
+    await app.close();
+  });
+
+  beforeEach(() => {
+    jest.spyOn(marketApiService, 'fetchPriceByTicker').mockResolvedValueOnce(MOCK_FETCHED_ASSET)
+    jest.spyOn(priceService, 'read_with_counting');
+  });
+
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
+  let asset: CachedPriceI;
+
+  it('인메모리에 없는경우 (010)', () => {
+    jest.spyOn(priceService, 'create');
     return request(app.getHttpServer())
-      .get('/')
+      .post(`/dev/price/${SYMBOL}`)
       .expect(200)
-      .expect('Hello World!');
+      .expect(res => {
+        const body = res.body;
+        asset = res.body;
+        expect(marketApiService.fetchPriceByTicker).toBeCalledWith(SYMBOL);
+        expect(marketApiService.fetchPriceByTicker).toBeCalledTimes(1);
+        expect(priceService.read_with_counting).toBeCalledTimes(1);
+        expect(priceService.create).toBeCalledTimes(1);
+        expect(body).toHaveProperty('price');
+        expect(body).toHaveProperty('ISO_Code');
+        expect(body).toHaveProperty('currency');
+        expect(body).toHaveProperty('marketDate');
+        expect(body).toHaveProperty('count', 1);
+      });
+  });
+
+  it('인메모리에 있고 최신인 경우 (100)', () => {
+    return request(app.getHttpServer())
+      .post(`/dev/price/${SYMBOL}`)
+      .expect(200)
+      .expect(res => {
+        const body = res.body;
+        expect(marketApiService.fetchPriceByTicker).toBeCalledTimes(0);
+        expect(priceService.read_with_counting).toBeCalledTimes(1);
+        expect(body).toHaveProperty('price', PRICE);
+        expect(body).toHaveProperty('ISO_Code', ISO_CODE);
+        expect(body).toHaveProperty('currency', CURRENCY);
+        expect(body).toHaveProperty('marketDate', asset.marketDate);
+        expect(body).toHaveProperty('count', 2);
+      });
+  });
+
+  it('인메모리에 있지만 최신 아닌 경우 (101)', async () => {
+    await priceService.update([SYMBOL, {
+      price: 1,
+      marketDate: new MarketDate('1990-03-25')
+    }]);
+    jest.spyOn(priceService, 'update');
+    return request(app.getHttpServer())
+      .post(`/dev/price/${SYMBOL}`)
+      .expect(200)
+      .expect(res => {
+        const body = res.body;
+        expect(marketApiService.fetchPriceByTicker).toBeCalledWith(SYMBOL);
+        expect(marketApiService.fetchPriceByTicker).toBeCalledTimes(1);
+        expect(priceService.read_with_counting).toBeCalledTimes(1);
+        expect(priceService.update).toBeCalledTimes(1);
+        expect(body).toHaveProperty('price', PRICE);
+        expect(body).toHaveProperty('ISO_Code', ISO_CODE);
+        expect(body).toHaveProperty('currency', CURRENCY);
+        expect(body).toHaveProperty('marketDate', asset.marketDate);
+        expect(body).toHaveProperty('count', 3);
+      });
   });
 });

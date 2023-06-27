@@ -11,3 +11,12 @@ $ docker run -p 7001:7001 --name product pfa-product
 ```
 ---
 ### API Doc http://localhost:7001/docs
+
+---
+
+<br>
+
+## Test
+```shell
+$ bash script/test
+```

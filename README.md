@@ -5,12 +5,24 @@
 market/.env.guide
 product/.env.guide
 ```
+
+<br>
+
 ## Build and Run
-[CAUTION] docker, bash, and cURL should be available.
+[CAUTION] docker compose and bash should be available.
 ```shell
-$ bash start_docker
+$ bash script/pfa:start
 ```
----
+
+<br>
+
+## Test
+```shell
+$ bash script/test
+```
+
+<br>
+
 ---
 
 <br>

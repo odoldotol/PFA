@@ -1,3 +1,4 @@
+import { ConfigModule } from "@nestjs/config";
 import { Test, TestingModule } from "@nestjs/testing";
 import { ConnectService } from "./connect.service";
 import { RedisService } from "./redis.service";
@@ -13,6 +14,7 @@ describe("RedisService", () => {
 
     beforeAll(async ()  => {
         module = await Test.createTestingModule({
+            imports: [ConfigModule],
             providers: [ConnectService, RedisService]
         }).compile();
         service = module.get<RedisService>(RedisService);

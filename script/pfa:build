@@ -1,0 +1,5 @@
+docker build ./getMarket -t pfa-market-child
+docker build ./market -t pfa-market
+docker build ./product -t pfa-product
+docker build ./redis -t pfa-product-redis
+docker build ./nginx -t pfa-nginx
