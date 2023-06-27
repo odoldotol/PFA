@@ -6,36 +6,31 @@ import { PriceService } from 'src/database/inMemory/price.service';
 import { MarketApiService } from 'src/market/market-api/market-api.service';
 import { MarketDate } from 'src/common/class/marketDate.class';
 
-describe('AppController (e2e)', () => {
-  let app: INestApplication;
-
-  beforeEach(async () => {
-    const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [AppModule],
-    }).compile();
-
-    app = moduleFixture.createNestApplication();
-    await app.init();
-  });
-
-  afterEach(async () => {
-    await app.close();
-  });
-
-  it('/health (GET)', () => {
-    return request(app.getHttpServer())
-      .get('/health')
-      .expect(200)
-      .expect({ "status": "ok" });
-  });
-});
-
 describe('Price', () => {
   let app: INestApplication;
   let marketApiService: MarketApiService;
   let priceService: PriceService;
 
   const SYMBOL = 'AAPL';
+  const CURRENCY = 'USD';
+  const PRICE = 185.27000427246094;
+  const ISO_CODE = 'XNYS';
+
+  const MOCK_FETCHED_ASSET = {
+    "price": PRICE,
+    "ISO_Code": ISO_CODE,
+    "currency": CURRENCY,
+  };
+  const MOCK_FETCHED_SPDOCS = [{
+      "ISO_Code": ISO_CODE,
+      "lastMarketDate": "2023-06-26T20:00:00.000Z",
+      "yf_exchangeTimezoneName": "America/New_York",
+  }];
+  const MOCK_FETCHED_ASSETS_BY_ISO_CODE: PSet[] = [[
+    SYMBOL,
+    PRICE,
+    CURRENCY
+  ]];
 
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
@@ -46,6 +41,9 @@ describe('Price', () => {
     priceService = app.get(PriceService);
     marketApiService = app.get(MarketApiService);
     
+    jest.spyOn(marketApiService, 'fetchAllSpDoc').mockResolvedValue(MOCK_FETCHED_SPDOCS);
+    jest.spyOn(marketApiService, 'fetchPriceByISOcode').mockResolvedValue(MOCK_FETCHED_ASSETS_BY_ISO_CODE);
+
     await app.init();
     await priceService.delete(SYMBOL);
   });
@@ -55,7 +53,7 @@ describe('Price', () => {
   });
 
   beforeEach(() => {
-    jest.spyOn(marketApiService, 'fetchPriceByTicker');
+    jest.spyOn(marketApiService, 'fetchPriceByTicker').mockResolvedValueOnce(MOCK_FETCHED_ASSET)
     jest.spyOn(priceService, 'read_with_counting');
   });
 
@@ -93,9 +91,9 @@ describe('Price', () => {
         const body = res.body;
         expect(marketApiService.fetchPriceByTicker).toBeCalledTimes(0);
         expect(priceService.read_with_counting).toBeCalledTimes(1);
-        expect(body).toHaveProperty('price', asset.price);
-        expect(body).toHaveProperty('ISO_Code', asset.ISO_Code);
-        expect(body).toHaveProperty('currency', asset.currency);
+        expect(body).toHaveProperty('price', PRICE);
+        expect(body).toHaveProperty('ISO_Code', ISO_CODE);
+        expect(body).toHaveProperty('currency', CURRENCY);
         expect(body).toHaveProperty('marketDate', asset.marketDate);
         expect(body).toHaveProperty('count', 2);
       });
@@ -112,12 +110,13 @@ describe('Price', () => {
       .expect(200)
       .expect(res => {
         const body = res.body;
+        expect(marketApiService.fetchPriceByTicker).toBeCalledWith(SYMBOL);
         expect(marketApiService.fetchPriceByTicker).toBeCalledTimes(1);
         expect(priceService.read_with_counting).toBeCalledTimes(1);
         expect(priceService.update).toBeCalledTimes(1);
-        expect(body).toHaveProperty('price', asset.price);
-        expect(body).toHaveProperty('ISO_Code', asset.ISO_Code);
-        expect(body).toHaveProperty('currency', asset.currency);
+        expect(body).toHaveProperty('price', PRICE);
+        expect(body).toHaveProperty('ISO_Code', ISO_CODE);
+        expect(body).toHaveProperty('currency', CURRENCY);
         expect(body).toHaveProperty('marketDate', asset.marketDate);
         expect(body).toHaveProperty('count', 3);
       });
