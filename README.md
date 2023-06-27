@@ -8,7 +8,7 @@ product/.env.guide
 ## Build and Run
 [CAUTION] docker, bash, and cURL should be available.
 ```shell
-$ bash start_docker
+$ bash script/start_docker
 ```
 ---
 ---
