@@ -5,4 +5,4 @@ COPY ./conf.d /etc/nginx/conf.d
 
 EXPOSE 80
 
-HEALTHCHECK --start-period=30s --interval=10s --timeout=5s CMD curl -f http://localhost:80/health || exit 1
+HEALTHCHECK --start-period=20s --interval=5s --timeout=3s CMD curl -f http://localhost:80/health || exit 1
