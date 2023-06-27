@@ -1,0 +1,91 @@
+version: "3"
+
+services:
+  market-child:
+    container_name: pfa-market-child
+    image: pfa-market-child:latest
+    networks:
+      - default
+    ports:
+      - "8001:8001"
+    restart: always
+    profiles:
+      - pfa
+      - market
+  
+  market:
+    container_name: pfa-market
+    image: pfa-market:latest
+    networks:
+      - default
+    ports:
+      - "6001:6001"
+    depends_on:
+      market-child:
+        condition: service_healthy
+        restart: false
+    restart: always
+    profiles:
+      - pfa
+      - market
+  
+  product:
+    container_name: pfa-product
+    image: pfa-product:latest
+    networks:
+      - default
+      - product
+    ports:
+      - "7001:7001"
+    depends_on:
+      product-redis:
+        condition: service_healthy
+        restart: false
+      market:
+        condition: service_healthy
+        restart: false
+    restart: always
+    profiles:
+      - pfa
+      - product
+
+  product-redis:
+    container_name: pfa-product-redis
+    image: pfa-product-redis:latest
+    networks:
+      - product
+    ports:
+      - "6379:6379"
+    restart: always
+    profiles:
+      - pfa
+      - product
+  
+  nginx:
+    container_name: pfa-nginx
+    image: pfa-nginx:latest
+    networks:
+      - default
+    ports:
+      - "80:80"
+    depends_on:
+      product:
+        condition: service_healthy
+        restart: false
+      market:
+        condition: service_healthy
+        restart: false
+      market-child:
+        condition: service_healthy
+        restart: false
+    restart: always
+    profiles:
+      - pfa
+
+networks:
+  default:
+    name: pfa-network
+    driver: bridge
+  product:
+    name: pfa-product-network
+    driver: bridge
