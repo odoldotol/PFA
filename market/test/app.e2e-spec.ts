@@ -1,10 +1,11 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { INestApplication, ValidationPipe } from '@nestjs/common';
+import { INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
 import { AppModule } from 'src/app/app.module';
 
 describe('Application Start', () => {
   describe('Updater 초기화', () => {
+    it.todo('모든 거래소에 대한 업데이트 스케쥴 이 생성되어야 함');
     it.todo('최신상태의 마켓 => 업데이트 스케쥴 생성');
     it.todo('최신상태가 아니고 장중이 아닌(closed) 마켓 => 업데이트 후 업데이트 스케쥴 생성');
     it.todo('최신상태가 아니고 장중인(open) 마켓 => 업데이트 스케쥴 생성');

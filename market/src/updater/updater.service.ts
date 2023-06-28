@@ -12,6 +12,10 @@ import { EnvironmentVariables } from 'src/common/interface/environmentVariables.
 import { EnvKey } from 'src/common/enum/envKey.emun';
 import { UpdatePriceResult } from 'src/common/interface/updatePriceResult.interface';
 
+/**
+ * ### TODO: Refac:
+ * 스케쥴러, 가격 업데이트, Asset 생성, 이니시에이터 등으로 모듈 또는 프로바이더를 적절히 나누기
+ */
 @Injectable()
 export class UpdaterService implements OnModuleInit {
 
