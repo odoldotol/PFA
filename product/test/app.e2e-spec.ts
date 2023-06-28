@@ -6,7 +6,7 @@ import { PriceService } from 'src/database/inMemory/price.service';
 import { MarketApiService } from 'src/market/market-api/market-api.service';
 import { MarketDate } from 'src/common/class/marketDate.class';
 
-describe('Price', () => {
+describe('Price 조회', () => {
   let app: INestApplication;
   let marketApiService: MarketApiService;
   let priceService: PriceService;
@@ -63,7 +63,7 @@ describe('Price', () => {
 
   let asset: CachedPriceI;
 
-  it('인메모리에 없는경우 (010)', () => {
+  it('인메모리에 없는경우 (010) => market api 로 가져와서 create, count = 1', () => {
     jest.spyOn(priceService, 'create');
     return request(app.getHttpServer())
       .post(`/dev/price/${SYMBOL}`)
@@ -83,7 +83,7 @@ describe('Price', () => {
       });
   });
 
-  it('인메모리에 있고 최신인 경우 (100)', () => {
+  it('인메모리에 있고 최신인 경우 (100) => 단순 조회, count++', () => {
     return request(app.getHttpServer())
       .post(`/dev/price/${SYMBOL}`)
       .expect(200)
@@ -99,7 +99,7 @@ describe('Price', () => {
       });
   });
 
-  it('인메모리에 있지만 최신 아닌 경우 (101)', async () => {
+  it('인메모리에 있지만 최신 아닌 경우 (101) => market api 로 가져와서 update, count++', async () => {
     await priceService.update([SYMBOL, {
       price: 1,
       marketDate: new MarketDate('1990-03-25')
