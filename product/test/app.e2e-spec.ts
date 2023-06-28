@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
-import { AppModule } from '../src/app/app.module';
+import { AppModule } from 'src/app/app.module';
 import { PriceService } from 'src/database/inMemory/price.service';
 import { MarketApiService } from 'src/market/market-api/market-api.service';
 import { MarketDate } from 'src/common/class/marketDate.class';
@@ -122,3 +122,15 @@ describe('Price', () => {
       });
   });
 });
+
+// TODO: 없는거 조회시 mongodb 에 추가되서 돌아오는 경우
+// 일단, 지금은 마켓에서 거래소 정기 업뎃 전파될때 거래소 데이터 생성 및 업뎃 되기떄문에 이에 대한 추가작업은 불필요하다.
+
+// TODO: 마켓에서 전파된 업데이트를 잘 반영하는가
+  // Asset - 업뎃, 삭제, 유지 (카운트에 따라?)
+  // price 상태 업뎃, 생성
+
+
+/**
+ * TODO: 초기화시 최신화 되지 않은것만 선택적 업데이트
+ */
