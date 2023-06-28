@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, InternalServerErrorException, Logger } from '@nestjs/common';
+import { BadRequestException, Injectable, InternalServerErrorException, Logger, NotFoundException } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { catchError, firstValueFrom, map } from 'rxjs';
 import { AxiosError } from 'axios';
@@ -26,6 +26,7 @@ export class MarketApiService {
     fetchPriceByTicker = (ticker: string) => firstValueFrom(this.httpService.post(`api/v1/price/ticker/${ticker}`).pipe(
         catchError(error => {
             if (error.response?.data.error === "Bad Request") throw new BadRequestException(error.response.data);
+            else if (error.response?.data.error === "Not Found") throw new NotFoundException(error.response.data);
             else if (error.response) throw new InternalServerErrorException(error.response.data);
             else throw new InternalServerErrorException(error);}),
         map(res => res.data as RequestedPrice)));
