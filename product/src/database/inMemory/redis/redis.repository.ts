@@ -38,6 +38,22 @@ export class RedisRepository<T> implements InMemoryRepositoryI<T> {
         this.redisSrv.deleteOne(this.makeKey(keyBody)),
         this.valueFactory);
 
+    /**
+     * @todo 트렌젝션으로 scan 과 mget 쓰는게 안전하고 효율적이겠지?
+     * - key: keyBody
+     */
+    public async getAllKeyValueMap() {
+        return new Map(await F.pipe(
+            this.redisSrv.getAllKeys(this.KEY_PREFIX),
+            F.map(RedisService.getKeyBody), F.toAsync,
+            F.map(this.getKeyValueSet.bind(this)), F.toArray
+        ));
+    }
+
+    private async getKeyValueSet(keyBody: string) {
+        return [ keyBody, await this.findOne(keyBody) ] as [string, T|null];
+    }
+
     private valueFactory = (v: T | null ) => v && new this.schema.constructorClass(v) as T;
 
     // Todo: 키 타입(프리픽스s+키바디), 키 프리픽스 타입(string+";"), 키 바디 타입(':' 있으면 안됨) 만들기

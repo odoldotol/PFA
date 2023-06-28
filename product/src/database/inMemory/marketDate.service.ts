@@ -13,4 +13,8 @@ export class MarketDateService {
 
     read = (ISO_Code: ISO_Code) => this.marketDateRepo.findOne(ISO_Code);
 
+    getAllAsMap() {
+        return this.marketDateRepo.getAllKeyValueMap();
+    }
+
 }
