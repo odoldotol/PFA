@@ -126,6 +126,8 @@ POST /dev/price/{ticker}`, () => {
         expect(body).toHaveProperty('count', 3);
       });
   });
+
+  it.todo('결국 찾지 못함 => NotFound');
 });
 
 // TODO: 없는거 조회시 mongodb 에 추가되서 돌아오는 경우
