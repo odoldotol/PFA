@@ -6,8 +6,6 @@ services:
     image: pfa-market-child:latest
     networks:
       - default
-    ports:
-      - "8001:8001"
     restart: always
     profiles:
       - pfa
@@ -18,8 +16,6 @@ services:
     image: pfa-market:latest
     networks:
       - default
-    ports:
-      - "6001:6001"
     depends_on:
       market-child:
         condition: service_healthy
@@ -35,8 +31,6 @@ services:
     networks:
       - default
       - product
-    ports:
-      - "7001:7001"
     depends_on:
       product-redis:
         condition: service_healthy
@@ -54,8 +48,6 @@ services:
     image: pfa-product-redis:latest
     networks:
       - product
-    ports:
-      - "6379:6379"
     restart: always
     profiles:
       - pfa

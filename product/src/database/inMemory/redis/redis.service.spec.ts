@@ -61,6 +61,8 @@ describe("RedisService", () => {
             });
             expect(testKeyValueMap.size).toBe(0);
         });
+
+        it.todo('prefix 를 인자로 받을경우 prefix 로 시작하는 키만 반환.');
     });
 
     describe('setOne - value를 Json형태로 set하고 value를 반환', () => {

@@ -150,5 +150,10 @@ describe("RedisRepository", () => {
                 .toBeInstanceOf(TestObjEntityClass);
         });
     });
+
+    describe("getAllKeyValueMap", () => {
+        it.todo('레포지토리에 해당하는 모든 키-값 쌍을 Map 에 담아서 반환.');
+        it.todo('key(Redis keyBody) => value(: T) 매핑');
+    });
     
 });

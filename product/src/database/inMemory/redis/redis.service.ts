@@ -16,13 +16,13 @@ export class RedisService implements InMemoryStoreServiceI, RedisServiceI {
      * - while 문 제거하기(재귀적으로 구현하거나 F.range 쓰거나?)
      * - result, cursor 변수선언을 제거하기
      */
-    getAllKeys = async () => {
+    getAllKeys = async (prefix: string = "") => {
         let result: string[] = [];
         let cursor: number|true = true;
         while (cursor) {
             cursor === true ? cursor = 0 : cursor;
             const scanReturn = await this.client.sendCommand([
-                "SCAN", `${cursor}`, "MATCH", "*", "COUNT", "100"
+                "SCAN", `${cursor}`, "MATCH", prefix + "*", "COUNT", "100"
             ]) as [string, string[]];
             cursor = parseInt(scanReturn[0]);
             result = result.concat(scanReturn[1]);

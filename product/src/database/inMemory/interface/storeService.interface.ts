@@ -1,3 +1,3 @@
 interface InMemoryStoreServiceI {
-    getAllKeys(): Promise<string[]>;
+    getAllKeys(prefix?: string): Promise<string[]>;
 }

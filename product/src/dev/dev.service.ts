@@ -10,6 +10,11 @@ export class DevService {
         private readonly marketService: MarketService,) {}
 
     getPrice = this.marketService.getPrice;
-    getAllMarketDate = this.marketService.getAllStatusPrice;
+
+    public async getAllMarketDate() {
+        const map = await this.dbSrv.getAllMarketDateAsMap();
+        return Object.fromEntries(map);
+    };
+    
     getAllCacheKey = this.dbSrv.getAllCcKeys
 }
