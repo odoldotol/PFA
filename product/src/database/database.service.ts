@@ -53,7 +53,7 @@ export class DatabaseService {
         each(this.createCcPrice));
 
     private setSpAndReturnPSets = (initSet: SpPSets) => pipe(initSet,
-        tap(set => this.marketDateSrv.create(head(set) as [ISO_Code, MarketDate])),
+        tap(async set => await this.marketDateSrv.update(head(set)) || this.marketDateSrv.create(head(set))),
         last);
 
     // Todo: Refac - toCacheUpdateSet, toCachedPriceSet 중복함수
