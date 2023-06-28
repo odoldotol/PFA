@@ -11,7 +11,7 @@
     "build:prod": "GENERATE_SOURCEMAP=false nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "nest start",
-    "start:dev": "nest start --watch",
+    "start:dev": "npm run test:docker:up && nest start --watch",
     "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/main",
     "pm2:dev": "pm2 startOrRestart ecosystem.config.js --only pfa_product_dev --env development",
