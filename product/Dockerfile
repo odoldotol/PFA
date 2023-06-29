@@ -16,7 +16,7 @@ RUN npm run build:prod
 
 EXPOSE 7001
 
-HEALTHCHECK --start-period=1m --interval=5s --timeout=3s CMD curl -f http://localhost:7001/health || exit 1
+HEALTHCHECK --start-period=1m --interval=5s --timeout=3s CMD curl -f --max-time 4 http://localhost:7001/health || exit 1
 
 ENV MARKET_API_BASE_URL=http://market:6001 \
     REDIS_URL=redis://product-redis:6379
