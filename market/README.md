@@ -11,3 +11,12 @@ $ docker run -p 6001:6001 --name market pfa-market
 ```
 ---
 ### API Doc http://localhost:6001/docs
+
+---
+
+<br>
+
+## Test
+```shell
+$ bash script/test
+```

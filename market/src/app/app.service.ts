@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, InternalServerErrorException } from '@nestjs/common';
+import { Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { UpdaterService } from 'src/updater/updater.service';
 import { DBRepository } from 'src/database/database.repository';
 import { ResponseGetPriceByTicker } from './response/getPriceByTicker.response';
@@ -21,7 +21,7 @@ export class AppService {
                 const createResult = await this.updaterService.addAssets([ticker])
                 if (createResult.failure.info.length > 0) {
                     if (createResult.failure.info[0].doc === "Mapping key not found.") {
-                        throw new BadRequestException(`Could not find Ticker: ${createResult.failure.info[0].ticker}`);
+                        throw new NotFoundException(`Could not find Ticker: ${createResult.failure.info[0].ticker}`);
                     }
                     throw new InternalServerErrorException(createResult.failure.info[0]);
                 }

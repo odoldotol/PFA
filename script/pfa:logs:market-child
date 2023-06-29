@@ -1,0 +1,1 @@
+docker logs -f -n 50 -t pfa-market-child

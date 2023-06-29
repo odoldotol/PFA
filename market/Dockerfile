@@ -16,7 +16,7 @@ RUN npm run build:prod
 
 EXPOSE 6001
 
-HEALTHCHECK --start-period=3m --interval=5s --timeout=3s CMD curl -f http://localhost:6001/health || exit 1
+HEALTHCHECK --start-period=3m --interval=5s --timeout=3s CMD curl -f --max-time 4 http://localhost:6001/health || exit 1
 
 ENV CHILD_API_BASE_URL=http://market-child:8001 \
     PRODUCT_API_BASE_URL=http://product:7001

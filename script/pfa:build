@@ -1,5 +1,10 @@
+echo -e "\n\n------------------ Build Market Child ------------------------------------------\n"
 docker build ./getMarket -t pfa-market-child
+echo -e "\n\n------------------ Build Market ------------------------------------------------\n"
 docker build ./market -t pfa-market
+echo -e "\n\n------------------ Build Product -----------------------------------------------\n"
 docker build ./product -t pfa-product
+echo -e "\n\n------------------ Build Product Redis -----------------------------------------\n"
 docker build ./redis -t pfa-product-redis
+echo -e "\n\n------------------ Build NGINX -------------------------------------------------\n"
 docker build ./nginx -t pfa-nginx

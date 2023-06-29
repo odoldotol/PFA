@@ -6,8 +6,6 @@ services:
     image: pfa-market-child:latest
     networks:
       - default
-    ports:
-      - "8001:8001"
     restart: always
     profiles:
       - pfa
@@ -18,28 +16,10 @@ services:
     image: pfa-market:latest
     networks:
       - default
-      - market
-    ports:
-      - "6001:6001"
-    environment:
-      - RACK_ENV=development
     depends_on:
-      market-mongo:
-        condition: service_started
-        restart: false
       market-child:
         condition: service_healthy
         restart: false
-    restart: always
-    profiles:
-      - pfa
-      - market
-
-  market-mongo:
-    container_name: pfa-market-mongo
-    image: mongo:latest
-    networks:
-      - market
     restart: always
     profiles:
       - pfa
@@ -51,8 +31,6 @@ services:
     networks:
       - default
       - product
-    ports:
-      - "7001:7001"
     depends_on:
       product-redis:
         condition: service_healthy
@@ -74,7 +52,7 @@ services:
     profiles:
       - pfa
       - product
-
+  
   nginx:
     container_name: pfa-nginx
     image: pfa-nginx:latest
@@ -102,7 +80,4 @@ networks:
     driver: bridge
   product:
     name: pfa-product-network
-    driver: bridge
-  market:
-    name: pfa-market-network
     driver: bridge

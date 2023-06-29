@@ -21,5 +21,6 @@ export interface EnvironmentVariables {
     // docker
     [EnvKey.Docker_childApiBaseUrl]: string;
     [EnvKey.Docker_productApiBaseUrl]: string;
+    [EnvKey.Docker_env]: string;
 
 }

@@ -1,0 +1,9 @@
+export MONGO_ENV=test
+
+npm run test:docker:up
+
+npm run test
+
+npm run test:e2e
+
+npm run test:docker:down

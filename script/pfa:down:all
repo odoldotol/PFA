@@ -1,0 +1,9 @@
+bash script/pfa:down
+
+cd market
+
+npm run test:docker:down
+
+cd ../product
+
+npm run test:docker:down

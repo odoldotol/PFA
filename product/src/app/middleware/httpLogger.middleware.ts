@@ -8,11 +8,16 @@ export class HttpLoggerMiddleware implements NestMiddleware {
     private readonly logger = new Logger('HttpLogger');
 
     async use(req: Request, res: Response, next: NextFunction) {
+        req.url
         const now = Date.now();
         const { method, originalUrl } = req;
         res.on('finish', () => {
             const responseTime = Date.now() - now;
-            this.logger.log(`${res.statusCode} | ${responseTime}ms | ${method} | ${originalUrl}`);});
-        next();}
+            const { statusCode } = res;
+            if (originalUrl === '/health' && method === 'GET' && statusCode === 200) return;
+            this.logger.log(`${statusCode} | ${responseTime}ms | ${method} | ${originalUrl}`);
+        });
+        next();
+    }
     
 }
