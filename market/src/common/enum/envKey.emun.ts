@@ -18,5 +18,6 @@ export enum EnvKey {
 
     // docker
     Docker_childApiBaseUrl = 'CHILD_API_BASE_URL',
-    Docker_productApiBaseUrl = 'PRODUCT_API_BASE_URL'
+    Docker_productApiBaseUrl = 'PRODUCT_API_BASE_URL',
+    Docker_env = 'RACK_ENV'
 }

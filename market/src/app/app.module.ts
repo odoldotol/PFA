@@ -17,18 +17,25 @@ import { EnvironmentVariables } from 'src/common/interface/environmentVariables.
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: ".env"}),
+      envFilePath: ".env"
+    }),
     MongooseModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: (configService: ConfigService<EnvironmentVariables>) => ({
-        uri: `${configService.get(EnvKey.MongoDB_url)}${configService.get(EnvKey.MongoDB_name)}${configService.get(EnvKey.MongoDB_query)}`
+        uri: configService.get(EnvKey.Docker_env) === 'development' ?
+          'mongodb://market-mongo:27017' :
+          process.env.MONGO_ENV === 'test' ?
+          'mongodb://localhost:27017' :
+          `${configService.get(EnvKey.MongoDB_url)}${configService.get(EnvKey.MongoDB_name)}${configService.get(EnvKey.MongoDB_query)}`
       }),
-      inject: [ConfigService],}),
+      inject: [ConfigService],
+    }),
     ScheduleModule.forRoot(),
     Pm2Module,
     DevModule,
     UpdaterModule,
-    DBModule,],
+    DBModule
+  ],
   controllers: [AppController],
   providers: [AppService]
 })

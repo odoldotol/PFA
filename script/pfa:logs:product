@@ -1,0 +1,1 @@
+docker exec -it pfa-product /bin/sh -c "pm2 logs --lines 50"

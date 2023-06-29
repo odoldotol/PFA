@@ -1,0 +1,1 @@
+docker compose -p pfa --profile pfa -f docker-compose.production.yml down

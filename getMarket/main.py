@@ -1,3 +1,4 @@
+import logging
 from typing import Union
 from fastapi import FastAPI
 from pydantic import BaseModel
@@ -8,6 +9,13 @@ from datetime import datetime
 import warnings
 
 warnings.simplefilter(action='ignore', category=FutureWarning) # FutureWarning 제거
+
+class HealthCheckFilter(logging.Filter):
+    def filter(self, record: logging.LogRecord) -> bool:
+        return record.getMessage().find("GET /health HTTP/1.1\" 200") == -1
+
+# Filter out /endpoint
+logging.getLogger("uvicorn.access").addFilter(HealthCheckFilter())
 
 class Price(BaseModel):
     regularMarketPrice: float

@@ -1,33 +1,108 @@
 # PFA
-
-## Compose .env files
+## Test
+```shell
+$ bash script/test
 ```
-market/.env.guide
-product/.env.guide
-```
+---
 
 <br>
 
-## Build and Run
+## Run
 [CAUTION] docker compose and bash should be available.
 ```shell
 $ bash script/pfa:start
 ```
 
-<br>
-
-## Test
-```shell
-$ bash script/test
-```
-
-<br>
+first, it has no update schedule of exchanges.<br>
+asset either.<br>
+but you request price of any asset to server api,<br>
+you will get it and server start to manage the exchange of asset you request.<br>
+The exchange data is created in database.<br>
+So, relaunch this app, you can confirm that server try to make exchange up-to-date.
 
 ---
 
 <br>
 
+### Localy API Docs
+- #### Product http://localhost:7001/docs
+- #### Market http://localhost:6001/docs
+- #### [Additional] Market-Child http://localhost:8001/docs
+---
+<br>
+
+## Logs Monitering
+<br>
+
+### Product Server
+```shell
+# Logs
+$ bash script/pfa:logs:product
+
+# Monitering
+$ bash script/pfa:monit:product
+```
+<br>
+
+### Market Server
+```shell
+# Logs
+$ bash script/pfa:logs:market
+
+# Monitering
+$ bash script/pfa:monit:market
+```
+<br>
+
+### Market Child Server
+```shell
+# Logs
+$ bash script/pfa:logs:market-child
+```
+---
+
+<br>
+
+## Pm2-Reload
+```shell
+# Product Server
+$ bash script/pfa:reload:product-pm2
+```
+```shell
+# Market Server
+$ bash script/pfa:reload:market-pm2
+```
+---
+<br>
+
+## Deploy
+### Compose .env files
+```
+market/.env.guide
+product/.env.guide
+```
+Then,
+```shell
+$ bash script/pfa:start:prod
+```
+---
+
+<br>
+
+### Clear all about this project
+```shell
+$ bash script/pfa:clear
+```
+<br>
+
+---
+---
+
+<br>
+
 ## [KakaoTalk Chatbot Channel](http://pf.kakao.com/_jxbgxmxj)
+
+<br>
 
 ![initial](https://storage.googleapis.com/odoldotol-image-store/ezgif.com-gif-maker.gif)
 
@@ -46,12 +121,6 @@ $ bash script/test
 
 - ### Market https://market.lapiki-invest.com/docs
 - ### [Additional] Market-Child https://child.lapiki-invest.com/docs
-
-
-### If it has been run in local,
-- #### Product http://localhost:7001/docs
-- #### Market http://localhost:6001/docs
-- #### [Additional] Market-Child http://localhost:8001/docs
 
 ---
 ---

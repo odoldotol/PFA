@@ -13,6 +13,23 @@ describe('Application Start', () => {
 });
 
 describe('Asset', () => {
+  let app: INestApplication;
+
+  beforeAll(async () => {
+    const moduleFixture: TestingModule = await Test.createTestingModule({
+      imports: [AppModule],
+    }).compile();
+
+    app = moduleFixture.createNestApplication();
+
+    await app.init();
+  });
+
+  afterAll(async () => {
+    await app.close();
+  });
+
+
   describe('POST /price/ticker/{ticker}', () => {
     it.todo('MongoDB 에 있음 => 반환');
     it.todo('MongoDB 에 없음, market 모듈에 fetching, MongoDB 에 새로운 Asset 생성 => 생성 정보와 함께 반환');
