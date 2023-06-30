@@ -13,17 +13,16 @@ $ bash script/test
 $ bash script/pfa:start
 ```
 
-first, it has no update schedule of exchanges.<br>
-asset either.<br>
-but you request price of any asset to server api,<br>
-you will get it and server start to manage the exchange of asset you request.<br>
-The exchange data is created in database.<br>
-So, relaunch this app, you can confirm that server try to make exchange up-to-date.
+<br>
 
----
+>&nbsp;The scope of serviceable assets and exchanges in this app is expandable and sustainable throughout multiple lifecycles of the app.
+
+&nbsp;At the start, the app does not follow any exchanges, which means there is no update schedule for any exchange. Also, the app does not possess any information about any assets.
+>The initial service scope of this app is 0.
 
 <br>
 
+---
 ### Localy API Docs
 - #### Product http://localhost:7001/docs
 - #### Market http://localhost:6001/docs
@@ -31,6 +30,16 @@ So, relaunch this app, you can confirm that server try to make exchange up-to-da
 ---
 <br>
 
+&nbsp;When something is queried, the app fetches data about that asset from the market and creates it. It also identifies the exchange to which the asset belongs and starts following it. This implies having an update schedule for that exchange and updating data according to the exchange's session on a daily basis.
+>The service scope expands through queries.
+
+&nbsp;From now on, even if the app loses the update schedule for all exchanges due to being shut down, it can independently generate schedules for the exchanges it is following.
+
+&nbsp;Upon relaunching the app, during the initialization phase before listening, it explores the sessions of exchanges and creates schedules. It also update assets belonging to each exchange if necessary.
+
+<br>
+
+---
 ## Logs Monitering
 <br>
 
@@ -59,20 +68,45 @@ $ bash script/pfa:monit:market
 # Logs
 $ bash script/pfa:logs:market-child
 ```
+<br>
+
+---
+## Reload
+```shell
+# Product Server (pm2 in container)
+$ bash script/pfa:reload:product-pm2
+```
+```shell
+# Market Server (pm2 in container)
+$ bash script/pfa:reload:market-pm2
+```
+---
+<br>
+
+&nbsp;So far, I have explained how the scope of serviceable assets and exchanges in the app can expand and be sustainable.
+
+<br>
+
+>This design approach has two main goals:
+>1. Optimizing server resources.
+>2. Maximizing performance.
+
+&nbsp;Market data is extensive. Therefore, the server dynamically determines the range of resources to manage based on user requests. Consequently, if a user requests resources beyond this range, they will experience relatively slower responses. However, subsequent requests for those resources will be served from the in-memory database of the server, ensuring high performance.
+>The in-memory database is continually managed based on exchange sessions and user requests.
+
+<br>
+
 ---
 
 <br>
 
-## Pm2-Reload
+### Clear all about this project
 ```shell
-# Product Server
-$ bash script/pfa:reload:product-pm2
+$ bash script/pfa:clear
 ```
-```shell
-# Market Server
-$ bash script/pfa:reload:market-pm2
-```
+
 ---
+
 <br>
 
 ## Deploy
@@ -85,14 +119,7 @@ Then,
 ```shell
 $ bash script/pfa:start:prod
 ```
----
 
-<br>
-
-### Clear all about this project
-```shell
-$ bash script/pfa:clear
-```
 <br>
 
 ---
@@ -144,7 +171,7 @@ Python (3.8) / Fastapi / uvicorn <br>
 yfinance / exchange_calendars
 
 AWS EC2 / Nginx <br>
-Docker / pm2
+Docker / pm2 / jest
 
 ---
 <br>
