@@ -118,8 +118,13 @@ This design approach has two main goals:
 <br>
 
 ### Clear all about this project
+>down and remove all container and images about pfa
 ```shell
 $ bash script/pfa:clear
+```
+>if you just want to dowm all pfa container
+```shell
+$ bash script/pfa:down:all
 ```
 
 ---
