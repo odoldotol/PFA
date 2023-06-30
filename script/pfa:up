@@ -1,1 +1,3 @@
 docker compose -p pfa --profile pfa -f docker-compose.yml up -d
+
+bash script/pfa:healthcheck

@@ -1,0 +1,18 @@
+start=$SECONDS
+
+function wait_ready {
+  while :
+  do
+    duration=$(( SECONDS - start ))
+    if [ $duration -gt $2 ]; then
+      exit 1
+    fi
+    res=$($1)
+    if [ $res == "PONG" ]; then
+      exit 0
+    fi
+    sleep $3
+  done
+}
+
+wait_ready "redis-cli ping" 5 1

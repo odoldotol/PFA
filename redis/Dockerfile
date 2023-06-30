@@ -2,6 +2,8 @@
 
 FROM redis:7.2-rc2-alpine3.18
 
+COPY ./health-check .
+
 EXPOSE 6379
 
-HEALTHCHECK --start-period=20s --interval=5s --timeout=2s CMD redis-cli ping || exit 1
+HEALTHCHECK --start-period=5s --interval=5m --timeout=5s CMD sh health-check

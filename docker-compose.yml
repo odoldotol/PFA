@@ -28,7 +28,7 @@ services:
         condition: service_started
         restart: false
       market-child:
-        condition: service_healthy
+        condition: service_started
         restart: false
     restart: always
     profiles:
@@ -55,10 +55,10 @@ services:
       - "7001:7001"
     depends_on:
       product-redis:
-        condition: service_healthy
+        condition: service_started
         restart: false
       market:
-        condition: service_healthy
+        condition: service_started
         restart: false
     restart: always
     profiles:
@@ -84,13 +84,13 @@ services:
       - "80:80"
     depends_on:
       product:
-        condition: service_healthy
+        condition: service_started
         restart: false
       market:
-        condition: service_healthy
+        condition: service_started
         restart: false
       market-child:
-        condition: service_healthy
+        condition: service_started
         restart: false
     restart: always
     profiles:

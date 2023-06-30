@@ -1,0 +1,15 @@
+start=$SECONDS
+
+function wait_ready {
+  while :
+  do
+    duration=$(( SECONDS - start ))
+    if [ $duration -gt $2 ]; then
+      exit 1
+    fi
+    $1 && exit 0
+    sleep $3
+  done
+}
+
+wait_ready "curl -f --max-time 3 -sL http://localhost:7001/health -o /dev/null" 60 1
