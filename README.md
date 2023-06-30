@@ -1,4 +1,20 @@
 # PFA
+
+## Stack
+NodeJS (16) / Typescript / NestJS <br>
+child_process / axios / cron / rxjs / fxts <br>
+MongoDB Atlas / mongoose <br>
+cache-manager / Redis / node-redis
+
+Python (3.8) / Fastapi / uvicorn <br>
+yfinance / exchange_calendars
+
+AWS EC2 / Nginx <br>
+Docker / pm2 / jest
+
+---
+<br>
+
 ## Test
 ```shell
 $ bash script/test
@@ -8,17 +24,18 @@ $ bash script/test
 <br>
 
 ## Run
-[CAUTION] docker compose and bash should be available.
+>[CAUTION] docker compose and bash should be available.
 ```shell
 $ bash script/pfa:start
 ```
 
 <br>
 
->&nbsp;The scope of serviceable assets and exchanges in this app is expandable and sustainable throughout multiple lifecycles of the app.
+&nbsp;The scope of serviceable assets and exchanges in this app is expandable and sustainable throughout multiple lifecycles of the app.
 
-&nbsp;At the start, the app does not follow any exchanges, which means there is no update schedule for any exchange. Also, the app does not possess any information about any assets.
->The initial service scope of this app is 0.
+>&nbsp;At the start, the app does not follow any exchanges, which means there is no update schedule for any exchange. Also, the app does not possess any information about any assets.
+
+The initial service scope of this app is 0.
 
 <br>
 
@@ -30,12 +47,13 @@ $ bash script/pfa:start
 ---
 <br>
 
-&nbsp;When something is queried, the app fetches data about that asset from the market and creates it. It also identifies the exchange to which the asset belongs and starts following it. This implies having an update schedule for that exchange and updating data according to the exchange's session on a daily basis.
->The service scope expands through queries.
+>&nbsp;When something is queried, the app fetches data about that asset from the market and creates it. It also identifies the exchange to which the asset belongs and starts following it. This implies having an update schedule for that exchange and updating data according to the exchange's session on a daily basis.
 
-&nbsp;From now on, even if the app loses the update schedule for all exchanges due to being shut down, it can independently generate schedules for the exchanges it is following.
+The service scope expands through queries.
 
-&nbsp;Upon relaunching the app, during the initialization phase before listening, it explores the sessions of exchanges and creates schedules. It also update assets belonging to each exchange if necessary.
+>&nbsp;From now on, even if the app loses the update schedule for all exchanges due to being shut down, it can independently generate schedules for the exchanges it is following.
+
+>&nbsp;Upon relaunching the app, during the initialization phase before listening, it explores the sessions of exchanges and creates schedules. It also update assets belonging to each exchange if necessary.
 
 <br>
 
@@ -83,16 +101,15 @@ $ bash script/pfa:reload:market-pm2
 ---
 <br>
 
-&nbsp;So far, I have explained how the scope of serviceable assets and exchanges in the app can expand and be sustainable.
+>&nbsp;So far, I have explained how the scope of serviceable assets and exchanges in the app can expand and be sustainable.
 
 <br>
 
->This design approach has two main goals:
->1. Optimizing server resources.
->2. Maximizing performance.
+This design approach has two main goals:
+1. Optimizing server resources.
+2. Maximizing performance.
 
-&nbsp;Market data is extensive. Therefore, the server dynamically determines the range of resources to manage based on user requests. Consequently, if a user requests resources beyond this range, they will experience relatively slower responses. However, subsequent requests for those resources will be served from the in-memory database of the server, ensuring high performance.
->The in-memory database is continually managed based on exchange sessions and user requests.
+>&nbsp;Market data is extensive. Therefore, the server dynamically determines the range of resources to manage based on user requests. Consequently, if a user requests resources beyond this range, they will experience relatively slower responses. However, subsequent requests for those resources will be served from the in-memory database of the server, ensuring high performance. The in-memory database is continually managed based on exchange sessions and user requests.
 
 <br>
 
