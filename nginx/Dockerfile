@@ -6,4 +6,4 @@ COPY ./health-check .
 
 EXPOSE 80
 
-HEALTHCHECK --start-period=10s --interval=5m --timeout=10s CMD bash health-check
+HEALTHCHECK --start-period=10s --interval=5m --timeout=10s CMD sh health-check
