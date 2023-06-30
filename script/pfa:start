@@ -1,3 +1,5 @@
+set -e
+
 bash script/pfa:build
 
 bash script/pfa:down
