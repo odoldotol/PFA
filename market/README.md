@@ -18,5 +18,5 @@ $ docker run -p 6001:6001 --name market pfa-market
 
 ## Test
 ```shell
-$ bash script/test
+$ sh scripts/test
 ```

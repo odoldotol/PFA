@@ -2,4 +2,4 @@ set -e
 
 docker compose -p pfa --profile pfa -f docker-compose.production.yml up -d
 
-bash script/pfa:healthcheck
+sh scripts/pfa:healthcheck

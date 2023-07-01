@@ -1,4 +1,4 @@
-bash script/pfa:down
+sh scripts/pfa:down
 
 cd market
 

@@ -1,0 +1,9 @@
+set -e
+
+sh scripts/pfa:build
+
+sh scripts/pfa:down
+
+sh scripts/pfa:up
+
+docker rmi $(docker images -f "dangling=true" -q)

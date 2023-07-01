@@ -17,16 +17,16 @@ Docker / pm2 / jest
 
 ## Test
 ```shell
-$ bash script/test
+$ sh scripts/test
 ```
 ---
 
 <br>
 
 ## Run
->[CAUTION] docker compose and bash should be available.
+>[CAUTION] docker compose and cURL should be available.
 ```shell
-$ bash script/pfa:start
+$ sh scripts/pfa:start
 ```
 
 <br>
@@ -64,27 +64,27 @@ The service scope expands through queries.
 ### Product Server
 ```shell
 # Logs
-$ bash script/pfa:logs:product
+$ sh scripts/pfa:logs:product
 
 # Monitering
-$ bash script/pfa:monit:product
+$ sh scripts/pfa:monit:product
 ```
 <br>
 
 ### Market Server
 ```shell
 # Logs
-$ bash script/pfa:logs:market
+$ sh scripts/pfa:logs:market
 
 # Monitering
-$ bash script/pfa:monit:market
+$ sh scripts/pfa:monit:market
 ```
 <br>
 
 ### Market Child Server
 ```shell
 # Logs
-$ bash script/pfa:logs:market-child
+$ sh scripts/pfa:logs:market-child
 ```
 <br>
 
@@ -92,11 +92,11 @@ $ bash script/pfa:logs:market-child
 ## Reload
 ```shell
 # Product Server (pm2 in container)
-$ bash script/pfa:reload:product-pm2
+$ sh scripts/pfa:reload:product-pm2
 ```
 ```shell
 # Market Server (pm2 in container)
-$ bash script/pfa:reload:market-pm2
+$ sh scripts/pfa:reload:market-pm2
 ```
 ---
 <br>
@@ -120,11 +120,11 @@ This design approach has two main goals:
 ### Clear all about this project
 >down and remove all container and images about pfa
 ```shell
-$ bash script/pfa:clear
+$ sh scripts/pfa:clear
 ```
 >if you just want to dowm all pfa container
 ```shell
-$ bash script/pfa:down:all
+$ sh scripts/pfa:down:all
 ```
 
 ---
@@ -139,7 +139,7 @@ product/.env.guide
 ```
 Then,
 ```shell
-$ bash script/pfa:start:prod
+$ sh scripts/pfa:start:prod
 ```
 
 <br>

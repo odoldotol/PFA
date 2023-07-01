@@ -18,5 +18,5 @@ $ docker run -p 7001:7001 --name product pfa-product
 
 ## Test
 ```shell
-$ bash script/test
+$ sh scripts/test
 ```
