@@ -2,6 +2,16 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
 import { AppModule } from 'src/app/app.module';
+import { ConnectionService } from 'src/market/child-api/connection.service';
+
+const createApp = async () => {
+  const moduleFixture: TestingModule = await Test.createTestingModule({
+    imports: [AppModule],
+  }).compile();
+  return moduleFixture.createNestApplication();
+};
+
+let app: INestApplication;
 
 describe('Application Start', () => {
   describe('Updater 초기화', () => {
@@ -13,15 +23,11 @@ describe('Application Start', () => {
 });
 
 describe('Asset', () => {
-  let app: INestApplication;
-
   beforeAll(async () => {
-    const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [AppModule],
-    }).compile();
+    app = await createApp();
 
-    app = moduleFixture.createNestApplication();
-
+    jest.spyOn(ConnectionService.prototype, 'onModuleInit').mockResolvedValue();
+    
     await app.init();
   });
 
