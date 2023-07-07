@@ -166,23 +166,25 @@ export class UpdaterService implements OnModuleInit {
     } ] );
 
     // TODO - Refac
-    private regularUpdater = (
+    private regularUpdater (
         ISO_Code: string,
         previous_close: ExchangeSession["previous_close"],
         updatePriceResult: UpdatePriceResult
-    ) => {
+    ) {
         const marketDate = previous_close.slice(0, 10);
         const priceArrs = pipe(
             updatePriceResult,
-            filter(ele => ele.isRight),
+            filter(ele => ele.isRight()),
             map(ele => ele.getRight),
             map(ele => [ele[0], ele[1].regularMarketLastClose] as [string, number]),
-            toArray);
+            toArray
+        );
         const rq = async (retry: boolean = false) => {
             try {
                 retry && this.schedulerRegistry.deleteCronJob(ISO_Code + "_requestRegularUpdater");
                 this.logger.verbose(`${ISO_Code} : RegularUpdater Product Response status ${
-                    await this.productApiSvc.updatePriceByExchange(ISO_Code, this.addKey({marketDate, priceArrs}))}`);
+                    await this.productApiSvc.updatePriceByExchange(ISO_Code, this.addKey({marketDate, priceArrs}))
+                }`);
             } catch (error) {
                 this.logger.error(error);
                 if (retry) this.logger.warn(`${ISO_Code} : RequestRegularUpdater Failed`);
@@ -192,9 +194,12 @@ export class UpdaterService implements OnModuleInit {
                     const retry = new CronJob(retryDate, rq.bind(this, true));
                     this.schedulerRegistry.addCronJob(ISO_Code + "_requestRegularUpdater", retry);
                     retry.start();
-                    this.logger.warn(`${ISO_Code} : Retry RequestRegularUpdater after 5 Min. ${retryDate.toLocaleString()}`)};
-            };};
-        rq()};
+                    this.logger.warn(`${ISO_Code} : Retry RequestRegularUpdater after 5 Min. ${retryDate.toLocaleString()}`);
+                };
+            };
+        };
+        rq();
+    };
 
     private isPriceStatusUpToDate = (lastMarketDate: string, {previous_close}: ExchangeSession) => 
         lastMarketDate === new Date(previous_close).toISOString() ? true : false;
