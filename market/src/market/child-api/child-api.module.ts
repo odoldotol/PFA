@@ -11,7 +11,7 @@ import { EnvironmentVariables } from 'src/common/interface/environmentVariables.
     HttpModule.registerAsync({
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService<EnvironmentVariables>) => ({
-        baseURL: configService.get(EnvKey.Docker_childApiBaseUrl, 'http://localhost:8001', { infer: true }),
+        baseURL: configService.get(EnvKey.Docker_childApiBaseUrl, 'http://127.0.0.1:8001', { infer: true }),
         timeout: configService.get(EnvKey.ChildApiTimeout, 30000, { infer: true }),
       }),
       inject: [ConfigService]
