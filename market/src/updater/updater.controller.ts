@@ -1,4 +1,4 @@
-import { Body, Controller, HttpCode, Param, ParseArrayPipe, Post, Query, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, Param, ParseArrayPipe, Post, Query, UseGuards } from '@nestjs/common';
 import { UpdaterService } from './updater.service';
 import { ApiTags } from '@nestjs/swagger';
 import { UpperCasePipe } from 'src/common/pipe/upperCasePipe';
@@ -36,5 +36,10 @@ export class UpdaterController {
     @Api_initiateForce()
     initiateForce(@Param('ISO_Code', UpperCasePipe) ISO_Code: string, @Query('launcher') launcher: LogPriceUpdate["launcher"]) {
         return this.updaterService.initiateForce(ISO_Code, launcher);} // 메서드 전환중
+    
+    @Get('schedule')
+    getAllSchedule() {
+        return this.updaterService.getAllSchedule();
+    }
 
 }

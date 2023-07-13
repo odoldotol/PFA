@@ -109,6 +109,18 @@ export class UpdaterService implements OnModuleInit {
         };
     }
 
+    public getAllSchedule() {
+        const result: {[key: string]: any} = {};
+        this.schedulerRegistry.getCronJobs().forEach((v, k) => {
+            result[k] = {
+                nextDate: v.nextDate().toUTC().toJSDate().toISOString(),
+                lastDate: v.lastDate()?.toISOString(),
+                running: v.running,
+            };
+        });
+        return result;
+    }
+
     // TODO - Refac
     private async getMarginClose(ISO_Code: string, exchangeSession: ExchangeSession) {
         const previousCloseDate = new Date(exchangeSession.previous_close);
