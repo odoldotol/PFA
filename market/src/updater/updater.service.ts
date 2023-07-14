@@ -112,9 +112,18 @@ export class UpdaterService implements OnModuleInit {
     public getAllSchedule() {
         const result: {[key: string]: any} = {};
         this.schedulerRegistry.getCronJobs().forEach((v, k) => {
+            let nextDate: string, lastDate: string
+            try {
+                nextDate = v.nextDate().toUTC().toJSDate().toISOString();
+                lastDate = v.lastDate()?.toISOString();
+            } catch (error) {
+                this.logger.warn(error);
+                nextDate = "Calculating...";
+                lastDate = "Calculating...";
+            }
             result[k] = {
-                nextDate: v.nextDate().toUTC().toJSDate().toISOString(),
-                lastDate: v.lastDate()?.toISOString(),
+                nextDate,
+                lastDate,
                 running: v.running,
             };
         });
