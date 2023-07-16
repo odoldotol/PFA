@@ -3,18 +3,20 @@ import { UpdaterController } from './updater.controller';
 import { UpdaterService } from './updater.service';
 import { MarketModule } from 'src/market/market.module';
 import { DBModule } from 'src/database/database.module';
-import { SchedulerModule } from './scheduler/scheduler.module';
 import { ProductApiModule } from 'src/product-api/product-api.module';
+import { UpdaterSchedulerService } from './scheduler.service';
 
 @Module({
   imports: [
     MarketModule,
     DBModule,
-    SchedulerModule,
     ProductApiModule
   ],
   controllers: [UpdaterController],
-  providers: [UpdaterService],
+  providers: [
+    UpdaterService,
+    UpdaterSchedulerService    
+  ],
   exports: [UpdaterService]
 })
 export class UpdaterModule {}

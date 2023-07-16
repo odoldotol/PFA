@@ -38,7 +38,7 @@ export class UpdaterService implements OnModuleInit {
 
     initiator = async () => {
         this.logger.warn("Initiator Run!!!");
-        await this.dbRepo.setIsoCodeToTimezone();
+        await this.dbRepo.setIsoCodeToTimezone(); // TODO: DB 모듈로 보내기
         await pipe(
             await this.dbRepo.readAllStatusPrice(), toAsync,
             peek(this.generalInitiate.bind(this)),
