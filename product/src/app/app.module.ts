@@ -1,7 +1,8 @@
 import {
   MiddlewareConsumer,
   Module,
-  NestModule
+  NestModule,
+  ValidationPipe
 } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { ScheduleModule } from '@nestjs/schedule';
@@ -10,12 +11,16 @@ import { Pm2Module } from 'src/pm2/pm2.module';
 import { DevModule } from 'src/dev/dev.module';
 import { AppController } from './app.controller';
 import { HttpLoggerMiddleware } from './middleware/httpLogger.middleware';
-import { APP_INTERCEPTOR } from '@nestjs/core';
+import {
+  APP_INTERCEPTOR,
+  APP_PIPE
+} from '@nestjs/core';
 import {
   GlobalInterceptor,
   KeepAliveInterceptor
 } from './interceptor';
 import { AppTerminator } from './app.terminator';
+import { globalValidationPipeOptions } from './const/globalValidationPipeOptions.const';
 
 @Module({
   imports: [
@@ -36,11 +41,17 @@ import { AppTerminator } from './app.terminator';
       useFactory: (interceptor: KeepAliveInterceptor) => new GlobalInterceptor(interceptor),
       inject: [KeepAliveInterceptor]
     },
+    {
+      provide: APP_PIPE,
+      useValue: new ValidationPipe(globalValidationPipeOptions)
+    },
     AppTerminator
   ],
 })
 export class AppModule implements NestModule {
   configure (consumer: MiddlewareConsumer) {
-    return consumer.apply(HttpLoggerMiddleware).forRoutes('*');
+    consumer
+      .apply(HttpLoggerMiddleware)
+      .forRoutes('*');
   }
 }

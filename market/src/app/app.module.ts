@@ -27,7 +27,7 @@ import {
   GlobalInterceptor,
   KeepAliveInterceptor
 } from './interceptor';
-import GlobalValidationPipeOptions from './const/globalValidationPipeOptions.const';
+import { globalValidationPipeOptions } from './const/globalValidationPipeOptions.const';
 import { AppTerminator } from './app.terminator';
 
 @Module({
@@ -64,13 +64,15 @@ import { AppTerminator } from './app.terminator';
     },
     {
       provide: APP_PIPE,
-      useValue: new ValidationPipe(GlobalValidationPipeOptions)
+      useValue: new ValidationPipe(globalValidationPipeOptions)
     },
     AppTerminator
   ]
 })
 export class AppModule implements NestModule {
   configure (consumer: MiddlewareConsumer) {
-    return consumer.apply(HttpLoggerMiddleware).forRoutes('*');
+    consumer
+      .apply(HttpLoggerMiddleware)
+      .forRoutes('*');
   }
 }

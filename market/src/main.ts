@@ -8,7 +8,7 @@ import {
 } from '@nestjs/swagger';
 import { EnvironmentVariables } from 'src/common/interface/environmentVariables.interface';
 import { EnvKey } from 'src/common/enum/envKey.emun';
-import versioningOption from './versioningOption.const';
+import { versioningOptions } from './versioningOptions.const';
 import { AppTerminator } from './app/app.terminator';
 
 const bootstrap = async () => {
@@ -16,7 +16,7 @@ const bootstrap = async () => {
 
   const app = await NestFactory.create(AppModule);
 
-  app.enableVersioning(versioningOption);
+  app.enableVersioning(versioningOptions);
 
   process.on('SIGINT', () => {
     app.get(AppTerminator).terminate(app);
