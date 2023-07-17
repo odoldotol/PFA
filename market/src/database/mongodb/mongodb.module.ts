@@ -1,9 +1,21 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
-import { Yf_info, Yf_infoSchema } from './schema/yf_info.schema';
-import { Status_price, Status_priceSchema } from './schema/status_price.schema';
-import { Log_priceUpdate, Log_priceUpdateSchema } from './schema/log_priceUpdate.schema';
-import { Config_exchange, Config_exchangeSchema } from './schema/config_exchange.schema';
+import {
+    Yf_info,
+    Yf_infoSchema
+} from './schema/yf_info.schema';
+import {
+    Status_price,
+    Status_priceSchema
+} from './schema/status_price.schema';
+import {
+    Log_priceUpdate,
+    Log_priceUpdateSchema
+} from './schema/log_priceUpdate.schema';
+import {
+    Config_exchange,
+    Config_exchangeSchema
+} from './schema/config_exchange.schema';
 import { Yf_infoRepository } from './repository/yf-info.repository';
 import { Status_priceRepository } from './repository/status_price.repository';
 import { Log_priceUpdateRepository } from './repository/log_priceUpdate.repository';
