@@ -6,18 +6,33 @@ import { Pm2Module } from 'src/pm2/pm2.module';
 import { DevModule } from 'src/dev/dev.module';
 import { AppController } from './app.controller';
 import { HttpLoggerMiddleware } from './middleware/httpLogger.middleware';
+import { APP_INTERCEPTOR } from '@nestjs/core';
+import { KeepAliveInterceptor } from './interceptor/keepAlive.interceptor';
+import { GlobalInterceptor } from './interceptor/global.interceptor';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: ".env"}),
+      envFilePath: ".env"
+    }),
     ScheduleModule.forRoot(),
     Pm2Module,
     KakaoCBModule,
-    DevModule],
-  controllers: [AppController]
+    DevModule
+  ],
+  controllers: [AppController],
+  providers: [
+    KeepAliveInterceptor,
+    {
+      provide: APP_INTERCEPTOR,
+      useFactory: (interceptor: KeepAliveInterceptor) => new GlobalInterceptor(interceptor),
+      inject: [KeepAliveInterceptor]
+    }
+  ],
 })
 export class AppModule implements NestModule {
-  configure = (consumer: MiddlewareConsumer) => consumer.apply(HttpLoggerMiddleware).forRoutes('*');
+  configure (consumer: MiddlewareConsumer) {
+    return consumer.apply(HttpLoggerMiddleware).forRoutes('*');
+  }
 }

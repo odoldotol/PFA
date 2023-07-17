@@ -1,30 +1,19 @@
-import { CallHandler, ExecutionContext, Logger, NestInterceptor, ValidationPipe, VersioningType } from '@nestjs/common';
+import { Logger, ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { ConfigService } from '@nestjs/config';
 import { AppModule } from './app/app.module';
-import { Response } from 'express';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { EnvironmentVariables } from 'src/common/interface/environmentVariables.interface';
 import { EnvKey } from 'src/common/enum/envKey.emun';
 import versioningOption from './versioningOption.const';
+import { KeepAliveInterceptor } from './app/interceptor/keepAlive.interceptor';
 
-bootstrap();
-
-async function bootstrap() {
+const bootstrap = async () => {
   const logger = new Logger("NestApplication");
-  let keepAlive = true;
 
   const app = await NestFactory.create(AppModule);
 
   app.enableVersioning(versioningOption);
-
-  app.useGlobalInterceptors(
-    new class KeepAliveInterceptor implements NestInterceptor {
-      intercept(context: ExecutionContext, next: CallHandler) {
-        if (keepAlive === false) {
-          logger.verbose('KeepAliveInterceptor : Disable keepAlive');
-          context.switchToHttp().getResponse<Response>().set('Connection', 'close');};
-        return next.handle();}});
 
   app.useGlobalPipes(new ValidationPipe({
     whitelist: true,
@@ -56,9 +45,11 @@ async function bootstrap() {
       err => err && logger.error(err));
 
   const appTerminator = async () => {
-    keepAlive = false;
+    app.get(KeepAliveInterceptor).disableKeepAlive();
     await app.close();
     logger.log('Server closed');
     process.exit(0);};
 
-}
+};
+
+bootstrap();
