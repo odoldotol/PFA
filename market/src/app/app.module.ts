@@ -1,4 +1,5 @@
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
+import { APP_INTERCEPTOR } from '@nestjs/core';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ScheduleModule } from '@nestjs/schedule';
@@ -11,6 +12,7 @@ import { AppService } from './app.service';
 import { HttpLoggerMiddleware } from './middleware/httpLogger.middleware';
 import { EnvKey } from 'src/common/enum/envKey.emun'
 import { EnvironmentVariables } from 'src/common/interface/environmentVariables.interface';
+import { KeepAliveInterceptor } from 'src/app/intercepter/keepAlive.intercepter';
 
 
 @Module({
@@ -37,7 +39,13 @@ import { EnvironmentVariables } from 'src/common/interface/environmentVariables.
     DBModule
   ],
   controllers: [AppController],
-  providers: [AppService]
+  providers: [
+    AppService,
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: KeepAliveInterceptor
+    }
+  ]
 })
 export class AppModule implements NestModule {
   configure = (consumer: MiddlewareConsumer) => consumer.apply(HttpLoggerMiddleware).forRoutes('*');
