@@ -6,6 +6,7 @@ import { Response } from 'express';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { EnvironmentVariables } from 'src/common/interface/environmentVariables.interface';
 import { EnvKey } from 'src/common/enum/envKey.emun';
+import versioningOption from './versioningOption.const';
 
 bootstrap();
 
@@ -15,10 +16,7 @@ async function bootstrap() {
 
   const app = await NestFactory.create(AppModule);
 
-  app.enableVersioning({
-    type: VersioningType.URI,
-    prefix: 'api/v',
-    defaultVersion: '1',});
+  app.enableVersioning(versioningOption);
 
   app.useGlobalInterceptors(
     new class KeepAliveInterceptor implements NestInterceptor {
