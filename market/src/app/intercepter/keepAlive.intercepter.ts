@@ -1,14 +1,11 @@
-import { CallHandler, ExecutionContext, Logger, NestInterceptor } from "@nestjs/common";
+import { CallHandler, ExecutionContext, Injectable, Logger, NestInterceptor } from "@nestjs/common";
 import { Response } from 'express';
 
+@Injectable()
 export class KeepAliveInterceptor implements NestInterceptor {
 
-  private keepAlive: boolean;
+  private keepAlive: boolean = true;
   private readonly logger = new Logger("KeepAliveInterceptor");
-
-  constructor(keepAlive?: boolean) {
-    this.keepAlive = keepAlive ? keepAlive : true;
-  }
 
   intercept(context: ExecutionContext, next: CallHandler) {
     if (this.keepAlive === false) {
