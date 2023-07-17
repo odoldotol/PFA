@@ -30,11 +30,11 @@ describe("SchedulerService", () => {
   });
 
   describe("getAllJob", () => {
-    it("모든 UpdaterJob 반환", () => {
-      const allJob = service.getAllJob();
-      expect(allJob).toBeInstanceOf(Array<UpdaterJob>);
+    it("모든 UpdaterJob 맵 반환", () => {
+      const updaterJobMap = service.getAllJob();
+      expect(updaterJobMap).toBeInstanceOf(Map);
       service.addSchedule("XXXX", new Date(), () => {});
-      expect(allJob[0]).toBeInstanceOf(UpdaterJob);
+      expect(updaterJobMap.get("XXXX")).toBeInstanceOf(UpdaterJob);
     });
   });
 
