@@ -7,8 +7,10 @@ import { DevModule } from 'src/dev/dev.module';
 import { AppController } from './app.controller';
 import { HttpLoggerMiddleware } from './middleware/httpLogger.middleware';
 import { APP_INTERCEPTOR } from '@nestjs/core';
-import { KeepAliveInterceptor } from './interceptor/keepAlive.interceptor';
-import { GlobalInterceptor } from './interceptor/global.interceptor';
+import {
+  GlobalInterceptor,
+  KeepAliveInterceptor
+} from './interceptor';
 
 @Module({
   imports: [

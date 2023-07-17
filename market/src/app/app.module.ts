@@ -12,9 +12,11 @@ import { AppService } from './app.service';
 import { HttpLoggerMiddleware } from './middleware/httpLogger.middleware';
 import { EnvKey } from 'src/common/enum/envKey.emun'
 import { EnvironmentVariables } from 'src/common/interface/environmentVariables.interface';
-import { KeepAliveInterceptor } from 'src/app/interceptor/keepAlive.interceptor';
+import {
+  GlobalInterceptor,
+  KeepAliveInterceptor
+} from './interceptor';
 import GlobalValidationPipeOptions from './const/globalValidationPipeOptions.const';
-import { GlobalInterceptor } from './interceptor/global.interceptor';
 
 @Module({
   imports: [
@@ -55,5 +57,7 @@ import { GlobalInterceptor } from './interceptor/global.interceptor';
   ]
 })
 export class AppModule implements NestModule {
-  configure = (consumer: MiddlewareConsumer) => consumer.apply(HttpLoggerMiddleware).forRoutes('*');
+  configure (consumer: MiddlewareConsumer) {
+    return consumer.apply(HttpLoggerMiddleware).forRoutes('*');
+  }
 }

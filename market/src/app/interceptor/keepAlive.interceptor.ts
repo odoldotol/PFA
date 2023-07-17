@@ -8,7 +8,6 @@ export class KeepAliveInterceptor implements NestInterceptor {
   private readonly logger = new Logger("KeepAliveInterceptor");
 
   intercept(context: ExecutionContext, next: CallHandler) {
-    this.logger.verbose(this.keepAlive);
     if (this.keepAlive === false) {
       this.logger.verbose('Disable keepAlive');
       context.switchToHttp().getResponse<Response>().set('Connection', 'close');
