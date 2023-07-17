@@ -12,8 +12,9 @@ import { AppService } from './app.service';
 import { HttpLoggerMiddleware } from './middleware/httpLogger.middleware';
 import { EnvKey } from 'src/common/enum/envKey.emun'
 import { EnvironmentVariables } from 'src/common/interface/environmentVariables.interface';
-import { KeepAliveInterceptor } from 'src/app/intercepter/keepAlive.intercepter';
+import { KeepAliveInterceptor } from 'src/app/interceptor/keepAlive.interceptor';
 import GlobalValidationPipeOptions from './const/globalValidationPipeOptions.const';
+import { GlobalInterceptor } from './interceptor/global.interceptor';
 
 @Module({
   imports: [
@@ -41,9 +42,11 @@ import GlobalValidationPipeOptions from './const/globalValidationPipeOptions.con
   controllers: [AppController],
   providers: [
     AppService,
+    KeepAliveInterceptor,
     {
       provide: APP_INTERCEPTOR,
-      useClass: KeepAliveInterceptor
+      useFactory: (interceptor: KeepAliveInterceptor) => new GlobalInterceptor(interceptor),
+      inject: [KeepAliveInterceptor]
     },
     {
       provide: APP_PIPE,

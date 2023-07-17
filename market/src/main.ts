@@ -6,11 +6,9 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { EnvironmentVariables } from 'src/common/interface/environmentVariables.interface';
 import { EnvKey } from 'src/common/enum/envKey.emun';
 import versioningOption from './versioningOption.const';
-import { KeepAliveInterceptor } from './app/intercepter/keepAlive.intercepter';
+import { KeepAliveInterceptor } from './app/interceptor/keepAlive.interceptor';
 
-bootstrap();
-
-async function bootstrap() {
+const bootstrap = async () => {
   const logger = new Logger("NestApplication");
 
   const app = await NestFactory.create(AppModule);
@@ -48,4 +46,6 @@ async function bootstrap() {
     logger.log('Server closed');
     process.exit(0);};
 
-}
+};
+
+bootstrap();
