@@ -2,11 +2,14 @@ import { Logger } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { ConfigService } from '@nestjs/config';
 import { AppModule } from 'src/app/app.module';
-import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import {
+  DocumentBuilder,
+  SwaggerModule
+} from '@nestjs/swagger';
 import { EnvironmentVariables } from 'src/common/interface/environmentVariables.interface';
 import { EnvKey } from 'src/common/enum/envKey.emun';
 import versioningOption from './versioningOption.const';
-import { KeepAliveInterceptor } from './app/interceptor/keepAlive.interceptor';
+import { AppTerminator } from './app/app.terminator';
 
 const bootstrap = async () => {
   const logger = new Logger("NestApplication");
@@ -16,7 +19,7 @@ const bootstrap = async () => {
   app.enableVersioning(versioningOption);
 
   process.on('SIGINT', () => {
-    appTerminator();
+    app.get(AppTerminator).terminate(app);
   });
 
   SwaggerModule.setup('docs', app, SwaggerModule.createDocument(app, new DocumentBuilder()
@@ -39,13 +42,6 @@ const bootstrap = async () => {
       logger.log("Send Ready to Parent Process"),
       { swallowErrors: true},
       err => err && logger.error(err));
-
-  const appTerminator = async () => {
-    app.get(KeepAliveInterceptor).disableKeepAlive();
-    await app.close();
-    logger.log('Server closed');
-    process.exit(0);};
-
 };
 
 bootstrap();

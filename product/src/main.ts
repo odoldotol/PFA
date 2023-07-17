@@ -1,12 +1,18 @@
-import { Logger, ValidationPipe } from '@nestjs/common';
+import {
+  Logger,
+  ValidationPipe
+} from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { ConfigService } from '@nestjs/config';
 import { AppModule } from './app/app.module';
-import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import {
+  DocumentBuilder,
+  SwaggerModule
+} from '@nestjs/swagger';
 import { EnvironmentVariables } from 'src/common/interface/environmentVariables.interface';
 import { EnvKey } from 'src/common/enum/envKey.emun';
 import versioningOption from './versioningOption.const';
-import { KeepAliveInterceptor } from './app/interceptor/keepAlive.interceptor';
+import { AppTerminator } from './app/app.terminator';
 
 const bootstrap = async () => {
   const logger = new Logger("NestApplication");
@@ -21,7 +27,8 @@ const bootstrap = async () => {
     transform: true}));
 
   process.on('SIGINT', () => {
-    appTerminator();});
+    app.get(AppTerminator).terminate(app);
+  });
 
   SwaggerModule.setup('docs', app, SwaggerModule.createDocument(app, new DocumentBuilder()
   .setTitle('LAPIKI Product API')
@@ -43,12 +50,6 @@ const bootstrap = async () => {
       logger.log("Send Ready to Parent Process"),
       { swallowErrors: true},
       err => err && logger.error(err));
-
-  const appTerminator = async () => {
-    app.get(KeepAliveInterceptor).disableKeepAlive();
-    await app.close();
-    logger.log('Server closed');
-    process.exit(0);};
 
 };
 

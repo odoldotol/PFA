@@ -1,4 +1,8 @@
-import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
+import {
+  MiddlewareConsumer,
+  Module,
+  NestModule
+} from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { ScheduleModule } from '@nestjs/schedule';
 import { KakaoCBModule } from 'src/kakao-chatbot/kakao-chatbot.module';
@@ -11,6 +15,7 @@ import {
   GlobalInterceptor,
   KeepAliveInterceptor
 } from './interceptor';
+import { AppTerminator } from './app.terminator';
 
 @Module({
   imports: [
@@ -30,7 +35,8 @@ import {
       provide: APP_INTERCEPTOR,
       useFactory: (interceptor: KeepAliveInterceptor) => new GlobalInterceptor(interceptor),
       inject: [KeepAliveInterceptor]
-    }
+    },
+    AppTerminator
   ],
 })
 export class AppModule implements NestModule {

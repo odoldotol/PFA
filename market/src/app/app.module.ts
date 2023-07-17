@@ -1,6 +1,17 @@
-import { MiddlewareConsumer, Module, NestModule, ValidationPipe } from '@nestjs/common';
-import { APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core';
-import { ConfigModule, ConfigService } from '@nestjs/config';
+import {
+  MiddlewareConsumer,
+  Module,
+  NestModule,
+  ValidationPipe
+} from '@nestjs/common';
+import {
+  APP_INTERCEPTOR,
+  APP_PIPE
+} from '@nestjs/core';
+import {
+  ConfigModule,
+  ConfigService
+} from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ScheduleModule } from '@nestjs/schedule';
 import { Pm2Module } from 'src/pm2/pm2.module';
@@ -17,6 +28,7 @@ import {
   KeepAliveInterceptor
 } from './interceptor';
 import GlobalValidationPipeOptions from './const/globalValidationPipeOptions.const';
+import { AppTerminator } from './app.terminator';
 
 @Module({
   imports: [
@@ -53,7 +65,8 @@ import GlobalValidationPipeOptions from './const/globalValidationPipeOptions.con
     {
       provide: APP_PIPE,
       useValue: new ValidationPipe(GlobalValidationPipeOptions)
-    }
+    },
+    AppTerminator
   ]
 })
 export class AppModule implements NestModule {
