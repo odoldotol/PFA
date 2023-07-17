@@ -1,4 +1,4 @@
-import { ValidationPipe, Logger } from '@nestjs/common';
+import { Logger } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { ConfigService } from '@nestjs/config';
 import { AppModule } from 'src/app/app.module';
@@ -17,13 +17,9 @@ async function bootstrap() {
 
   app.enableVersioning(versioningOption);
 
-  app.useGlobalPipes(new ValidationPipe({
-    transform: true,
-    whitelist: true,
-    forbidNonWhitelisted: true,}));
-
   process.on('SIGINT', () => {
-    appTerminator();});
+    appTerminator();
+  });
 
   SwaggerModule.setup('docs', app, SwaggerModule.createDocument(app, new DocumentBuilder()
     .setTitle('LAPIKI Market API')

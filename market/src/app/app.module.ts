@@ -1,5 +1,5 @@
-import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
-import { APP_INTERCEPTOR } from '@nestjs/core';
+import { MiddlewareConsumer, Module, NestModule, ValidationPipe } from '@nestjs/common';
+import { APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ScheduleModule } from '@nestjs/schedule';
@@ -13,7 +13,7 @@ import { HttpLoggerMiddleware } from './middleware/httpLogger.middleware';
 import { EnvKey } from 'src/common/enum/envKey.emun'
 import { EnvironmentVariables } from 'src/common/interface/environmentVariables.interface';
 import { KeepAliveInterceptor } from 'src/app/intercepter/keepAlive.intercepter';
-
+import GlobalValidationPipeOptions from './const/globalValidationPipeOptions.const';
 
 @Module({
   imports: [
@@ -44,6 +44,10 @@ import { KeepAliveInterceptor } from 'src/app/intercepter/keepAlive.intercepter'
     {
       provide: APP_INTERCEPTOR,
       useClass: KeepAliveInterceptor
+    },
+    {
+      provide: APP_PIPE,
+      useValue: new ValidationPipe(GlobalValidationPipeOptions)
     }
   ]
 })
