@@ -29,8 +29,13 @@ describe("SchedulerService", () => {
     });
   });
 
-  describe("모든 업데이터 스케줄 조회 메서드", () => {
-    it.todo("등록된 모든 업데이터 잡 반환");
+  describe("getAllJob", () => {
+    it("모든 UpdaterJob 반환", () => {
+      const allJob = service.getAllJob();
+      expect(allJob).toBeInstanceOf(Array<UpdaterJob>);
+      service.addSchedule("XXXX", new Date(), () => {});
+      expect(allJob[0]).toBeInstanceOf(UpdaterJob);
+    });
   });
 
 });
