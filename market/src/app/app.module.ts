@@ -8,11 +8,7 @@ import {
   APP_INTERCEPTOR,
   APP_PIPE
 } from '@nestjs/core';
-import {
-  ConfigModule,
-  ConfigService
-} from '@nestjs/config';
-import { MongooseModule } from '@nestjs/mongoose';
+import { ConfigModule } from '@nestjs/config';
 import { ScheduleModule } from '@nestjs/schedule';
 import { Pm2Module } from 'src/pm2/pm2.module';
 import { DevModule } from 'src/dev/dev.module';
@@ -21,31 +17,20 @@ import { DBModule } from 'src/database/database.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { HttpLoggerMiddleware } from './middleware/httpLogger.middleware';
-import { EnvKey } from 'src/common/enum/envKey.emun'
-import { EnvironmentVariables } from 'src/common/interface/environmentVariables.interface';
 import {
   GlobalInterceptor,
   KeepAliveInterceptor
 } from './interceptor';
 import { globalValidationPipeOptions } from './const/globalValidationPipeOptions.const';
 import { AppTerminator } from './app.terminator';
+import mongoUriConfig from 'src/config/mongoUri.config';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: ".env"
-    }),
-    MongooseModule.forRootAsync({
-      imports: [ConfigModule],
-      useFactory: (configService: ConfigService<EnvironmentVariables>) => ({
-        uri: configService.get(EnvKey.Docker_env) === 'development' ?
-          'mongodb://market-mongo:27017' :
-          process.env.MONGO_ENV === 'test' ?
-          'mongodb://localhost:27017' :
-          `${configService.get(EnvKey.MongoDB_url)}${configService.get(EnvKey.MongoDB_name)}${configService.get(EnvKey.MongoDB_query)}`
-      }),
-      inject: [ConfigService],
+      envFilePath: ".env",
+      load: [mongoUriConfig]
     }),
     ScheduleModule.forRoot(),
     Pm2Module,

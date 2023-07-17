@@ -8,9 +8,19 @@ import { Yf_infoRepository } from './repository/yf-info.repository';
 import { Status_priceRepository } from './repository/status_price.repository';
 import { Log_priceUpdateRepository } from './repository/log_priceUpdate.repository';
 import { Config_exchangeRepository } from './repository/config_exchane.repository';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { EnvironmentVariables } from 'src/common/interface/environmentVariables.interface';
+import { EnvKey } from 'src/common/enum/envKey.emun';
 
 @Module({
     imports: [
+        MongooseModule.forRootAsync({
+            imports: [ConfigModule],
+            useFactory: (configService: ConfigService<EnvironmentVariables>) => ({
+                uri: configService.get(EnvKey.MONGODB_URI),
+            }),
+            inject: [ConfigService],
+        }),
         MongooseModule.forFeature([
             { name: Yf_info.name, schema: Yf_infoSchema },
             { name: Status_price.name, schema: Status_priceSchema},

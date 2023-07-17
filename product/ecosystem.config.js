@@ -12,7 +12,6 @@ module.exports = {
       max_memory_restart: '200M',
 
       env: {
-        NODE_ENV: 'production',
         PORT: 7001,
         PM2_NAME: 'pfa_product_prod',
       },
@@ -30,7 +29,6 @@ module.exports = {
       max_memory_restart: '200M',
 
       env: {
-        NODE_ENV: 'development',
         PORT: 7001,
         PM2_NAME: 'pfa_product_dev',
       },

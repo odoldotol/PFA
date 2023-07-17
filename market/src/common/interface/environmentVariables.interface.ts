@@ -23,4 +23,7 @@ export interface EnvironmentVariables {
     [EnvKey.Docker_productApiBaseUrl]: string;
     [EnvKey.Docker_env]: string;
 
+    // load
+    [EnvKey.MONGODB_URI]: string;
+
 }
