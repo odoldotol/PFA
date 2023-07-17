@@ -1,4 +1,5 @@
 import { Test, TestingModule } from "@nestjs/testing";
+import { ScheduleModule } from "@nestjs/schedule";
 import { UpdaterSchedulerService } from "./scheduler.service";
 import { UpdaterJob } from "./class/job";
 
@@ -8,6 +9,9 @@ describe("SchedulerService", () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
+      imports: [
+        ScheduleModule.forRoot(),
+      ],
       providers: [UpdaterSchedulerService],
     }).compile();
 

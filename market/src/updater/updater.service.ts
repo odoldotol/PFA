@@ -2,6 +2,7 @@ import { BadRequestException, Injectable, Logger, OnModuleInit } from '@nestjs/c
 import { ConfigService } from '@nestjs/config';
 import { SchedulerRegistry } from '@nestjs/schedule';
 import { CronJob, CronTime } from 'cron';
+import { UpdaterSchedulerService } from './scheduler.service';
 import { MarketService } from 'src/market/market.service';
 import { DBRepository } from 'src/database/database.repository';
 import { ProductApiService } from 'src/product-api/product-api.service';
@@ -27,10 +28,10 @@ export class UpdaterService implements OnModuleInit {
     constructor(
         private readonly configService: ConfigService<EnvironmentVariables>,
         private readonly schedulerRegistry: SchedulerRegistry,
+        private readonly schedulerSrv: UpdaterSchedulerService,
         private readonly marketService: MarketService,
         private readonly dbRepo: DBRepository,
         private readonly productApiSvc: ProductApiService
-        
     ) {}
 
     onModuleInit = () => this.initiator() 
@@ -38,7 +39,7 @@ export class UpdaterService implements OnModuleInit {
 
     initiator = async () => {
         this.logger.warn("Initiator Run!!!");
-        await this.dbRepo.setIsoCodeToTimezone(); // TODO: DB 모듈로 보내기
+        await this.dbRepo.setIsoCodeToTimezone(); // TODO: DB 모듈로 보내기 // exchange 리팩터링 하면 이거 필요없는 기능임.
         await pipe(
             await this.dbRepo.readAllStatusPrice(), toAsync,
             peek(this.generalInitiate.bind(this)),
