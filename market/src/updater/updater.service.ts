@@ -2,7 +2,6 @@ import { BadRequestException, Injectable, Logger, OnModuleInit } from '@nestjs/c
 import { ConfigService } from '@nestjs/config';
 import { SchedulerRegistry } from '@nestjs/schedule';
 import { CronJob, CronTime } from 'cron';
-import { UpdaterSchedulerService } from './scheduler.service';
 import { MarketService } from 'src/market/market.service';
 import { DBRepository } from 'src/database/database.repository';
 import { ProductApiService } from 'src/product-api/product-api.service';
@@ -28,7 +27,6 @@ export class UpdaterService implements OnModuleInit {
     constructor(
         private readonly configService: ConfigService<EnvironmentVariables>,
         private readonly schedulerRegistry: SchedulerRegistry,
-        private readonly schedulerSrv: UpdaterSchedulerService,
         private readonly marketService: MarketService,
         private readonly dbRepo: DBRepository,
         private readonly productApiSvc: ProductApiService
