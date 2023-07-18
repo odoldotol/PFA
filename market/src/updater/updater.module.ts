@@ -5,6 +5,7 @@ import { MarketModule } from 'src/market/market.module';
 import { DBModule } from 'src/database/database.module';
 import { ProductApiModule } from 'src/product-api/product-api.module';
 import { UpdaterSchedulerService } from './scheduler.service';
+import { ExchangeService } from './exchange.service';
 
 @Module({
   imports: [
@@ -15,7 +16,8 @@ import { UpdaterSchedulerService } from './scheduler.service';
   controllers: [UpdaterController],
   providers: [
     UpdaterService,
-    UpdaterSchedulerService    
+    ExchangeService,
+    UpdaterSchedulerService,
   ],
   exports: [UpdaterService]
 })
