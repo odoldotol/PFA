@@ -4,8 +4,8 @@ import { ExchangeContainer } from "./exchangeContainer";
 import { EXCHANGE_CONFIG_ARR_TOKEN } from "./provider/exchangeConfigArr.provider";
 import { mockExchageConfigArr } from "./mock/exchangeConfigArr";
 import { ChildApiService } from "./child-api/child-api.service";
-
-const mockChildApiService = {}
+import { mockChildApiService } from "./mock/childApiService";
+import { Exchange } from "./class/exchange";
 
 describe("ExchangeService", () => {
   
@@ -44,13 +44,21 @@ describe("ExchangeService", () => {
     it("exchange 생성하고 컨테이너에 넣기", () => {
       const addSpy = jest.spyOn(container, "add");
       service.onModuleInit();
-      expect(addSpy).toBeCalledTimes(2);
+      expect(addSpy).toBeCalledTimes(mockExchageConfigArr.length);
     });
   });
 
   describe("subscribe: Exchange 구독하기", () => {
-    it.todo("세션 정보 등록");
-    it.todo("마켓의 오픈 클로즈를 이벤트로 방출하도록 함");
+    it("exchangeId 로 exchagne 구독 시작하고 exchange 반환", async () => {
+      service.onModuleInit();
+      const exchangeId = mockExchageConfigArr[0].ISO_Code;
+      const exchange = container.getOne(exchangeId)!;
+      const subscribeSpy = jest.spyOn(exchange, "subscribe").mockReturnValue(Promise.resolve());
+      const result = await service.subscribe(exchangeId);
+      expect(subscribeSpy).toBeCalledTimes(1);
+      expect(result).toBeInstanceOf(Exchange);
+      expect(result === exchange).toBeTruthy();
+    });
   });
 
 });

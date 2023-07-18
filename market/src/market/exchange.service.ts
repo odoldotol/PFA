@@ -24,12 +24,17 @@ export class ExchangeService implements OnModuleInit {
     });
   }
 
-  subscribe(ISO_Code: string) {
-    const exchange = this.container.getOne(ISO_Code);
+  async subscribe(exchangeId: Exchange["id"]) {
+    const exchange = this.container.getOne(exchangeId);
     if (!exchange) {
       throw new Error("Not exists exchange");
     }
-    exchange.subscribe();
+    try {
+      await exchange.subscribe();
+      this.logger.verbose(`Subscribed ${exchange.id}`);
+    } catch (e) {
+      this.logger.warn(e);
+    }
     return exchange;
   }
 

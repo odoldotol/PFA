@@ -3,7 +3,7 @@ import { Exchange } from "./exchange";
 
 describe("Exchange", () => {
 
-  describe("id", () => {
+  describe("get id", () => {
     it("should return ISO_Code", () => {
       const exchange = new Exchange({
         market: "market",
@@ -12,6 +12,10 @@ describe("Exchange", () => {
       }, mockChildApiService);
       expect(exchange.id).toBe("ISO_Code");
     });
+  });
+
+  describe("subscribe", () => {
+    it.todo("");
   });
 
   

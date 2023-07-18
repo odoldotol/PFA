@@ -8,9 +8,11 @@ import { ProductApiService } from 'src/product-api/product-api.service';
 import { AddAssetsResponse } from './response/addAssets.response';
 import { Either } from "src/common/class/either";
 import { pipe, map, toArray, toAsync, tap, each, filter, concurrent, peek, curry } from "@fxts/core";
+import * as F from "@fxts/core";
 import { EnvironmentVariables } from 'src/common/interface/environmentVariables.interface';
 import { EnvKey } from 'src/common/enum/envKey.emun';
 import { UpdatePriceResult } from 'src/common/interface/updatePriceResult.interface';
+import { ExchangeService } from 'src/market/exchange.service';
 
 /**
  * ### TODO: Refac:
@@ -19,31 +21,46 @@ import { UpdatePriceResult } from 'src/common/interface/updatePriceResult.interf
 @Injectable()
 export class UpdaterService implements OnModuleInit {
 
-    private readonly logger = new Logger(UpdaterService.name);
-    private readonly TEMP_KEY = this.configService.get(EnvKey.TempKey, 'TEMP_KEY', { infer: true });
-    private readonly DE_UP_MARGIN = this.configService.get(EnvKey.Yf_update_margin_ms_default, 1800000, { infer: true });
-    private readonly CHILD_CONCURRENCY = this.configService.get(EnvKey.Child_concurrency, 1, { infer: true }) * 50;
+  private readonly logger = new Logger(UpdaterService.name);
+  private readonly TEMP_KEY = this.configService.get(EnvKey.TempKey, 'TEMP_KEY', { infer: true });
+  private readonly DE_UP_MARGIN = this.configService.get(EnvKey.Yf_update_margin_ms_default, 1800000, { infer: true });
+  private readonly CHILD_CONCURRENCY = this.configService.get(EnvKey.Child_concurrency, 1, { infer: true }) * 50;
 
-    constructor(
-        private readonly configService: ConfigService<EnvironmentVariables>,
-        private readonly schedulerRegistry: SchedulerRegistry,
-        private readonly marketService: MarketService,
-        private readonly dbRepo: DBRepository,
-        private readonly productApiSvc: ProductApiService
-    ) {}
+  constructor(
+    private readonly configService: ConfigService<EnvironmentVariables>,
+    private readonly schedulerRegistry: SchedulerRegistry,
+    private readonly exchangeSrv: ExchangeService,
+    private readonly marketService: MarketService,
+    private readonly dbRepo: DBRepository,
+    private readonly productApiSvc: ProductApiService
+  ) {}
 
-    onModuleInit = () => this.initiator() 
-        .catch(error => this.logger.error(error)); 
+  async onModuleInit() {
+    await this.initiator()
+    .catch(error => this.logger.error(error));
+    await this.initiator2()
+    .catch(error => this.logger.error(error));
+  }
 
-    initiator = async () => {
-        this.logger.warn("Initiator Run!!!");
-        await this.dbRepo.setIsoCodeToTimezone(); // TODO: DB 모듈로 보내기 // exchange 리팩터링 하면 이거 필요없는 기능임.
-        await pipe(
-            await this.dbRepo.readAllStatusPrice(), toAsync,
-            peek(this.generalInitiate.bind(this)),
-            toArray,
-            tap(() => this.logger.warn("Initiator End!!!")),
-        );};
+  private async initiator2() {
+    this.logger.log("test-Initiator Run!!!");
+    await F.pipe(
+      this.dbRepo.readAllStatusPrice(), F.toAsync,
+      F.map(sp => sp.ISO_Code),
+      F.each(this.exchangeSrv.subscribe.bind(this.exchangeSrv))
+    ).then(() => this.logger.log("test-Initiator End!!!"));
+  }
+
+  public async initiator() {
+    this.logger.log("Initiator Run!!!");
+    await this.dbRepo.setIsoCodeToTimezone(); // TODO: DB 모듈로 보내기 // exchange 리팩터링 하면 이거 필요없는 기능임.
+    await pipe(
+      await this.dbRepo.readAllStatusPrice(), toAsync,
+      peek(this.generalInitiate.bind(this)),
+      toArray,
+      tap(() => this.logger.log("Initiator End!!!")),
+    );
+  };
 
     /**
      * ### TODO - Refac

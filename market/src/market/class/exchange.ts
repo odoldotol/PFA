@@ -17,6 +17,7 @@ export class Exchange extends EventEmitter {
   private session?: TExchangeSession;
   private isSubscribed = false;
   private isMarketOpen?: boolean;
+  private marketDate?: string;
 
   constructor(
     exchangeConfig: TExchangeConfig,
@@ -33,16 +34,21 @@ export class Exchange extends EventEmitter {
     return this.ISO_Code;
   }
 
-  public subscribe() {
-    this.updateSession();
-    // 세션 오픈, 마감 이벤트 방출하기
+  public async subscribe() {
+    if (this.isSubscribed) {
+      throw new Error("Already subscribed");
+    }
+    await this.updateSession();
+    this.calculateIsMarketOpen();
+    this.calculateMarketDate();
+    this.emitNextOpenEvent();
+    this.emitNextCloseEvent();
     this.isSubscribed = true;
   }
 
   private async updateSession() {
     this.session = await this.fetchExchangeSession(this.ISO_Code)
-    .then(either => either.getRight)
-    .catch(e => { throw e; });
+    .then(either => either.getRight);
   }
 
   private fetchExchangeSession(
@@ -72,6 +78,43 @@ export class Exchange extends EventEmitter {
       next_open: next,
       next_close: next
     };
+  }
+
+  private calculateIsMarketOpen() {
+    const { previous_open, previous_close } = this.getSesstion();
+    this.isMarketOpen = new Date(previous_open) > new Date(previous_close);
+  }
+
+  private calculateMarketDate() {
+    this.marketDate = new Date(this.getSesstion().previous_close).toISOString();
+  }
+
+  private emitNextOpenEvent() {
+    const { next_open } = this.getSesstion();
+    setTimeout(async () => {
+      this.isMarketOpen = true;
+      await this.updateSession();
+      this.emit("market.open", this);
+      this.emitNextOpenEvent();
+    }, new Date(next_open).getTime() - new Date().getTime());
+  }
+
+  private emitNextCloseEvent() {
+    const { next_close } = this.getSesstion();
+    setTimeout(async () => {
+      this.isMarketOpen = false;
+      await this.updateSession();
+      this.calculateMarketDate();
+      this.emit("market.close", this);
+      this.emitNextCloseEvent();
+    }, new Date(next_close).getTime() - new Date().getTime());
+  }
+
+  private getSesstion() {
+    if (!this.session) {
+      throw new Error("session is not defined");
+    }
+    return this.session;
   }
 
 }
