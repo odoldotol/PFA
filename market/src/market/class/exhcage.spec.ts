@@ -1,5 +1,18 @@
 import { Exchange } from "./exchange";
 
 describe("Exchange", () => {
-  it.todo("");
+
+  describe("id", () => {
+    it("should return ISO_Code", () => {
+      const exchange = new Exchange({
+        market: "market",
+        ISO_Code: "ISO_Code",
+        ISO_TimezoneName: "ISO_TimezoneName",
+      });
+      expect(exchange.id).toBe("ISO_Code");
+    });
+  });
+
+  
+
 });

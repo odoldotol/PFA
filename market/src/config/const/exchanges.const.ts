@@ -1,7 +1,7 @@
 // https://www.iso20022.org/market-identifier-codes
 // https://github.com/gerrymanoim/exchange_calendars#calendars
 
-type TExchange = {
+export type TExchangeConfig = {
   market: string;
   ISO_Code: string;
   country?: string;
@@ -9,7 +9,7 @@ type TExchange = {
   ISO_TimezoneName: string;
 }
 
-export const exchanges: TExchange[] = [
+export const exchangeConfigArr: TExchangeConfig[] = [
   {
     "market":"BMF Bovespa",
     "ISO_Code":"BVMF",
