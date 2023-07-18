@@ -31,6 +31,9 @@ export class ExchangeService implements OnModuleInit {
     }
     try {
       await exchange.subscribe();
+      exchange.on('error', e => {
+        throw e;
+      });
       this.logger.verbose(`Subscribed ${exchange.id}`);
     } catch (e) {
       this.logger.warn(e);

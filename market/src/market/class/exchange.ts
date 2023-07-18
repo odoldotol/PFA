@@ -92,21 +92,29 @@ export class Exchange extends EventEmitter {
   private emitNextOpenEvent() {
     const { next_open } = this.getSesstion();
     setTimeout(async () => {
-      this.isMarketOpen = true;
-      await this.updateSession();
-      this.emit("market.open", this);
-      this.emitNextOpenEvent();
+      try {
+        this.isMarketOpen = true;
+        await this.updateSession();
+        this.emit("market.open", this);
+        this.emitNextOpenEvent();
+      } catch (e) {
+        this.emit("error", e);
+      }
     }, new Date(next_open).getTime() - new Date().getTime());
   }
 
   private emitNextCloseEvent() {
     const { next_close } = this.getSesstion();
     setTimeout(async () => {
-      this.isMarketOpen = false;
-      await this.updateSession();
-      this.calculateMarketDate();
-      this.emit("market.close", this);
-      this.emitNextCloseEvent();
+      try {
+        this.isMarketOpen = false;
+        await this.updateSession();
+        this.calculateMarketDate();
+        this.emit("market.close", this);
+        this.emitNextCloseEvent();
+      } catch (e) {
+        this.emit("error", e);
+      }
     }, new Date(next_close).getTime() - new Date().getTime());
   }
 
