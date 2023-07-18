@@ -1,6 +1,4 @@
-import { ConfigService } from "@nestjs/config";
 import { Test, TestingModule } from "@nestjs/testing";
-import { EnvKey } from "src/common/enum/envKey.emun";
 import { ChildApiService } from "./child-api/child-api.service";
 import { MarketService } from "./market.service";
 
@@ -11,12 +9,6 @@ describe('MarketService', () => {
         const module: TestingModule = await Test.createTestingModule({
             providers: [
                 MarketService,
-                {
-                    provide: ConfigService,
-                    useValue: {
-                        get: jest.fn(key => key === EnvKey.Yf_CCC_Code && 'XCCC'),
-                    }
-                },
                 {
                     provide: ChildApiService,
                     useValue: {

@@ -1,3 +1,4 @@
+import { mockChildApiService } from "../mock/childApiService";
 import { Exchange } from "./exchange";
 
 describe("Exchange", () => {
@@ -8,7 +9,7 @@ describe("Exchange", () => {
         market: "market",
         ISO_Code: "ISO_Code",
         ISO_TimezoneName: "ISO_TimezoneName",
-      });
+      }, mockChildApiService);
       expect(exchange.id).toBe("ISO_Code");
     });
   });

@@ -1,9 +1,13 @@
-// https://www.iso20022.org/market-identifier-codes
-// https://github.com/gerrymanoim/exchange_calendars#calendars
+import { YF_CCC_ISO_Code } from "./yf_ccc_code.const";
 
 /**
- * @property "YF_update_margin" is milliseconds
- * @property "ISO_Code" is unique
+ * #### Property Description:
+ * - "YF_update_margin" is milliseconds.
+ * - "ISO_Code" should be unique.
+ * 
+ * #### References:
+ * - https://www.iso20022.org/market-identifier-codes
+ * - https://github.com/gerrymanoim/exchange_calendars#calendars
  */
 export type TExchangeConfig = {
   market: string;
@@ -68,7 +72,7 @@ export const exchangeConfigArr: TExchangeConfig[] = [
   },
   {
     "market":"yahoo finance CCC",
-    "ISO_Code":"XCCC",
+    "ISO_Code":YF_CCC_ISO_Code,
     "ISO_TimezoneName":"UTC",
     "YF_update_margin": 10,
   },

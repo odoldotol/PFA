@@ -2,11 +2,12 @@ import { Test, TestingModule } from "@nestjs/testing";
 import { ExchangeContainer } from "./exchangeContainer";
 import { Exchange } from "./class/exchange";
 import { mockExchageConfigArr } from "./mock/exchangeConfigArr";
+import { mockChildApiService } from "./mock/childApiService";
 
 describe("ExchangeContainer", () => {
 
-  const mockExchange1 = new Exchange(mockExchageConfigArr[0]);
-  const mockExchange2 = new Exchange(mockExchageConfigArr[1]);
+  const mockExchange1 = new Exchange(mockExchageConfigArr[0], mockChildApiService);
+  const mockExchange2 = new Exchange(mockExchageConfigArr[1], mockChildApiService);
 
   let container: ExchangeContainer;
 

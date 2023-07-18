@@ -10,7 +10,6 @@ export enum EnvKey {
     ProductApiTimeout = 'PRODUCT_API_TIMEOUT',
     TempKey = 'TEMP_KEY',
     Yf_update_margin_ms_default = 'DefaultUpdateMarginMilliseconds',
-    Yf_CCC_Code = 'YahooFinance_CCC_ISO_Code',
 
     // pm2
     Pm2_name = 'PM2_NAME',
