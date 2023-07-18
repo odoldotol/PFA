@@ -1,26 +1,11 @@
 import { Test, TestingModule } from "@nestjs/testing";
 import { ExchangeService } from "./exchange.service";
 import { ExchangeContainer } from "./exchangeContainer";
-import { 
-  EXCHANGE_CONFIG_ARR_TOKEN,
-  TExchangeConfigArrProvider
-} from "./provider/exchangeConfigArr.provider";
+import { EXCHANGE_CONFIG_ARR_TOKEN } from "./provider/exchangeConfigArr.provider";
+import { mockExchageConfigArr } from "./mock/exchangeConfigArr";
 
 
 describe("ExchangeService", () => {
-
-  const mockExchageConfigArr: TExchangeConfigArrProvider = [
-    {
-      ISO_Code: "ISO_Code1",
-      ISO_TimezoneName: "ISO_TimezoneName1",
-      market: "market1"
-    },
-    {
-      ISO_Code: "ISO_Code2",
-      ISO_TimezoneName: "ISO_TimezoneName2",
-      market: "market2"
-    }
-  ]
   
   let service: ExchangeService;
   let container: ExchangeContainer;
@@ -57,8 +42,8 @@ describe("ExchangeService", () => {
     });
   });
 
-  describe("", () => {
-
+  describe("subscribe: Exchange 구독하기", () => {
+    it.todo("마켓의 오픈 클로즈를 이벤트로 방출하도록 함");
   });
 
 });

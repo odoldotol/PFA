@@ -20,9 +20,12 @@ export class ExchangeService implements OnModuleInit {
 
   onModuleInit() {
     this.exchangeConfigArr.forEach((exchangeConfig) => {
-      const exchange = new Exchange(exchangeConfig);
-      this.container.add(exchange);
+      this.container.add(new Exchange(exchangeConfig));
     });
+  }
+
+  subscribe(ISO_Code: string) {
+    
   }
 
 }

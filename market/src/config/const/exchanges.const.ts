@@ -1,12 +1,17 @@
 // https://www.iso20022.org/market-identifier-codes
 // https://github.com/gerrymanoim/exchange_calendars#calendars
 
+/**
+ * @property "YF_update_margin" is milliseconds
+ * @property "ISO_Code" is unique
+ */
 export type TExchangeConfig = {
   market: string;
   ISO_Code: string;
   country?: string;
   exchange_website?: string;
   ISO_TimezoneName: string;
+  YF_update_margin?: number;
 }
 
 export const exchangeConfigArr: TExchangeConfig[] = [
@@ -36,7 +41,8 @@ export const exchangeConfigArr: TExchangeConfig[] = [
     "ISO_Code":"XNYS",
     "country":"USA",
     "exchange_website":"https://www.nyse.com/index",
-    "ISO_TimezoneName":"America/New_York"
+    "ISO_TimezoneName":"America/New_York",
+    "YF_update_margin": 59000,
   },
   {
     "market":"Shanghai Stock Exchange",
@@ -57,12 +63,14 @@ export const exchangeConfigArr: TExchangeConfig[] = [
     "ISO_Code":"XTSE",
     "country":"Canada",
     "exchange_website":"https://www.tsx.com/",
-    "ISO_TimezoneName":"America/Toronto"
+    "ISO_TimezoneName":"America/Toronto",
+    "YF_update_margin": 59000,
   },
   {
     "market":"yahoo finance CCC",
     "ISO_Code":"XCCC",
-    "ISO_TimezoneName":"UTC"
+    "ISO_TimezoneName":"UTC",
+    "YF_update_margin": 10,
   },
   {
     "market":"Korea Exchange",

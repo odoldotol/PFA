@@ -14,7 +14,8 @@ import { ExchangeConfigArrProvider } from './provider/exchangeConfigArr.provider
     ExchangeConfigArrProvider
   ],
   exports: [
-    MarketService
+    MarketService,
+    ExchangeService,
   ]
 })
 export class MarketModule {}

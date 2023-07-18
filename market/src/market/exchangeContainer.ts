@@ -14,4 +14,8 @@ export class ExchangeContainer {
     this.exchanges.set(id, exchange);
   }
 
+  public getOne(id: Exchange["id"]) {
+    return this.exchanges.get(id);
+  }
+
 }
