@@ -23,7 +23,7 @@ export class ExchangeService implements OnModuleInit {
 
   onModuleInit() {
     this.exchangeConfigArr.forEach((exchangeConfig) => {
-    this.container.add(new Exchange(exchangeConfig, this.childApiSrv)); // is it anti-pattern?
+      this.container.add(new Exchange(exchangeConfig, this.childApiSrv)); // is it anti-pattern?
     });
   }
 
@@ -33,24 +33,33 @@ export class ExchangeService implements OnModuleInit {
       exchange.on('error', e => {
         throw e;
       });
+      this.addSessionLogger(exchange);
       const { marketOpen, nextEventDate } = await exchange.subscribe();
       marketOpen
-      ? this.logger.verbose(`${exchange.ISO_Code} : NextClose ${nextEventDate.toLocaleString("ko-KR")}`)
-      : this.logger.verbose(`${exchange.ISO_Code} : NextOpen ${nextEventDate.toLocaleString("ko-KR")}`);
+      ? this.logger.verbose(
+        `${exchange.ISO_Code} : NextClose at ${nextEventDate.toLocaleString("ko-KR")}`)
+      : this.logger.verbose(
+        `${exchange.ISO_Code} : NextOpen at ${nextEventDate.toLocaleString("ko-KR")}`);
     } catch (e) {
       this.logger.warn(e);
     }
   }
 
-  public addMarketOpenListener(listener: (...args: TOpenEventArgs) => void, exchangeCore: TExchangeCore) {
-    const exchange = this.getExchagne(exchangeCore);
-    exchange.on(MARKET_OPEN, listener);
-  }
+  // public open(
+  //   listener: (...args: TOpenEventArgs) => void,
+  //   exchangeCore: TExchangeCore
+  // ) {
+  //   const exchange = this.getExchagne(exchangeCore);
+  //   this.addMarketOpenListener(listener, exchange);
+  // }
   
-  public addMarketCloseListener(listener: (...args: TCloseEventArgs) => void, exchangeCore: TExchangeCore) {
-    const exchange = this.getExchagne(exchangeCore);
-    exchange.on(MARKET_CLOSE, listener);
-  }
+  // public close(
+  //   listener: (...args: TCloseEventArgs) => void,
+  //   exchangeCore: TExchangeCore
+  // ) {
+  //   const exchange = this.getExchagne(exchangeCore);
+  //   this.addMarketCloseListener(listener, exchange);
+  // }
 
   public shouldUpdate(exchangeCore: TExchangeCore) {
     const exchange = this.getExchagne(exchangeCore);
@@ -65,6 +74,35 @@ export class ExchangeService implements OnModuleInit {
       throw new Error("Not exists exchange");
     }
     return exchange;
+  }
+
+  private addSessionLogger(exchange: Exchange) {
+    this.addMarketOpenListener(
+      nextCloseDate => this.logger.verbose(
+        `${exchange.ISO_Code} : Opened | NextClose at ${nextCloseDate}`
+      ),
+      exchange
+    );
+    this.addMarketCloseListener(
+      nextOpenDate => this.logger.verbose(
+        `${exchange.ISO_Code} : Closed | NextOpen at ${nextOpenDate}`
+      ),
+      exchange
+    );
+  }
+  
+  private addMarketOpenListener(
+    listener: (...args: TOpenEventArgs) => void,
+    exchange: Exchange
+  ) {
+    exchange.on(MARKET_OPEN, listener);
+  }
+
+  private addMarketCloseListener(
+    listener: (...args: TCloseEventArgs) => void,
+    exchange: Exchange
+  ) {
+    exchange.on(MARKET_CLOSE, listener);
   }
 
 }

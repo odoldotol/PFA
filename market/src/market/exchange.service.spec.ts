@@ -61,11 +61,6 @@ describe("ExchangeService", () => {
     });
   });
 
-  describe("addMarketclose(Open)Listener: market.open, market.close 이벤트 리스너 추가", () => {
-    it.todo("addMarketOpenListener");
-    it.todo("addMarketCloseListener");
-  });
-
   describe("shouldUpdate: 업데이트 해야하는지 여부", () => {
     it.todo("");
   });
