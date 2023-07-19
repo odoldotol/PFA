@@ -2,11 +2,13 @@ import { Inject, Injectable, Logger, OnModuleInit } from "@nestjs/common";
 import { TExchangeCore } from "src/common/type/exchange.type";
 import { ChildApiService } from "./child-api/child-api.service";
 import { Exchange } from "./class/exchange";
+import { MARKET_CLOSE, MARKET_OPEN } from "./const/eventName.const";
 import { ExchangeContainer } from "./exchangeContainer";
 import { 
   EXCHANGE_CONFIG_ARR_TOKEN,
   TExchangeConfigArrProvider
 } from "./provider/exchangeConfigArr.provider";
+import { TCloseEventArgs, TOpenEventArgs } from "./type/eventArgs.type";
 
 @Injectable()
 export class ExchangeService implements OnModuleInit {
@@ -28,24 +30,26 @@ export class ExchangeService implements OnModuleInit {
   public async subscribe(exchangeCore: TExchangeCore) {
     const exchange = this.getExchagne(exchangeCore);
     try {
-      await exchange.subscribe();
       exchange.on('error', e => {
         throw e;
       });
-      this.logger.verbose(`Subscribed ${exchange.ISO_Code}`);
+      const { marketOpen, nextEventDate } = await exchange.subscribe();
+      marketOpen
+      ? this.logger.verbose(`${exchange.ISO_Code} : NextClose ${nextEventDate.toLocaleString("ko-KR")}`)
+      : this.logger.verbose(`${exchange.ISO_Code} : NextOpen ${nextEventDate.toLocaleString("ko-KR")}`);
     } catch (e) {
       this.logger.warn(e);
     }
   }
 
-  public addMarketOpenListener(listener: (...args: any[]) => void, exchangeCore: TExchangeCore) {
+  public addMarketOpenListener(listener: (...args: TOpenEventArgs) => void, exchangeCore: TExchangeCore) {
     const exchange = this.getExchagne(exchangeCore);
-    exchange.on('market.open', listener);
+    exchange.on(MARKET_OPEN, listener);
   }
   
-  public addMarketCloseListener(listener: (...args: any[]) => void, exchangeCore: TExchangeCore) {
+  public addMarketCloseListener(listener: (...args: TCloseEventArgs) => void, exchangeCore: TExchangeCore) {
     const exchange = this.getExchagne(exchangeCore);
-    exchange.on('market.close', listener);
+    exchange.on(MARKET_CLOSE, listener);
   }
 
   public shouldUpdate(exchangeCore: TExchangeCore) {

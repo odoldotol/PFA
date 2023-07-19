@@ -51,7 +51,11 @@ describe("ExchangeService", () => {
     it("TExchangeCore 로 exchagne 구독 시작", async () => {
       service.onModuleInit();
       const exchange = container.getOne(mockExchangeCoreArr[0].ISO_Code)!;
-      const subscribeSpy = jest.spyOn(exchange, "subscribe").mockReturnValue(Promise.resolve());
+      const subscribeSpy = jest.spyOn(exchange, "subscribe")
+      .mockReturnValue(Promise.resolve({
+        marketOpen: true,
+        nextEventDate: new Date()
+      }));
       await service.subscribe(mockExchangeCoreArr[0]);
       expect(subscribeSpy).toBeCalledTimes(1);
     });

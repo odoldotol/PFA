@@ -3,6 +3,8 @@ import { TExchangeConfig } from "src/config/const/exchanges.const";
 import { YF_CCC_ISO_Code, YF_update_margin_default } from "src/config/const/yf.const";
 import { EventEmitter } from "stream";
 import { ChildApiService } from "../child-api/child-api.service";
+import { MARKET_CLOSE, MARKET_OPEN } from "../const/eventName.const";
+import { TCloseEventArgs, TOpenEventArgs } from "../type/eventArgs.type";
 import {
   TExchangeSession,
   TExchangeSessionError
@@ -37,11 +39,13 @@ export class Exchange extends EventEmitter {
       throw new Error("Already subscribed");
     }
     await this.updateSession();
-    this.calculateMarketOpen();
+    const marketOpen = this.calculateMarketOpen()
+    const nextEventDate = marketOpen
+      ? this.subscribeNextClose()
+      : this.subscribeNextOpen();
     this.calculateMarketDate();
-    this.subscribeNextOpen();
-    this.subscribeNextClose();
     this.isSubscribed = true;
+    return { marketOpen, nextEventDate };
   }
 
   public getMarketDate() {
@@ -76,26 +80,29 @@ export class Exchange extends EventEmitter {
   private calculateMarketOpen() {
     const { previous_open, previous_close } = this.getSesstion();
     this.marketOpen = new Date(previous_open) > new Date(previous_close);
+    return this.marketOpen;
   }
 
   private calculateMarketDate() {
     this.marketDate = new Date(this.getSesstion().previous_close);
   }
 
-  private subscribeNextOpen() {
-    const nextOpenDate = new Date(this.getSesstion().next_open);
+  private subscribeNextOpen(nextOpenDate?: Date) {
+    nextOpenDate = nextOpenDate || this.getNextOpenDate();
     setTimeout(
       this.marketOpenHandler.bind(this),
       this.calRemainingTimeInMs(nextOpenDate)
     );
+    return nextOpenDate;
   }
 
-  private subscribeNextClose() {
-    const nextCloseDate = new Date(this.getSesstion().next_close);
+  private subscribeNextClose(nextCloseDate?: Date) {
+    nextCloseDate = nextCloseDate || this.getNextCloseDate();
     setTimeout(
       this.marketCloseHandler.bind(this),
       this.calRemainingTimeInMs(nextCloseDate)
     );
+    return nextCloseDate;
   }
 
   private getSesstion() {
@@ -109,8 +116,10 @@ export class Exchange extends EventEmitter {
     try {
       this.marketOpen = true;
       await this.updateSession();
-      this.emit("market.open", this);
-      this.subscribeNextOpen();
+      const nextCloseDate = this.getNextCloseDate();
+      const openEventArgs: TOpenEventArgs = [ nextCloseDate ];
+      this.emit(MARKET_OPEN, ...openEventArgs);
+      this.subscribeNextClose(nextCloseDate);
     } catch (e) {
       this.emit("error", e);
     }
@@ -121,8 +130,10 @@ export class Exchange extends EventEmitter {
       this.marketOpen = false;
       await this.updateSession();
       this.calculateMarketDate();
-      this.emit("market.close", this);
-      this.subscribeNextClose();
+      const nextOpenDate = this.getNextOpenDate();
+      const closeEventArgs: TCloseEventArgs = [ nextOpenDate ];
+      this.emit(MARKET_CLOSE, ...closeEventArgs);
+      this.subscribeNextOpen(nextOpenDate);
     } catch (e) {
       this.emit("error", e);
     }
@@ -130,6 +141,14 @@ export class Exchange extends EventEmitter {
 
   private calRemainingTimeInMs(date: Date) {
     return date.getTime() - new Date().getTime();
+  }
+
+  private getNextOpenDate() {
+    return new Date(this.getSesstion().next_open);
+  }
+
+  private getNextCloseDate() {
+    return new Date(this.getSesstion().next_close);
   }
 
   /**
