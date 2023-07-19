@@ -52,10 +52,7 @@ describe("ExchangeService", () => {
       service.onModuleInit();
       const exchange = container.getOne(mockExchangeCoreArr[0].ISO_Code)!;
       const subscribeSpy = jest.spyOn(exchange, "subscribe")
-      .mockReturnValue(Promise.resolve({
-        marketOpen: true,
-        nextEventDate: new Date()
-      }));
+        .mockReturnValue(Promise.resolve());
       await service.subscribe(mockExchangeCoreArr[0]);
       expect(subscribeSpy).toBeCalledTimes(1);
     });

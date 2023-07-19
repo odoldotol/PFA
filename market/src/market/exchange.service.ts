@@ -8,7 +8,10 @@ import {
   EXCHANGE_CONFIG_ARR_TOKEN,
   TExchangeConfigArrProvider
 } from "./provider/exchangeConfigArr.provider";
-import { TCloseEventArgs, TOpenEventArgs } from "./type/eventArgs.type";
+import {
+  TCloseEventListener,
+  TOpenEventListener
+} from "./type/eventListner.type";
 
 @Injectable()
 export class ExchangeService implements OnModuleInit {
@@ -33,33 +36,15 @@ export class ExchangeService implements OnModuleInit {
       exchange.on('error', e => {
         throw e;
       });
-      this.addSessionLogger(exchange);
-      const { marketOpen, nextEventDate } = await exchange.subscribe();
-      marketOpen
-      ? this.logger.verbose(
-        `${exchange.ISO_Code} : NextClose at ${nextEventDate.toLocaleString("ko-KR")}`)
-      : this.logger.verbose(
-        `${exchange.ISO_Code} : NextOpen at ${nextEventDate.toLocaleString("ko-KR")}`);
+      await exchange.subscribe();
     } catch (e) {
       this.logger.warn(e);
     }
   }
 
-  // public open(
-  //   listener: (...args: TOpenEventArgs) => void,
-  //   exchangeCore: TExchangeCore
-  // ) {
-  //   const exchange = this.getExchagne(exchangeCore);
-  //   this.addMarketOpenListener(listener, exchange);
-  // }
-  
-  // public close(
-  //   listener: (...args: TCloseEventArgs) => void,
-  //   exchangeCore: TExchangeCore
-  // ) {
-  //   const exchange = this.getExchagne(exchangeCore);
-  //   this.addMarketCloseListener(listener, exchange);
-  // }
+  public registerUpdater(updateAssetsOfExchange: (exchange: Exchange) => Promise<void>, exchangeCore: TExchangeCore) {
+    const exchange = this.getExchagne(exchangeCore);
+  }
 
   public shouldUpdate(exchangeCore: TExchangeCore) {
     const exchange = this.getExchagne(exchangeCore);
@@ -75,31 +60,16 @@ export class ExchangeService implements OnModuleInit {
     }
     return exchange;
   }
-
-  private addSessionLogger(exchange: Exchange) {
-    this.addMarketOpenListener(
-      nextCloseDate => this.logger.verbose(
-        `${exchange.ISO_Code} : Opened | NextClose at ${nextCloseDate}`
-      ),
-      exchange
-    );
-    this.addMarketCloseListener(
-      nextOpenDate => this.logger.verbose(
-        `${exchange.ISO_Code} : Closed | NextOpen at ${nextOpenDate}`
-      ),
-      exchange
-    );
-  }
   
   private addMarketOpenListener(
-    listener: (...args: TOpenEventArgs) => void,
+    listener: TOpenEventListener,
     exchange: Exchange
   ) {
     exchange.on(MARKET_OPEN, listener);
   }
 
   private addMarketCloseListener(
-    listener: (...args: TCloseEventArgs) => void,
+    listener: TCloseEventListener,
     exchange: Exchange
   ) {
     exchange.on(MARKET_CLOSE, listener);
