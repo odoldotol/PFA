@@ -12,7 +12,6 @@ export interface EnvironmentVariables {
     [EnvKey.ProductApiTimeout]: number;
     [EnvKey.TempKey]: string;
     [EnvKey.Yf_update_margin_ms_default]: number;
-    [EnvKey.Yf_CCC_Code]: string;
 
     // pm2
     [EnvKey.Pm2_name]: string;
