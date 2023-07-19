@@ -47,7 +47,17 @@ export class UpdaterService implements OnModuleInit {
     await F.pipe(
       this.dbRepo.readAllStatusPrice(), F.toAsync,
       F.map(sp => sp.ISO_Code),
-      F.each(this.exchangeSrv.subscribe.bind(this.exchangeSrv))
+      F.map(this.exchangeSrv.subscribe.bind(this.exchangeSrv)),
+      F.each(exchange => {
+        exchange.on('market.open', () => {
+          this.logger.verbose("open");
+          this.logger.verbose(exchange);
+        });
+        exchange.on('market.close', () => {
+          this.logger.verbose("close");
+          this.logger.verbose(exchange);
+        });
+      })
     ).then(() => this.logger.log("test-Initiator End!!!"));
   }
 
