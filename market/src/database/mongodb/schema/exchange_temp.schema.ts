@@ -1,12 +1,12 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
 import mongoose from "mongoose";
 
-export type Status_priceDocument = Status_price & mongoose.Document;
+export type ExchangeDocument = Exchange & mongoose.Document;
 
 @Schema({
     timestamps: true
  })
-export class Status_price {
+export class Exchange {
 
     @Prop({
         required: true,
@@ -29,4 +29,4 @@ export class Status_price {
     yf_exchangeTimezoneName!: string
 }
 
-export const Status_priceSchema = SchemaFactory.createForClass(Status_price);
+export const ExchangeSchema = SchemaFactory.createForClass(Exchange);
