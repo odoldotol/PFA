@@ -1,6 +1,6 @@
 import { Either } from "src/common/class/either";
 import { TExchangeConfig } from "src/config/const/exchanges.const";
-import { YF_CCC_ISO_Code } from "src/config/const/yf_ccc_code.const";
+import { YF_CCC_ISO_Code, YF_update_margin_default } from "src/config/const/yf.const";
 import { EventEmitter } from "stream";
 import { ChildApiService } from "../child-api/child-api.service";
 import {
@@ -10,9 +10,10 @@ import {
 
 export class Exchange extends EventEmitter {
 
-  private readonly market: string;
-  private readonly ISO_Code: string; // id
-  private readonly ISO_TimezoneName: string;
+  public readonly market: string;
+  public readonly ISO_Code: string; // id
+  public readonly ISO_TimezoneName: string;
+  public readonly YF_update_margin: number;
   private readonly childApiSrv: ChildApiService;
   private session?: TExchangeSession;
   private isSubscribed = false;
@@ -27,11 +28,8 @@ export class Exchange extends EventEmitter {
     this.market = exchangeConfig.market;
     this.ISO_Code = exchangeConfig.ISO_Code;
     this.ISO_TimezoneName = exchangeConfig.ISO_TimezoneName;
+    this.YF_update_margin = exchangeConfig.YF_update_margin || YF_update_margin_default;
     this.childApiSrv = childApiSrv;
-  }
-
-  get id() {
-    return this.ISO_Code;
   }
 
   public async subscribe() {

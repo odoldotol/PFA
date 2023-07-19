@@ -1,4 +1,4 @@
-import { YF_CCC_ISO_Code } from "./yf_ccc_code.const";
+import { YF_CCC_ISO_Code } from "./yf.const";
 
 /**
  * #### Property Description:

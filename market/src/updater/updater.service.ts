@@ -23,7 +23,6 @@ export class UpdaterService implements OnModuleInit {
 
   private readonly logger = new Logger(UpdaterService.name);
   private readonly TEMP_KEY = this.configService.get(EnvKey.TempKey, 'TEMP_KEY', { infer: true });
-  private readonly DE_UP_MARGIN = this.configService.get(EnvKey.Yf_update_margin_ms_default, 1800000, { infer: true });
   private readonly CHILD_CONCURRENCY = this.configService.get(EnvKey.Child_concurrency, 1, { infer: true }) * 50;
 
   constructor(
@@ -36,13 +35,10 @@ export class UpdaterService implements OnModuleInit {
   ) {}
 
   async onModuleInit() {
-    await this.initiator()
-    .catch(error => this.logger.error(error));
-    await this.initiator2()
-    .catch(error => this.logger.error(error));
+    await this.initiator();
   }
 
-  private async initiator2() {
+  public async initiator() {
     this.logger.log("test-Initiator Run!!!");
     await F.pipe(
       this.dbRepo.readAllStatusPrice(), F.toAsync,
@@ -50,27 +46,22 @@ export class UpdaterService implements OnModuleInit {
       F.map(this.exchangeSrv.subscribe.bind(this.exchangeSrv)),
       F.each(exchange => {
         exchange.on('market.open', () => {
-          this.logger.verbose("open");
-          this.logger.verbose(exchange);
+          this.logger.verbose(`${exchange.ISO_Code} open`);
         });
         exchange.on('market.close', () => {
-          this.logger.verbose("close");
-          this.logger.verbose(exchange);
+          this.logger.verbose(`${exchange.ISO_Code} close`);
+
+          // update and schedule
         });
       })
-    ).then(() => this.logger.log("test-Initiator End!!!"));
+    );
+    this.logger.log("test-Initiator End!!!");
   }
 
-  public async initiator() {
-    this.logger.log("Initiator Run!!!");
-    await this.dbRepo.setIsoCodeToTimezone(); // TODO: DB 모듈로 보내기 // exchange 리팩터링 하면 이거 필요없는 기능임.
-    await pipe(
-      await this.dbRepo.readAllStatusPrice(), toAsync,
-      peek(this.generalInitiate.bind(this)),
-      toArray,
-      tap(() => this.logger.log("Initiator End!!!")),
-    );
-  };
+
+// --------------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------------
+
 
     /**
      * ### TODO - Refac

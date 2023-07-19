@@ -24,8 +24,8 @@ export class ExchangeService implements OnModuleInit {
     });
   }
 
-  async subscribe(exchangeId: Exchange["id"]) {
-    const exchange = this.container.getOne(exchangeId);
+  async subscribe(ISO_Code: Exchange["ISO_Code"]) {
+    const exchange = this.container.getOne(ISO_Code);
     if (!exchange) {
       throw new Error("Not exists exchange");
     }
@@ -34,7 +34,7 @@ export class ExchangeService implements OnModuleInit {
       exchange.on('error', e => {
         throw e;
       });
-      this.logger.verbose(`Subscribed ${exchange.id}`);
+      this.logger.verbose(`Subscribed ${exchange.ISO_Code}`);
     } catch (e) {
       this.logger.warn(e);
     }
