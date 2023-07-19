@@ -41,8 +41,8 @@ export class Exchange extends EventEmitter {
     await this.updateSession();
     this.calculateIsMarketOpen();
     this.calculateMarketDate();
-    this.emitNextOpenEvent();
-    this.emitNextCloseEvent();
+    this.subscribeNextOpen();
+    this.subscribeNextClose();
     this.isSubscribed = true;
   }
 
@@ -61,6 +61,65 @@ export class Exchange extends EventEmitter {
     }
   };
 
+  private calculateIsMarketOpen() {
+    const { previous_open, previous_close } = this.getSesstion();
+    this.isMarketOpen = new Date(previous_open) > new Date(previous_close);
+  }
+
+  private calculateMarketDate() {
+    this.marketDate = new Date(this.getSesstion().previous_close).toISOString();
+  }
+
+  private subscribeNextOpen() {
+    const nextOpenDate = new Date(this.getSesstion().next_open);
+    setTimeout(
+      this.marketOpenHandler.bind(this),
+      this.calRemainingTimeInMs(nextOpenDate)
+    );
+  }
+
+  private subscribeNextClose() {
+    const nextCloseDate = new Date(this.getSesstion().next_close);
+    setTimeout(
+      this.marketCloseHandler.bind(this),
+      this.calRemainingTimeInMs(nextCloseDate)
+    );
+  }
+
+  private getSesstion() {
+    if (!this.session) {
+      throw new Error("session is not defined");
+    }
+    return this.session;
+  }
+
+  private async marketOpenHandler() {
+    try {
+      this.isMarketOpen = true;
+      await this.updateSession();
+      this.emit("market.open", this);
+      this.subscribeNextOpen();
+    } catch (e) {
+      this.emit("error", e);
+    }
+  }
+
+  private async marketCloseHandler() {
+    try {
+      this.isMarketOpen = false;
+      await this.updateSession();
+      this.calculateMarketDate();
+      this.emit("market.close", this);
+      this.subscribeNextClose();
+    } catch (e) {
+      this.emit("error", e);
+    }
+  }
+
+  private calRemainingTimeInMs(date: Date) {
+    return date.getTime() - new Date().getTime();
+  }
+
   /**
    * #### UTC 기준 당일 자정과 익일 자정기준으로 마켓세션 생성해서 반환
    */
@@ -78,51 +137,6 @@ export class Exchange extends EventEmitter {
       next_open: next,
       next_close: next
     };
-  }
-
-  private calculateIsMarketOpen() {
-    const { previous_open, previous_close } = this.getSesstion();
-    this.isMarketOpen = new Date(previous_open) > new Date(previous_close);
-  }
-
-  private calculateMarketDate() {
-    this.marketDate = new Date(this.getSesstion().previous_close).toISOString();
-  }
-
-  private emitNextOpenEvent() {
-    const { next_open } = this.getSesstion();
-    setTimeout(async () => {
-      try {
-        this.isMarketOpen = true;
-        await this.updateSession();
-        this.emit("market.open", this);
-        this.emitNextOpenEvent();
-      } catch (e) {
-        this.emit("error", e);
-      }
-    }, new Date(next_open).getTime() - new Date().getTime());
-  }
-
-  private emitNextCloseEvent() {
-    const { next_close } = this.getSesstion();
-    setTimeout(async () => {
-      try {
-        this.isMarketOpen = false;
-        await this.updateSession();
-        this.calculateMarketDate();
-        this.emit("market.close", this);
-        this.emitNextCloseEvent();
-      } catch (e) {
-        this.emit("error", e);
-      }
-    }, new Date(next_close).getTime() - new Date().getTime());
-  }
-
-  private getSesstion() {
-    if (!this.session) {
-      throw new Error("session is not defined");
-    }
-    return this.session;
   }
 
 }
