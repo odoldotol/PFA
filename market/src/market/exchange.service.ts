@@ -2,16 +2,12 @@ import { Inject, Injectable, Logger, OnModuleInit } from "@nestjs/common";
 import { TExchangeCore } from "src/common/type/exchange.type";
 import { ChildApiService } from "./child-api/child-api.service";
 import { Exchange } from "./class/exchange";
-import { MARKET_CLOSE, MARKET_OPEN } from "./const/eventName.const";
+import { EMarketEvent } from "./enum/eventName.enum";
 import { ExchangeContainer } from "./exchangeContainer";
 import { 
   EXCHANGE_CONFIG_ARR_TOKEN,
   TExchangeConfigArrProvider
 } from "./provider/exchangeConfigArr.provider";
-import {
-  TCloseEventListener,
-  TOpenEventListener
-} from "./type/eventListner.type";
 
 @Injectable()
 export class ExchangeService implements OnModuleInit {
@@ -44,6 +40,7 @@ export class ExchangeService implements OnModuleInit {
 
   public registerUpdater(updateAssetsOfExchange: (exchange: Exchange) => Promise<void>, exchangeCore: TExchangeCore) {
     const exchange = this.getExchagne(exchangeCore);
+    exchange.on(EMarketEvent.UPDATE, () => updateAssetsOfExchange(exchange));
   }
 
   public shouldUpdate(exchangeCore: TExchangeCore) {
@@ -59,20 +56,6 @@ export class ExchangeService implements OnModuleInit {
       throw new Error("Not exists exchange");
     }
     return exchange;
-  }
-  
-  private addMarketOpenListener(
-    listener: TOpenEventListener,
-    exchange: Exchange
-  ) {
-    exchange.on(MARKET_OPEN, listener);
-  }
-
-  private addMarketCloseListener(
-    listener: TCloseEventListener,
-    exchange: Exchange
-  ) {
-    exchange.on(MARKET_CLOSE, listener);
   }
 
 }

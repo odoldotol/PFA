@@ -4,7 +4,7 @@ import { TExchangeConfig } from "src/config/const/exchanges.const";
 import { YF_CCC_ISO_Code, YF_update_margin_default } from "src/config/const/yf.const";
 import { EventEmitter } from "stream";
 import { ChildApiService } from "../child-api/child-api.service";
-import { MARKET_CLOSE, MARKET_OPEN, MARKET_UPDATE } from "../const/eventName.const";
+import { EMarketEvent } from "../enum/eventName.enum";
 import { TCloseEventArgs, TOpenEventArgs } from "../type/eventListner.type";
 import {
   TExchangeSession,
@@ -13,7 +13,7 @@ import {
 
 export class Exchange extends EventEmitter {
   private readonly logger = new Logger(Exchange.name);
-  
+
   public readonly market: string;
   public readonly ISO_Code: string; // id
   public readonly ISO_TimezoneName: string;
@@ -133,7 +133,7 @@ export class Exchange extends EventEmitter {
       this.logger.verbose(`${this.ISO_Code} : Open`);
       const { nextCloseDate, nextUpdateDate } = this.executeSubscribesWhenOpen();
       const openEventArgs: TOpenEventArgs = [ nextCloseDate, nextUpdateDate ];
-      this.emit(MARKET_OPEN, ...openEventArgs);
+      this.emit(EMarketEvent.OPEN, ...openEventArgs);
     } catch (e) {
       this.emit("error", e);
     }
@@ -147,7 +147,7 @@ export class Exchange extends EventEmitter {
       this.logger.verbose(`${this.ISO_Code} : Close`);
       const { nextOpenDate } = this.executeSubscribesWhenClose();
       const closeEventArgs: TCloseEventArgs = [ nextOpenDate ];
-      this.emit(MARKET_CLOSE, ...closeEventArgs);
+      this.emit(EMarketEvent.CLOSE, ...closeEventArgs);
     } catch (e) {
       this.emit("error", e);
     }
@@ -155,7 +155,7 @@ export class Exchange extends EventEmitter {
 
   private marketUpdateHandler() {
     this.logger.verbose(`${this.ISO_Code} : Update`);
-    this.emit(MARKET_UPDATE);
+    this.emit(EMarketEvent.UPDATE);
   }
 
   private executeSubscribesWhenOpen() {
