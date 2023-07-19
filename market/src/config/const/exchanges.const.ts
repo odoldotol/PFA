@@ -10,12 +10,12 @@ import { YF_CCC_ISO_Code } from "./yf.const";
  * - https://www.iso20022.org/market-identifier-codes
  * - https://github.com/gerrymanoim/exchange_calendars#calendars
  */
-export type TExchangeConfig = TExchangeISO & {
+export type TExchangeConfig = TExchangeISO & Readonly<{
   market: string;
   country?: string;
   exchange_website?: string;
   YF_update_margin?: number;
-}
+}>;
 
 export const exchangeConfigArr: TExchangeConfig[] = [
   {

@@ -17,8 +17,8 @@ export class Exchange extends EventEmitter {
   private readonly childApiSrv: ChildApiService;
   private session?: TExchangeSession;
   private isSubscribed = false;
-  private isMarketOpen?: boolean;
-  private marketDate?: string;
+  private marketOpen?: boolean;
+  private marketDate?: Date;
 
   constructor(
     exchangeConfig: TExchangeConfig,
@@ -37,11 +37,25 @@ export class Exchange extends EventEmitter {
       throw new Error("Already subscribed");
     }
     await this.updateSession();
-    this.calculateIsMarketOpen();
+    this.calculateMarketOpen();
     this.calculateMarketDate();
     this.subscribeNextOpen();
     this.subscribeNextClose();
     this.isSubscribed = true;
+  }
+
+  public getMarketDate() {
+    if (!this.marketDate) {
+      throw new Error("marketDate is not defined");
+    }
+    return this.marketDate;
+  }
+
+  public isMarketOpen() {
+    if (this.marketOpen === undefined) {
+      throw new Error("isMarketOpen is not defined");
+    }
+    return this.marketOpen;
   }
 
   private async updateSession() {
@@ -59,13 +73,13 @@ export class Exchange extends EventEmitter {
     }
   };
 
-  private calculateIsMarketOpen() {
+  private calculateMarketOpen() {
     const { previous_open, previous_close } = this.getSesstion();
-    this.isMarketOpen = new Date(previous_open) > new Date(previous_close);
+    this.marketOpen = new Date(previous_open) > new Date(previous_close);
   }
 
   private calculateMarketDate() {
-    this.marketDate = new Date(this.getSesstion().previous_close).toISOString();
+    this.marketDate = new Date(this.getSesstion().previous_close);
   }
 
   private subscribeNextOpen() {
@@ -93,7 +107,7 @@ export class Exchange extends EventEmitter {
 
   private async marketOpenHandler() {
     try {
-      this.isMarketOpen = true;
+      this.marketOpen = true;
       await this.updateSession();
       this.emit("market.open", this);
       this.subscribeNextOpen();
@@ -104,7 +118,7 @@ export class Exchange extends EventEmitter {
 
   private async marketCloseHandler() {
     try {
-      this.isMarketOpen = false;
+      this.marketOpen = false;
       await this.updateSession();
       this.calculateMarketDate();
       this.emit("market.close", this);

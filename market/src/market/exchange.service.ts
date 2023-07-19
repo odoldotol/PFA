@@ -48,6 +48,13 @@ export class ExchangeService implements OnModuleInit {
     exchange.on('market.close', listener);
   }
 
+  public shouldUpdate(exchangeCore: TExchangeCore) {
+    const exchange = this.getExchagne(exchangeCore);
+    const result = new Date(exchangeCore.marketDate) < exchange.getMarketDate();
+    result && exchange.isMarketOpen() && this.logger.warn(`${exchange.ISO_Code} : shouldUpdate return "true" while Open`);
+    return result;
+  }
+
   private getExchagne(exchangeCore: TExchangeCore) {
     const exchange = this.container.getOne(exchangeCore.ISO_Code);
     if (!exchange) {

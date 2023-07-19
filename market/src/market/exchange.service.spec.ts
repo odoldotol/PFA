@@ -62,4 +62,8 @@ describe("ExchangeService", () => {
     it.todo("addMarketCloseListener");
   });
 
+  describe("shouldUpdate: 업데이트 해야하는지 여부", () => {
+    it.todo("");
+  });
+
 });

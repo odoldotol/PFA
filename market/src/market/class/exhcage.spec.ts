@@ -7,6 +7,14 @@ describe("Exchange", () => {
     it.todo("");
   });
 
+  describe("getMarketDate", () => {
+    it.todo("");
+  });
+
+  describe("isMarketOpen", () => {
+    it.todo("");
+  });
+
   
 
 });
