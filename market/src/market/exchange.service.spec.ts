@@ -2,10 +2,9 @@ import { Test, TestingModule } from "@nestjs/testing";
 import { ExchangeService } from "./exchange.service";
 import { ExchangeContainer } from "./exchangeContainer";
 import { EXCHANGE_CONFIG_ARR_TOKEN } from "./provider/exchangeConfigArr.provider";
-import { mockExchageConfigArr } from "./mock/exchangeConfigArr";
+import { mockExchageConfigArr, mockExchangeCoreArr } from "./mock/exchange.mock";
 import { ChildApiService } from "./child-api/child-api.service";
-import { mockChildApiService } from "./mock/childApiService";
-import { Exchange } from "./class/exchange";
+import { mockChildApiService } from "./mock/childApiService.mock";
 
 describe("ExchangeService", () => {
   
@@ -49,16 +48,18 @@ describe("ExchangeService", () => {
   });
 
   describe("subscribe: Exchange 구독하기", () => {
-    it("exchangeId 로 exchagne 구독 시작하고 exchange 반환", async () => {
+    it("TExchangeCore 로 exchagne 구독 시작", async () => {
       service.onModuleInit();
-      const exchangeId = mockExchageConfigArr[0].ISO_Code;
-      const exchange = container.getOne(exchangeId)!;
+      const exchange = container.getOne(mockExchangeCoreArr[0].ISO_Code)!;
       const subscribeSpy = jest.spyOn(exchange, "subscribe").mockReturnValue(Promise.resolve());
-      const result = await service.subscribe(exchangeId);
+      await service.subscribe(mockExchangeCoreArr[0]);
       expect(subscribeSpy).toBeCalledTimes(1);
-      expect(result).toBeInstanceOf(Exchange);
-      expect(result === exchange).toBeTruthy();
     });
+  });
+
+  describe("addMarketclose(Open)Listener: market.open, market.close 이벤트 리스너 추가", () => {
+    it.todo("addMarketOpenListener");
+    it.todo("addMarketCloseListener");
   });
 
 });

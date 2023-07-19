@@ -1,4 +1,4 @@
-import { mockChildApiService } from "../mock/childApiService";
+import { mockChildApiService } from "../mock/childApiService.mock";
 import { Exchange } from "./exchange";
 
 describe("Exchange", () => {

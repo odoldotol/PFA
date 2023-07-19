@@ -25,11 +25,8 @@ export class ExchangeService implements OnModuleInit {
     });
   }
 
-  async subscribe(exchangeCore: TExchangeCore) {
-    const exchange = this.container.getOne(exchangeCore.ISO_Code);
-    if (!exchange) {
-      throw new Error("Not exists exchange");
-    }
+  public async subscribe(exchangeCore: TExchangeCore) {
+    const exchange = this.getExchagne(exchangeCore);
     try {
       await exchange.subscribe();
       exchange.on('error', e => {
@@ -38,6 +35,23 @@ export class ExchangeService implements OnModuleInit {
       this.logger.verbose(`Subscribed ${exchange.ISO_Code}`);
     } catch (e) {
       this.logger.warn(e);
+    }
+  }
+
+  public addMarketOpenListener(listener: (...args: any[]) => void, exchangeCore: TExchangeCore) {
+    const exchange = this.getExchagne(exchangeCore);
+    exchange.on('market.open', listener);
+  }
+  
+  public addMarketCloseListener(listener: (...args: any[]) => void, exchangeCore: TExchangeCore) {
+    const exchange = this.getExchagne(exchangeCore);
+    exchange.on('market.close', listener);
+  }
+
+  private getExchagne(exchangeCore: TExchangeCore) {
+    const exchange = this.container.getOne(exchangeCore.ISO_Code);
+    if (!exchange) {
+      throw new Error("Not exists exchange");
     }
     return exchange;
   }

@@ -4,18 +4,18 @@ import { Exchange } from "./class/exchange";
 @Injectable()
 export class ExchangeContainer {
 
-  private readonly exchanges = new Map<Exchange["id"], Exchange>();
+  private readonly exchanges = new Map<Exchange["ISO_Code"], Exchange>();
 
   public add(exchange: Exchange) {
-    const id = exchange.id;
-    if (this.exchanges.has(id)) {
+    const key = exchange.ISO_Code;
+    if (this.exchanges.has(key)) {
       throw new Error("Already exists exchange");
     }
-    this.exchanges.set(id, exchange);
+    this.exchanges.set(key, exchange);
   }
 
-  public getOne(id: Exchange["id"]) {
-    return this.exchanges.get(id);
+  public getOne(key: Exchange["ISO_Code"]) {
+    return this.exchanges.get(key);
   }
 
 }
