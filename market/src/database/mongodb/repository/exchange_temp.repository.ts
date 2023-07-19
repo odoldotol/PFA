@@ -38,13 +38,13 @@ export class ExchangeRepository {
 
   public createOne(
     ISO_Code: string,
-    lastMarketDate: string,
-    yf_exchangeTimezoneName: string
+    ISO_TimezoneName: string,
+    marketDate: string
   ) {
     return new this.status_priceModel({
       ISO_Code,
-      lastMarketDate,
-      yf_exchangeTimezoneName
+      ISO_TimezoneName,
+      marketDate
     }).save();
   }
 

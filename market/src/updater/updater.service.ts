@@ -41,17 +41,17 @@ export class UpdaterService implements OnModuleInit {
   public async initiator() {
     this.logger.log("test-Initiator Run!!!");
     await F.pipe(
-      this.dbRepo.readAllStatusPrice(), F.toAsync,
-      F.map(sp => sp.ISO_Code),
+      this.dbRepo.readAllExchange(), F.toAsync,
       F.map(this.exchangeSrv.subscribe.bind(this.exchangeSrv)),
       F.each(exchange => {
+        // update
+
+        // schedule
         exchange.on('market.open', () => {
           this.logger.verbose(`${exchange.ISO_Code} open`);
         });
         exchange.on('market.close', () => {
           this.logger.verbose(`${exchange.ISO_Code} close`);
-
-          // update and schedule
         });
       })
     );

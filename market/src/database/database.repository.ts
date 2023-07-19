@@ -21,13 +21,13 @@ export class DBRepository {
 
   public createExchange(
     ISO_Code: string,
-    previous_close: string,
-    yf_exchangeTimezoneName: string
+    ISO_TimezoneName: string,
+    previous_close: string
   ) {
     return this.exchangeRepo.createOne(
       ISO_Code,
-      new Date(previous_close).toISOString(),
-      yf_exchangeTimezoneName
+      ISO_TimezoneName,
+      new Date(previous_close).toISOString()
     );
   }
 
@@ -134,7 +134,7 @@ export class DBRepository {
   private updateExchagneByRegularUpdater = (ISO_Code: string, previous_close: string, session: ClientSession) =>
     this.exchangeRepo.findOneAndUpdate(
       { ISO_Code },
-      { lastMarketDate: new Date(previous_close).toISOString() },
+      { marketDate: new Date(previous_close).toISOString() },
       session);
 
   private createLogPriceUpdate = (

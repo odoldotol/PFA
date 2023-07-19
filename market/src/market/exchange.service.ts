@@ -1,4 +1,5 @@
 import { Inject, Injectable, Logger, OnModuleInit } from "@nestjs/common";
+import { TExchangeCore } from "src/common/type/exchange.type";
 import { ChildApiService } from "./child-api/child-api.service";
 import { Exchange } from "./class/exchange";
 import { ExchangeContainer } from "./exchangeContainer";
@@ -24,8 +25,8 @@ export class ExchangeService implements OnModuleInit {
     });
   }
 
-  async subscribe(ISO_Code: Exchange["ISO_Code"]) {
-    const exchange = this.container.getOne(ISO_Code);
+  async subscribe(exchangeCore: TExchangeCore) {
+    const exchange = this.container.getOne(exchangeCore.ISO_Code);
     if (!exchange) {
       throw new Error("Not exists exchange");
     }

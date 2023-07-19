@@ -1,3 +1,4 @@
+import { TExchangeISO } from "src/common/type/exchange.type";
 import { YF_CCC_ISO_Code } from "./yf.const";
 
 /**
@@ -9,12 +10,10 @@ import { YF_CCC_ISO_Code } from "./yf.const";
  * - https://www.iso20022.org/market-identifier-codes
  * - https://github.com/gerrymanoim/exchange_calendars#calendars
  */
-export type TExchangeConfig = {
+export type TExchangeConfig = TExchangeISO & {
   market: string;
-  ISO_Code: string;
   country?: string;
   exchange_website?: string;
-  ISO_TimezoneName: string;
   YF_update_margin?: number;
 }
 
