@@ -88,5 +88,12 @@ export const exchangeConfigArr: TExchangeConfig[] = [
     "country":"Hong Kong",
     "exchange_website":"https://www.hkex.com.hk/?sc_lang=en",
     "ISO_TimezoneName":"Asia/Hong_Kong"
-  }
+  },
+  {
+    "market":"Chicago Mercantile Exchange",
+    "ISO_Code":"CMES",
+    "country":"USA",
+    "exchange_website":"https://www.cmegroup.com/",
+    "ISO_TimezoneName":"America/Chicago"
+  },
 ]
