@@ -42,7 +42,10 @@ export class ExchangeService implements OnModuleInit {
     }
   }
 
-  public registerUpdater(updateAssetsOfExchange: (exchange: Exchange, launcher: LogPriceUpdate["launcher"]) => Promise<void>, exchangeCore: TExchangeCore) {
+  public registerUpdater(
+    updateAssetsOfExchange: (exchange: Exchange, launcher: LogPriceUpdate["launcher"]) => Promise<void>,
+    exchangeCore: TExchangeCore
+  ) {
     const exchange = this.getExchagne(exchangeCore);
     exchange.on(EMarketEvent.UPDATE, () => updateAssetsOfExchange(exchange, "scheduler"));
   }
@@ -52,6 +55,14 @@ export class ExchangeService implements OnModuleInit {
     const result = new Date(exchangeCore.marketDate) < exchange.getMarketDate();
     result && exchange.isMarketOpen() && this.logger.warn(`${exchange.ISO_Code} : shouldUpdate return "true" while Open`);
     return result;
+  }
+
+  public fulfillUpdater(
+    updateAssetsOfExchange: (exchange: Exchange, launcher: LogPriceUpdate["launcher"]) => Promise<void>,
+    exchangeCore: TExchangeCore
+  ) {
+    const exchange = this.getExchagne(exchangeCore);
+    return updateAssetsOfExchange.bind(null, exchange);
   }
 
   private getExchagne(exchangeCore: TExchangeCore) {

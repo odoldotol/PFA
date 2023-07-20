@@ -1,13 +1,13 @@
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { SchedulerRegistry } from '@nestjs/schedule';
-import { CronJob, CronTime } from 'cron';
+import { CronJob } from 'cron';
 import { MarketService } from 'src/market/market.service';
 import { DBRepository } from 'src/database/database.repository';
 import { ProductApiService } from 'src/product-api/product-api.service';
 import { AddAssetsResponse } from './response/addAssets.response';
 import { Either } from "src/common/class/either";
-import { pipe, map, toArray, toAsync, tap, each, filter, concurrent, peek, curry } from "@fxts/core";
+import { pipe, map, toArray, toAsync, tap, each, filter, concurrent, curry } from "@fxts/core"; // Todo: 제거
 import * as F from "@fxts/core";
 import { EnvironmentVariables } from 'src/common/interface/environmentVariables.interface';
 import { EnvKey } from 'src/common/enum/envKey.emun';
@@ -41,19 +41,19 @@ export class UpdaterService implements OnModuleInit {
   }
 
   private async initiator() {
-    this.logger.log("test-Initiator Run!!!");
     await F.pipe(
       this.dbRepo.readAllExchange(), F.toAsync,
-      // F.peek(this.exchangeSrv.subscribe.bind(this.exchangeSrv)),
       F.peek(this.exchangeSrv.registerUpdater.bind(
         this.exchangeSrv,
         this.updateAssetsOfExchange.bind(this)
       )),
       F.filter(this.exchangeSrv.shouldUpdate.bind(this.exchangeSrv)),
-      // 업데이트 실행
-      F.each(() => {})
+      F.map(this.exchangeSrv.fulfillUpdater.bind(
+        this.exchangeSrv,
+        this.updateAssetsOfExchange.bind(this))
+      ),
+      F.each(updater => updater("initiator"))
     );
-    this.logger.log("test-Initiator End!!!");
   }
 
 
@@ -88,7 +88,7 @@ export class UpdaterService implements OnModuleInit {
     const previous_close = exchange.getMarketDate().toISOString();
     const isNotMarketOpen = !exchange.isMarketOpen();
 
-    this.logger.warn(`${ISO_Code} : Updater Run!!!`);
+    this.logger.log(`${ISO_Code} : Updater Run!!!`);
     const startTime = new Date().toISOString();
     await this.dbRepo.updatePriceStandard(
       await pipe(
@@ -103,10 +103,10 @@ export class UpdaterService implements OnModuleInit {
       startTime,
       launcher
     ).then(updateResult => {
-      this.logger.warn(`${ISO_Code} : Updater End!!!`);
+      this.logger.log(`${ISO_Code} : Updater End!!!`);
       this.regularUpdater(ISO_Code, previous_close, updateResult.updatePriceResult);
     }).catch(_ => {
-      this.logger.warn(`${ISO_Code} : Updater Failed!!!`);
+      this.logger.log(`${ISO_Code} : Updater Failed!!!`);
     });
   }
 
@@ -227,8 +227,7 @@ export class UpdaterService implements OnModuleInit {
       return await this.dbRepo.createExchange(ISO_Code, yf_exchangeTimezoneName, exchange.getMarketDate().toISOString()) //
         .then(async res => {
           this.logger.verbose(`${ISO_Code} : Created new status_price`);
-          // this.exchangeSrv.subscribe(res); //
-          // 업데이터 달기
+          this.exchangeSrv.registerUpdater(this.updateAssetsOfExchange.bind(this), res);
           return Either.right(res);
         }).catch(error => {
           this.logger.error(error);
