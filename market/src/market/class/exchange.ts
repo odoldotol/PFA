@@ -12,7 +12,7 @@ import {
   TExchangeSessionError
 } from "../type/exchangeSession.type";
 
-// Todo: 다시 Scheduler 사용하던가 이벤트 관리에만 집중하는 클래스 따로 만들자
+// Todo: 다시 Scheduler 사용하던가 스트림패턴 적용하든 이벤트 관리에만 집중하는 클래스 따로 만들자
 export class Exchange extends EventEmitter {
   private readonly logger = new Logger(Exchange.name);
 
