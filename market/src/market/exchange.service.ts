@@ -48,6 +48,7 @@ export class ExchangeService implements OnModuleInit {
   ) {
     const exchange = this.getExchagne(exchangeCore);
     exchange.on(EMarketEvent.UPDATE, () => updateAssetsOfExchange(exchange, "scheduler"));
+    this.logger.verbose(`${exchange.ISO_Code} : Updater Registered`);
   }
 
   public shouldUpdate(exchangeCore: TExchangeCore) {

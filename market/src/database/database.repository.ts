@@ -24,7 +24,6 @@ export class DBRepository {
     ISO_TimezoneName: string,
     previous_close: string
   ) {
-    console.log("createExchange", ISO_Code, ISO_TimezoneName, previous_close);
     return this.exchangeRepo.createOne(
       ISO_Code,
       ISO_TimezoneName,

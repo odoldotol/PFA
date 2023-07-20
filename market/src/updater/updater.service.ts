@@ -37,10 +37,6 @@ export class UpdaterService implements OnModuleInit {
   ) {}
 
   async onModuleInit() {
-    await this.initiator();
-  }
-
-  private async initiator() {
     await F.pipe(
       this.dbRepo.readAllExchange(), F.toAsync,
       F.peek(this.exchangeSrv.registerUpdater.bind(
@@ -226,7 +222,7 @@ export class UpdaterService implements OnModuleInit {
     } else {
       return await this.dbRepo.createExchange(ISO_Code, yf_exchangeTimezoneName, exchange.getMarketDate().toISOString()) //
         .then(async res => {
-          this.logger.verbose(`${ISO_Code} : Created new status_price`);
+          this.logger.verbose(`${ISO_Code} : Created new Exchange`);
           this.exchangeSrv.registerUpdater(this.updateAssetsOfExchange.bind(this), res);
           return Either.right(res);
         }).catch(error => {
