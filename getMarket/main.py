@@ -1,6 +1,8 @@
 import logging
 from typing import Union
 from fastapi import FastAPI
+from fastapi.exceptions import ResponseValidationError
+from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 import os
 import yfinance as yf
@@ -23,9 +25,9 @@ class Price(BaseModel):
 
 class R_Info(BaseModel):
     info: dict
-    metadata: Union[dict, None]
-    fastinfo: Union[dict, None]
-    price: Union[Price, None]
+    metadata: Union[dict, None] = None
+    fastinfo: Union[dict, None] = None
+    price: Union[Price, None] = None
 
 class R_Session(BaseModel):
     previous_open: str
@@ -41,6 +43,16 @@ app = FastAPI(
     description="Yahoo Finance API, Exchange Calendar API",
 )
 
+@app.exception_handler(ResponseValidationError)
+async def response_validation_exception_handler(request, exc):
+    return JSONResponse(
+        status_code=500,
+        content = {
+            "message": "ResponseValidationError",
+            "detail": str(exc)
+        },
+    )
+
 @app.get("/health", tags=["Health Check"], description="Health Check")
 def health_check():
     return {"status": "ok"}
@@ -55,21 +67,15 @@ def get_info_by_ticker(ticker: str) -> Union[R_Info, R_Error]:
         try:
             # raise Exception("info") # 성능상 info 건너뛰기
             info = Ticker.info
-            metadata = Ticker.get_history_metadata()
         except:
             info = {"symbol": None}
+            result["fastinfo"] = Ticker.fast_info
+            result["price"] = getPrice(Ticker)
         
+        metadata = Ticker.get_history_metadata()
         result["info"] = info
         result["metadata"] = metadata
-
-        if info["symbol"]:
-            return result
-        else:
-            fastinfo = Ticker.fast_info
-            price = getPrice(Ticker)
-            result["fastinfo"] = fastinfo
-            result["price"] = price
-            return result
+        return result
 
     except Exception as e:
         return {
