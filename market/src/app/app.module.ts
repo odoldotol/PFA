@@ -2,12 +2,7 @@ import {
   MiddlewareConsumer,
   Module,
   NestModule,
-  ValidationPipe
 } from '@nestjs/common';
-import {
-  APP_INTERCEPTOR,
-  APP_PIPE
-} from '@nestjs/core';
 import { ConfigModule } from '@nestjs/config';
 import { ScheduleModule } from '@nestjs/schedule';
 import { Pm2Module } from 'src/pm2/pm2.module';
@@ -17,13 +12,13 @@ import { DBModule } from 'src/database/database.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { HttpLoggerMiddleware } from './middleware/httpLogger.middleware';
-import {
-  GlobalInterceptor,
-  KeepAliveInterceptor
-} from './interceptor';
-import { globalValidationPipeOptions } from './const/globalValidationPipeOptions.const';
+import { KeepAliveInterceptor } from './interceptor';
 import { AppTerminator } from './app.terminator';
 import mongoUriConfig from 'src/config/mongoUri.config';
+import {
+  GlobalValidationPipeProvider,
+  GlobalKeepAliveInterceptorProvider
+} from './provider';
 
 @Module({
   imports: [
@@ -42,15 +37,8 @@ import mongoUriConfig from 'src/config/mongoUri.config';
   providers: [
     AppService,
     KeepAliveInterceptor,
-    {
-      provide: APP_INTERCEPTOR,
-      useFactory: (interceptor: KeepAliveInterceptor) => new GlobalInterceptor(interceptor),
-      inject: [KeepAliveInterceptor]
-    },
-    {
-      provide: APP_PIPE,
-      useValue: new ValidationPipe(globalValidationPipeOptions)
-    },
+    GlobalKeepAliveInterceptorProvider,
+    GlobalValidationPipeProvider,
     AppTerminator
   ]
 })

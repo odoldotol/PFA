@@ -4,6 +4,7 @@ import { DBRepository } from 'src/database/database.repository';
 import { ResponseGetPriceByTicker } from './response/getPriceByTicker.response';
 import { exchangeConfigArr } from 'src/config/const/exchanges.const'; //
 
+// Todo: 여기에 서비스 없어야함. 다른데로 옴겨. 리팩터링.
 @Injectable()
 export class AppService {
 
