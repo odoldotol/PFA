@@ -20,8 +20,7 @@ export class ConnectionService implements OnModuleInit {
         isAvailable || 
         this.healthCheck()
         .then(() => {
-          isAvailable = true;
-          this.logger.log("Server is Available");
+          isAvailable || (this.logger.log("Server is Available"), isAvailable = true);
           clearInterval(timer);
           timerCallback = null;
           resolve();
