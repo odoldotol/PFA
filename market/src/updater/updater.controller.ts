@@ -22,24 +22,24 @@ export class UpdaterController {
     addAssets (@Body(UpperCasePipe, new ParseArrayPipe({ items: String })) tickerArr: string[]) {
         return this.updaterService.addAssets(tickerArr);}
 
-    @Post('relaunch')
-    @HttpCode(200)
-    @UseGuards(TempKeyGuard)
-    @Api_initiator()
-    initiator() {
-        return this.updaterService.initiator();}
+    // @Post('relaunch')
+    // @HttpCode(200)
+    // @UseGuards(TempKeyGuard)
+    // @Api_initiator()
+    // initiator() {
+    //     return this.updaterService.initiator();}
 
-    // TODO: launcher Validation 추가하기
-    @Post('force-initiate/:ISO_Code')
-    @HttpCode(200)
-    @UseGuards(TempKeyGuard)
-    @Api_initiateForce()
-    initiateForce(@Param('ISO_Code', UpperCasePipe) ISO_Code: string, @Query('launcher') launcher: LogPriceUpdate["launcher"]) {
-        return this.updaterService.initiateForce(ISO_Code, launcher);} // 메서드 전환중
+    // // TODO: launcher Validation 추가하기
+    // @Post('force-initiate/:ISO_Code')
+    // @HttpCode(200)
+    // @UseGuards(TempKeyGuard)
+    // @Api_initiateForce()
+    // initiateForce(@Param('ISO_Code', UpperCasePipe) ISO_Code: string, @Query('launcher') launcher: LogPriceUpdate["launcher"]) {
+    //     return this.updaterService.initiateForce(ISO_Code, launcher);} // 메서드 전환중
     
-    @Get('schedule')
-    getAllSchedule() {
-        return this.updaterService.getAllSchedule();
-    }
+    // @Get('schedule')
+    // getAllSchedule() {
+    //     return this.updaterService.getAllSchedule();
+    // }
 
 }
