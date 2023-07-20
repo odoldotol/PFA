@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, Logger, OnModuleInit } from '@nestjs/common';
+import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { SchedulerRegistry } from '@nestjs/schedule';
 import { CronJob, CronTime } from 'cron';
@@ -13,6 +13,8 @@ import { EnvironmentVariables } from 'src/common/interface/environmentVariables.
 import { EnvKey } from 'src/common/enum/envKey.emun';
 import { UpdatePriceResult } from 'src/common/interface/updatePriceResult.interface';
 import { ExchangeService } from 'src/market/exchange.service';
+import { Exchange } from 'src/market/class/exchange';
+import { ExchangeDocument } from 'src/database/mongodb/schema/exchange_temp.schema';
 
 /**
  * ### TODO: Refac:
@@ -38,308 +40,208 @@ export class UpdaterService implements OnModuleInit {
     await this.initiator();
   }
 
-  public async initiator() {
+  private async initiator() {
     this.logger.log("test-Initiator Run!!!");
     await F.pipe(
       this.dbRepo.readAllExchange(), F.toAsync,
-      F.map(this.exchangeSrv.subscribe.bind(this.exchangeSrv)),
-      F.each(exchange => {
-        // update
-
-        // schedule
-        exchange.on('market.open', () => {
-          this.logger.verbose(`${exchange.ISO_Code} open`);
-        });
-        exchange.on('market.close', () => {
-          this.logger.verbose(`${exchange.ISO_Code} close`);
-        });
-      })
+      // F.peek(this.exchangeSrv.subscribe.bind(this.exchangeSrv)),
+      F.peek(this.exchangeSrv.registerUpdater.bind(
+        this.exchangeSrv,
+        this.updateAssetsOfExchange.bind(this)
+      )),
+      F.filter(this.exchangeSrv.shouldUpdate.bind(this.exchangeSrv)),
+      // 업데이트 실행
+      F.each(() => {})
     );
     this.logger.log("test-Initiator End!!!");
   }
 
 
-// --------------------------------------------------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------------------------------------------------
+  // ------------ Legacy -----------------------------------------------------
 
+  // Deprecated
+  public getAllSchedule() {
+    const result: { [key: string]: any } = {};
+    this.schedulerRegistry.getCronJobs().forEach((v, k) => {
+      let nextDate: string, lastDate: string
+      try {
+        nextDate = v.nextDate().toUTC().toJSDate().toISOString();
+        lastDate = v.lastDate()?.toISOString();
+      } catch (error) {
+        this.logger.warn(error);
+        nextDate = "Calculating...";
+        lastDate = "Calculating...";
+      }
+      result[k] = {
+        nextDate,
+        lastDate,
+        running: v.running,
+      };
+    });
+    return result;
+  }
 
-    /**
-     * ### TODO - Refac
-     * - price status 가 최신인지 알아내기
-     *      - 최신이면 "다음마감시간에 업데이트스케줄 생성하기"
-     *      - 아니면 "장중인지 알아내기"
-     * - 장중인지 알아내기
-     *      - 장중이아니면 "가격 업데이트하기", "다음마감시간에 업데이트스케줄 생성하기"
-     *      - 장중이면 "다음마감시간에 업데이트스케줄 생성하기"
-     */
-    private async generalInitiate({ISO_Code, lastMarketDate, yf_exchangeTimezoneName}: StatusPrice) {
-        const exchangeSession = (await this.marketService.fetchExchangeSession(ISO_Code)).getRight // TODO - Refac(Error Handling)
-        if (this.isPriceStatusUpToDate(lastMarketDate, exchangeSession)) { // status 최신이면
-            this.logger.verbose(`${ISO_Code} : UpToDate`);
-        } else { // 최신 아니면 // Yf_CCC 는 항상 현재가로 초기화 되는점 알기 (isNotMarketOpen)
-            const isNotMarketOpen = await this.isNotMarketOpen(exchangeSession);
-            isNotMarketOpen ? this.logger.verbose(`${ISO_Code} : Not UpToDate`)
-            : this.logger.verbose(`${ISO_Code} : Not UpToDate & Market Is Open`);
-            await this.updaterForPrice(ISO_Code, yf_exchangeTimezoneName, exchangeSession, isNotMarketOpen, "initiator");
+  // Todo: Refac - Exchange 리팩터링 후 억지로 끼워맞춤
+  private async updateAssetsOfExchange(exchange: Exchange, launcher: LogPriceUpdate["launcher"]) {
+    const ISO_Code = exchange.ISO_Code;
+    const yf_exchangeTimezoneName = exchange.ISO_TimezoneName;
+    const previous_close = exchange.getMarketDate().toISOString();
+    const isNotMarketOpen = !exchange.isMarketOpen();
+
+    this.logger.warn(`${ISO_Code} : Updater Run!!!`);
+    const startTime = new Date().toISOString();
+    await this.dbRepo.updatePriceStandard(
+      await pipe(
+        this.dbRepo.readSymbolArr({ exchangeTimezoneName: yf_exchangeTimezoneName }), toAsync,
+        map(this.marketService.fetchPrice.bind(this.marketService)),
+        map(ele => ele.map(this.fulfillUpdatePriceSet(isNotMarketOpen))),
+        concurrent(this.CHILD_CONCURRENCY),
+        toArray
+      ),
+      ISO_Code,
+      previous_close,
+      startTime,
+      launcher
+    ).then(updateResult => {
+      this.logger.warn(`${ISO_Code} : Updater End!!!`);
+      this.regularUpdater(ISO_Code, previous_close, updateResult.updatePriceResult);
+    }).catch(_ => {
+      this.logger.warn(`${ISO_Code} : Updater Failed!!!`);
+    });
+  }
+
+  private fulfillUpdatePriceSet = curry((
+    isNotMarketOpen: boolean,
+    { symbol, regularMarketPreviousClose, regularMarketPrice }: YfPrice
+  ): UpdatePriceSet => [symbol, {
+    regularMarketPreviousClose,
+    regularMarketPrice,
+    regularMarketLastClose: isNotMarketOpen ? regularMarketPrice : regularMarketPreviousClose
+  }]);
+
+  // Todo: Refac - Exchange 리팩터링 후 아직 함께 이팩터링되지 못함
+  private regularUpdater(
+    ISO_Code: string,
+    previous_close: string,
+    updatePriceResult: UpdatePriceResult
+  ) {
+    const marketDate = previous_close.slice(0, 10);
+    const priceArrs = pipe(
+      updatePriceResult,
+      filter(ele => ele.isRight()),
+      map(ele => ele.getRight),
+      map(ele => [ele[0], ele[1].regularMarketLastClose] as [string, number]),
+      toArray
+    );
+    const rq = async (retry: boolean = false) => {
+      try {
+        retry && this.schedulerRegistry.deleteCronJob(ISO_Code + "_requestRegularUpdater");
+        this.logger.verbose(`${ISO_Code} : RegularUpdater Product Response status ${await this.productApiSvc.updatePriceByExchange(ISO_Code, this.addKey({ marketDate, priceArrs }))
+          }`);
+      } catch (error) {
+        this.logger.error(error);
+        if (retry) this.logger.warn(`${ISO_Code} : RequestRegularUpdater Failed`);
+        else {
+          const retryDate = new Date();
+          retryDate.setMinutes(retryDate.getMinutes() + 5);
+          const retry = new CronJob(retryDate, rq.bind(this, true));
+          this.schedulerRegistry.addCronJob(ISO_Code + "_requestRegularUpdater", retry);
+          retry.start();
+          this.logger.warn(`${ISO_Code} : Retry RequestRegularUpdater after 5 Min. ${retryDate.toLocaleString()}`);
         };
-        // 업데이트스케줄 생성
-        await this.schedulerForPrice(ISO_Code, yf_exchangeTimezoneName, exchangeSession);
-    }
-
-    // TODO: 테스터 -> 강제이니시에이터로 젼환시키기: 트랜젝션 실패시 에러던지던가 실패를 리턴하도록, 로그 그냥 마지막 로그 리턴하는것 수정하기, 응답폼 수정하기
-    async initiateForce(ISO_Code: string, launcher: LogPriceUpdate["launcher"]) {
-        const spObj = await this.dbRepo.readStatusPrice(ISO_Code);
-        if (!spObj) throw new BadRequestException("ISO_Code is not valid");
-        const yf_exchangeTimezoneName = spObj.yf_exchangeTimezoneName;
-        const exchangeSession = (await this.marketService.fetchExchangeSession(ISO_Code)).getRight; // TODO - Refac(Error Handling)
-        const isNotMarketOpen = await this.isNotMarketOpen(exchangeSession);
-        await this.updaterForPrice(ISO_Code, yf_exchangeTimezoneName, exchangeSession, isNotMarketOpen, launcher);
-        await this.schedulerForPrice(ISO_Code, yf_exchangeTimezoneName, exchangeSession);
-        return {
-            spObj: await this.dbRepo.readStatusPrice(ISO_Code),
-            exchangeSession,
-            isUpToDate: this.isPriceStatusUpToDate(spObj.lastMarketDate, exchangeSession),
-            isNotMarketOpen,
-            updateLog: await this.dbRepo.testPickLastUpdateLog(),
-        };
-    }
-
-    // TODO - Refac
-    private async schedulerForPrice(ISO_Code: string, yf_exchangeTimezoneName: string, exchangeSession: ExchangeSession) {
-        const {previousCloseDate, nextCloseDate} = await this.getMarginClose(ISO_Code, exchangeSession);
-        // 마진적용한 직전 마감이 현재 시간보다 늦으면 직전마감이 다음 스케쥴시간이어야 한다
-        // 이 경우 업데이트도 하지 않는게 옳지만, 이렇게 마진구간에서 이 함수가 실행되는 경우는 이니시에어터가 동작하는 등의 특별한 상황일것이므로 무시한다.
-        const scheduleDate = previousCloseDate > new Date() ? previousCloseDate : nextCloseDate;
-        try {
-            if (this.schedulerRegistry.doesExist("cron", ISO_Code)) {
-                const schedule = this.schedulerRegistry.getCronJob(ISO_Code);
-                schedule.setTime(new CronTime(scheduleDate));
-                this.logger.log(`${ISO_Code} : scheduled ${scheduleDate.toLocaleString()}`);
-            } else {
-                const newUpdateSchedule = new CronJob(scheduleDate, this.recusiveUpdaterForPrice.bind(this, ISO_Code, yf_exchangeTimezoneName));
-                this.schedulerRegistry.addCronJob(ISO_Code, newUpdateSchedule);
-                newUpdateSchedule.start();
-                this.logger.log(`${ISO_Code} : [New]scheduled ${scheduleDate.toLocaleString()}`);
-            };
-        } catch (error) {
-            this.logger.error(error);
-        };
-    }
-
-    public getAllSchedule() {
-        const result: {[key: string]: any} = {};
-        this.schedulerRegistry.getCronJobs().forEach((v, k) => {
-            let nextDate: string, lastDate: string
-            try {
-                nextDate = v.nextDate().toUTC().toJSDate().toISOString();
-                lastDate = v.lastDate()?.toISOString();
-            } catch (error) {
-                this.logger.warn(error);
-                nextDate = "Calculating...";
-                lastDate = "Calculating...";
-            }
-            result[k] = {
-                nextDate,
-                lastDate,
-                running: v.running,
-            };
-        });
-        return result;
-    }
-
-    // TODO - Refac
-    private async getMarginClose(ISO_Code: string, exchangeSession: ExchangeSession) {
-        const previousCloseDate = new Date(exchangeSession.previous_close);
-        const nextCloseDate = new Date(exchangeSession.next_close);
-        let marginMilliseconds: number | undefined = await this.dbRepo.readMarginMs(ISO_Code);
-        if (marginMilliseconds === undefined) marginMilliseconds = this.DE_UP_MARGIN;
-        previousCloseDate.setMilliseconds(previousCloseDate.getMilliseconds() + marginMilliseconds);
-        nextCloseDate.setMilliseconds(nextCloseDate.getMilliseconds() + marginMilliseconds);
-        return {previousCloseDate, nextCloseDate};
-    }
-
-    // TODO - Refac
-    private async recusiveUpdaterForPrice(ISO_Code: string, yf_exchangeTimezoneName: string) {
-        const exchangeSession = (await this.marketService.fetchExchangeSession(ISO_Code)).getRight; // TODO - Refac(Error Handling)
-        await this.updaterForPrice(ISO_Code, yf_exchangeTimezoneName, exchangeSession, true, "scheduler");
-        await this.schedulerForPrice(ISO_Code, yf_exchangeTimezoneName, exchangeSession);
-    }
-
-    private async updaterForPrice(
-        ISO_Code: string,
-        yf_exchangeTimezoneName: string,
-        {previous_close}: ExchangeSession,
-        isNotMarketOpen: boolean,
-        launcher: LogPriceUpdate["launcher"]
-    ) {
-        this.logger.warn(`${ISO_Code} : Updater Run!!!`);
-        const startTime = new Date().toISOString();
-        await this.dbRepo.updatePriceStandard(
-            await pipe(
-                this.dbRepo.readSymbolArr({exchangeTimezoneName: yf_exchangeTimezoneName}), toAsync,
-                map(this.marketService.fetchPrice),
-                map(ele => ele.map(this.fulfillUpdatePriceSet(isNotMarketOpen))),
-                concurrent(this.CHILD_CONCURRENCY),
-                toArray
-            ),
-            ISO_Code,
-            previous_close,
-            startTime,
-            launcher
-        ).then(updateResult => {
-            this.logger.warn(`${ISO_Code} : Updater End!!!`);
-            this.regularUpdater(ISO_Code, previous_close, updateResult.updatePriceResult);
-        }).catch(_ => {
-            this.logger.warn(`${ISO_Code} : Updater Failed!!!`);
-        });
-    }
-
-    private fulfillUpdatePriceSet = curry((
-        isNotMarketOpen: boolean,
-        {symbol, regularMarketPreviousClose, regularMarketPrice}: YfPrice
-    ): UpdatePriceSet => [ symbol, {
-        regularMarketPreviousClose,
-        regularMarketPrice,
-        regularMarketLastClose: isNotMarketOpen ? regularMarketPrice : regularMarketPreviousClose
-    } ] );
-
-    // TODO - Refac
-    private regularUpdater (
-        ISO_Code: string,
-        previous_close: ExchangeSession["previous_close"],
-        updatePriceResult: UpdatePriceResult
-    ) {
-        const marketDate = previous_close.slice(0, 10);
-        const priceArrs = pipe(
-            updatePriceResult,
-            filter(ele => ele.isRight()),
-            map(ele => ele.getRight),
-            map(ele => [ele[0], ele[1].regularMarketLastClose] as [string, number]),
-            toArray
-        );
-        const rq = async (retry: boolean = false) => {
-            try {
-                retry && this.schedulerRegistry.deleteCronJob(ISO_Code + "_requestRegularUpdater");
-                this.logger.verbose(`${ISO_Code} : RegularUpdater Product Response status ${
-                    await this.productApiSvc.updatePriceByExchange(ISO_Code, this.addKey({marketDate, priceArrs}))
-                }`);
-            } catch (error) {
-                this.logger.error(error);
-                if (retry) this.logger.warn(`${ISO_Code} : RequestRegularUpdater Failed`);
-                else {
-                    const retryDate = new Date();
-                    retryDate.setMinutes(retryDate.getMinutes() + 5);
-                    const retry = new CronJob(retryDate, rq.bind(this, true));
-                    this.schedulerRegistry.addCronJob(ISO_Code + "_requestRegularUpdater", retry);
-                    retry.start();
-                    this.logger.warn(`${ISO_Code} : Retry RequestRegularUpdater after 5 Min. ${retryDate.toLocaleString()}`);
-                };
-            };
-        };
-        rq();
+      };
     };
+    rq();
+  };
 
-    private isPriceStatusUpToDate = (lastMarketDate: string, {previous_close}: ExchangeSession) => 
-        lastMarketDate === new Date(previous_close).toISOString() ? true : false;
+  // TODO: Refac - 기능 분리
+  // Todo: Refac - Exchange 리팩터링 후 아직 함께 이팩터링되지 못함
+  addAssets = async (tickerArr: string[]) => {
+    const response = new AddAssetsResponse();
+    const spMap: Map<string, string[]> = new Map();
 
-    // TODO: Refac - 기능 분리
-    addAssets = async (tickerArr: string[]) => {
-        const response = new AddAssetsResponse();
-        const spMap: Map<string, string[]> = new Map();
+    await pipe( // 중복제거와 exists필터 부분은 단일 티커처리시 필요없음. 이 부분 보완하기
+      new Set(tickerArr).values(), toAsync,
+      map(this.eitherFilter_existsAsset),
+      map(ele => ele.flatMap(this.marketService.fetchInfo.bind(this.marketService))),
+      map(ele => ele.flatMap(this.fulfillYfInfo.bind(this))),
+      filter(ele => ele.isLeft() ? (response.failure.info.push(ele.getLeft), false) : true),
+      map(ele => ele.getRight),
+      concurrent(this.CHILD_CONCURRENCY),
+      toArray,
+      tap(arr => this.dbRepo.createAssets(arr)
+        .then(res => response.success.info = res)
+        .catch(err => (response.failure.info = response.failure.info.concat(err.writeErrors),
+          response.success.info = response.success.info.concat(err.insertedDocs)))),
+      each(ele => spMap.has(ele.exchangeTimezoneName) ?
+        spMap.get(ele.exchangeTimezoneName)?.push(ele.symbol) // ?
+        : spMap.set(ele.exchangeTimezoneName, [ele.symbol])));
+    await pipe(
+      spMap, toAsync,
+      filter(this.isNewExchange.bind(this)),
+      map(this.applyNewExchange),
+      each(ele => ele.isRight() ?
+      // @ts-ignore // exchange 리팩터링 후 문제
+        response.success.status_price.push(ele.getRight)
+        : response.failure.status_price.push(ele.getLeft)));
+    return response;
+  };
 
-        await pipe( // 중복제거와 exists필터 부분은 단일 티커처리시 필요없음. 이 부분 보완하기
-            new Set(tickerArr).values(), toAsync,
-            map(this.eitherFilter_existsAsset),
-            map(ele => ele.flatMap(this.marketService.fetchInfo)),
-            map(ele => ele.flatMap(this.fulfillYfInfo)),
-            filter(ele => ele.isLeft() ? (response.failure.info.push(ele.getLeft), false) : true),
-            map(ele => ele.getRight),
-            concurrent(this.CHILD_CONCURRENCY),
-            toArray,
-            tap(arr => this.dbRepo.createAssets(arr)
-                .then(res => response.success.info = res)
-                .catch(err => (response.failure.info = response.failure.info.concat(err.writeErrors),
-                    response.success.info = response.success.info.concat(err.insertedDocs)))),
-            each(ele => spMap.has(ele.exchangeTimezoneName) ?
-                spMap.get(ele.exchangeTimezoneName)?.push(ele.symbol) // ?
-                : spMap.set(ele.exchangeTimezoneName, [ele.symbol])));
-        await pipe(
-            spMap, toAsync,
-            filter(this.isNewExchange),
-            map(this.applyNewExchange),
-            each(ele => ele.isRight() ?
-                response.success.status_price.push(ele.getRight)
-                : response.failure.status_price.push(ele.getLeft)));
-        return response;};
+  private eitherFilter_existsAsset = async (ticker: string): Promise<Either<any, string>> =>
+    (await this.dbRepo.existsAssetByTicker(ticker) === null) ?
+      Either.right(ticker) : Either.left({ msg: "Already exists", ticker });
 
-    private eitherFilter_existsAsset = async (ticker: string): Promise<Either<any, string>> =>
-        (await this.dbRepo.existsAssetByTicker(ticker) === null) ?
-        Either.right(ticker) : Either.left({ msg: "Already exists", ticker });
+  // Todo: Refac - Exchange 리팩터링 후 억지로 끼워맞춤
+  private fulfillYfInfo = async (info: YfInfo): Promise<Either<any, FulfilledYfInfo>> => {
+    const exchange = this.exchangeSrv.findExchange(info.exchangeTimezoneName)! //
+    const ISO_Code = exchange.ISO_Code; //
+    return ISO_Code === undefined ?
+      Either.left({
+        msg: "Could not find ISO_Code",
+        yf_exchangeTimezoneName: info.exchangeTimezoneName,
+        yfSymbol: info.symbol
+      })
+      : Either.right({
+        ...info,
+        regularMarketLastClose: !exchange.isMarketOpen() ? info.regularMarketPrice : info.regularMarketPreviousClose
+      })
+  };
 
-    private fulfillYfInfo = async (info: YfInfo): Promise<Either<any, FulfilledYfInfo>> => {
-        const ISO_Code = await this.dbRepo.isoCodeToTimezone(info.exchangeTimezoneName);
-        return ISO_Code === undefined ?
-            Either.left({
-                msg: "Could not find ISO_Code",
-                yf_exchangeTimezoneName: info.exchangeTimezoneName,
-                yfSymbol: info.symbol})
-            : Either.right({
-                ...info,
-                regularMarketLastClose: await this.isNotMarketOpen(ISO_Code) ? info.regularMarketPrice : info.regularMarketPreviousClose})};
+  private async isNewExchange([yf_exchangeTimezoneName, _]: [string, string[]]) {
+    return (await this.dbRepo.existsExchange({ ISO_TimezoneName: yf_exchangeTimezoneName })) === null;
+  }
 
-    /**
-     * #### TODO - Refac - DB 모듈로 일부분 분리
-     * 짧은 시간 연속처리시 market모듈에 ExchangeSession 를 반복 요청하는 등의 isNotMarketOpen 반복 계산 않도록 함(시간 오차범위는 최대 1분으로 제한)
-     * - ISO_Code 를 받으면 db모듈에 저장된 값을 조회하고, ExchangeSession을 받으면 연산해서 알려준다.
-     * - db모듈에서 값을 읽지 못하면 market모듈에 ExchangeSession을 요청하고 연산해서 db모듈에 값을 저장하고 리턴한다.
-     * - db모듈에서 데이터가 매 00초마다 폐기되므로 데이터의 오차범위는 최대 1분이 됨.
-     */
-    private isNotMarketOpen = async (prop: ExchangeSession|string) => {
-        const f = (es: ExchangeSession) => {
-            const {previous_open, previous_close, next_open, next_close} = es;
-            return new Date(previous_open) > new Date(previous_close) && new Date(next_open) > new Date(next_close) ? false : true;
-        };
-        if (typeof prop === 'string') {
-            const res = await this.dbRepo.getIsNotMarketOpen(prop);
-            return res === undefined ? 
-            this.dbRepo.setIsNotMarketOpen(prop, f((await this.marketService.fetchExchangeSession(prop)).getRight)) // TODO - Refac(Error Handling)
-            : res;
-        } else {
-            return f(prop);
-        };
+  // TODO - Refac
+  // Todo: Refac - Exchange 리팩터링 후 억지로 끼워맞춤
+  private applyNewExchange = async ([yf_exchangeTimezoneName, symbolArr]: [string, string[]]): Promise<Either<any, ExchangeDocument>> => {
+    const exchange = this.exchangeSrv.findExchange(yf_exchangeTimezoneName)! //
+    const ISO_Code = exchange.ISO_Code; //
+    if (ISO_Code === undefined) {
+      this.logger.error(`${symbolArr[0]} : Could not find ISO_Code for ${yf_exchangeTimezoneName}`);
+      return Either.left({
+        msg: "Could not find ISO_Code",
+        yf_exchangeTimezoneName,
+        symbol: symbolArr
+      });
+    } else {
+      return await this.dbRepo.createExchange(ISO_Code, yf_exchangeTimezoneName, exchange.getMarketDate().toISOString()) //
+        .then(async res => {
+          this.logger.verbose(`${ISO_Code} : Created new status_price`);
+          // this.exchangeSrv.subscribe(res); //
+          // 업데이터 달기
+          return Either.right(res);
+        }).catch(error => {
+          this.logger.error(error);
+          return Either.left({
+            error,
+            yf_exchangeTimezoneName,
+            symbol: symbolArr
+          });
+        });
     };
+  };
 
-    private isNewExchange = async ([yf_exchangeTimezoneName, _]: [string, string[]]) =>
-        await this.dbRepo.existsStatusPrice({ yf_exchangeTimezoneName }) === null;
+  // @ts-ignore
+  addKey = <T>(body: T) => (body["key"] = this.TEMP_KEY, body);
 
-    // TODO - Refac
-    private applyNewExchange = async ([yf_exchangeTimezoneName, symbolArr]: [string, string[]]): Promise<Either<any, StatusPrice>> => {
-        const ISO_Code = await this.dbRepo.isoCodeToTimezone(yf_exchangeTimezoneName);
-        if (ISO_Code === undefined) {
-            this.logger.error(`${symbolArr[0]} : Could not find ISO_Code for ${yf_exchangeTimezoneName}`);
-            return Either.left({
-                msg: "Could not find ISO_Code",
-                yf_exchangeTimezoneName,
-                symbol: symbolArr
-            });
-        } else {
-            const exchangeSession = (await this.marketService.fetchExchangeSession(ISO_Code)).getRight; // TODO - Refac(Error Handling)
-            return await this.dbRepo.createStatusPrice(ISO_Code, exchangeSession.previous_close, yf_exchangeTimezoneName)
-            .then(async res => {
-                this.logger.verbose(`${ISO_Code} : Created new status_price`);
-                this.schedulerForPrice(ISO_Code, yf_exchangeTimezoneName, exchangeSession);
-                return Either.right(res);
-            }).catch(error => {
-                this.logger.error(error);
-                return Either.left({
-                    error,
-                    yf_exchangeTimezoneName,
-                    symbol: symbolArr
-                });
-            });
-        };};
-
-    // @ts-ignore
-    addKey = <T>(body: T) => (body["key"] = this.TEMP_KEY, body);
-    
 }
