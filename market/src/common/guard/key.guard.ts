@@ -10,11 +10,12 @@ export class TempKeyGuard implements CanActivate {
       private readonly configService: ConfigService,
   ) {}
 
-  canActivate = (context: ExecutionContext) => {
+  canActivate(context: ExecutionContext) {
     const request = context.switchToHttp().getRequest();
     if (request.body.key === this.TEMP_KEY) {
       delete request.body.key;
       return true;
-    } else return false;};
+    } else return false;
+  };
 
 }

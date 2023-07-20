@@ -3,6 +3,7 @@ import { HttpService } from '@nestjs/axios';
 import { catchError, firstValueFrom, map } from 'rxjs';
 import { AxiosError } from 'axios';
 import { Either } from "src/common/class/either";
+import { TExchangeSession, TExchangeSessionError } from '../type';
 
 @Injectable()
 export class ChildApiService {
@@ -22,7 +23,7 @@ export class ChildApiService {
   }
 
   public fetchEcSession(ISO_Code: string) {
-    return this.post(`ec/session/${ISO_Code}`) as Promise<Either<ExchangeSessionError, ExchangeSession>>;
+    return this.post(`ec/session/${ISO_Code}`) as Promise<Either<TExchangeSessionError, TExchangeSession>>;
   }
 
   private post(url: string) {

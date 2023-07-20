@@ -1,3 +1,5 @@
+// Todo: Refac
+
 interface GetMarketInfo {
     readonly info: object,
     readonly fastinfo: object,

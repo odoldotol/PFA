@@ -1,3 +1,5 @@
+// Todo: Refac
+
 interface YfInfo extends YfPrice {
     readonly quoteType: string
     readonly currency: string

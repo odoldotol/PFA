@@ -1,4 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger";
+import { TExchangeCore } from "src/common/type/exchange.type";
 
 export class AddAssetsResponse {
     
@@ -14,7 +15,7 @@ export class AddAssetsResponse {
 	}], status_price: []}, description: '생성된 Assets의 정보와 새로운 거래소를 발견한 경우, 생성된 status_price 를 포함합니다.' })
     readonly success: {
         info: FulfilledYfInfo[],
-        status_price: StatusPrice[],
+        status_price: TExchangeCore[], // Todo: Refac
     };
 
     @ApiProperty({ type: Object, example: {info: [{

@@ -6,7 +6,7 @@ import { YF_CCC_ISO_Code, YF_update_margin_default } from "src/config/const/yf.c
 import { EventEmitter } from "stream";
 import { ChildApiService } from "../child-api/child-api.service";
 import { EMarketEvent } from "../enum/eventName.enum";
-import { TCloseEventArgs, TOpenEventArgs } from "../type/eventListner.type";
+import { TCloseEventArgs, TOpenEventArgs } from "../type";
 import {
   TExchangeSession,
   TExchangeSessionError

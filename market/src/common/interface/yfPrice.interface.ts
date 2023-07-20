@@ -1,3 +1,5 @@
+// Todo: Refac
+
 interface Price {
     readonly regularMarketPrice: number
     readonly regularMarketPreviousClose: number

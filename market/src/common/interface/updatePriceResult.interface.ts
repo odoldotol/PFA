@@ -1,11 +1,13 @@
-import { ExchangeDocument } from "src/database/mongodb/schema/exchange_temp.schema";
+// Todo: Refac
+
 import { Either } from "../class/either"
+import { TExchangeCore } from "../type/exchange.type";
 
 export type UpdatePriceResult = Either<YfPriceError | UpdatePriceError, UpdatePriceSet>[];
 
 export type StandardUpdatePriceResult = Readonly<{
     updatePriceResult: UpdatePriceResult
-    updateSatusPriceResult: StatusPrice | null | ExchangeDocument // exchagne 리팩터링 후 문제
+    updateSatusPriceResult: TExchangeCore | null
     startTime: string
     endTime: string
 }>;

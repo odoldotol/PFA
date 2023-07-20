@@ -1,3 +1,5 @@
+// Todo: Refac
+
 type LogPriceUpdate = Readonly<{
     launcher: "initiator" | "scheduler" | "admin" | "product" | "test"
     isStandard: boolean
