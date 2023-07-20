@@ -1,5 +1,6 @@
 import { Logger } from "@nestjs/common";
 import { Either } from "src/common/class/either";
+import { toLoggingStyle } from "src/common/util/toLoggingStyle";
 import { TExchangeConfig } from "src/config/const/exchanges.const";
 import { YF_CCC_ISO_Code, YF_update_margin_default } from "src/config/const/yf.const";
 import { EventEmitter } from "stream";
@@ -11,6 +12,7 @@ import {
   TExchangeSessionError
 } from "../type/exchangeSession.type";
 
+// Todo: 다시 Scheduler 사용하던가 이벤트 관리에만 집중하는 클래스 따로 만들자
 export class Exchange extends EventEmitter {
   private readonly logger = new Logger(Exchange.name);
 
@@ -98,7 +100,7 @@ export class Exchange extends EventEmitter {
       this.calculateRemainingTimeInMs(nextOpenDate)
     );
     this.logger.verbose(
-      `${this.ISO_Code} : NextOpen at ${nextOpenDate.toLocaleString("ko-KR")}`);
+      `${this.ISO_Code} : NextOpen at ${toLoggingStyle(nextOpenDate)}`);
   }
 
   private subscribeNextClose(nextCloseDate: Date) {
@@ -107,7 +109,7 @@ export class Exchange extends EventEmitter {
       this.calculateRemainingTimeInMs(nextCloseDate)
     );
     this.logger.verbose(
-      `${this.ISO_Code} : NextClose at ${nextCloseDate.toLocaleString("ko-KR")}`);
+      `${this.ISO_Code} : NextClose at ${toLoggingStyle(nextCloseDate)}`);
   }
 
   private subscribeNextUpdate(nextUpdateDate: Date) {
@@ -116,7 +118,7 @@ export class Exchange extends EventEmitter {
       this.calculateRemainingTimeInMs(nextUpdateDate)
     );
     this.logger.verbose(
-      `${this.ISO_Code} : NextUpdate at ${nextUpdateDate.toLocaleString("ko-KR")}`);
+      `${this.ISO_Code} : NextUpdate at ${toLoggingStyle(nextUpdateDate)}`);
   }
 
   private getSesstion() {
@@ -185,7 +187,7 @@ export class Exchange extends EventEmitter {
   }
 
   private getNextUpdateDate(nextCloseDate: Date) {
-    const nextUpdateDate = nextCloseDate;
+    const nextUpdateDate = new Date(nextCloseDate);
     nextUpdateDate.setMilliseconds(nextUpdateDate.getMilliseconds() + this.YF_update_margin);
     return nextUpdateDate;
   }
@@ -193,7 +195,7 @@ export class Exchange extends EventEmitter {
   private isInMarginGap() {
     const now = new Date();
     const previousCloseDate = new Date(this.getSesstion().previous_close);
-    const previousCloseAddeMarginDate = previousCloseDate;
+    const previousCloseAddeMarginDate = new Date(previousCloseDate);
     previousCloseAddeMarginDate
       .setMilliseconds(previousCloseAddeMarginDate.getMilliseconds() + this.YF_update_margin);
     return previousCloseDate < now && now < previousCloseAddeMarginDate && previousCloseAddeMarginDate;
