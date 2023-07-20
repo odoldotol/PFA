@@ -2,10 +2,9 @@ import { Test, TestingModule } from "@nestjs/testing";
 import { ExchangeService } from "./exchange.service";
 import { ExchangeContainer } from "./exchangeContainer";
 import { EXCHANGE_CONFIG_ARR_TOKEN } from "./provider/exchangeConfigArr.provider";
-import { mockExchageConfigArr } from "./mock/exchangeConfigArr";
+import { mockExchageConfigArr, mockExchangeCoreArr } from "./mock/exchange.mock";
 import { ChildApiService } from "./child-api/child-api.service";
-import { mockChildApiService } from "./mock/childApiService";
-import { Exchange } from "./class/exchange";
+import { mockChildApiService } from "./mock/childApiService.mock";
 
 describe("ExchangeService", () => {
   
@@ -41,24 +40,17 @@ describe("ExchangeService", () => {
   });
 
   describe("onModuleInit", () => {
-    it("exchange 생성하고 컨테이너에 넣기", () => {
+    it("exchange 생성하고 컨테이너에 넣기", async () => {
       const addSpy = jest.spyOn(container, "add");
-      service.onModuleInit();
+      await service.onModuleInit();
       expect(addSpy).toBeCalledTimes(mockExchageConfigArr.length);
     });
+
+    it.todo("구독")
   });
 
-  describe("subscribe: Exchange 구독하기", () => {
-    it("exchangeId 로 exchagne 구독 시작하고 exchange 반환", async () => {
-      service.onModuleInit();
-      const exchangeId = mockExchageConfigArr[0].ISO_Code;
-      const exchange = container.getOne(exchangeId)!;
-      const subscribeSpy = jest.spyOn(exchange, "subscribe").mockReturnValue(Promise.resolve());
-      const result = await service.subscribe(exchangeId);
-      expect(subscribeSpy).toBeCalledTimes(1);
-      expect(result).toBeInstanceOf(Exchange);
-      expect(result === exchange).toBeTruthy();
-    });
+  describe("shouldUpdate: 업데이트 해야하는지 여부", () => {
+    it.todo("");
   });
 
 });

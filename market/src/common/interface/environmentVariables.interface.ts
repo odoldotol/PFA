@@ -11,7 +11,6 @@ export interface EnvironmentVariables {
     [EnvKey.Child_concurrency]: number;
     [EnvKey.ProductApiTimeout]: number;
     [EnvKey.TempKey]: string;
-    [EnvKey.Yf_update_margin_ms_default]: number;
 
     // pm2
     [EnvKey.Pm2_name]: string;

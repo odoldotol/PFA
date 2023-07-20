@@ -1,6 +1,5 @@
 import { Body, Controller, Get, HttpCode, Param, Post, UseGuards, VERSION_NEUTRAL, Version } from '@nestjs/common';
 import { AppService } from './app.service';
-import { ConfigExchangeDto } from './dto/configExchange.dto';
 import { UpperCasePipe } from 'src/common/pipe/upperCasePipe';
 import { TempKeyGuard } from 'src/common/guard/key.guard';
 import { ApiCommonResponse } from 'src/common/decorator/apiCommonResponse.decorator';
@@ -33,11 +32,5 @@ export class AppController {
     @Api_getPriceByTicker()
     getPriceByTicker(@Param('ticker', UpperCasePipe) ticker: string) {
         return this.appService.getPriceByTicker(ticker);}
-
-    @Post('config/exchange')
-    @UseGuards(TempKeyGuard)
-    @Api_createConfigExchange() // TODO: detail
-    createConfigExchange(@Body() body: ConfigExchangeDto) {
-        return this.appService.createConfigExchange(body);}
 
 }

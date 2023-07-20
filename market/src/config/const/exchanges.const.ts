@@ -1,4 +1,5 @@
-import { YF_CCC_ISO_Code } from "./yf_ccc_code.const";
+import { TExchangeISO } from "src/common/type/exchange.type";
+import { YF_CCC_ISO_Code } from "./yf.const";
 
 /**
  * #### Property Description:
@@ -9,14 +10,12 @@ import { YF_CCC_ISO_Code } from "./yf_ccc_code.const";
  * - https://www.iso20022.org/market-identifier-codes
  * - https://github.com/gerrymanoim/exchange_calendars#calendars
  */
-export type TExchangeConfig = {
+export type TExchangeConfig = TExchangeISO & Readonly<{
   market: string;
-  ISO_Code: string;
   country?: string;
   exchange_website?: string;
-  ISO_TimezoneName: string;
   YF_update_margin?: number;
-}
+}>;
 
 export const exchangeConfigArr: TExchangeConfig[] = [
   {
@@ -89,5 +88,12 @@ export const exchangeConfigArr: TExchangeConfig[] = [
     "country":"Hong Kong",
     "exchange_website":"https://www.hkex.com.hk/?sc_lang=en",
     "ISO_TimezoneName":"Asia/Hong_Kong"
-  }
+  },
+  {
+    "market":"Chicago Mercantile Exchange",
+    "ISO_Code":"CMES",
+    "country":"USA",
+    "exchange_website":"https://www.cmegroup.com/",
+    "ISO_TimezoneName":"America/Chicago"
+  },
 ]

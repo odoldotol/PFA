@@ -1,23 +1,30 @@
+import { Logger } from "@nestjs/common";
 import { Either } from "src/common/class/either";
+import { toLoggingStyle } from "src/common/util/toLoggingStyle";
 import { TExchangeConfig } from "src/config/const/exchanges.const";
-import { YF_CCC_ISO_Code } from "src/config/const/yf_ccc_code.const";
+import { YF_CCC_ISO_Code, YF_update_margin_default } from "src/config/const/yf.const";
 import { EventEmitter } from "stream";
 import { ChildApiService } from "../child-api/child-api.service";
+import { EMarketEvent } from "../enum/eventName.enum";
+import { TCloseEventArgs, TOpenEventArgs } from "../type/eventListner.type";
 import {
   TExchangeSession,
   TExchangeSessionError
 } from "../type/exchangeSession.type";
 
+// Todo: 다시 Scheduler 사용하던가 이벤트 관리에만 집중하는 클래스 따로 만들자
 export class Exchange extends EventEmitter {
+  private readonly logger = new Logger(Exchange.name);
 
-  private readonly market: string;
-  private readonly ISO_Code: string; // id
-  private readonly ISO_TimezoneName: string;
+  public readonly market: string;
+  public readonly ISO_Code: string; // id
+  public readonly ISO_TimezoneName: string;
+  public readonly YF_update_margin: number;
   private readonly childApiSrv: ChildApiService;
   private session?: TExchangeSession;
   private isSubscribed = false;
-  private isMarketOpen?: boolean;
-  private marketDate?: string;
+  private marketOpen?: boolean;
+  private marketDate?: Date;
 
   constructor(
     exchangeConfig: TExchangeConfig,
@@ -27,11 +34,8 @@ export class Exchange extends EventEmitter {
     this.market = exchangeConfig.market;
     this.ISO_Code = exchangeConfig.ISO_Code;
     this.ISO_TimezoneName = exchangeConfig.ISO_TimezoneName;
+    this.YF_update_margin = exchangeConfig.YF_update_margin || YF_update_margin_default;
     this.childApiSrv = childApiSrv;
-  }
-
-  get id() {
-    return this.ISO_Code;
   }
 
   public async subscribe() {
@@ -39,11 +43,30 @@ export class Exchange extends EventEmitter {
       throw new Error("Already subscribed");
     }
     await this.updateSession();
-    this.calculateIsMarketOpen();
+    const marketOpen = this.calculateMarketOpen()
+    if (marketOpen) {
+      this.executeSubscribesWhenOpen();
+    } else {
+      this.executeSubscribesWhenClose();
+      const nextUpdateDate = this.isInMarginGap();
+      nextUpdateDate && this.subscribeNextUpdate(nextUpdateDate);
+    }
     this.calculateMarketDate();
-    this.subscribeNextOpen();
-    this.subscribeNextClose();
     this.isSubscribed = true;
+  }
+
+  public getMarketDate() {
+    if (!this.marketDate) {
+      throw new Error("marketDate is not defined");
+    }
+    return this.marketDate;
+  }
+
+  public isMarketOpen() {
+    if (this.marketOpen === undefined) {
+      throw new Error("isMarketOpen is not defined");
+    }
+    return this.marketOpen;
   }
 
   private async updateSession() {
@@ -61,29 +84,41 @@ export class Exchange extends EventEmitter {
     }
   };
 
-  private calculateIsMarketOpen() {
+  private calculateMarketOpen() {
     const { previous_open, previous_close } = this.getSesstion();
-    this.isMarketOpen = new Date(previous_open) > new Date(previous_close);
+    this.marketOpen = new Date(previous_open) > new Date(previous_close);
+    return this.marketOpen;
   }
 
   private calculateMarketDate() {
-    this.marketDate = new Date(this.getSesstion().previous_close).toISOString();
+    this.marketDate = new Date(this.getSesstion().previous_close);
   }
 
-  private subscribeNextOpen() {
-    const nextOpenDate = new Date(this.getSesstion().next_open);
+  private subscribeNextOpen(nextOpenDate: Date) {
     setTimeout(
       this.marketOpenHandler.bind(this),
-      this.calRemainingTimeInMs(nextOpenDate)
+      this.calculateRemainingTimeInMs(nextOpenDate)
     );
+    this.logger.verbose(
+      `${this.ISO_Code} : NextOpen at ${toLoggingStyle(nextOpenDate)}`);
   }
 
-  private subscribeNextClose() {
-    const nextCloseDate = new Date(this.getSesstion().next_close);
+  private subscribeNextClose(nextCloseDate: Date) {
     setTimeout(
       this.marketCloseHandler.bind(this),
-      this.calRemainingTimeInMs(nextCloseDate)
+      this.calculateRemainingTimeInMs(nextCloseDate)
     );
+    this.logger.verbose(
+      `${this.ISO_Code} : NextClose at ${toLoggingStyle(nextCloseDate)}`);
+  }
+
+  private subscribeNextUpdate(nextUpdateDate: Date) {
+    setTimeout(
+      this.marketUpdateHandler.bind(this),
+      this.calculateRemainingTimeInMs(nextUpdateDate)
+    );
+    this.logger.verbose(
+      `${this.ISO_Code} : NextUpdate at ${toLoggingStyle(nextUpdateDate)}`);
   }
 
   private getSesstion() {
@@ -95,10 +130,12 @@ export class Exchange extends EventEmitter {
 
   private async marketOpenHandler() {
     try {
-      this.isMarketOpen = true;
+      this.marketOpen = true;
       await this.updateSession();
-      this.emit("market.open", this);
-      this.subscribeNextOpen();
+      this.logger.verbose(`${this.ISO_Code} : Open`);
+      const { nextCloseDate, nextUpdateDate } = this.executeSubscribesWhenOpen();
+      const openEventArgs: TOpenEventArgs = [ nextCloseDate, nextUpdateDate ];
+      this.emit(EMarketEvent.OPEN, ...openEventArgs);
     } catch (e) {
       this.emit("error", e);
     }
@@ -106,18 +143,62 @@ export class Exchange extends EventEmitter {
 
   private async marketCloseHandler() {
     try {
-      this.isMarketOpen = false;
+      this.marketOpen = false;
       await this.updateSession();
       this.calculateMarketDate();
-      this.emit("market.close", this);
-      this.subscribeNextClose();
+      this.logger.verbose(`${this.ISO_Code} : Close`);
+      const { nextOpenDate } = this.executeSubscribesWhenClose();
+      const closeEventArgs: TCloseEventArgs = [ nextOpenDate ];
+      this.emit(EMarketEvent.CLOSE, ...closeEventArgs);
     } catch (e) {
       this.emit("error", e);
     }
   }
 
-  private calRemainingTimeInMs(date: Date) {
+  private marketUpdateHandler() {
+    this.logger.verbose(`${this.ISO_Code} : Update`);
+    this.emit(EMarketEvent.UPDATE);
+  }
+
+  private executeSubscribesWhenOpen() {
+    const nextCloseDate = this.getNextCloseDate();
+    const nextUpdateDate = this.getNextUpdateDate(nextCloseDate);
+    this.subscribeNextClose(nextCloseDate);
+    this.subscribeNextUpdate(nextUpdateDate);
+    return { nextCloseDate, nextUpdateDate };
+  }
+  
+  private executeSubscribesWhenClose() {
+    const nextOpenDate = this.getNextOpenDate();
+    this.subscribeNextOpen(nextOpenDate);
+    return { nextOpenDate };
+  }
+
+  private calculateRemainingTimeInMs(date: Date) {
     return date.getTime() - new Date().getTime();
+  }
+
+  private getNextOpenDate() {
+    return new Date(this.getSesstion().next_open);
+  }
+
+  private getNextCloseDate() {
+    return new Date(this.getSesstion().next_close);
+  }
+
+  private getNextUpdateDate(nextCloseDate: Date) {
+    const nextUpdateDate = new Date(nextCloseDate);
+    nextUpdateDate.setMilliseconds(nextUpdateDate.getMilliseconds() + this.YF_update_margin);
+    return nextUpdateDate;
+  }
+
+  private isInMarginGap() {
+    const now = new Date();
+    const previousCloseDate = new Date(this.getSesstion().previous_close);
+    const previousCloseAddeMarginDate = new Date(previousCloseDate);
+    previousCloseAddeMarginDate
+      .setMilliseconds(previousCloseAddeMarginDate.getMilliseconds() + this.YF_update_margin);
+    return previousCloseDate < now && now < previousCloseAddeMarginDate && previousCloseAddeMarginDate;
   }
 
   /**

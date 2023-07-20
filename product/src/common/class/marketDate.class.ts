@@ -9,7 +9,7 @@ export class MarketDate extends String implements MarketDateI {
     }
 
     static fromSpDoc(spDoc: StatusPrice): MarketDate {
-        return new this(spDoc.lastMarketDate.slice(0, 10));
+        return new this(spDoc.marketDate.slice(0, 10));
     }
 
     get get () {

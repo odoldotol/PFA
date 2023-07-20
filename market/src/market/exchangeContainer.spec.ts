@@ -1,8 +1,8 @@
 import { Test, TestingModule } from "@nestjs/testing";
 import { ExchangeContainer } from "./exchangeContainer";
 import { Exchange } from "./class/exchange";
-import { mockExchageConfigArr } from "./mock/exchangeConfigArr";
-import { mockChildApiService } from "./mock/childApiService";
+import { mockExchageConfigArr } from "./mock/exchange.mock";
+import { mockChildApiService } from "./mock/childApiService.mock";
 
 describe("ExchangeContainer", () => {
 
@@ -31,9 +31,9 @@ describe("ExchangeContainer", () => {
 
   describe("add", () => {
     it("Exchange 추가", () => {
-      expect(container.getOne(mockExchange1.id)).toBeUndefined();
+      expect(container.getOne(mockExchange1.ISO_Code)).toBeUndefined();
       container.add(mockExchange1);
-      expect(container.getOne(mockExchange1.id)).toBe(mockExchange1);
+      expect(container.getOne(mockExchange1.ISO_Code)).toBe(mockExchange1);
     });
     it("컨테이너 안의 Exchange 는 ISO_Code 에 대해 유니크해야함", () => {
       container.add(mockExchange1);
@@ -47,8 +47,8 @@ describe("ExchangeContainer", () => {
     it("ISO_Code로 Exchange 가져오기", () => {
       container.add(mockExchange1);
       container.add(mockExchange2);
-      expect(container.getOne(mockExchange1.id)).toBe(mockExchange1);
-      expect(container.getOne(mockExchange2.id)).toBe(mockExchange2);
+      expect(container.getOne(mockExchange1.ISO_Code)).toBe(mockExchange1);
+      expect(container.getOne(mockExchange2.ISO_Code)).toBe(mockExchange2);
     });
   });
 
