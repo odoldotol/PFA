@@ -7,7 +7,15 @@ export class DevService {
     constructor(
         private readonly dbRepo: DBRepository) {}
 
-    getAllAssetsInfo = this.dbRepo.readAllAssetsInfo;
-    getAllStatusPrice = this.dbRepo.readAllStatusPrice;
-    getUpdateLog = this.dbRepo.readUpdateLog;
+    public getAllAssetsInfo() {
+        return this.dbRepo.readAllAssetsInfo()
+    };
+
+    public getAllStatusPrice() {
+        return this.dbRepo.readAllExchange()
+    };
+
+    public getUpdateLog(ISO_Code?: string, limit?: number) {
+        return this.dbRepo.readUpdateLog(ISO_Code, limit);
+    };
 }

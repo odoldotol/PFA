@@ -24,6 +24,7 @@ export class DBRepository {
     ISO_TimezoneName: string,
     previous_close: string
   ) {
+    console.log("createExchange", ISO_Code, ISO_TimezoneName, previous_close);
     return this.exchangeRepo.createOne(
       ISO_Code,
       ISO_TimezoneName,
@@ -47,7 +48,7 @@ export class DBRepository {
     return this.exchangeRepo.findAll();
   }
 
-  public readStatusPrice(ISO_Code: string) {
+  public readExchange(ISO_Code: string) {
     return this.exchangeRepo.findOneByISOcode(ISO_Code);
   }
 
@@ -62,9 +63,11 @@ export class DBRepository {
 
   /**
   * ### ISO_Code 로 조회 => [symbol, price, currency][]
+  * 
+  * Todo: Refac - Exchange 리팩터링 후 억지로 끼워맞춤
   */
   readPriceByISOcode = async (ISO_Code: string) =>
-    this.yf_infoRepo.findPricesByExchange(await this.isoCodeToTimezone(ISO_Code) as string) // TODO - Refac(as)
+    this.yf_infoRepo.findPricesByExchange((await this.readExchange(ISO_Code))!.ISO_TimezoneName) //
       .then(arr => arr.map(ele => [ele.symbol, ele.regularMarketLastClose, ele.quoteType === "INDEX" ? "INDEX" : ele.currency]));
 
   /**
@@ -93,8 +96,10 @@ export class DBRepository {
         startTime,
         endTime: new Date().toISOString()
       };
+      // @ts-ignore // exchange 리팩터링 후 문제
       await this.createLogPriceUpdate(launcher, true, ISO_Code, updateResult, session);
       await session.commitTransaction();
+      // @ts-ignore // exchange 리팩터링 후 문제
       return updateResult;
     } catch (error) {
       this.logger.error(error);

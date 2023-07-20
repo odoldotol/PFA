@@ -2,7 +2,7 @@ import { Injectable, InternalServerErrorException, NotFoundException } from '@ne
 import { UpdaterService } from 'src/updater/updater.service';
 import { DBRepository } from 'src/database/database.repository';
 import { ResponseGetPriceByTicker } from './response/getPriceByTicker.response';
-import F from '@fxts/core';
+import { exchangeConfigArr } from 'src/config/const/exchanges.const'; //
 
 @Injectable()
 export class AppService {
@@ -35,12 +35,11 @@ export class AppService {
         });
         return new ResponseGetPriceByTicker(
             price.regularMarketLastClose,
-            await this.dbRepo.isoCodeToTimezone(price["exchangeTimezoneName"]) as string, // as
+            exchangeConfigArr.find(ele => ele.ISO_TimezoneName === price.exchangeTimezoneName)!.ISO_Code, // exchange 리팩터링 후 문제
             price.quoteType === "INDEX" ? "INDEX" : price.currency,
             status_price);
     }
 
     getPriceByExchange = this.dbRepo.readPriceByISOcode;
-    createConfigExchange = this.dbRepo.createConfigExchange;
 
 }
