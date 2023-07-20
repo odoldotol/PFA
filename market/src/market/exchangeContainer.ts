@@ -18,4 +18,10 @@ export class ExchangeContainer {
     return this.exchanges.get(key);
   }
 
+  // ----------- Legacy 지원 메서드 ------------------------------
+  // Todo: 리팩터링 완료후 사라져야할 메서드
+  public getAll() {
+    return this.exchanges;
+  }
+
 }

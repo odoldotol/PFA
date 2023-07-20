@@ -40,22 +40,13 @@ describe("ExchangeService", () => {
   });
 
   describe("onModuleInit", () => {
-    it("exchange 생성하고 컨테이너에 넣기", () => {
+    it("exchange 생성하고 컨테이너에 넣기", async () => {
       const addSpy = jest.spyOn(container, "add");
-      service.onModuleInit();
+      await service.onModuleInit();
       expect(addSpy).toBeCalledTimes(mockExchageConfigArr.length);
     });
-  });
 
-  describe("subscribe: Exchange 구독하기", () => {
-    it("TExchangeCore 로 exchagne 구독 시작", async () => {
-      service.onModuleInit();
-      const exchange = container.getOne(mockExchangeCoreArr[0].ISO_Code)!;
-      const subscribeSpy = jest.spyOn(exchange, "subscribe")
-        .mockReturnValue(Promise.resolve());
-      await service.subscribe(mockExchangeCoreArr[0]);
-      expect(subscribeSpy).toBeCalledTimes(1);
-    });
+    it.todo("구독")
   });
 
   describe("shouldUpdate: 업데이트 해야하는지 여부", () => {

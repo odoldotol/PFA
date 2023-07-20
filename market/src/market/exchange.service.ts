@@ -8,6 +8,7 @@ import {
   EXCHANGE_CONFIG_ARR_TOKEN,
   TExchangeConfigArrProvider
 } from "./provider/exchangeConfigArr.provider";
+import * as F from "@fxts/core";
 
 @Injectable()
 export class ExchangeService implements OnModuleInit {
@@ -20,17 +21,19 @@ export class ExchangeService implements OnModuleInit {
     private readonly childApiSrv: ChildApiService
   ) {}
 
-  onModuleInit() {
-    this.exchangeConfigArr.forEach((exchangeConfig) => {
-      this.container.add(new Exchange(exchangeConfig, this.childApiSrv)); // is it anti-pattern?
-    });
+  async onModuleInit() {
+    await F.pipe(
+      this.exchangeConfigArr, F.toAsync,
+      F.map(a => new Exchange(a, this.childApiSrv)), // is it anti-pattern?
+      F.peek(this.subscribe.bind(this)),
+      F.each(a => this.container.add(a))
+    );
   }
 
-  public async subscribe(exchangeCore: TExchangeCore) {
-    const exchange = this.getExchagne(exchangeCore);
+  private async subscribe(exchange: Exchange) {
     try {
       exchange.on('error', e => {
-        throw e;
+        throw e; //
       });
       await exchange.subscribe();
     } catch (e) {
@@ -38,9 +41,9 @@ export class ExchangeService implements OnModuleInit {
     }
   }
 
-  public registerUpdater(updateAssetsOfExchange: (exchange: Exchange) => Promise<void>, exchangeCore: TExchangeCore) {
+  public registerUpdater(updateAssetsOfExchange: (exchange: Exchange, launcher: LogPriceUpdate["launcher"]) => Promise<void>, exchangeCore: TExchangeCore) {
     const exchange = this.getExchagne(exchangeCore);
-    exchange.on(EMarketEvent.UPDATE, () => updateAssetsOfExchange(exchange));
+    exchange.on(EMarketEvent.UPDATE, () => updateAssetsOfExchange(exchange, "scheduler"));
   }
 
   public shouldUpdate(exchangeCore: TExchangeCore) {
@@ -56,6 +59,16 @@ export class ExchangeService implements OnModuleInit {
       throw new Error("Not exists exchange");
     }
     return exchange;
+  }
+
+  // ----------- Legacy 지원 메서드 ------------------------------
+  // Todo: 리팩터링 완료후 사라져야할 메서드
+  public findExchange(ISO_TimezoneName: string) {
+    return [...this.container.getAll().values()].find((exchange) => {
+      if (exchange.ISO_TimezoneName === ISO_TimezoneName) {
+        return true;
+      }
+    });
   }
 
 }
