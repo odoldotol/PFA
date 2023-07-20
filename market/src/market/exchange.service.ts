@@ -10,6 +10,7 @@ import {
 } from "./provider/exchangeConfigArr.provider";
 import * as F from "@fxts/core";
 
+// Todo: 1 차 리팩터링 후, 여전히 이 레이어의 역할이 스스로 분명하지 않음. 업데이트 동작과 관련해서 명확한 분리|통합이 필요함.
 @Injectable()
 export class ExchangeService implements OnModuleInit {
 
