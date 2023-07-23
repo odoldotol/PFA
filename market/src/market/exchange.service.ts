@@ -84,4 +84,9 @@ export class ExchangeService implements OnModuleInit {
     });
   }
 
+  // DEV
+  public findAll() {
+    return [...this.container.getAll().values()];
+  }
+
 }

@@ -7,6 +7,5 @@ export const config = new DocumentBuilder()
   .setContact('Lygorithm', 'https://github.com/odoldotol', 'lygorithm@gmail.com')
   .addTag('App', 'default')
   .addTag('Updater')
-  .addTag('Config')
   .addTag('Development')
   .build();
