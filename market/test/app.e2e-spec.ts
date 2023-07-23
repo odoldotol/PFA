@@ -3,6 +3,7 @@ import { INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
 import { AppModule } from 'src/app/app.module';
 import { ConnectionService } from 'src/market/child-api/connection.service';
+import { AppTerminator } from 'src/app/app.terminator';
 
 const createApp = async () => {
   const moduleFixture: TestingModule = await Test.createTestingModule({
@@ -31,8 +32,8 @@ describe('Asset', () => {
     await app.init();
   });
 
-  afterAll(async () => {
-    await app.close();
+  afterAll(() => {
+    app.get(AppTerminator).terminate(app); // 이게 맞아?
   });
 
 
