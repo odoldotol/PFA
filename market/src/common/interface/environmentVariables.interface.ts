@@ -11,6 +11,10 @@ export interface EnvironmentVariables {
     [EnvKey.Child_concurrency]: number;
     [EnvKey.ProductApiTimeout]: number;
     [EnvKey.TempKey]: string;
+    [EnvKey.PgHost]: string;
+    [EnvKey.PgUsername]: string;
+    [EnvKey.PgPassword]: string;
+    [EnvKey.PgDatabase]: string;
 
     // pm2
     [EnvKey.Pm2_name]: string;

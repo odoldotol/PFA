@@ -16,6 +16,8 @@ services:
     image: pfa-market:latest
     networks:
       - default
+    environment:
+      - RACK_ENV=production
     depends_on:
       market-child:
         condition: service_started
