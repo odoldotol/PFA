@@ -1,6 +1,8 @@
-import { Column, Entity, PrimaryColumn } from 'typeorm';
+import { Column, Entity, PrimaryColumn, ManyToOne, JoinColumn, Index } from 'typeorm';
+import { Exchange } from '../exchange/exchange.entity';
 
 @Entity({ name: 'financial_assets' })
+@Index(['exchange', 'symbol'], { unique: true })
 export class FinancialAsset {
   @PrimaryColumn({ type: 'char', length: 4 })
   symbol!: string;
@@ -14,7 +16,8 @@ export class FinancialAsset {
   @Column({ type: 'varchar', length: 50, nullable: true })
   longName!: string;
 
-  @Column({ type: 'char', length: 4 })
+  @ManyToOne(() => Exchange)
+  @JoinColumn({ name: 'exchange', referencedColumnName: 'ISO_Code' })
   exchange!: string;
 
   @Column({ type: 'char', length: 3 })
