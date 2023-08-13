@@ -3,6 +3,8 @@ import { ConfigService } from "@nestjs/config";
 import { TypeOrmModuleOptions, TypeOrmOptionsFactory } from "@nestjs/typeorm";
 import { EnvironmentVariables } from 'src/common/interface/environmentVariables.interface';
 import { EnvKey } from 'src/common/enum/envKey.emun';
+import { Exchange } from "../exchange/exchange.entity";
+import { FinancialAsset } from "../financialAsset/financialAsset.entity";
 
 @Injectable()
 export class TypeOrmConfigService implements TypeOrmOptionsFactory {
@@ -19,7 +21,10 @@ export class TypeOrmConfigService implements TypeOrmOptionsFactory {
       username: this.configService.get(EnvKey.PgUsername),
       password: this.configService.get(EnvKey.PgPassword),
       database: this.configService.get(EnvKey.PgDatabase),
-      entities: [],
+      entities: [
+        Exchange,
+        FinancialAsset
+      ],
       synchronize: this.configService.get(EnvKey.Docker_env) === 'production' ? false : true,
     };
   }

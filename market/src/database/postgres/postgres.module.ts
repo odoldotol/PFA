@@ -8,5 +8,7 @@ import { TypeOrmConfigService } from './typeormConfig.service';
       useClass: TypeOrmConfigService,
     })
   ],
+  providers: [],
+  exports: []
 })
 export class PostgresModule {}
