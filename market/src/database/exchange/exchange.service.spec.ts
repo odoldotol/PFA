@@ -85,12 +85,25 @@ describe('ExchangeService', () => {
     });
   });
 
-  describe('readOneByPK', () => {
+  describe('readOneByPk', () => {
     it('should return a record by primary key', async () => {
       await service.createOne(mockKoreaExchange);
       await service.createOne(mockNewYorkStockExchange);
-      const result = await service.readOneByPK(mockKoreaExchange.ISO_Code);
+      const result = await service.readOneByPk(mockKoreaExchange.ISO_Code);
       expect(result).toEqual(mockKoreaExchange);
     });
   });
+
+  describe('findOneByPkAndUpdate', () => {
+    it('should update a record by primary key', async () => {
+      await service.createOne(mockKoreaExchange);
+      const update: Partial<Exchange> = {
+        marketDate: '2023-03-25'
+      };
+      await service.findOneByPkAndUpdate(mockKoreaExchange.ISO_Code, update);
+      const result = await service.readOneByPk(mockKoreaExchange.ISO_Code);
+      expect(result).toEqual(Object.assign(mockKoreaExchange, update));
+    });
+  });
+
 });
