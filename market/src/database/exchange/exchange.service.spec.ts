@@ -67,4 +67,12 @@ describe('ExchangeService', () => {
       });
     });
   });
+
+  describe('exists', () => {
+    it('should return boolean if exists or not', async () => {
+      expect(await service.exists({ ISO_Code: mockKoreaExchange.ISO_Code })).toBe(false);
+      await service.createOne(mockKoreaExchange);
+      expect(await service.exists({ ISO_Code: mockKoreaExchange.ISO_Code })).toBe(true);
+    });
+  });
 });
