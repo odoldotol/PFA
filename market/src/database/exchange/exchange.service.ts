@@ -1,6 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { Exchange } from "./exchange.entity";
 
 @Injectable()
@@ -8,7 +8,8 @@ export class ExchangeService {
 
   constructor(
     @InjectRepository(Exchange)
-    private readonly exchangesRepository: Repository<Exchange>
+    private readonly exchangesRepo: Repository<Exchange>,
+    private readonly dataSource: DataSource
   ) {}
 
 }
