@@ -28,4 +28,11 @@ export class ExchangeService {
     return this.exchangesRepo.find();
   }
 
+  public async readOneByPK(pk: Exchange['ISO_Code']) {
+    return (await this.dataSource.query<Exchange[]>(`
+      SELECT * FROM exchanges
+        WHERE iso_code = '${pk}'
+    `))[0];
+  }
+
 }

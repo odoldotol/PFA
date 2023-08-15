@@ -90,7 +90,12 @@ describe('ExchangeService', () => {
       await service.createOne(mockKoreaExchange);
       await service.createOne(mockNewYorkStockExchange);
       const result = await service.readOneByPK(mockKoreaExchange.ISO_Code);
-      expect(result).toEqual(mockKoreaExchange);
+      expect(result).toEqual({
+        iso_code: mockKoreaExchange.ISO_Code,
+        iso_timezonename: mockKoreaExchange.ISO_TimezoneName,
+        marketdate: mockKoreaExchange.marketDate,
+        yf_exchangename: mockKoreaExchange.yf_exchangeName
+      });
     });
   });
 });
