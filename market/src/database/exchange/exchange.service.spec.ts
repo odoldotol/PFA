@@ -84,4 +84,13 @@ describe('ExchangeService', () => {
       expect(result).toEqual([mockKoreaExchange, mockNewYorkStockExchange]);
     });
   });
+
+  describe('readOneByPK', () => {
+    it('should return a record by primary key', async () => {
+      await service.createOne(mockKoreaExchange);
+      await service.createOne(mockNewYorkStockExchange);
+      const result = await service.readOneByPK(mockKoreaExchange.ISO_Code);
+      expect(result).toEqual(mockKoreaExchange);
+    });
+  });
 });
