@@ -6,3 +6,10 @@ export const mockKoreaExchange: Exchange = {
   marketDate: '2023-03-25',
   yf_exchangeName: 'KSC'
 };
+
+export const mockNewYorkStockExchange: Exchange = {
+  ISO_Code: "XNYS",
+  ISO_TimezoneName: "America/New_York",
+  marketDate: '2023-03-25',
+  yf_exchangeName: 'NMS'
+};

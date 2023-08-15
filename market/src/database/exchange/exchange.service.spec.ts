@@ -6,7 +6,7 @@ import { TypeOrmConfigService } from '../postgres/typeormConfig.service';
 import { Exchange } from './exchange.entity';
 import { ExchangeService } from './exchange.service';
 import { DataSource } from 'typeorm';
-import { mockKoreaExchange } from './mock/exchange.mock';
+import { mockKoreaExchange, mockNewYorkStockExchange } from './mock/exchange.mock';
 
 describe('ExchangeService', () => {
   let service: ExchangeService;
@@ -73,6 +73,15 @@ describe('ExchangeService', () => {
       expect(await service.exists({ ISO_Code: mockKoreaExchange.ISO_Code })).toBe(false);
       await service.createOne(mockKoreaExchange);
       expect(await service.exists({ ISO_Code: mockKoreaExchange.ISO_Code })).toBe(true);
+    });
+  });
+
+  describe('readAll', () => {
+    it('should return all records in exchanges table', async () => {
+      await service.createOne(mockKoreaExchange);
+      await service.createOne(mockNewYorkStockExchange);
+      const result = await service.readAll();
+      expect(result).toEqual([mockKoreaExchange, mockNewYorkStockExchange]);
     });
   });
 });
