@@ -46,7 +46,12 @@ describe('ExchangeService', () => {
     it('should create a record in exchanges table', async () => {
       await service.createOne(mockKoreaExchange);
       const result = await dataSource.query('SELECT * FROM exchanges');
-      expect(result[0]).toEqual(mockKoreaExchange);
+      expect(result[0]).toEqual({
+        iso_code: mockKoreaExchange.ISO_Code,
+        iso_timezonename: mockKoreaExchange.ISO_TimezoneName,
+        marketdate: mockKoreaExchange.marketDate,
+        yf_exchangename: mockKoreaExchange.yf_exchangeName
+      });
     });
 
     it('should create a record if yf_exchangeName is undefined', async () => {
@@ -54,7 +59,12 @@ describe('ExchangeService', () => {
       delete mockExchange.yf_exchangeName;
       await service.createOne(mockExchange);
       const result = await dataSource.query('SELECT * FROM exchanges');
-      expect(result[0]).toEqual(mockExchange);
+      expect(result[0]).toEqual({
+        iso_code: mockKoreaExchange.ISO_Code,
+        iso_timezonename: mockKoreaExchange.ISO_TimezoneName,
+        marketdate: mockKoreaExchange.marketDate,
+        yf_exchangename: null
+      });
     });
   });
 

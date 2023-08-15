@@ -12,8 +12,8 @@ export class ExchangeService {
     private readonly dataSource: DataSource
   ) {}
 
-  public createOne(value: Exchange) {
-    return this.dataSource.query(`
+  public async createOne(value: Exchange) {
+    await this.dataSource.query(`
       INSERT INTO exchanges
         VALUES
           ('${value.ISO_Code}', '${value.ISO_TimezoneName}', '${value.marketDate}', ${value.yf_exchangeName ? "'"+value.yf_exchangeName+"'" : null})
@@ -29,10 +29,12 @@ export class ExchangeService {
   }
 
   public async readOneByPK(pk: Exchange['ISO_Code']) {
-    return (await this.dataSource.query<Exchange[]>(`
-      SELECT * FROM exchanges
-        WHERE iso_code = '${pk}'
-    `))[0];
+    return this.rawToEntity(
+      (await this.dataSource.query<RawExchange[]>(`
+        SELECT * FROM exchanges
+          WHERE iso_code = '${pk}'
+      `))[0]
+    );
   }
 
   // Todo: Refac - 다른 엔티티와 공유하는 범용적인 메소드로
