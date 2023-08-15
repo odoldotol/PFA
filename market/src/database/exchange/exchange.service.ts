@@ -16,7 +16,7 @@ export class ExchangeService {
     await this.dataSource.query(`
       INSERT INTO exchanges
         VALUES
-          ('${value.ISO_Code}', '${value.ISO_TimezoneName}', '${value.marketDate}', '${value.yf_exchangeName}')
+          ('${value.ISO_Code}', '${value.ISO_TimezoneName}', '${value.marketDate}', ${value.yf_exchangeName ? "'"+value.yf_exchangeName+"'" : null})
     `);
   }
 
