@@ -1,6 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from '@nestjs/typeorm';
-import { DataSource, Repository } from 'typeorm';
+import { DataSource, Repository, FindOptionsWhere } from 'typeorm';
 import { Exchange } from "./exchange.entity";
 
 @Injectable()
@@ -20,4 +20,7 @@ export class ExchangeService {
     `);
   }
 
+  public async exists(filter: FindOptionsWhere<Exchange> | FindOptionsWhere<Exchange>[]) {
+    return await this.exchangesRepo.findOneBy(filter) ? true : false;
+  }
 }
