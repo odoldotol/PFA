@@ -20,8 +20,8 @@ export class ExchangeService {
     `);
   }
 
-  public async exists(filter: FindOptionsWhere<Exchange> | FindOptionsWhere<Exchange>[]) {
-    return await this.exchangesRepo.findOneBy(filter) ? true : false;
+  public exists(filter: FindOptionsWhere<Exchange> | FindOptionsWhere<Exchange>[]) {
+    return this.exchangesRepo.exist({ where: filter });
   }
 
   public readAll() {
