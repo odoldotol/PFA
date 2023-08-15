@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Repository, FindOptionsWhere } from 'typeorm';
-import { Exchange } from "./exchange.entity";
+import { Exchange, RawExchange } from "./exchange.entity";
 
 @Injectable()
 export class ExchangeService {
@@ -33,6 +33,20 @@ export class ExchangeService {
       SELECT * FROM exchanges
         WHERE iso_code = '${pk}'
     `))[0];
+  }
+
+  // Todo: Refac - 다른 엔티티와 공유하는 범용적인 메소드로
+  private rawToEntity(raw: RawExchange): Exchange {
+    const exchange = this.exchangesRepo.create();
+    this.exchangesRepo.metadata.columns.forEach(col => {
+      const v = raw[col.databaseName as keyof RawExchange];
+      if (v === null) {
+        return;
+      } else {
+        exchange[col.propertyName as keyof Exchange] = v;
+      }
+    });
+    return exchange;
   }
 
 }

@@ -14,3 +14,10 @@ export class Exchange {
   @Column({ type: 'varchar', length: 5, name: 'yf_exchangename', nullable: true, default: null })
   yf_exchangeName?: string;
 }
+
+export type RawExchange = {
+  iso_code: string;
+  iso_timezonename: string;
+  marketdate: string;
+  yf_exchangename: string | null;
+};
