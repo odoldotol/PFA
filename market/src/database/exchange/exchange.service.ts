@@ -12,8 +12,8 @@ export class ExchangeService {
     private readonly dataSource: DataSource
   ) {}
 
-  public async createOne(value: Exchange) {
-    await this.dataSource.query(`
+  public createOne(value: Exchange) {
+    return this.dataSource.query(`
       INSERT INTO exchanges
         VALUES
           ('${value.ISO_Code}', '${value.ISO_TimezoneName}', '${value.marketDate}', ${value.yf_exchangeName ? "'"+value.yf_exchangeName+"'" : null})
