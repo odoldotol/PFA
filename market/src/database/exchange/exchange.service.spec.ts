@@ -94,15 +94,13 @@ describe('ExchangeService', () => {
     });
   });
 
-  describe('findOneByPkAndUpdate', () => {
-    it('should update a record by primary key', async () => {
+  describe('updateMarketDateByPk', () => {
+    it('should update marketDate of a record found by primary key', async () => {
       await service.createOne(mockKoreaExchange);
-      const update: Partial<Exchange> = {
-        marketDate: '2023-03-25'
-      };
-      await service.findOneByPkAndUpdate(mockKoreaExchange.ISO_Code, update);
+      const marketDate = '2023-07-04';
+      await service.updateMarketDateByPk(mockKoreaExchange.ISO_Code, marketDate);
       const result = await service.readOneByPk(mockKoreaExchange.ISO_Code);
-      expect(result).toEqual(Object.assign(mockKoreaExchange, update));
+      expect(result).toEqual(Object.assign(mockKoreaExchange, { marketDate }));
     });
   });
 

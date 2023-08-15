@@ -28,13 +28,21 @@ export class ExchangeService {
     return this.exchangesRepo.find();
   }
 
-  public async readOneByPK(pk: Exchange['ISO_Code']) {
+  public async readOneByPk(pk: Exchange['ISO_Code']) {
     return this.rawToEntity(
       (await this.dataSource.query<RawExchange[]>(`
         SELECT * FROM exchanges
           WHERE iso_code = '${pk}'
       `))[0]
     );
+  }
+
+  public async updateMarketDateByPk(pk: Exchange['ISO_Code'], update: Exchange['marketDate']) {
+    await this.dataSource.query(`
+      UPDATE exchanges
+        SET marketdate = '${update}'
+        WHERE iso_code = '${pk}'
+    `);
   }
 
   // Todo: Refac - 다른 엔티티와 공유하는 범용적인 메소드로
