@@ -23,4 +23,9 @@ export class ExchangeService {
   public async exists(filter: FindOptionsWhere<Exchange> | FindOptionsWhere<Exchange>[]) {
     return await this.exchangesRepo.findOneBy(filter) ? true : false;
   }
+
+  public readAll() {
+    return this.exchangesRepo.find();
+  }
+
 }
