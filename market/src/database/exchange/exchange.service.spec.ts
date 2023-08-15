@@ -46,12 +46,7 @@ describe('ExchangeService', () => {
     it('should create a record in exchanges table', async () => {
       await service.createOne(mockKoreaExchange);
       const result = await dataSource.query('SELECT * FROM exchanges');
-      expect(result[0]).toEqual({
-        iso_code: mockKoreaExchange.ISO_Code,
-        iso_timezonename: mockKoreaExchange.ISO_TimezoneName,
-        marketdate: mockKoreaExchange.marketDate,
-        yf_exchangename: mockKoreaExchange.yf_exchangeName
-      });
+      expect(result[0]).toEqual(mockKoreaExchange);
     });
 
     it('should create a record if yf_exchangeName is undefined', async () => {
@@ -59,12 +54,7 @@ describe('ExchangeService', () => {
       delete mockExchange.yf_exchangeName;
       await service.createOne(mockExchange);
       const result = await dataSource.query('SELECT * FROM exchanges');
-      expect(result[0]).toEqual({
-        iso_code: mockKoreaExchange.ISO_Code,
-        iso_timezonename: mockKoreaExchange.ISO_TimezoneName,
-        marketdate: mockKoreaExchange.marketDate,
-        yf_exchangename: null
-      });
+      expect(result[0]).toEqual(mockExchange);
     });
   });
 
@@ -90,12 +80,7 @@ describe('ExchangeService', () => {
       await service.createOne(mockKoreaExchange);
       await service.createOne(mockNewYorkStockExchange);
       const result = await service.readOneByPK(mockKoreaExchange.ISO_Code);
-      expect(result).toEqual({
-        iso_code: mockKoreaExchange.ISO_Code,
-        iso_timezonename: mockKoreaExchange.ISO_TimezoneName,
-        marketdate: mockKoreaExchange.marketDate,
-        yf_exchangename: mockKoreaExchange.yf_exchangeName
-      });
+      expect(result).toEqual(mockKoreaExchange);
     });
   });
 });
