@@ -106,4 +106,12 @@ describe('FinancialAssetsService', () => {
     });
   });
 
+  describe('readOneByPk', () => {
+    it('should return a record by primary key', async () => {
+      await service.createMany([mockApple, mockSamsungElec, mockUsaTreasuryYield10y]);
+      const result = await service.readOneByPk(mockSamsungElec.symbol);
+      expect(result).toEqual(mockSamsungElec);
+    });
+  });
+
 });
