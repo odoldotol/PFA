@@ -20,7 +20,7 @@ export class ExchangeService {
     `);
   }
 
-  public exists(filter: FindOptionsWhere<Exchange> | FindOptionsWhere<Exchange>[]) {
+  public exist(filter: FindOptionsWhere<Exchange> | FindOptionsWhere<Exchange>[]) {
     return this.exchangesRepo.exist({ where: filter });
   }
 
