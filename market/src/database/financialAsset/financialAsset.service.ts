@@ -24,7 +24,7 @@ export class FinancialAssetService {
    * Development Temporary Method
    * @description Returns LIMIT 100
    */
-  public async readManyByEqualComparison(filter: Partial<FinancialAsset>) {
+  public readManyByEqualComparison(filter: Partial<FinancialAsset>) {
     return this.dataSource.query<RawFinancialAsset[]>(`
       SELECT * FROM financial_assets
         WHERE ${Object.entries(filter).map(
@@ -32,6 +32,15 @@ export class FinancialAssetService {
         ).join(' AND ')}
         LIMIT 100
     `).then(raws => raws.map(this.rawToEntity.bind(this)));
+  }
+
+  public async readOneByPk(pk: FinancialAsset['symbol']) {
+    return this.rawToEntity(
+      (await this.dataSource.query<RawFinancialAsset[]>(`
+        SELECT * FROM financial_assets
+          WHERE symbol = '${pk}'
+      `))[0]
+    );
   }
 
   // Todo: Refac - 다른 엔티티와 공유하는 범용적인 메소드로
