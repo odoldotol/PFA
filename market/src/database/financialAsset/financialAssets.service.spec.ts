@@ -95,4 +95,15 @@ describe('FinancialAssetsService', () => {
     });
   });
 
+  describe('readManyByEqualComparison', () => {
+    it('should return records matched by equal comparison', async () => {
+      await service.createMany([mockApple, mockSamsungElec, mockUsaTreasuryYield10y]);
+      const result = await service.readManyByEqualComparison({
+        exchange: mockApple.exchange,
+        currency: mockApple.currency
+      });
+      expect(result).toEqual([mockApple, mockSamsungElec]);
+    });
+  });
+
 });
