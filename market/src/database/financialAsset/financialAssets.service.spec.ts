@@ -63,6 +63,28 @@ describe('FinancialAssetsService', () => {
       const result = await dataSource.query('SELECT * FROM financial_assets');
       expect(result.length).toBe(3);
     });
+
+    it('should create if nullable property is undefined', async () => {
+      await service.createMany([
+        {
+          symbol: mockApple.symbol,
+          quoteType: mockApple.quoteType,
+          shortName: mockApple.shortName,
+          currency: mockApple.currency,
+          regularMarketLastClose: mockApple.regularMarketLastClose
+        }
+      ]);
+      const result = await dataSource.query('SELECT * FROM financial_assets');
+      expect(result[0]).toEqual({
+        symbol: mockApple.symbol,
+        quotetype: mockApple.quoteType,
+        shortname: mockApple.shortName,
+        longname: null,
+        exchange: null,
+        currency: mockApple.currency,
+        regularmarketlastclose: mockApple.regularMarketLastClose
+      });
+    });
   });
 
 });
