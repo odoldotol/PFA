@@ -130,4 +130,8 @@ describe('FinancialAssetsService', () => {
     });
   });
 
+  describe('updatePrice', () => {
+    it.todo('updatePrice');
+  });
+
 });

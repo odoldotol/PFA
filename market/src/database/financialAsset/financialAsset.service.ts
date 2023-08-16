@@ -57,6 +57,8 @@ export class FinancialAssetService {
     `)).map(this.rawToEntity.bind(this));
   }
 
+  public async updatePrice() {}
+
   // Todo: Refac - 다른 엔티티와 공유하는 범용적인 메소드로
   private entityPropNameToDbColumnName = (propertyName: keyof FinancialAsset) => {
     return this.finAssetsRepo.metadata.columns.find(
