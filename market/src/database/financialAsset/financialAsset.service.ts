@@ -16,4 +16,8 @@ export class FinancialAssetService {
     return this.finAssetsRepo.insert(values);
   }
 
+  public async existByPk(pk: FinancialAsset['symbol']) {
+    return this.finAssetsRepo.exist({ where: { symbol: pk } });
+  }
+
 }

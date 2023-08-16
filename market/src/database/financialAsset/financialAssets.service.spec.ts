@@ -87,4 +87,12 @@ describe('FinancialAssetsService', () => {
     });
   });
 
+  describe('existByPk', () => {
+    it('should return boolean if exist or not by primary key', async () => {
+      expect(await service.existByPk(mockApple.symbol)).toBe(false);
+      await service.createMany([mockApple]);
+      expect(await service.existByPk(mockApple.symbol)).toBe(true);
+    });
+  });
+
 });
