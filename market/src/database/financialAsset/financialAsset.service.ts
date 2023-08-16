@@ -12,6 +12,8 @@ export class FinancialAssetService {
     private readonly dataSource: DataSource
   ) {}
 
-  
+  public createMany(values: FinancialAsset[]) {
+    return this.finAssetsRepo.insert(values);
+  }
 
 }

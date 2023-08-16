@@ -30,7 +30,10 @@ describe('FinancialAssetsService', () => {
         TypeOrmModule.forFeature([FinancialAsset]),
         TypeOrmModule.forFeature([Exchange])
       ],
-      providers: [FinancialAssetService],
+      providers: [
+        ExchangeService,
+        FinancialAssetService
+      ],
     }).compile();
 
     service = module.get<FinancialAssetService>(FinancialAssetService);
