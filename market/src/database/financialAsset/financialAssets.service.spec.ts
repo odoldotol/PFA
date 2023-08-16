@@ -114,4 +114,12 @@ describe('FinancialAssetsService', () => {
     });
   });
 
+  describe('readSymbolsByExchange', () => {
+    it('should return Array of symbol by exchange', async () => {
+      await service.createMany([mockApple, mockSamsungElec, mockUsaTreasuryYield10y]);
+      const result = await service.readSymbolsByExchange(mockApple.exchange);
+      expect(result).toEqual([mockApple.symbol, mockUsaTreasuryYield10y.symbol]);
+    });
+  });
+
 });
