@@ -102,7 +102,7 @@ describe('FinancialAssetsService', () => {
         exchange: mockApple.exchange,
         currency: mockApple.currency
       });
-      expect(result).toEqual([mockApple, mockSamsungElec]);
+      expect(result).toEqual([mockApple, mockUsaTreasuryYield10y]);
     });
   });
 

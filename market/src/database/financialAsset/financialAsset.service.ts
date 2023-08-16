@@ -16,8 +16,44 @@ export class FinancialAssetService {
     return this.finAssetsRepo.insert(values);
   }
 
-  public async existByPk(pk: FinancialAsset['symbol']) {
+  public existByPk(pk: FinancialAsset['symbol']) {
     return this.finAssetsRepo.exist({ where: { symbol: pk } });
+  }
+
+  /**
+   * Development Temporary Method
+   * @description Returns LIMIT 100
+   */
+  public async readManyByEqualComparison(filter: Partial<FinancialAsset>) {
+    return this.dataSource.query<RawFinancialAsset[]>(`
+      SELECT * FROM financial_assets
+        WHERE ${Object.entries(filter).map(
+          ([k, v]) => `${this.entityPropNameToDbColumnName(k as keyof FinancialAsset)} = '${v}'`
+        ).join(' AND ')}
+        LIMIT 100
+    `).then(raws => raws.map(this.rawToEntity.bind(this)));
+  }
+
+  // Todo: Refac - 다른 엔티티와 공유하는 범용적인 메소드로
+  private entityPropNameToDbColumnName = (propertyName: keyof FinancialAsset) => {
+    return this.finAssetsRepo.metadata.columns.find(
+      col => col.propertyName === propertyName
+    )!.databaseName;
+  }
+
+  // Todo: Refac - 다른 엔티티와 공유하는 범용적인 메소드로
+  private rawToEntity(raw: RawFinancialAsset): FinancialAsset {
+    const finAsset = this.finAssetsRepo.create();
+    this.finAssetsRepo.metadata.columns.forEach(col => {
+      const v = raw[col.databaseName as keyof RawFinancialAsset];
+      if (v === null) {
+        return;
+      } else {
+        // @ts-ignore
+        finAsset[col.propertyName as keyof FinancialAsset] = v;
+      }
+    });
+    return finAsset;
   }
 
 }
