@@ -50,6 +50,13 @@ export class FinancialAssetService {
     `)).map(({ symbol }) => symbol);
   }
 
+  public async readManyByExchange(exchange: FinancialAsset['exchange']) {
+    return (await this.dataSource.query<RawFinancialAsset[]>(`
+      SELECT * FROM financial_assets
+        WHERE exchange = '${exchange}'
+    `)).map(this.rawToEntity.bind(this));
+  }
+
   // Todo: Refac - 다른 엔티티와 공유하는 범용적인 메소드로
   private entityPropNameToDbColumnName = (propertyName: keyof FinancialAsset) => {
     return this.finAssetsRepo.metadata.columns.find(
