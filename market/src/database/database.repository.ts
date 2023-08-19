@@ -1,12 +1,13 @@
 import { Injectable, Logger } from "@nestjs/common";
-import { ExchangeRepository } from "./mongodb/repository/exchange_temp.repository";
 import { curry, each, map, pipe, toArray, toAsync } from "@fxts/core";
 import { Either } from "src/common/class/either";
 import mongoose, { ClientSession, FilterQuery } from "mongoose";
 import { StandardUpdatePriceResult } from "src/common/interface/updatePriceResult.interface";
-import { ExchangeDocument } from "./mongodb/schema/exchange_temp.schema";
 import { Log_priceUpdateService } from "./log_priceUpdate/log_priceUpdate.service";
 import { Yf_infoService } from "./yf_info/yf_info.service";
+import { ExchangeService } from "./exchange/exchange.service";
+import { FindOptionsWhere } from "typeorm";
+import { Exchange } from "./exchange/exchange.entity";
 
 @Injectable()
 export class DBRepository {
@@ -15,7 +16,7 @@ export class DBRepository {
 
   constructor(
     private readonly log_priceUpdateSrv: Log_priceUpdateService,
-    private readonly exchangeRepo: ExchangeRepository,
+    private readonly exchangeSrv: ExchangeService,
     private readonly yf_infoSrv: Yf_infoService,
   ) {}
 
@@ -24,11 +25,11 @@ export class DBRepository {
     ISO_TimezoneName: string,
     previous_close: string
   ) {
-    return this.exchangeRepo.createOne(
+    return this.exchangeSrv.createOne({
       ISO_Code,
       ISO_TimezoneName,
-      new Date(previous_close).toISOString()
-    );
+      marketDate: new Date(previous_close).toISOString()
+    });
   }
 
   createAssets = this.yf_infoSrv.insertMany;
@@ -39,16 +40,16 @@ export class DBRepository {
     ISO_Code ? { key: ISO_Code } : {},
     limit ? limit : 5);
 
-  public existsExchange(filter: FilterQuery<ExchangeDocument>) {
-    return this.exchangeRepo.exists(filter);
+  public existsExchange(condition: FindOptionsWhere<Exchange> | FindOptionsWhere<Exchange>[]) {
+    return this.exchangeSrv.exist(condition);
   }
 
   public readAllExchange() {
-    return this.exchangeRepo.findAll();
+    return this.exchangeSrv.readAll();
   }
 
   public readExchange(ISO_Code: string) {
-    return this.exchangeRepo.findOneByISOcode(ISO_Code);
+    return this.exchangeSrv.readOneByPk(ISO_Code);
   }
 
   existsAssetByTicker = this.yf_infoSrv.exists;
@@ -136,10 +137,10 @@ export class DBRepository {
 
 
   private updateExchagneByRegularUpdater = (ISO_Code: string, previous_close: string, session: ClientSession) =>
-    this.exchangeRepo.findOneAndUpdate(
-      { ISO_Code },
-      { marketDate: new Date(previous_close).toISOString() },
-      session);
+    this.exchangeSrv.updateMarketDateByPk(
+      ISO_Code,
+      new Date(previous_close).toISOString()
+    );
 
   private createLogPriceUpdate = (
     launcher: LogPriceUpdate["launcher"],

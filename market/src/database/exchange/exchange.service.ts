@@ -12,16 +12,17 @@ export class ExchangeService {
     private readonly dataSource: DataSource
   ) {}
 
-  public async createOne(value: Exchange) {
-    await this.dataSource.query(`
+  public createOne(value: Exchange) {
+    return this.dataSource.query<Exchange>(`
       INSERT INTO exchanges
         VALUES
           ('${value.ISO_Code}', '${value.ISO_TimezoneName}', '${value.marketDate}')
+        RETURNING *
     `);
   }
 
-  public exist(filter: FindOptionsWhere<Exchange> | FindOptionsWhere<Exchange>[]) {
-    return this.exchangesRepo.exist({ where: filter });
+  public exist(condition: FindOptionsWhere<Exchange> | FindOptionsWhere<Exchange>[]) {
+    return this.exchangesRepo.exist({ where: condition });
   }
 
   public readAll() {

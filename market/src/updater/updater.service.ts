@@ -14,7 +14,7 @@ import { EnvKey } from 'src/common/enum/envKey.emun';
 import { UpdatePriceResult } from 'src/common/interface/updatePriceResult.interface';
 import { ExchangeService } from 'src/market/exchange.service';
 import { Exchange } from 'src/market/class/exchange';
-import { ExchangeDocument } from 'src/database/mongodb/schema/exchange_temp.schema';
+import { Exchange as ExchangeEntity } from 'src/database/exchange/exchange.entity';
 
 /**
  * ### TODO: Refac:
@@ -209,7 +209,7 @@ export class UpdaterService implements OnModuleInit {
 
   // TODO - Refac
   // Todo: Refac - Exchange 리팩터링 후 억지로 끼워맞춤
-  private applyNewExchange = async ([yf_exchangeTimezoneName, symbolArr]: [string, string[]]): Promise<Either<any, ExchangeDocument>> => {
+  private applyNewExchange = async ([yf_exchangeTimezoneName, symbolArr]: [string, string[]]): Promise<Either<any, ExchangeEntity>> => {
     const exchange = this.exchangeSrv.findExchange(yf_exchangeTimezoneName)! //
     const ISO_Code = exchange.ISO_Code; //
     if (ISO_Code === undefined) {
