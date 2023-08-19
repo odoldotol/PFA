@@ -1,12 +1,12 @@
 import { Injectable, Logger } from "@nestjs/common";
 import { Yf_infoRepository } from "./mongodb/repository/yf-info.repository";
 import { ExchangeRepository } from "./mongodb/repository/exchange_temp.repository";
-import { Log_priceUpdateRepository } from "./mongodb/repository/log_priceUpdate.repository";
 import { curry, each, map, pipe, toArray, toAsync } from "@fxts/core";
 import { Either } from "src/common/class/either";
 import mongoose, { ClientSession, FilterQuery } from "mongoose";
 import { StandardUpdatePriceResult } from "src/common/interface/updatePriceResult.interface";
 import { ExchangeDocument } from "./mongodb/schema/exchange_temp.schema";
+import { Log_priceUpdateService } from "./log_priceUpdate/log_priceUpdate.service";
 
 @Injectable()
 export class DBRepository {
@@ -14,7 +14,7 @@ export class DBRepository {
   private readonly logger = new Logger(DBRepository.name);
 
   constructor(
-    private readonly log_priceUpdateRepo: Log_priceUpdateRepository,
+    private readonly log_priceUpdateSrv: Log_priceUpdateService,
     private readonly exchangeRepo: ExchangeRepository,
     private readonly yf_infoRepo: Yf_infoRepository,
   ) {}
@@ -33,9 +33,9 @@ export class DBRepository {
 
   createAssets = this.yf_infoRepo.insertMany;
 
-  testPickLastUpdateLog = this.log_priceUpdateRepo.find1;
+  testPickLastUpdateLog = this.log_priceUpdateSrv.find1;
 
-  readUpdateLog = (ISO_Code?: string, limit?: number) => this.log_priceUpdateRepo.find1(
+  readUpdateLog = (ISO_Code?: string, limit?: number) => this.log_priceUpdateSrv.find1(
     ISO_Code ? { key: ISO_Code } : {},
     limit ? limit : 5);
 
@@ -165,7 +165,7 @@ export class DBRepository {
       )
     );
     const fLen = newLogDoc.failure.length;
-    return this.log_priceUpdateRepo.create(newLogDoc, session).then(_ => {
+    return this.log_priceUpdateSrv.create(newLogDoc, session).then(_ => {
       this.logger.verbose(`${launcher === "scheduler" || launcher === "initiator" ? key : launcher} : Log_priceUpdate Doc Created${fLen ? ` (${fLen} failed)` : ''}`);
     }).catch((error) => {
       this.logger.error(`${launcher} : Failed to Create Log_priceUpdate Doc!!!`);
