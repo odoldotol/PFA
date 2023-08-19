@@ -5,6 +5,7 @@ import { ExchangeModule } from "./exchange/exchange.module";
 import { FinancialAssetModule } from "./financialAsset/financialAsset.module";
 import { Log_priceUpdateModule } from "./log_priceUpdate/log_priceUpdate.module";
 import { DBRepository } from "./database.repository";
+import { Yf_infoModule } from "./yf_info/yf_info.module";
 
 @Module({
   imports: [
@@ -12,7 +13,8 @@ import { DBRepository } from "./database.repository";
     PostgresModule,
     ExchangeModule,
     FinancialAssetModule,
-    Log_priceUpdateModule
+    Log_priceUpdateModule,
+    Yf_infoModule
   ],
   providers: [DBRepository],
   exports: [DBRepository]

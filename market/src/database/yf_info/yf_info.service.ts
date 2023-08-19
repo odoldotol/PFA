@@ -1,10 +1,10 @@
 import { Injectable } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
-import { Yf_info, Yf_infoDocument } from "../schema/yf_info.schema";
 import { ClientSession, Model } from "mongoose";
+import { Yf_info, Yf_infoDocument } from "./yf_info.schema";
 
 @Injectable()
-export class Yf_infoRepository {
+export class Yf_infoService {
 
     constructor(
         @InjectModel(Yf_info.name) private yf_infoModel: Model<Yf_infoDocument>,
