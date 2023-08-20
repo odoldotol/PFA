@@ -1,5 +1,5 @@
 import { Injectable, InternalServerErrorException, Logger, NotFoundException } from "@nestjs/common";
-import { AddAssetsResponse } from "src/updater/response/addAssets.response";
+import { AddAssetsResponse } from "./response/addAssets.response";
 import * as F from "@fxts/core";
 import { MarketService } from "src/market/market.service";
 import { ConfigService } from "@nestjs/config";
@@ -12,7 +12,7 @@ import { ExchangeService as DbExchangeService } from 'src/database/exchange/exch
 import { UpdaterService } from "src/updater/updater.service";
 import { Exchange as ExchangeEntity } from 'src/database/exchange/exchange.entity';
 import { TExchangeCore } from "src/common/type/exchange.type";
-import { ResponseGetPriceByTicker } from "src/app/response/getPriceByTicker.response";
+import { ResponseGetPriceByTicker } from "./response/getPriceByTicker.response";
 import { exchangeConfigArr } from "src/config/const/exchanges.const";
 import { DBRepository } from "src/database/database.repository";
 

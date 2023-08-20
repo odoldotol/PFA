@@ -3,7 +3,7 @@ import { ExchangeService } from "./exchange.service";
 import { ExchangeContainer } from "./exchangeContainer";
 import { EXCHANGE_CONFIG_ARR_TOKEN } from "./provider/exchangeConfigArr.provider";
 import { mockExchageConfigArr, mockExchangeCoreArr } from "./mock/exchange.mock";
-import { ChildApiService } from "./child-api/child-api.service";
+import { ChildApiService } from "./child_api/child_api.service";
 import { mockChildApiService } from "./mock/childApiService.mock";
 
 describe("ExchangeService", () => {

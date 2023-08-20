@@ -4,7 +4,7 @@ import { toLoggingStyle } from "src/common/util/toLoggingStyle";
 import { TExchangeConfig } from "src/config/const/exchanges.const";
 import { YF_CCC_ISO_Code, YF_update_margin_default } from "src/config/const/yf.const";
 import { EventEmitter } from "stream";
-import { ChildApiService } from "../child-api/child-api.service";
+import { ChildApiService } from "../child_api/child_api.service";
 import { EMarketEvent } from "../enum/eventName.enum";
 import { TCloseEventArgs, TOpenEventArgs } from "../type";
 import {

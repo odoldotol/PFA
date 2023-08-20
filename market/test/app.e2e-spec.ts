@@ -2,7 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
 import { AppModule } from 'src/app/app.module';
-import { ConnectionService } from 'src/market/child-api/connection.service';
+import { ConnectionService } from 'src/market/child_api/connection.service';
 import { AppTerminator } from 'src/app/app.terminator';
 
 const createApp = async () => {

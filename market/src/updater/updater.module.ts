@@ -3,7 +3,7 @@ import { UpdaterController } from './updater.controller';
 import { UpdaterService } from './updater.service';
 import { MarketModule } from 'src/market/market.module';
 import { DatabaseModule } from 'src/database/database.module';
-import { ProductApiModule } from 'src/product-api/product-api.module';
+import { ProductApiModule } from 'src/product_api/product_api.module';
 
 @Module({
   imports: [

@@ -1,5 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { ChildApiService } from './child-api/child-api.service';
+import { ChildApiService } from './child_api/child_api.service';
 
 @Injectable()
 export class MarketService {

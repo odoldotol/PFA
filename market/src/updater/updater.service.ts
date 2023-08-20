@@ -4,7 +4,7 @@ import { SchedulerRegistry } from '@nestjs/schedule';
 import { CronJob } from 'cron';
 import { MarketService } from 'src/market/market.service';
 import { DBRepository } from 'src/database/database.repository';
-import { ProductApiService } from 'src/product-api/product-api.service';
+import { ProductApiService } from 'src/product_api/product_api.service';
 import { pipe, map, toArray, toAsync, tap, each, filter, concurrent, curry } from "@fxts/core"; // Todo: 제거
 import * as F from "@fxts/core";
 import { EnvironmentVariables } from 'src/common/interface/environmentVariables.interface';
