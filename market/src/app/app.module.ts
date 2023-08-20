@@ -15,6 +15,7 @@ import { HttpLoggerMiddleware } from './middleware/httpLogger.middleware';
 import { KeepAliveInterceptor } from './interceptor';
 import { AppTerminator } from './app.terminator';
 import mongoUriConfig from 'src/config/mongoUri.config';
+import postgresConfig from 'src/config/postgres.config';
 import {
   GlobalValidationPipeProvider,
   GlobalKeepAliveInterceptorProvider
@@ -25,7 +26,10 @@ import {
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: ".env",
-      load: [mongoUriConfig]
+      load: [
+        mongoUriConfig,
+        postgresConfig
+      ]
     }),
     ScheduleModule.forRoot(),
     Pm2Module,

@@ -1,12 +1,11 @@
 import { Injectable, Logger } from "@nestjs/common";
-import { Yf_infoRepository } from "./mongodb/repository/yf-info.repository";
-import { ExchangeRepository } from "./mongodb/repository/exchange_temp.repository";
-import { Log_priceUpdateRepository } from "./mongodb/repository/log_priceUpdate.repository";
 import { curry, each, map, pipe, toArray, toAsync } from "@fxts/core";
 import { Either } from "src/common/class/either";
-import mongoose, { ClientSession, FilterQuery } from "mongoose";
+import mongoose, { ClientSession } from "mongoose";
 import { StandardUpdatePriceResult } from "src/common/interface/updatePriceResult.interface";
-import { ExchangeDocument } from "./mongodb/schema/exchange_temp.schema";
+import { Log_priceUpdateService } from "./log_priceUpdate/log_priceUpdate.service";
+import { Yf_infoService } from "./yf_info/yf_info.service";
+import { ExchangeService } from "./exchange/exchange.service";
 
 @Injectable()
 export class DBRepository {
@@ -14,50 +13,13 @@ export class DBRepository {
   private readonly logger = new Logger(DBRepository.name);
 
   constructor(
-    private readonly log_priceUpdateRepo: Log_priceUpdateRepository,
-    private readonly exchangeRepo: ExchangeRepository,
-    private readonly yf_infoRepo: Yf_infoRepository,
+    private readonly log_priceUpdateSrv: Log_priceUpdateService,
+    private readonly exchangeSrv: ExchangeService,
+    private readonly yf_infoSrv: Yf_infoService,
   ) {}
 
-  public createExchange(
-    ISO_Code: string,
-    ISO_TimezoneName: string,
-    previous_close: string
-  ) {
-    return this.exchangeRepo.createOne(
-      ISO_Code,
-      ISO_TimezoneName,
-      new Date(previous_close).toISOString()
-    );
-  }
-
-  createAssets = this.yf_infoRepo.insertMany;
-
-  testPickLastUpdateLog = this.log_priceUpdateRepo.find1;
-
-  readUpdateLog = (ISO_Code?: string, limit?: number) => this.log_priceUpdateRepo.find1(
-    ISO_Code ? { key: ISO_Code } : {},
-    limit ? limit : 5);
-
-  public existsExchange(filter: FilterQuery<ExchangeDocument>) {
-    return this.exchangeRepo.exists(filter);
-  }
-
-  public readAllExchange() {
-    return this.exchangeRepo.findAll();
-  }
-
-  public readExchange(ISO_Code: string) {
-    return this.exchangeRepo.findOneByISOcode(ISO_Code);
-  }
-
-  existsAssetByTicker = this.yf_infoRepo.exists;
-  testPickAsset = this.yf_infoRepo.testPickOne;
-  readAllAssetsInfo = this.yf_infoRepo.findAll;
-  readPriceByTicker = this.yf_infoRepo.findPriceBySymbol;
-
   readSymbolArr = async (filter: object) =>
-    (await this.yf_infoRepo.find(filter, '-_id symbol'))
+    (await this.yf_infoSrv.find(filter, '-_id symbol'))
       .map(doc => doc.symbol);
 
   /**
@@ -66,7 +28,7 @@ export class DBRepository {
   * Todo: Refac - Exchange 리팩터링 후 억지로 끼워맞춤
   */
   readPriceByISOcode = async (ISO_Code: string) =>
-    this.yf_infoRepo.findPricesByExchange((await this.readExchange(ISO_Code))!.ISO_TimezoneName) //
+    this.yf_infoSrv.findPricesByExchange((await this.exchangeSrv.readOneByPk(ISO_Code))!.ISO_TimezoneName) //
       .then(arr => arr.map(ele => [ele.symbol, ele.regularMarketLastClose, ele.quoteType === "INDEX" ? "INDEX" : ele.currency]));
 
   /**
@@ -111,7 +73,7 @@ export class DBRepository {
 
   private updatePrice = curry((session: ClientSession, updatePriceSet: UpdatePriceSet):
     Promise<Either<UpdatePriceError, UpdatePriceSet>> => {
-    return this.yf_infoRepo.updatePrice(...updatePriceSet, session)
+    return this.yf_infoSrv.updatePrice(...updatePriceSet, session)
       .then(res => {
         // const successRes = {
         //     acknowledged: true,
@@ -136,10 +98,10 @@ export class DBRepository {
 
 
   private updateExchagneByRegularUpdater = (ISO_Code: string, previous_close: string, session: ClientSession) =>
-    this.exchangeRepo.findOneAndUpdate(
-      { ISO_Code },
-      { marketDate: new Date(previous_close).toISOString() },
-      session);
+    this.exchangeSrv.updateMarketDateByPk(
+      ISO_Code,
+      new Date(previous_close).toISOString()
+    );
 
   private createLogPriceUpdate = (
     launcher: LogPriceUpdate["launcher"],
@@ -165,7 +127,7 @@ export class DBRepository {
       )
     );
     const fLen = newLogDoc.failure.length;
-    return this.log_priceUpdateRepo.create(newLogDoc, session).then(_ => {
+    return this.log_priceUpdateSrv.create(newLogDoc, session).then(_ => {
       this.logger.verbose(`${launcher === "scheduler" || launcher === "initiator" ? key : launcher} : Log_priceUpdate Doc Created${fLen ? ` (${fLen} failed)` : ''}`);
     }).catch((error) => {
       this.logger.error(`${launcher} : Failed to Create Log_priceUpdate Doc!!!`);

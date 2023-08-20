@@ -9,6 +9,10 @@ export enum EnvKey {
     Child_concurrency = 'CHILD_CONCURRENCY',
     ProductApiTimeout = 'PRODUCT_API_TIMEOUT',
     TempKey = 'TEMP_KEY',
+    PgHost = 'PG_HOST',
+    PgUsername = 'PG_USERNAME',
+    PgPassword = 'PG_PASSWORD',
+    PgDatabase = 'PG_DATABASE',
 
     // pm2
     Pm2_name = 'PM2_NAME',

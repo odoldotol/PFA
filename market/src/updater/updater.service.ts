@@ -12,9 +12,12 @@ import * as F from "@fxts/core";
 import { EnvironmentVariables } from 'src/common/interface/environmentVariables.interface';
 import { EnvKey } from 'src/common/enum/envKey.emun';
 import { UpdatePriceResult } from 'src/common/interface/updatePriceResult.interface';
-import { ExchangeService } from 'src/market/exchange.service';
+import { ExchangeService as MkExchangeService } from 'src/market/exchange.service';
+import { ExchangeService as DbExchangeService } from 'src/database/exchange/exchange.service';
+import { FinancialAssetService as DbFinancialAssetService } from 'src/database/financialAsset/financialAsset.service';
+import { Yf_infoService as DbYfInfoService } from 'src/database/yf_info/yf_info.service';
 import { Exchange } from 'src/market/class/exchange';
-import { ExchangeDocument } from 'src/database/mongodb/schema/exchange_temp.schema';
+import { Exchange as ExchangeEntity } from 'src/database/exchange/exchange.entity';
 
 /**
  * ### TODO: Refac:
@@ -30,22 +33,25 @@ export class UpdaterService implements OnModuleInit {
   constructor(
     private readonly configService: ConfigService<EnvironmentVariables>,
     private readonly schedulerRegistry: SchedulerRegistry,
-    private readonly exchangeSrv: ExchangeService,
+    private readonly mkExchangeSrv: MkExchangeService,
     private readonly marketService: MarketService,
     private readonly dbRepo: DBRepository,
+    private readonly dbExchangeSrv: DbExchangeService,
+    private readonly dbFinAssetSrv: DbFinancialAssetService,
+    private readonly dbYfInfoSrv: DbYfInfoService,
     private readonly productApiSvc: ProductApiService
   ) {}
 
   async onModuleInit() {
     await F.pipe(
-      this.dbRepo.readAllExchange(), F.toAsync,
-      F.peek(this.exchangeSrv.registerUpdater.bind(
-        this.exchangeSrv,
+      this.dbExchangeSrv.readAll(), F.toAsync,
+      F.peek(this.mkExchangeSrv.registerUpdater.bind(
+        this.mkExchangeSrv,
         this.updateAssetsOfExchange.bind(this)
       )),
-      F.filter(this.exchangeSrv.shouldUpdate.bind(this.exchangeSrv)),
-      F.map(this.exchangeSrv.fulfillUpdater.bind(
-        this.exchangeSrv,
+      F.filter(this.mkExchangeSrv.shouldUpdate.bind(this.mkExchangeSrv)),
+      F.map(this.mkExchangeSrv.fulfillUpdater.bind(
+        this.mkExchangeSrv,
         this.updateAssetsOfExchange.bind(this))
       ),
       F.each(updater => updater("initiator"))
@@ -165,7 +171,7 @@ export class UpdaterService implements OnModuleInit {
       map(ele => ele.getRight),
       concurrent(this.CHILD_CONCURRENCY),
       toArray,
-      tap(arr => this.dbRepo.createAssets(arr)
+      tap(arr => this.dbYfInfoSrv.insertMany(arr)
         .then(res => response.success.info = res)
         .catch(err => (response.failure.info = response.failure.info.concat(err.writeErrors),
           response.success.info = response.success.info.concat(err.insertedDocs)))),
@@ -184,12 +190,12 @@ export class UpdaterService implements OnModuleInit {
   };
 
   private eitherFilter_existsAsset = async (ticker: string): Promise<Either<any, string>> =>
-    (await this.dbRepo.existsAssetByTicker(ticker) === null) ?
+    (await this.dbYfInfoSrv.exists(ticker) === null) ?
       Either.right(ticker) : Either.left({ msg: "Already exists", ticker });
 
   // Todo: Refac - Exchange 리팩터링 후 억지로 끼워맞춤
   private fulfillYfInfo = async (info: YfInfo): Promise<Either<any, FulfilledYfInfo>> => {
-    const exchange = this.exchangeSrv.findExchange(info.exchangeTimezoneName)! //
+    const exchange = this.mkExchangeSrv.findExchange(info.exchangeTimezoneName)! //
     const ISO_Code = exchange.ISO_Code; //
     return ISO_Code === undefined ?
       Either.left({
@@ -204,13 +210,13 @@ export class UpdaterService implements OnModuleInit {
   };
 
   private async isNewExchange([yf_exchangeTimezoneName, _]: [string, string[]]) {
-    return (await this.dbRepo.existsExchange({ ISO_TimezoneName: yf_exchangeTimezoneName })) === null;
+    return !(await this.dbExchangeSrv.exist({ ISO_TimezoneName: yf_exchangeTimezoneName }));
   }
 
   // TODO - Refac
   // Todo: Refac - Exchange 리팩터링 후 억지로 끼워맞춤
-  private applyNewExchange = async ([yf_exchangeTimezoneName, symbolArr]: [string, string[]]): Promise<Either<any, ExchangeDocument>> => {
-    const exchange = this.exchangeSrv.findExchange(yf_exchangeTimezoneName)! //
+  private applyNewExchange = async ([yf_exchangeTimezoneName, symbolArr]: [string, string[]]): Promise<Either<any, ExchangeEntity>> => {
+    const exchange = this.mkExchangeSrv.findExchange(yf_exchangeTimezoneName)! //
     const ISO_Code = exchange.ISO_Code; //
     if (ISO_Code === undefined) {
       this.logger.error(`${symbolArr[0]} : Could not find ISO_Code for ${yf_exchangeTimezoneName}`);
@@ -220,19 +226,22 @@ export class UpdaterService implements OnModuleInit {
         symbol: symbolArr
       });
     } else {
-      return await this.dbRepo.createExchange(ISO_Code, yf_exchangeTimezoneName, exchange.getMarketDate().toISOString()) //
-        .then(async res => {
-          this.logger.verbose(`${ISO_Code} : Created new Exchange`);
-          this.exchangeSrv.registerUpdater(this.updateAssetsOfExchange.bind(this), res);
-          return Either.right(res);
-        }).catch(error => {
-          this.logger.error(error);
-          return Either.left({
-            error,
-            yf_exchangeTimezoneName,
-            symbol: symbolArr
-          });
+      return await this.dbExchangeSrv.createOne({
+        ISO_Code,
+        ISO_TimezoneName: yf_exchangeTimezoneName,
+        marketDate: exchange.getMarketDate().toISOString()
+      }).then(async res => {
+        this.logger.verbose(`${ISO_Code} : Created new Exchange`);
+        this.mkExchangeSrv.registerUpdater(this.updateAssetsOfExchange.bind(this), res);
+        return Either.right(res);
+      }).catch(error => {
+        this.logger.error(error);
+        return Either.left({
+          error,
+          yf_exchangeTimezoneName,
+          symbol: symbolArr
         });
+      });
     };
   };
 

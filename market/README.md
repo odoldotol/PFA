@@ -1,11 +1,8 @@
 # Market
 
-도커가 설치되어 있어야 합니다.
-- 이미지 빌드
 ```shell
 $ docker build . -t pfa-market
 ```
-- 컨테이너 실행
 ```shell
 $ docker run -p 6001:6001 --name market pfa-market
 ```
@@ -19,4 +16,12 @@ $ docker run -p 6001:6001 --name market pfa-market
 ## Test
 ```shell
 $ sh scripts/test
+```
+
+
+## Dev
+Attention: Ensure there is no PostgreSQL running on port 5432 in your local environment
+```
+$ start:dev
+$ start:dev:mongo-atlas
 ```
