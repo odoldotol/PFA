@@ -1,6 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { AppService } from './app.service';
 import { UpdaterService } from 'src/updater/updater.service';
+import { Yf_infoService as DbYfInfoService } from "src/database/yf_info/yf_info.service";
 import { DBRepository } from 'src/database/database.repository';
 
 class UpdaterServiceMock {
@@ -14,6 +15,8 @@ class DBRepositoryMock {
   async createConfigExchange() {}
 }
 
+class MockDbYfInfoService {}
+
 describe('AppService', () => {
   let service: AppService;
   let updaterService: UpdaterService;
@@ -24,7 +27,8 @@ describe('AppService', () => {
       providers: [
         AppService,
         { provide: UpdaterService, useClass: UpdaterServiceMock },
-        { provide: DBRepository, useClass: DBRepositoryMock }
+        { provide: DBRepository, useClass: DBRepositoryMock },
+        { provide: DbYfInfoService, useClass: MockDbYfInfoService },
       ],
     }).compile();
 

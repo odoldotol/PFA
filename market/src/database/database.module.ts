@@ -25,4 +25,4 @@ import { Yf_infoModule } from "./yf_info/yf_info.module";
     Yf_infoModule
   ]
 })
-export class DBModule {}
+export class DatabaseModule {}

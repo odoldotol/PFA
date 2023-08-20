@@ -1,12 +1,35 @@
+import { ConfigModule } from "@nestjs/config";
 import { Test, TestingModule } from "@nestjs/testing";
+import { DBRepository } from "src/database/database.repository";
+import { ExchangeService as DbExchangeService } from "src/database/exchange/exchange.service";
+import { Yf_infoService as DbYfInfoService } from "src/database/yf_info/yf_info.service";
+import { ExchangeService as MkExchangeService } from "src/market/exchange.service";
+import { MarketService } from "src/market/market.service";
+import { UpdaterService } from "src/updater/updater.service";
 import { AssetService } from "./asset.service";
+
+class MockMarketService {}
+class MockMkExchangeService {}
+class MockDbExchangeService {}
+class MockDbYfInfoService {}
+class MockUpdaterService {}
+class DBRepositoryMock {}
 
 describe('AssetService', () => {
   let service: AssetService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [AssetService],
+      imports: [ConfigModule.forRoot({ envFilePath: ".env" })],
+      providers: [
+        { provide: MarketService, useClass: MockMarketService },
+        { provide: MkExchangeService, useClass: MockMkExchangeService },
+        { provide: DbExchangeService, useClass: MockDbExchangeService },
+        { provide: DbYfInfoService, useClass: MockDbYfInfoService },
+        { provide: UpdaterService, useClass: MockUpdaterService },
+        { provide: DBRepository, useClass: DBRepositoryMock },
+        AssetService
+      ],
     }).compile();
 
     service = module.get<AssetService>(AssetService);
@@ -16,5 +39,5 @@ describe('AssetService', () => {
     expect(service).toBeDefined();
   });
 
-  
+
 });

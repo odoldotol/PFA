@@ -84,7 +84,7 @@ export class UpdaterService implements OnModuleInit {
   }
 
   // Todo: Refac - Exchange 리팩터링 후 억지로 끼워맞춤
-  private async updateAssetsOfExchange(exchange: Exchange, launcher: LogPriceUpdate["launcher"]) {
+  public async updateAssetsOfExchange(exchange: Exchange, launcher: LogPriceUpdate["launcher"]) {
     const ISO_Code = exchange.ISO_Code;
     const yf_exchangeTimezoneName = exchange.ISO_TimezoneName;
     const previous_close = exchange.getMarketDate().toISOString();
