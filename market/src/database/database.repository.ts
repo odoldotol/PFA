@@ -1,13 +1,11 @@
 import { Injectable, Logger } from "@nestjs/common";
 import { curry, each, map, pipe, toArray, toAsync } from "@fxts/core";
 import { Either } from "src/common/class/either";
-import mongoose, { ClientSession, FilterQuery } from "mongoose";
+import mongoose, { ClientSession } from "mongoose";
 import { StandardUpdatePriceResult } from "src/common/interface/updatePriceResult.interface";
 import { Log_priceUpdateService } from "./log_priceUpdate/log_priceUpdate.service";
 import { Yf_infoService } from "./yf_info/yf_info.service";
 import { ExchangeService } from "./exchange/exchange.service";
-import { FindOptionsWhere } from "typeorm";
-import { Exchange } from "./exchange/exchange.entity";
 
 @Injectable()
 export class DBRepository {
@@ -20,43 +18,6 @@ export class DBRepository {
     private readonly yf_infoSrv: Yf_infoService,
   ) {}
 
-  public createExchange(
-    ISO_Code: string,
-    ISO_TimezoneName: string,
-    previous_close: string
-  ) {
-    return this.exchangeSrv.createOne({
-      ISO_Code,
-      ISO_TimezoneName,
-      marketDate: new Date(previous_close).toISOString()
-    });
-  }
-
-  createAssets = this.yf_infoSrv.insertMany;
-
-  testPickLastUpdateLog = this.log_priceUpdateSrv.find1;
-
-  readUpdateLog = (ISO_Code?: string, limit?: number) => this.log_priceUpdateSrv.find1(
-    ISO_Code ? { key: ISO_Code } : {},
-    limit ? limit : 5);
-
-  public existsExchange(condition: FindOptionsWhere<Exchange> | FindOptionsWhere<Exchange>[]) {
-    return this.exchangeSrv.exist(condition);
-  }
-
-  public readAllExchange() {
-    return this.exchangeSrv.readAll();
-  }
-
-  public readExchange(ISO_Code: string) {
-    return this.exchangeSrv.readOneByPk(ISO_Code);
-  }
-
-  existsAssetByTicker = this.yf_infoSrv.exists;
-  testPickAsset = this.yf_infoSrv.testPickOne;
-  readAllAssetsInfo = this.yf_infoSrv.findAll;
-  readPriceByTicker = this.yf_infoSrv.findPriceBySymbol;
-
   readSymbolArr = async (filter: object) =>
     (await this.yf_infoSrv.find(filter, '-_id symbol'))
       .map(doc => doc.symbol);
@@ -67,7 +28,7 @@ export class DBRepository {
   * Todo: Refac - Exchange 리팩터링 후 억지로 끼워맞춤
   */
   readPriceByISOcode = async (ISO_Code: string) =>
-    this.yf_infoSrv.findPricesByExchange((await this.readExchange(ISO_Code))!.ISO_TimezoneName) //
+    this.yf_infoSrv.findPricesByExchange((await this.exchangeSrv.readOneByPk(ISO_Code))!.ISO_TimezoneName) //
       .then(arr => arr.map(ele => [ele.symbol, ele.regularMarketLastClose, ele.quoteType === "INDEX" ? "INDEX" : ele.currency]));
 
   /**

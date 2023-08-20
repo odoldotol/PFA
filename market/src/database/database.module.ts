@@ -17,6 +17,12 @@ import { Yf_infoModule } from "./yf_info/yf_info.module";
     Yf_infoModule
   ],
   providers: [DBRepository],
-  exports: [DBRepository]
+  exports: [
+    DBRepository,
+    ExchangeModule,
+    FinancialAssetModule,
+    Log_priceUpdateModule,
+    Yf_infoModule
+  ]
 })
 export class DBModule {}

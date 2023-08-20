@@ -1,6 +1,7 @@
 import { Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { UpdaterService } from 'src/updater/updater.service';
 import { DBRepository } from 'src/database/database.repository';
+import { Yf_infoService as DbYfInfoService } from 'src/database/yf_info/yf_info.service';
 import { ResponseGetPriceByTicker } from './response/getPriceByTicker.response';
 import { exchangeConfigArr } from 'src/config/const/exchanges.const'; //
 import { TExchangeCore } from 'src/common/type/exchange.type';
@@ -11,13 +12,14 @@ export class AppService {
 
     constructor(
         private readonly updaterService: UpdaterService,
-        private readonly dbRepo: DBRepository
+        private readonly dbRepo: DBRepository,
+        private readonly dbYfInfoSrv: DbYfInfoService
     ) {}
 
     // TODO - Refac
     async getPriceByTicker(ticker: string) {
         let status_price: TExchangeCore | undefined = undefined; // Todo: Refac
-        const price: FulfilledYfInfo = await this.dbRepo.readPriceByTicker(ticker)
+        const price: FulfilledYfInfo = await this.dbYfInfoSrv.findPriceBySymbol(ticker)
         .then(async res => {
             if (res === null) {
                 const createResult = await this.updaterService.addAssets([ticker])
