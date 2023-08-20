@@ -1,5 +1,5 @@
 import { Test, TestingModule } from "@nestjs/testing";
-import { ChildApiService } from "./child-api/child-api.service";
+import { ChildApiService } from "./child_api/child_api.service";
 import { MarketService } from "./market.service";
 
 describe('MarketService', () => {

@@ -8,9 +8,9 @@ import { ScheduleModule } from '@nestjs/schedule';
 import { Pm2Module } from 'src/pm2/pm2.module';
 import { DevModule } from 'src/dev/dev.module';
 import { UpdaterModule } from 'src/updater/updater.module';
-import { DBModule } from 'src/database/database.module';
+import { DatabaseModule } from 'src/database/database.module';
+import { AssetModule } from 'src/asset/asset.module';
 import { AppController } from './app.controller';
-import { AppService } from './app.service';
 import { HttpLoggerMiddleware } from './middleware/httpLogger.middleware';
 import { KeepAliveInterceptor } from './interceptor';
 import { AppTerminator } from './app.terminator';
@@ -35,11 +35,11 @@ import {
     Pm2Module,
     DevModule,
     UpdaterModule,
-    DBModule
+    DatabaseModule,
+    AssetModule
   ],
   controllers: [AppController],
   providers: [
-    AppService,
     KeepAliveInterceptor,
     GlobalKeepAliveInterceptorProvider,
     GlobalValidationPipeProvider,
