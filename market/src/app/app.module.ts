@@ -11,7 +11,6 @@ import { UpdaterModule } from 'src/updater/updater.module';
 import { DatabaseModule } from 'src/database/database.module';
 import { AssetModule } from 'src/asset/asset.module';
 import { AppController } from './app.controller';
-import { AppService } from './app.service';
 import { HttpLoggerMiddleware } from './middleware/httpLogger.middleware';
 import { KeepAliveInterceptor } from './interceptor';
 import { AppTerminator } from './app.terminator';
@@ -41,7 +40,6 @@ import {
   ],
   controllers: [AppController],
   providers: [
-    AppService,
     KeepAliveInterceptor,
     GlobalKeepAliveInterceptorProvider,
     GlobalValidationPipeProvider,

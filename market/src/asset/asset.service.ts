@@ -38,7 +38,7 @@ export class AssetService {
       const price: FulfilledYfInfo = await this.dbYfInfoSrv.findPriceBySymbol(ticker)
       .then(async res => {
           if (res === null) {
-              const createResult = await this.updaterSrv.addAssets([ticker])
+              const createResult = await this.addAssets([ticker])
               if (createResult.failure.info.length > 0) {
                   if (createResult.failure.info[0].doc === "Mapping key not found.") {
                       throw new NotFoundException(`Could not find Ticker: ${createResult.failure.info[0].ticker}`);

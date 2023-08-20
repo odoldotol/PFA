@@ -1,8 +1,10 @@
 import { Body, Controller, HttpCode, Param, ParseArrayPipe, Post } from "@nestjs/common";
+import { ApiTags } from "@nestjs/swagger";
 import { UpperCasePipe } from "src/common/pipe/upperCasePipe";
 import { AssetService } from "./asset.service";
 
 @Controller('asset')
+@ApiTags('Asset')
 export class AssetController {
 
   constructor(

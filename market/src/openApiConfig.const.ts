@@ -5,7 +5,7 @@ export const config = new DocumentBuilder()
   .setVersion('1.0')
   .setDescription('Market Data')
   .setContact('Lygorithm', 'https://github.com/odoldotol', 'lygorithm@gmail.com')
-  .addTag('App', 'default')
+  .addTag('Asset')
   .addTag('Updater')
   .addTag('Development')
   .build();

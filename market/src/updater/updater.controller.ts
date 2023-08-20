@@ -4,7 +4,6 @@ import { ApiTags } from '@nestjs/swagger';
 import { UpperCasePipe } from 'src/common/pipe/upperCasePipe';
 import { TempKeyGuard } from 'src/common/guard/key.guard';
 import { ApiCommonResponse } from 'src/common/decorator/apiCommonResponse.decorator';
-import { Api_addAssets } from './decorator/api-addAssets.decorator';
 import { Api_initiator } from './decorator/api-initiator.decorator';
 import { Api_initiateForce } from './decorator/api-initiateForce.decorator';
 
@@ -14,13 +13,8 @@ import { Api_initiateForce } from './decorator/api-initiateForce.decorator';
 export class UpdaterController {
 
     constructor(
-        private readonly updaterService: UpdaterService,) {}
-
-    @Post('asset')
-    @HttpCode(200)
-    @Api_addAssets()
-    addAssets (@Body(UpperCasePipe, new ParseArrayPipe({ items: String })) tickerArr: string[]) {
-        return this.updaterService.addAssets(tickerArr);}
+        private readonly updaterService: UpdaterService
+    ) {}
 
     // @Post('relaunch')
     // @HttpCode(200)
