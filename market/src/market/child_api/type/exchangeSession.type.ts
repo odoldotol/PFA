@@ -4,8 +4,3 @@ export type TExchangeSession = Readonly<{
   next_open: string;
   next_close: string;
 }>;
-
-export type TExchangeSessionError = Readonly<{
-  doc: string
-  ISO_Code: string
-}>;
