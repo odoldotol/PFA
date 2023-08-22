@@ -1,21 +1,16 @@
 import { Module } from '@nestjs/common';
-import { ExchangeService } from './exchange.service';
-import { ExchangeContainer } from './exchangeContainer';
-import { ExchangeConfigArrProvider } from './provider/exchangeConfigArr.provider';
 import { AssetModule } from './asset/asset.module';
+import { ExchangeModule } from './exchange/exchange.module';
 
 @Module({
   imports: [
     AssetModule,
+    ExchangeModule,
   ],
-  providers: [
-    ExchangeService,
-    ExchangeContainer,
-    ExchangeConfigArrProvider
-  ],
+  providers: [],
   exports: [
     AssetModule,
-    ExchangeService,
+    ExchangeModule,
   ]
 })
 export class MarketModule {}

@@ -4,7 +4,7 @@ import { DBRepository } from "src/database/database.repository";
 import { AssetService as MkAssetService } from 'src/market/asset/asset.service';
 import { ExchangeService as DbExchangeService } from "src/database/exchange/exchange.service";
 import { Yf_infoService as DbYfInfoService } from "src/database/yf_info/yf_info.service";
-import { ExchangeService as MkExchangeService } from "src/market/exchange.service";
+import { ExchangeService as MkExchangeService } from "src/market/exchange/exchange.service";
 import { UpdaterService } from "src/updater/updater.service";
 import { AssetService } from "./asset.service";
 

@@ -6,7 +6,7 @@ import { EnvironmentVariables } from "src/common/interface/environmentVariables.
 import { EnvKey } from "src/common/enum/envKey.emun";
 import { Yf_infoService as DbYfInfoService } from 'src/database/yf_info/yf_info.service';
 import { Either } from "src/common/class/either";
-import { ExchangeService as MkExchangeService } from 'src/market/exchange.service';
+import { ExchangeService as MkExchangeService } from 'src/market/exchange/exchange.service';
 import { ExchangeService as DbExchangeService } from 'src/database/exchange/exchange.service';
 import { UpdaterService } from "src/updater/updater.service";
 import { Exchange as ExchangeEntity } from 'src/database/exchange/exchange.entity';

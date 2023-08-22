@@ -9,11 +9,11 @@ import * as F from "@fxts/core";
 import { EnvironmentVariables } from 'src/common/interface/environmentVariables.interface';
 import { EnvKey } from 'src/common/enum/envKey.emun';
 import { UpdatePriceResult } from 'src/common/interface/updatePriceResult.interface';
-import { ExchangeService as MkExchangeService } from 'src/market/exchange.service';
+import { ExchangeService as MkExchangeService } from 'src/market/exchange/exchange.service';
 import { ExchangeService as DbExchangeService } from 'src/database/exchange/exchange.service';
 import { FinancialAssetService as DbFinancialAssetService } from 'src/database/financialAsset/financialAsset.service';
 import { Yf_infoService as DbYfInfoService } from 'src/database/yf_info/yf_info.service';
-import { Exchange } from 'src/market/class/exchange';
+import { Exchange } from 'src/market/exchange/class/exchange';
 import { AssetService as MkAssetService } from 'src/market/asset/asset.service';
 
 /**
