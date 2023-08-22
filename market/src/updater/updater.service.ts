@@ -2,7 +2,6 @@ import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { SchedulerRegistry } from '@nestjs/schedule';
 import { CronJob } from 'cron';
-import { MarketService } from 'src/market/market.service';
 import { DBRepository } from 'src/database/database.repository';
 import { ProductApiService } from 'src/product_api/product_api.service';
 import { pipe, map, toArray, toAsync, tap, each, filter, concurrent, curry } from "@fxts/core"; // Todo: 제거
@@ -15,6 +14,7 @@ import { ExchangeService as DbExchangeService } from 'src/database/exchange/exch
 import { FinancialAssetService as DbFinancialAssetService } from 'src/database/financialAsset/financialAsset.service';
 import { Yf_infoService as DbYfInfoService } from 'src/database/yf_info/yf_info.service';
 import { Exchange } from 'src/market/class/exchange';
+import { AssetService as MkAssetService } from 'src/market/asset/asset.service';
 
 /**
  * ### TODO: Refac:
@@ -31,7 +31,7 @@ export class UpdaterService implements OnModuleInit {
     private readonly configService: ConfigService<EnvironmentVariables>,
     private readonly schedulerRegistry: SchedulerRegistry,
     private readonly mkExchangeSrv: MkExchangeService,
-    private readonly marketService: MarketService,
+    private readonly mkAssetSrv: MkAssetService,
     private readonly dbRepo: DBRepository,
     private readonly dbExchangeSrv: DbExchangeService,
     private readonly dbFinAssetSrv: DbFinancialAssetService,
@@ -92,7 +92,7 @@ export class UpdaterService implements OnModuleInit {
     await this.dbRepo.updatePriceStandard(
       await pipe(
         this.dbRepo.readSymbolArr({ exchangeTimezoneName: yf_exchangeTimezoneName }), toAsync,
-        map(this.marketService.fetchPrice.bind(this.marketService)),
+        map(this.mkAssetSrv.fetchPrice.bind(this.mkAssetSrv)),
         map(ele => ele.map(this.fulfillUpdatePriceSet(isNotMarketOpen))),
         concurrent(this.CHILD_CONCURRENCY),
         toArray

@@ -1,14 +1,14 @@
 import { ConfigModule } from "@nestjs/config";
 import { Test, TestingModule } from "@nestjs/testing";
 import { DBRepository } from "src/database/database.repository";
+import { AssetService as MkAssetService } from 'src/market/asset/asset.service';
 import { ExchangeService as DbExchangeService } from "src/database/exchange/exchange.service";
 import { Yf_infoService as DbYfInfoService } from "src/database/yf_info/yf_info.service";
 import { ExchangeService as MkExchangeService } from "src/market/exchange.service";
-import { MarketService } from "src/market/market.service";
 import { UpdaterService } from "src/updater/updater.service";
 import { AssetService } from "./asset.service";
 
-class MockMarketService {}
+class MockMkAssetService {}
 class MockMkExchangeService {}
 class MockDbExchangeService {}
 class MockDbYfInfoService {}
@@ -22,7 +22,7 @@ describe('AssetService', () => {
     const module: TestingModule = await Test.createTestingModule({
       imports: [ConfigModule.forRoot({ envFilePath: ".env" })],
       providers: [
-        { provide: MarketService, useClass: MockMarketService },
+        { provide: MkAssetService, useClass: MockMkAssetService },
         { provide: MkExchangeService, useClass: MockMkExchangeService },
         { provide: DbExchangeService, useClass: MockDbExchangeService },
         { provide: DbYfInfoService, useClass: MockDbYfInfoService },

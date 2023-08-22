@@ -7,7 +7,7 @@ import { EventEmitter } from "stream";
 import { ChildApiService } from "../child_api/child_api.service";
 import { EMarketEvent } from "../enum/eventName.enum";
 import { TCloseEventArgs, TOpenEventArgs } from "../type";
-import { TExchangeSession, TChildApiFailure } from "../child_api/type";
+import { TExchangeSession, TFailure as TChildApiFailure } from "../child_api/type";
 
 // Todo: 다시 Scheduler 사용하던가 스트림패턴 적용하든 이벤트 관리에만 집중하는 클래스 따로 만들자
 export class Exchange extends EventEmitter {

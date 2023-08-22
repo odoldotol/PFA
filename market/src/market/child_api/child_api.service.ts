@@ -3,7 +3,11 @@ import { HttpService } from '@nestjs/axios';
 import { catchError, firstValueFrom, map } from 'rxjs';
 import { AxiosError } from 'axios';
 import { Either } from "src/common/class/either";
-import { TYfAsset, TYfPrice, TExchangeSession, TChildApiFailure } from './type';
+import { 
+  TResponseYfInfo,
+  TResponseYfPrice,
+  TExchangeSession,
+  TFailure } from './type';
 
 @Injectable()
 export class ChildApiService {
@@ -15,11 +19,11 @@ export class ChildApiService {
   ) {}
 
   public fetchYfInfo(ticker: string) {
-    return this.post<TYfAsset>(`yf/info/${ticker}`);
+    return this.post<TResponseYfInfo>(`yf/info/${ticker}`);
   }
 
   public fetchYfPrice(ticker: string) {
-    return this.post<TYfPrice>(`yf/price/${ticker}`);
+    return this.post<TResponseYfPrice>(`yf/price/${ticker}`);
   }
 
   public fetchEcSession(ISO_Code: string) {
@@ -27,7 +31,7 @@ export class ChildApiService {
   }
 
   // Todo: Refac
-  private post<T>(url: string): Promise<Either<TChildApiFailure, T>> {
+  private post<T>(url: string): Promise<Either<TFailure, T>> {
     return firstValueFrom(this.httpService.post(url).pipe(
       catchError((error: AxiosError) => {
         this.logger.error(error);

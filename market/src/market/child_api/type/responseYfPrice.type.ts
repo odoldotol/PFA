@@ -1,4 +1,4 @@
-export type TYfPrice = Readonly<{
+export type TResponseYfPrice = Readonly<{
   regularMarketPrice: number
   regularMarketPreviousClose: number
 }>;
