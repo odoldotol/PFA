@@ -1,13 +1,12 @@
 import { Injectable, InternalServerErrorException, Logger, NotFoundException } from "@nestjs/common";
 import { AddAssetsResponse } from "./response/addAssets.response";
 import * as F from "@fxts/core";
-import { MarketService } from "src/market/market.service";
 import { ConfigService } from "@nestjs/config";
 import { EnvironmentVariables } from "src/common/interface/environmentVariables.interface";
 import { EnvKey } from "src/common/enum/envKey.emun";
 import { Yf_infoService as DbYfInfoService } from 'src/database/yf_info/yf_info.service';
 import { Either } from "src/common/class/either";
-import { ExchangeService as MkExchangeService } from 'src/market/exchange.service';
+import { ExchangeService as MkExchangeService } from 'src/market/exchange/exchange.service';
 import { ExchangeService as DbExchangeService } from 'src/database/exchange/exchange.service';
 import { UpdaterService } from "src/updater/updater.service";
 import { Exchange as ExchangeEntity } from 'src/database/exchange/exchange.entity';
@@ -15,6 +14,7 @@ import { TExchangeCore } from "src/common/type/exchange.type";
 import { ResponseGetPriceByTicker } from "./response/getPriceByTicker.response";
 import { exchangeConfigArr } from "src/config/const/exchanges.const";
 import { DBRepository } from "src/database/database.repository";
+import { AssetService as MkAssetService } from 'src/market/asset/asset.service';
 
 @Injectable()
 export class AssetService {
@@ -24,7 +24,7 @@ export class AssetService {
 
   constructor(
     private readonly configSrv: ConfigService<EnvironmentVariables>,
-    private readonly marketSrv: MarketService,
+    private readonly mkAssetSrv: MkAssetService,
     private readonly mkExchangeSrv: MkExchangeService,
     private readonly dbExchangeSrv: DbExchangeService,
     private readonly dbYfInfoSrv: DbYfInfoService,
@@ -71,7 +71,7 @@ export class AssetService {
     await F.pipe( // 중복제거와 exists필터 부분은 단일 티커처리시 필요없음. 이 부분 보완하기
       new Set(tickerArr).values(), F.toAsync,
       F.map(this.eitherFilter_existsAsset),
-      F.map(ele => ele.flatMap(this.marketSrv.fetchInfo.bind(this.marketSrv))),
+      F.map(ele => ele.flatMap(this.mkAssetSrv.fetchInfo.bind(this.mkAssetSrv))),
       F.map(ele => ele.flatMap(this.fulfillYfInfo.bind(this))),
       F.filter(ele => ele.isLeft() ? (response.failure.info.push(ele.getLeft), false) : true),
       F.map(ele => ele.getRight),

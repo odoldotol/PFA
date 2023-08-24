@@ -1,9 +1,9 @@
 import { Inject, Injectable, Logger, OnModuleInit } from "@nestjs/common";
 import { TExchangeCore } from "src/common/type/exchange.type";
-import { ChildApiService } from "./child_api/child_api.service";
+import { ChildApiService } from "../child_api/child_api.service";
 import { Exchange } from "./class/exchange";
 import { EMarketEvent } from "./enum/eventName.enum";
-import { ExchangeContainer } from "./exchangeContainer";
+import { ExchangeContainer } from "./container";
 import { 
   EXCHANGE_CONFIG_ARR_TOKEN,
   TExchangeConfigArrProvider

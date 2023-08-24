@@ -38,7 +38,7 @@ export class DBRepository {
   * - 업데이트 로그 생성
   */
   updatePriceStandard = async (
-    arr: Either<YfPriceError, UpdatePriceSet>[],
+    arr: Either<any, UpdatePriceSet>[], // temp - any
     ISO_Code: string,
     previous_close: string,
     startTime: string,

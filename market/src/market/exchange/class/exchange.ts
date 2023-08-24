@@ -4,13 +4,10 @@ import { toLoggingStyle } from "src/common/util/toLoggingStyle";
 import { TExchangeConfig } from "src/config/const/exchanges.const";
 import { YF_CCC_ISO_Code, YF_update_margin_default } from "src/config/const/yf.const";
 import { EventEmitter } from "stream";
-import { ChildApiService } from "../child_api/child_api.service";
+import { ChildApiService } from "../../child_api/child_api.service";
 import { EMarketEvent } from "../enum/eventName.enum";
 import { TCloseEventArgs, TOpenEventArgs } from "../type";
-import {
-  TExchangeSession,
-  TExchangeSessionError
-} from "../type/exchangeSession.type";
+import { TExchangeSession, TFailure as TChildApiFailure } from "../../child_api/type";
 
 // Todo: 다시 Scheduler 사용하던가 스트림패턴 적용하든 이벤트 관리에만 집중하는 클래스 따로 만들자
 export class Exchange extends EventEmitter {
@@ -76,7 +73,7 @@ export class Exchange extends EventEmitter {
 
   private fetchExchangeSession(
     ISO_Code: string
-  ): Promise<Either<TExchangeSessionError, TExchangeSession>> {
+  ): Promise<Either<TChildApiFailure, TExchangeSession>> {
     if (ISO_Code === YF_CCC_ISO_Code) {
       return Promise.resolve(Either.right(this.getMidnightUTCSession()));
     } else {

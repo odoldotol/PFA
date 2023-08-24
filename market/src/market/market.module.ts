@@ -1,21 +1,16 @@
 import { Module } from '@nestjs/common';
-import { MarketService } from './market.service';
-import { ChildApiModule } from './child_api/child_api.module';
-import { ExchangeService } from './exchange.service';
-import { ExchangeContainer } from './exchangeContainer';
-import { ExchangeConfigArrProvider } from './provider/exchangeConfigArr.provider';
+import { AssetModule } from './asset/asset.module';
+import { ExchangeModule } from './exchange/exchange.module';
 
 @Module({
-  imports: [ChildApiModule],
-  providers: [
-    MarketService,
-    ExchangeService,
-    ExchangeContainer,
-    ExchangeConfigArrProvider
+  imports: [
+    AssetModule,
+    ExchangeModule,
   ],
+  providers: [],
   exports: [
-    MarketService,
-    ExchangeService,
+    AssetModule,
+    ExchangeModule,
   ]
 })
 export class MarketModule {}

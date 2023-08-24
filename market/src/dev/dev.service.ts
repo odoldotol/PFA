@@ -3,7 +3,7 @@ import { DBRepository } from 'src/database/database.repository';
 import { ExchangeService as DbExchangeService } from 'src/database/exchange/exchange.service';
 import { Log_priceUpdateService as DbLog_priceUpdateService } from 'src/database/log_priceUpdate/log_priceUpdate.service';
 import { Yf_infoService as DbYfInfoService } from "src/database/yf_info/yf_info.service";
-import { ExchangeService as MkExchangeService } from 'src/market/exchange.service';
+import { ExchangeService as MkExchangeService } from 'src/market/exchange/exchange.service';
 import * as F from "@fxts/core";
 
 @Injectable()
