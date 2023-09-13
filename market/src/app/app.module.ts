@@ -4,7 +4,6 @@ import {
   NestModule,
 } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { ScheduleModule } from '@nestjs/schedule';
 import { Pm2Module } from 'src/pm2/pm2.module';
 import { DevModule } from 'src/dev/dev.module';
 import { UpdaterModule } from 'src/updater/updater.module';
@@ -31,7 +30,6 @@ import {
         postgresConfig
       ]
     }),
-    ScheduleModule.forRoot(),
     Pm2Module,
     DevModule,
     UpdaterModule,

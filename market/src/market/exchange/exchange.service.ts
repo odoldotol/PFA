@@ -9,6 +9,8 @@ import {
   TExchangeConfigArrProvider
 } from "./provider/exchangeConfigArr.provider";
 import * as F from "@fxts/core";
+import { Launcher } from "src/common/enum";
+import { UpdateAssetsOfExchange } from "src/common/interface";
 
 // Todo: 1 차 리팩터링 후, 여전히 이 레이어의 역할이 스스로 분명하지 않음. 업데이트 동작과 관련해서 명확한 분리|통합이 필요함.
 @Injectable()
@@ -43,11 +45,11 @@ export class ExchangeService implements OnModuleInit {
   }
 
   public registerUpdater(
-    updateAssetsOfExchange: (exchange: Exchange, launcher: LogPriceUpdate["launcher"]) => Promise<void>,
+    updater: UpdateAssetsOfExchange,
     exchangeCore: TExchangeCore
   ) {
     const exchange = this.getExchagne(exchangeCore);
-    exchange.on(EMarketEvent.UPDATE, () => updateAssetsOfExchange(exchange, "scheduler"));
+    exchange.on(EMarketEvent.UPDATE, () => updater(exchange, Launcher.SCHEDULER));
     this.logger.verbose(`${exchange.ISO_Code} : Updater Registered`);
   }
 
@@ -59,11 +61,11 @@ export class ExchangeService implements OnModuleInit {
   }
 
   public fulfillUpdater(
-    updateAssetsOfExchange: (exchange: Exchange, launcher: LogPriceUpdate["launcher"]) => Promise<void>,
+    updater: UpdateAssetsOfExchange,
     exchangeCore: TExchangeCore
   ) {
     const exchange = this.getExchagne(exchangeCore);
-    return updateAssetsOfExchange.bind(null, exchange);
+    return updater.bind(null, exchange);
   }
 
   private getExchagne(exchangeCore: TExchangeCore) {

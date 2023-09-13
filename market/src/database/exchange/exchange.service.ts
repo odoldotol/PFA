@@ -1,10 +1,12 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, Logger } from "@nestjs/common";
 import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Repository, FindOptionsWhere } from 'typeorm';
 import { Exchange, RawExchange } from "./exchange.entity";
 
 @Injectable()
 export class ExchangeService {
+  
+  private readonly logger = new Logger('Database_'+ExchangeService.name);
 
   constructor(
     @InjectRepository(Exchange)
@@ -43,7 +45,9 @@ export class ExchangeService {
       UPDATE exchanges
         SET marketdate = '${update}'
         WHERE iso_code = '${pk}'
-    `);
+    `).then(res => {
+      res[1] === 1 || this.logger.warn(`updateMarketDateByPk Failed! | Args: ${[...arguments]}`);
+    });
   }
 
   // Todo: Refac - 다른 엔티티와 공유하는 범용적인 메소드로

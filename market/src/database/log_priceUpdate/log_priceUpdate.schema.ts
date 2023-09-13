@@ -1,5 +1,7 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
 import mongoose from "mongoose";
+import { Launcher } from "src/common/enum";
+import { TUpdateTuple } from "src/common/type";
 
 export type Log_priceUpdateDocument = Log_priceUpdate & mongoose.Document;
 
@@ -7,16 +9,16 @@ export type Log_priceUpdateDocument = Log_priceUpdate & mongoose.Document;
     timestamps: true
  })
 export class Log_priceUpdate {
-
+    // Todo: Enum 으로
     @Prop({
         required: true,
         type: String,
         validate: [
-            (v: string) => ["initiator", "scheduler", "admin", "product", "test"].includes(v),
+            (v: Launcher) => Object.values(Launcher).includes(v),
             "Invalid launcher"
         ]
     }) // 업데이트 주체
-    launcher!: string
+    launcher!: Launcher
     
     @Prop({
         required: true,
@@ -33,7 +35,7 @@ export class Log_priceUpdate {
     @Prop({
         type: mongoose.Schema.Types.Mixed // Array<[String, Object]>
     })
-    success!: UpdatePriceSet[]
+    success!: TUpdateTuple[]
 
     @Prop({
         type: mongoose.Schema.Types.Mixed

@@ -8,14 +8,19 @@ import {
   TResponseYfPrice,
   TExchangeSession,
   TFailure } from './type';
+import { ConfigService } from '@nestjs/config';
+import { EnvironmentVariables } from 'src/common/interface/environmentVariables.interface';
+import { EnvKey } from 'src/common/enum/envKey.enum';
 
 @Injectable()
 export class ChildApiService {
 
   private readonly logger = new Logger(ChildApiService.name);
+  public readonly Concurrency = this.configService.get(EnvKey.Child_concurrency, 1, { infer: true }) * 50;
 
   constructor(
-    private httpService: HttpService
+    private readonly configService: ConfigService<EnvironmentVariables>,
+    private readonly httpService: HttpService
   ) {}
 
   public fetchYfInfo(ticker: string) {

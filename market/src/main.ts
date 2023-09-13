@@ -4,7 +4,7 @@ import { ConfigService } from '@nestjs/config';
 import { AppModule } from 'src/app/app.module';
 import { SwaggerModule } from '@nestjs/swagger';
 import { EnvironmentVariables } from 'src/common/interface/environmentVariables.interface';
-import { EnvKey } from 'src/common/enum/envKey.emun';
+import { EnvKey } from 'src/common/enum/envKey.enum';
 import { versioningOptions } from './versioningOptions.const';
 import { AppTerminator } from './app/app.terminator';
 import { config } from './openApiConfig.const';

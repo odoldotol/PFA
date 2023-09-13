@@ -2,7 +2,7 @@ import { Injectable, Logger, OnApplicationBootstrap, OnModuleInit } from "@nestj
 import { ConfigService } from "@nestjs/config";
 import * as pm2 from "pm2";
 import { curry, delay, filter, find, isUndefined, not, pipe, range, toAsync } from "@fxts/core";
-import { EnvKey } from "src/common/enum/envKey.emun";
+import { EnvKey } from "src/common/enum/envKey.enum";
 import { EnvironmentVariables } from "src/common/interface/environmentVariables.interface";
 
 @Injectable()

@@ -1,6 +1,6 @@
 import { Logger } from "@nestjs/common";
 import { Either } from "src/common/class/either";
-import { toLoggingStyle } from "src/common/util/toLoggingStyle";
+import { toLoggingStyle, toISOYmdStr } from "src/common/util/date";
 import { TExchangeConfig } from "src/config/const/exchanges.const";
 import { YF_CCC_ISO_Code, YF_update_margin_default } from "src/config/const/yf.const";
 import { EventEmitter } from "stream";
@@ -57,6 +57,10 @@ export class Exchange extends EventEmitter {
       throw new Error("marketDate is not defined");
     }
     return this.marketDate;
+  }
+
+  public getMarketDateYmdStr() {
+    return toISOYmdStr(this.getMarketDate());
   }
 
   public isMarketOpen() {
@@ -202,9 +206,7 @@ export class Exchange extends EventEmitter {
    * #### UTC 기준 당일 자정과 익일 자정기준으로 마켓세션 생성해서 반환
    */
   private getMidnightUTCSession(): TExchangeSession {
-    const previousMidnight = new Date(
-      new Date().toISOString().slice(0, 10)
-    );
+    const previousMidnight = new Date(toISOYmdStr(new Date()));
     const nextMidnight = previousMidnight;
     nextMidnight.setUTCDate(nextMidnight.getUTCDate() + 1);
     const previous = previousMidnight.toISOString();

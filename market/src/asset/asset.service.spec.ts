@@ -1,10 +1,10 @@
 import { ConfigModule } from "@nestjs/config";
 import { Test, TestingModule } from "@nestjs/testing";
-import { DBRepository } from "src/database/database.repository";
 import { AssetService as MkAssetService } from 'src/market/asset/asset.service';
 import { ExchangeService as DbExchangeService } from "src/database/exchange/exchange.service";
 import { Yf_infoService as DbYfInfoService } from "src/database/yf_info/yf_info.service";
 import { ExchangeService as MkExchangeService } from "src/market/exchange/exchange.service";
+import { FinancialAssetService as DbFinancialAssetService } from "src/database/financialAsset/financialAsset.service";
 import { UpdaterService } from "src/updater/updater.service";
 import { AssetService } from "./asset.service";
 
@@ -12,8 +12,8 @@ class MockMkAssetService {}
 class MockMkExchangeService {}
 class MockDbExchangeService {}
 class MockDbYfInfoService {}
+class MockDbFinancialAssetService {}
 class MockUpdaterService {}
-class DBRepositoryMock {}
 
 describe('AssetService', () => {
   let service: AssetService;
@@ -26,8 +26,8 @@ describe('AssetService', () => {
         { provide: MkExchangeService, useClass: MockMkExchangeService },
         { provide: DbExchangeService, useClass: MockDbExchangeService },
         { provide: DbYfInfoService, useClass: MockDbYfInfoService },
+        { provide: DbFinancialAssetService, useClass: MockDbFinancialAssetService },
         { provide: UpdaterService, useClass: MockUpdaterService },
-        { provide: DBRepository, useClass: DBRepositoryMock },
         AssetService
       ],
     }).compile();

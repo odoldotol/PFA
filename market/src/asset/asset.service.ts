@@ -3,7 +3,7 @@ import { AddAssetsResponse } from "./response/addAssets.response";
 import * as F from "@fxts/core";
 import { ConfigService } from "@nestjs/config";
 import { EnvironmentVariables } from "src/common/interface/environmentVariables.interface";
-import { EnvKey } from "src/common/enum/envKey.emun";
+import { EnvKey } from "src/common/enum/envKey.enum";
 import { Yf_infoService as DbYfInfoService } from 'src/database/yf_info/yf_info.service';
 import { Either } from "src/common/class/either";
 import { ExchangeService as MkExchangeService } from 'src/market/exchange/exchange.service';
@@ -13,8 +13,8 @@ import { Exchange as ExchangeEntity } from 'src/database/exchange/exchange.entit
 import { TExchangeCore } from "src/common/type/exchange.type";
 import { ResponseGetPriceByTicker } from "./response/getPriceByTicker.response";
 import { exchangeConfigArr } from "src/config/const/exchanges.const";
-import { DBRepository } from "src/database/database.repository";
 import { AssetService as MkAssetService } from 'src/market/asset/asset.service';
+import { FinancialAssetService as DbFinancialAssetService } from "src/database/financialAsset/financialAsset.service";
 
 @Injectable()
 export class AssetService {
@@ -28,39 +28,47 @@ export class AssetService {
     private readonly mkExchangeSrv: MkExchangeService,
     private readonly dbExchangeSrv: DbExchangeService,
     private readonly dbYfInfoSrv: DbYfInfoService,
+    private readonly dbFinAssetSrv: DbFinancialAssetService,
     private readonly updaterSrv: UpdaterService,
-    private readonly dbRepo: DBRepository,
   ) {}
 
-    // TODO - Refac
-    async getPriceByTicker(ticker: string) {
-      let status_price: TExchangeCore | undefined = undefined; // Todo: Refac
-      const price: FulfilledYfInfo = await this.dbYfInfoSrv.findPriceBySymbol(ticker)
-      .then(async res => {
-          if (res === null) {
-              const createResult = await this.addAssets([ticker])
-              if (createResult.failure.info.length > 0) {
-                  if (createResult.failure.info[0].doc === "Mapping key not found.") {
-                      throw new NotFoundException(`Could not find Ticker: ${createResult.failure.info[0].ticker}`);
-                  }
-                  throw new InternalServerErrorException(createResult.failure.info[0]);
-              }
-              status_price = createResult.success.status_price[0]
-              return createResult.success.info[0]
-          } else {
-              return res;
+  // TODO - Refac
+  async getPriceByTicker(ticker: string) {
+    let status_price: TExchangeCore | undefined = undefined; // Todo: Refac
+    const price: FulfilledYfInfo = await this.dbYfInfoSrv.findPriceBySymbol(ticker)
+    .then(async res => {
+      if (res === null) {
+        const createResult = await this.addAssets([ticker])
+        if (createResult.failure.info.length > 0) {
+          if (createResult.failure.info[0].doc === "Mapping key not found.") {
+            throw new NotFoundException(`Could not find Ticker: ${createResult.failure.info[0].ticker}`);
           }
-      }).catch(err => {
-          throw err;
-      });
-      return new ResponseGetPriceByTicker(
-          price.regularMarketLastClose,
-          exchangeConfigArr.find(ele => ele.ISO_TimezoneName === price.exchangeTimezoneName)!.ISO_Code, // exchange 리팩터링 후 문제
-          price.quoteType === "INDEX" ? "INDEX" : price.currency,
-          status_price);
+          throw new InternalServerErrorException(createResult.failure.info[0]);
+        }
+        status_price = createResult.success.status_price[0]
+        return createResult.success.info[0]
+      } else {
+        return res;
+      }
+    }).catch(err => {
+      throw err;
+    });
+    return new ResponseGetPriceByTicker(
+      price.regularMarketLastClose,
+      exchangeConfigArr.find(ele => ele.ISO_TimezoneName === price.exchangeTimezoneName)!.ISO_Code, // exchange 리팩터링 후 문제
+      price.quoteType === "INDEX" ? "INDEX" : price.currency,
+      status_price);
   }
 
-  getPriceByExchange = this.dbRepo.readPriceByISOcode;
+  // Todo: type 만들기
+  public getPriceByExchange(ISO_Code: string) {
+    return this.dbFinAssetSrv.readManyByExchange(ISO_Code)
+    .then(res => res.map(ele => [
+      ele.symbol,
+      ele.regularMarketLastClose,
+      ele.quoteType === "INDEX" ? "INDEX" : ele.currency
+    ]));
+  }
 
   // TODO: Refac - 기능 분리
   // Todo: Refac - Exchange 리팩터링 후 아직 함께 이팩터링되지 못함

@@ -120,6 +120,8 @@ describe('FinancialAssetsService', () => {
       const result = await service.readSymbolsByExchange(mockApple.exchange);
       expect(result).toEqual([mockApple.symbol, mockUsaTreasuryYield10y.symbol]);
     });
+
+    it.todo('exchange 가 null 인 경우');
   });
 
   describe('readManyByExchange', () => {
@@ -128,10 +130,36 @@ describe('FinancialAssetsService', () => {
       const result = await service.readManyByExchange(mockApple.exchange);
       expect(result).toEqual([mockApple, mockUsaTreasuryYield10y]);
     });
+
+    it.todo('exchange 가 null 인 경우');
   });
 
-  describe('updatePrice', () => {
-    it.todo('updatePrice');
+  describe('updatePriceMany', () => {
+    it('should update regularMarketLastClose', async () => {
+      await service.createMany([mockApple, mockSamsungElec, mockUsaTreasuryYield10y]);
+      await service.updatePriceMany([
+        {
+          symbol: mockApple.symbol,
+          regularMarketLastClose: 777
+        },
+        {
+          symbol: mockSamsungElec.symbol,
+          regularMarketLastClose: 77777
+        },
+      ]);
+      const result = await service.readManyByEqualComparison({ quoteType: "EQUITY" });
+      expect(result).toEqual([
+        {
+          ...mockApple,
+          regularMarketLastClose: 777
+        },
+        {
+          ...mockSamsungElec,
+          regularMarketLastClose: 77777
+        }
+      ]);
+    });
+    it.todo('should return { symbol, regularMarketLastClose } of updated records');
   });
 
 });

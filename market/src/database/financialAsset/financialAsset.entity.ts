@@ -1,6 +1,7 @@
 import { Column, Entity, PrimaryColumn, ManyToOne, JoinColumn, Index } from 'typeorm';
 import { Exchange } from '../exchange/exchange.entity';
 
+// Todo: nullable 에는 undefined 를 막고 null 을 명시적으로 주어야 하도록 하는게 더 편할것같다.
 @Entity({ name: 'financial_assets' })
 @Index(['exchange', 'symbol'], { unique: true })
 export class FinancialAsset {

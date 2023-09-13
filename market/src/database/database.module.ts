@@ -4,8 +4,8 @@ import { PostgresModule } from "./postgres/postgres.module";
 import { ExchangeModule } from "./exchange/exchange.module";
 import { FinancialAssetModule } from "./financialAsset/financialAsset.module";
 import { Log_priceUpdateModule } from "./log_priceUpdate/log_priceUpdate.module";
-import { DBRepository } from "./database.repository";
 import { Yf_infoModule } from "./yf_info/yf_info.module";
+import { UpdaterService } from "./updater.service";
 
 @Module({
   imports: [
@@ -16,13 +16,15 @@ import { Yf_infoModule } from "./yf_info/yf_info.module";
     Log_priceUpdateModule,
     Yf_infoModule
   ],
-  providers: [DBRepository],
+  providers: [
+    UpdaterService
+  ],
   exports: [
-    DBRepository,
     ExchangeModule,
     FinancialAssetModule,
     Log_priceUpdateModule,
-    Yf_infoModule
+    Yf_infoModule,
+    UpdaterService
   ]
 })
 export class DatabaseModule {}
