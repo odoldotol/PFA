@@ -1,10 +1,9 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { HttpModule } from '@nestjs/axios';
 import { ProductApiService } from './product_api.service';
 import { EnvKey } from 'src/common/enum/envKey.enum';
 import { EnvironmentVariables } from 'src/common/interface/environmentVariables.interface';
-import { ConnectionService } from './connection.service';
+import { HttpModule } from 'src/http/http.module';
 
 @Module({
   imports: [
@@ -17,7 +16,6 @@ import { ConnectionService } from './connection.service';
       inject: [ConfigService]
     })],
   providers: [
-    ConnectionService,
     ProductApiService
   ],
   exports: [ProductApiService]

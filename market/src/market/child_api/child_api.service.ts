@@ -1,7 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { HttpService } from '@nestjs/axios';
-import { catchError, firstValueFrom, map } from 'rxjs';
-import { AxiosError } from 'axios';
+import { firstValueFrom, map } from 'rxjs';
 import { Either } from "src/common/class/either";
 import { 
   TResponseYfInfo,
@@ -11,6 +9,7 @@ import {
 import { ConfigService } from '@nestjs/config';
 import { EnvironmentVariables } from 'src/common/interface/environmentVariables.interface';
 import { EnvKey } from 'src/common/enum/envKey.enum';
+import { HttpService } from 'src/http/http.service';
 
 @Injectable()
 export class ChildApiService {
@@ -38,10 +37,6 @@ export class ChildApiService {
   // Todo: Refac
   private post<T>(url: string): Promise<Either<TFailure, T>> {
     return firstValueFrom(this.httpService.post(url).pipe(
-      catchError((error: AxiosError) => {
-        this.logger.error(error);
-        throw error;
-      }),
       map(res => res.data),
       map(data => data.error ? Either.left(data.error) : Either.right(data))
     ));
