@@ -19,7 +19,8 @@ export class Exchange extends EventEmitter {
   public readonly YF_update_margin: number;
   private readonly childApiSrv: ChildApiService;
   private session?: TExchangeSession;
-  private isSubscribed = false;
+  private isInitiated = false;
+  private isRegisteredUpdater = false;
   private marketOpen?: boolean;
   private marketDate?: Date;
 
@@ -35,9 +36,9 @@ export class Exchange extends EventEmitter {
     this.childApiSrv = childApiSrv;
   }
 
-  public async subscribe() {
-    if (this.isSubscribed) {
-      throw new Error("Already subscribed");
+  public async initiate() {
+    if (this.isInitiated) {
+      throw new Error("Already Initiated");
     }
     await this.updateSession();
     const marketOpen = this.calculateMarketOpen()
@@ -49,7 +50,7 @@ export class Exchange extends EventEmitter {
       nextUpdateDate && this.subscribeNextUpdate(nextUpdateDate);
     }
     this.calculateMarketDate();
-    this.isSubscribed = true;
+    this.isInitiated = true;
   }
 
   public getMarketDate() {
@@ -68,6 +69,14 @@ export class Exchange extends EventEmitter {
       throw new Error("isMarketOpen is not defined");
     }
     return this.marketOpen;
+  }
+
+  public setIsRegisterdUpdaterTrue() {
+    this.isRegisteredUpdater = true;
+  }
+
+  public getIsRegisteredUpdater() {
+    return this.isRegisteredUpdater;
   }
 
   private async updateSession() {

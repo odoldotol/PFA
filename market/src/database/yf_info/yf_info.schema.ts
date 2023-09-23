@@ -69,12 +69,6 @@ export class Yf_info {
     })
     regularMarketPreviousClose!: number; // 장중일때 접근
 
-    @Prop({
-        required: true,
-        type: Number,
-    })
-    regularMarketLastClose!: number; // 우리가 실제 조회할 가격 (생성)
-
 }
 
 export const Yf_infoSchema = SchemaFactory.createForClass(Yf_info);

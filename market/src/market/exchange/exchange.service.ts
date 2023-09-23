@@ -38,7 +38,7 @@ export class ExchangeService implements OnModuleInit {
       exchange.on('error', e => {
         throw e; //
       });
-      await exchange.subscribe();
+      await exchange.initiate();
     } catch (e) {
       this.logger.warn(e);
     }
@@ -46,16 +46,23 @@ export class ExchangeService implements OnModuleInit {
 
   public registerUpdater(
     updater: UpdateAssetsOfExchange,
-    exchangeCore: TExchangeCore
+    exchangeLike: TExchangeCore | Exchange
   ) {
-    const exchange = this.getExchagne(exchangeCore);
+    let exchange: Exchange;
+    if (exchangeLike instanceof Exchange) exchange = exchangeLike;
+    else exchange = this.getExchagne(exchangeLike);
+
+    if (exchange.getIsRegisteredUpdater()) throw new Error("Already registered updater");
+    
     exchange.on(EMarketEvent.UPDATE, () => updater(exchange, Launcher.SCHEDULER));
+    exchange.setIsRegisterdUpdaterTrue();
+    
     this.logger.verbose(`${exchange.ISO_Code} : Updater Registered`);
   }
 
   public shouldUpdate(exchangeCore: TExchangeCore) {
     const exchange = this.getExchagne(exchangeCore);
-    const result = new Date(exchangeCore.marketDate) < exchange.getMarketDate();
+    const result = exchangeCore.marketDate != exchange.getMarketDateYmdStr();
     result && exchange.isMarketOpen() && this.logger.warn(`${exchange.ISO_Code} : shouldUpdate return "true" while Open`);
     return result;
   }

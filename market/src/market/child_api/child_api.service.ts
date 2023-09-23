@@ -15,7 +15,7 @@ import { HttpService } from 'src/http/http.service';
 export class ChildApiService {
 
   private readonly logger = new Logger(ChildApiService.name);
-  public readonly Concurrency = this.configService.get(EnvKey.Child_concurrency, 1, { infer: true }) * 50;
+  public readonly CONCURRENCY = this.configService.get(EnvKey.Child_concurrency, 1, { infer: true }) * 50;
 
   constructor(
     private readonly configService: ConfigService<EnvironmentVariables>,

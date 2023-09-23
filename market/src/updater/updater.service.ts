@@ -25,12 +25,10 @@ export class UpdaterService implements OnModuleInit {
   ) {}
 
   async onModuleInit() {
+    await this.initiateExchangesUpdater();
+  }
 
-    const initUpdater = this.mkExchangeSrv.registerUpdater.bind(
-      this.mkExchangeSrv,
-      this.updateAssetsOfExchange.bind(this)
-    );
-    
+  public async initiateExchangesUpdater() {
     const updateNow = (exchange: TExchangeCore) => this.mkExchangeSrv.fulfillUpdater(
       this.updateAssetsOfExchange.bind(this),
       exchange
@@ -38,9 +36,16 @@ export class UpdaterService implements OnModuleInit {
 
     await F.pipe(
       this.dbExchangeSrv.readAll(), F.toAsync,
-      F.peek(initUpdater),
+      F.peek(this.registerExchangeUpdater.bind(this)),
       F.filter(this.mkExchangeSrv.shouldUpdate.bind(this.mkExchangeSrv)),
       F.each(updateNow)
+    );
+  }
+
+  public registerExchangeUpdater(exchangeLike: TExchangeCore | Exchange) {
+    this.mkExchangeSrv.registerUpdater(
+      this.updateAssetsOfExchange.bind(this),
+      exchangeLike
     );
   }
 

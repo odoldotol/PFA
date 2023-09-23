@@ -16,8 +16,14 @@ export class FinancialAssetService {
     private readonly dataSource: DataSource
   ) {}
 
-  public createMany(values: FinancialAsset[]) {
-    return this.finAssetsRepo.insert(values);
+  public async createMany(values: FinancialAsset[]) {
+    if (values.length === 0) return Promise.resolve([]);
+    return (await this.dataSource.query<FinancialAsset[]>(`
+    INSERT INTO ${this.tableName}
+      VALUES
+        ${values.map(v => `('${v.symbol}', '${v.quoteType}', '${v.shortName}', ${v.longName ? `'${v.longName}'` : `NULL`}, '${v.currency}', ${v.regularMarketLastClose}, ${v.exchange ? `'${v.exchange}'` : `NULL`})`).join(',')}
+      RETURNING *
+  `));
   }
 
   public existByPk(pk: FinancialAsset['symbol']) {
@@ -39,12 +45,13 @@ export class FinancialAssetService {
   }
 
   public async readOneByPk(pk: FinancialAsset['symbol']) {
-    return this.rawToEntity(
-      (await this.dataSource.query<RawFinancialAsset[]>(`
-        SELECT * FROM ${this.tableName}
-          WHERE symbol = '${pk}'
-      `))[0]
-    );
+    const raw = (await this.dataSource.query<RawFinancialAsset[]>(`
+    SELECT * FROM ${this.tableName}
+      WHERE symbol = '${pk}'
+    `))[0];
+
+    if (raw) return this.rawToEntity(raw) as FinancialAsset;
+    else return null;
   }
 
   public async readSymbolsByExchange(exchange: FinancialAsset['exchange']) {
@@ -62,6 +69,7 @@ export class FinancialAssetService {
   }
 
   public async updatePriceMany(updateArr: TFulfilledYfPrice[]) {
+    if (updateArr.length === 0) return Promise.resolve([]);
     const updateColumn = this.entityPropNameToDbColumnName('regularMarketLastClose');
     return this.dataSource.query(`
       UPDATE ${this.tableName} AS t

@@ -18,7 +18,7 @@ export class FinancialAsset {
   longName?: string;
 
   @ManyToOne(() => Exchange, { nullable: true })
-  @JoinColumn({ name: 'exchange', referencedColumnName: 'ISO_Code' })
+  @JoinColumn({ name: 'exchange', referencedColumnName: 'ISO_Code', foreignKeyConstraintName: 'financial_assets_exchange_fkey' })
   exchange?: string;
 
   @Column({ type: 'char', length: 3, name: 'currency' })

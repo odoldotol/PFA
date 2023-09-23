@@ -85,6 +85,11 @@ describe('FinancialAssetsService', () => {
         regularmarketlastclose: mockApple.regularMarketLastClose
       });
     });
+
+    it('should return empty Array if values is empty', async () => {
+      const result = await service.createMany([]);
+      expect(result).toEqual([]);
+    });
   });
 
   describe('existByPk', () => {
@@ -111,6 +116,11 @@ describe('FinancialAssetsService', () => {
       await service.createMany([mockApple, mockSamsungElec, mockUsaTreasuryYield10y]);
       const result = await service.readOneByPk(mockSamsungElec.symbol);
       expect(result).toEqual(mockSamsungElec);
+    });
+
+    it('should return null if not exist', async () => {
+      const result = await service.readOneByPk(mockSamsungElec.symbol);
+      expect(result).toBe(null);
     });
   });
 
@@ -159,7 +169,13 @@ describe('FinancialAssetsService', () => {
         }
       ]);
     });
+    
     it.todo('should return { symbol, regularMarketLastClose } of updated records');
+    
+    it('should return empty Array if updateArr is empty', async () => {
+      const result = await service.updatePriceMany([]);
+      expect(result).toEqual([]);
+    });
   });
 
 });

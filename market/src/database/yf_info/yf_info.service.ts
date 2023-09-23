@@ -1,7 +1,14 @@
 import { Injectable } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
 import { ClientSession, Model } from "mongoose";
+import { Either } from "src/common/class/either";
 import { Yf_info, Yf_infoDocument } from "./yf_info.schema";
+
+// temp
+type MongooseInsertManyError<T = any> = {
+    writeErrors: any[],
+    insertedDocs: T[]
+}
 
 @Injectable()
 export class Yf_infoService {
@@ -19,7 +26,11 @@ export class Yf_infoService {
 
     exists = (symbol: string) => this.yf_infoModel.exists({ symbol }).exec();
 
-    insertMany = (arr: FulfilledYfInfo[]) => this.yf_infoModel.insertMany(arr, { ordered: false });
+    insertMany(arr: Yf_info[]): Promise<Either<MongooseInsertManyError<Yf_info>, Yf_info[]>> {
+        return this.yf_infoModel.insertMany(arr, { ordered: false })
+            .then(<T>(res: T) => Either.right<MongooseInsertManyError, T>(res))
+            .catch(err => Either.left(err));
+    }
 
     findPricesByExchange = (exchangeTimezoneName: string) => this.find({ exchangeTimezoneName },
         "-_id symbol regularMarketLastClose currency quoteType");

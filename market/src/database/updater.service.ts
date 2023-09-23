@@ -28,7 +28,7 @@ export class UpdaterService {
     launcher: Launcher
   ) {
     // 업데이트 해야하는 것만 골라서 업데이트
-    const fulfilledPriceArr = updateArr.filter(ele => ele.isRight()).map(ele => ele.getRight);
+    const fulfilledPriceArr = Either.getRightArray(updateArr);
     const updateRes = await this.finAssetSrv.updatePriceMany(fulfilledPriceArr);
     // 성공한것으로 값 mapping, 매핑되지 않은것은 실패한것임. left 로 바꾸기
     const updateResMap = new Map(updateRes.map(e => [e.symbol, e]));
