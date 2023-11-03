@@ -10,7 +10,7 @@ import exchange_calendars as xcals
 from datetime import datetime
 import warnings
 
-warnings.simplefilter(action='ignore', category=FutureWarning) # FutureWarning 제거
+warnings.simplefilter(action='ignore', category=FutureWarning)
 
 class HealthCheckFilter(logging.Filter):
   def filter(self, record: logging.LogRecord) -> bool:
@@ -35,7 +35,7 @@ class R_Session(BaseModel):
   next_open: str
   next_close: str
 
-class R_Error(BaseModel): # Refac: 그냥 에러를 던지도록 하기
+class R_Error(BaseModel): # Refac: 그냥 에러를 던지도록 하기?
   error: dict
 
 app = FastAPI(
@@ -69,7 +69,9 @@ def get_info_by_ticker(ticker: str) -> Union[R_Info, R_Error]:
       info = Ticker.info
     except:
       info = {"symbol": None}
-      result["fastinfo"] = Ticker.fast_info
+      result["fastinfo"] = {}
+      for i in Ticker.fast_info: # lazy loading ResponseValidationError 조치
+        result["fastinfo"][i] = Ticker.fast_info[i]
       result["price"] = getPrice(Ticker)
 
     metadata = Ticker.get_history_metadata()
