@@ -15,12 +15,14 @@ export class ExchangeService {
   ) {}
 
   public async createOne(value: Exchange): Promise<Exchange> {
-    return (await this.dataSource.query<Exchange[]>(`
-      INSERT INTO exchanges
-        VALUES
-          ('${value.ISO_Code}', '${value.ISO_TimezoneName}', '${value.marketDate}')
-        RETURNING *
-    `))[0];
+    return this.rawToEntity(
+      (await this.dataSource.query<RawExchange[]>(`
+        INSERT INTO exchanges
+          VALUES
+            ('${value.ISO_Code}', '${value.ISO_TimezoneName}', '${value.marketDate}')
+          RETURNING *
+      `))[0]
+    );
   }
 
   public exist(condition: FindOptionsWhere<Exchange> | FindOptionsWhere<Exchange>[]): Promise<boolean> {

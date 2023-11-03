@@ -55,11 +55,7 @@ describe('ExchangeService', () => {
 
     it('should return the created record', async () => {
       const result = await service.createOne(mockKoreaExchange);
-      expect(result).toEqual({
-        iso_code: mockKoreaExchange.ISO_Code,
-        iso_timezonename: mockKoreaExchange.ISO_TimezoneName,
-        marketdate: mockKoreaExchange.marketDate,
-      });
+      expect(result).toEqual(mockKoreaExchange);
     });
   });
 
