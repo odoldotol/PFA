@@ -49,6 +49,7 @@ export class AssetService {
 
   // Todo: Refac
   // Todo: 모든 거래소에 대해 앱 구동부터 전부 업데이트가 활성화되어있으면 훨씬 로직이 단순해질텐데 처음 설계가 쓸대없이 복잡한것 같은데?
+  // Todo: 이미 yf_info 에 존재하는것은 여기서 가져오는게 경제적이긴 한데 지금은 불필요해보임. 추가 고려할것.
   public async addAssets(tickerArr: readonly string[]): Promise<AddAssetsResponse> {
     const failures: any[] = [];
 
@@ -81,18 +82,22 @@ export class AssetService {
         .map(ele => [ ele.marketExchange!.ISO_Code, ele.marketExchange! ])
       );
 
-      return Promise.all([...newExchangeMap.values()].map(
-        e => this.dbExchangeSrv.createOne({
-          ISO_Code: e.ISO_Code,
-          ISO_TimezoneName: e.ISO_TimezoneName,
-          marketDate: e.getMarketDateYmdStr()
+      const createOneAndRegisterUpdater = async (
+        exchange: typeof newExchangeMap extends Map<infer K, infer V> ? V : never
+      ) => {
+        const exchangeCreationEither = await this.dbExchangeSrv.createOne({
+          ISO_Code: exchange.ISO_Code,
+          ISO_TimezoneName: exchange.ISO_TimezoneName,
+          marketDate: exchange.getMarketDateYmdStr()
         })
-        .then(res => {
-          this.updaterSrv.registerExchangeUpdater(res);
-          return Either.right<any, typeof res>(res)
-        })
-        .catch(err => Either.left<any, Awaited<ReturnType<typeof this.dbExchangeSrv.createOne>>>(err))
-      ));
+        .then(res => Either.right<any, typeof res>(res))
+        .catch(err => Either.left<any, Awaited<ReturnType<typeof this.dbExchangeSrv.createOne>>>(err));
+        
+        exchangeCreationEither.isRight() && this.updaterSrv.registerExchangeUpdater(exchangeCreationEither.getRight);
+        return exchangeCreationEither;
+      };
+
+      return Promise.all([...newExchangeMap.values()].map(createOneAndRegisterUpdater));
     };
 
     // Todo: return type
