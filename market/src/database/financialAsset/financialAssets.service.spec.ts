@@ -1,6 +1,7 @@
 import { ConfigModule, ConfigService } from "@nestjs/config";
 import { Test, TestingModule } from "@nestjs/testing";
 import { TypeOrmModule } from "@nestjs/typeorm";
+import exp from "constants";
 import postgresConfig from "src/config/postgres.config";
 import { DataSource } from "typeorm";
 import { Exchange } from "../exchange/exchange.entity";
@@ -60,27 +61,25 @@ describe('FinancialAssetsService', () => {
 
   describe('createMany', () => {
     it('should create records in financial_assets table', async () => {
-      await service.createMany([
-        mockApple,
-        mockSamsungElec,
-        mockUsaTreasuryYield10y
-      ]);
-      const result = await dataSource.query('SELECT * FROM financial_assets');
-      expect(result.length).toBe(3);
+      const values = [mockApple, mockSamsungElec, mockUsaTreasuryYield10y];
+      const result = await service.createMany(values);
+      const queryResult = await dataSource.query('SELECT * FROM financial_assets');
+      expect(result).toEqual(values);
+      expect(queryResult.length).toBe(3);
     });
 
     it('should create if nullable property is undefined', async () => {
-      await service.createMany([
-        {
+      const values = [{
           symbol: mockApple.symbol,
           quoteType: mockApple.quoteType,
           shortName: mockApple.shortName,
           currency: mockApple.currency,
           regularMarketLastClose: mockApple.regularMarketLastClose
-        }
-      ]);
-      const result = await dataSource.query('SELECT * FROM financial_assets');
-      expect(result[0]).toEqual({
+        }];
+      const result = await service.createMany(values);
+      const queryResult = await dataSource.query('SELECT * FROM financial_assets');
+      expect(result).toEqual(values);
+      expect(queryResult[0]).toEqual({
         symbol: mockApple.symbol,
         quotetype: mockApple.quoteType,
         shortname: mockApple.shortName,

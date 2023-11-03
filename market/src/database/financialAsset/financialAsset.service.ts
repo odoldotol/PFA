@@ -18,7 +18,7 @@ export class FinancialAssetService {
 
   public async createMany(values: readonly FinancialAsset[]): Promise<FinancialAsset[]> {
     if (values.length === 0) return Promise.resolve([]);
-    return (await this.dataSource.query<FinancialAsset[]>(`
+    return (await this.dataSource.query<RawFinancialAsset[]>(`
     INSERT INTO ${this.tableName}
       VALUES
         ${values.map(v => `(
@@ -31,7 +31,7 @@ export class FinancialAssetService {
           ${v.exchange ? `'${v.exchange}'` : `NULL`}
         )`).join(',')}
       RETURNING *
-  `));
+    `)).map(this.rawToEntity.bind(this));
   }
 
   public existByPk(pk: FinancialAsset['symbol']): Promise<boolean> {
