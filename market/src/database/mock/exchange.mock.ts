@@ -1,4 +1,4 @@
-import { Exchange } from "../exchange.entity";
+import { Exchange } from "../exchange/exchange.entity";
 
 export const mockKoreaExchange: Exchange = {
   ISO_Code: 'XKRX',

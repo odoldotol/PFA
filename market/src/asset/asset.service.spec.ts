@@ -6,7 +6,7 @@ import { Yf_infoService as DbYfInfoService } from "src/database/yf_info/yf_info.
 import { FinancialAssetService as DbFinancialAssetService } from "src/database/financialAsset/financialAsset.service";
 import { UpdaterService } from "src/updater/updater.service";
 import { AssetService } from "./asset.service";
-import { mockApple, mockSamsungElec } from "src/database/financialAsset/mock/asset.mock";
+import { mockApple, mockSamsungElec } from "src/database/mock";
 import { ResponseGetPriceByTicker } from "./response/getPriceByTicker.response";
 import { AddAssetsResponse } from "./response/addAssets.response";
 import { InternalServerErrorException, NotFoundException } from "@nestjs/common";

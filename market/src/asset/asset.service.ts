@@ -23,7 +23,7 @@ export class AssetService {
   ) {}
 
   // Todo: 에러 핸들링
-  public async getPriceByTicker(ticker: string) {
+  public async getPriceByTicker(ticker: string): Promise<ResponseGetPriceByTicker> {
     const asset = await this.dbFinAssetSrv.readOneByPk(ticker);
     if (asset) return new ResponseGetPriceByTicker(asset);
     else {
@@ -49,17 +49,16 @@ export class AssetService {
 
   // Todo: Refac
   // Todo: 모든 거래소에 대해 앱 구동부터 전부 업데이트가 활성화되어있으면 훨씬 로직이 단순해질텐데 처음 설계가 쓸대없이 복잡한것 같은데?
-  public async addAssets(tickerArr: string[]) {
-
+  public async addAssets(tickerArr: readonly string[]): Promise<AddAssetsResponse> {
     const failures: any[] = [];
 
-    const deduplicate = <T>(iterable: Iterable<T>) => new Set(iterable).values();
+    const dedupStringIterable = (iterable: Iterable<string>): Iterable<string> => new Set(iterable).values();
 
     const processExistAsset = F.curry((ticker: string, exist: boolean) => {
       if (exist) failures.push({ msg: "Already exists", ticker });
     });
 
-    const isNotExistAsset = async (ticker: string) => F.pipe(
+    const isNotExistAsset = async (ticker: string): Promise<boolean> => F.pipe(
       ticker,
       this.dbFinAssetSrv.existByPk.bind(this.dbFinAssetSrv),
       F.tap(processExistAsset(ticker)),
@@ -68,8 +67,11 @@ export class AssetService {
 
     const processFetchFailures = (
       yfInfoEitherArr: Awaited<ReturnType<typeof this.mkAssetSrv.fetchInfoArr>>
-    ) => failures.push(...Either.getLeftArray(yfInfoEitherArr));
+    ): void => {
+      failures.push(...Either.getLeftArray(yfInfoEitherArr));
+    };
 
+    //
     const createNewExchanges = (
       fulfilledYfInfoArr: ReturnType<typeof this.mkAssetSrv.fulfillYfInfo>[]
     ) => {
@@ -114,7 +116,7 @@ export class AssetService {
 
     const yfInfoArr = await F.pipe(
       tickerArr,
-      deduplicate, F.toAsync,
+      dedupStringIterable, F.toAsync,
       F.filter(isNotExistAsset),
       F.toArray,
       this.mkAssetSrv.fetchInfoArr.bind(this.mkAssetSrv),

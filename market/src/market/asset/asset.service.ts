@@ -3,6 +3,7 @@ import { ChildApiService } from '../child_api/child_api.service';
 import { TFulfilledYfPrice, TYfInfo, TYfPrice, TFulfilledYfInfo } from './type';
 import { Exchange } from '../exchange/class/exchange';
 import { ExchangeService } from '../exchange/exchange.service';
+import { eitherMap } from 'src/common/class/either';
 import * as F from '@fxts/core';
 
 @Injectable()
@@ -38,7 +39,7 @@ export class AssetService {
     return F.pipe(
       tickerArr, F.toAsync,
       F.map(this.fetchInfo.bind(this)),
-      F.map(ele => ele.map(this.fulfillYfInfo.bind(this))),
+      F.map(eitherMap(this.fulfillYfInfo.bind(this))),
       F.concurrent(this.childApiSrv.CONCURRENCY),
       F.toArray
     );
@@ -48,7 +49,7 @@ export class AssetService {
     return F.pipe(
       tickerArr, F.toAsync,
       F.map(this.fetchPrice.bind(this)),
-      F.map(ele => ele.map(this.fulfillYfPrice.bind(this, exchange))),
+      F.map(eitherMap(this.fulfillYfPrice.bind(this, exchange))),
       F.concurrent(this.childApiSrv.CONCURRENCY),
       F.toArray
     );

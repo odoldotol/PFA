@@ -23,11 +23,11 @@ export abstract class Either<L, R> {
 
   private toPromise<T>(r: T) { return r instanceof Promise ? r : Promise.resolve(r); }
 
-  static getRightArray<L, R>(arr: Either<L, R>[]): R[] {
+  static getRightArray<L, R>(arr: readonly Either<L, R>[]): R[] {
     return arr.filter(v => v.isRight()).map(v => v.getRight);
   }
 
-  static getLeftArray<L, R>(arr: Either<L, R>[]): L[] {
+  static getLeftArray<L, R>(arr: readonly Either<L, R>[]): L[] {
     return arr.filter(v => v.isLeft()).map(v => v.getLeft);
   }
 }
@@ -48,4 +48,8 @@ class EitherLeft<L> extends Either<L, never> {
   }
 
   get getLeft() { return this.getWhatever; }
+}
+
+export const eitherMap = <L, R, T>(fn: (v: R) => T) => {
+  return (either: Either<L, R>) => either.map(fn);
 }

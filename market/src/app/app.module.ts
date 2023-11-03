@@ -47,7 +47,7 @@ import {
 export class AppModule implements NestModule {
   configure (consumer: MiddlewareConsumer) {
     consumer
-      .apply(HttpLoggerMiddleware)
-      .forRoutes('*');
+    .apply(HttpLoggerMiddleware)
+    .forRoutes('*');
   }
 }

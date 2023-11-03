@@ -5,11 +5,16 @@ import postgresConfig from "src/config/postgres.config";
 import { DataSource } from "typeorm";
 import { Exchange } from "../exchange/exchange.entity";
 import { ExchangeService } from "../exchange/exchange.service";
-import { mockKoreaExchange, mockNewYorkStockExchange } from "../exchange/mock/exchange.mock";
+import { 
+  mockKoreaExchange,
+  mockNewYorkStockExchange,
+  mockApple,
+  mockSamsungElec,
+  mockUsaTreasuryYield10y
+} from "../mock";
 import { TypeOrmConfigService } from "../postgres/typeormConfig.service";
 import { FinancialAsset } from "./financialAsset.entity";
 import { FinancialAssetService } from "./financialAsset.service";
-import { mockApple, mockSamsungElec, mockUsaTreasuryYield10y } from "./mock/asset.mock";
 
 describe('FinancialAssetsService', () => {
   let service: FinancialAssetService;

@@ -14,7 +14,7 @@ export class ExchangeService {
     private readonly dataSource: DataSource
   ) {}
 
-  public async createOne(value: Exchange) {
+  public async createOne(value: Exchange): Promise<Exchange> {
     return (await this.dataSource.query<Exchange[]>(`
       INSERT INTO exchanges
         VALUES
@@ -23,15 +23,15 @@ export class ExchangeService {
     `))[0];
   }
 
-  public exist(condition: FindOptionsWhere<Exchange> | FindOptionsWhere<Exchange>[]) {
+  public exist(condition: FindOptionsWhere<Exchange> | FindOptionsWhere<Exchange>[]): Promise<boolean> {
     return this.exchangesRepo.exist({ where: condition });
   }
 
-  public readAll() {
+  public readAll(): Promise<Exchange[]> {
     return this.exchangesRepo.find();
   }
 
-  public async readOneByPk(pk: Exchange['ISO_Code']) {
+  public async readOneByPk(pk: Exchange['ISO_Code']): Promise<Exchange> {
     return this.rawToEntity(
       (await this.dataSource.query<RawExchange[]>(`
         SELECT * FROM exchanges
@@ -40,6 +40,7 @@ export class ExchangeService {
     );
   }
 
+  // Todo: warn case
   public async updateMarketDateByPk(pk: Exchange['ISO_Code'], update: Exchange['marketDate']) {
     await this.dataSource.query(`
       UPDATE exchanges

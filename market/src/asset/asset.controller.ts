@@ -34,7 +34,7 @@ export class AssetController {
   @HttpCode(200)
   @Api_addAssets()
   addAssets(@Body(UpperCasePipe, new ParseArrayPipe({ items: String })) tickerArr: string[]) {
-      return this.assetSrv.addAssets(tickerArr);
+    return this.assetSrv.addAssets(tickerArr);
   }
 
 }

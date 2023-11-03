@@ -30,7 +30,7 @@ export class DevService {
   }
 
   public getUpdateLog(ISO_Code?: string, limit: number = 5) {
-    return this.dbLogPriceUpdate.find1(
+    return this.dbLogPriceUpdate.search(
       ISO_Code ? { key: ISO_Code } : {},
       limit
     );
