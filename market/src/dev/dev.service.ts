@@ -1,5 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import { DBRepository } from 'src/database/database.repository';
 import { ExchangeService as DbExchangeService } from 'src/database/exchange/exchange.service';
 import { Log_priceUpdateService as DbLog_priceUpdateService } from 'src/database/log_priceUpdate/log_priceUpdate.service';
 import { Yf_infoService as DbYfInfoService } from "src/database/yf_info/yf_info.service";
@@ -10,7 +9,6 @@ import * as F from "@fxts/core";
 export class DevService {
 
   constructor(
-    private readonly dbRepo: DBRepository,
     private readonly dbLogPriceUpdate: DbLog_priceUpdateService,
     private readonly mkExchangeSrv: MkExchangeService,
     private readonly dbExchangeSrv: DbExchangeService,
@@ -32,7 +30,7 @@ export class DevService {
   }
 
   public getUpdateLog(ISO_Code?: string, limit: number = 5) {
-    return this.dbLogPriceUpdate.find1(
+    return this.dbLogPriceUpdate.search(
       ISO_Code ? { key: ISO_Code } : {},
       limit
     );

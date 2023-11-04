@@ -1,6 +1,6 @@
 import { Logger } from "@nestjs/common";
 import { Either } from "src/common/class/either";
-import { toLoggingStyle } from "src/common/util/toLoggingStyle";
+import { toLoggingStyle, toISOYmdStr } from "src/common/util/date";
 import { TExchangeConfig } from "src/config/const/exchanges.const";
 import { YF_CCC_ISO_Code, YF_update_margin_default } from "src/config/const/yf.const";
 import { EventEmitter } from "stream";
@@ -19,7 +19,8 @@ export class Exchange extends EventEmitter {
   public readonly YF_update_margin: number;
   private readonly childApiSrv: ChildApiService;
   private session?: TExchangeSession;
-  private isSubscribed = false;
+  private isInitiated = false;
+  private isRegisteredUpdater = false;
   private marketOpen?: boolean;
   private marketDate?: Date;
 
@@ -35,9 +36,9 @@ export class Exchange extends EventEmitter {
     this.childApiSrv = childApiSrv;
   }
 
-  public async subscribe() {
-    if (this.isSubscribed) {
-      throw new Error("Already subscribed");
+  public async initiate() {
+    if (this.isInitiated) {
+      throw new Error("Already Initiated");
     }
     await this.updateSession();
     const marketOpen = this.calculateMarketOpen()
@@ -49,7 +50,7 @@ export class Exchange extends EventEmitter {
       nextUpdateDate && this.subscribeNextUpdate(nextUpdateDate);
     }
     this.calculateMarketDate();
-    this.isSubscribed = true;
+    this.isInitiated = true;
   }
 
   public getMarketDate() {
@@ -59,11 +60,23 @@ export class Exchange extends EventEmitter {
     return this.marketDate;
   }
 
+  public getMarketDateYmdStr() {
+    return toISOYmdStr(this.getMarketDate());
+  }
+
   public isMarketOpen() {
     if (this.marketOpen === undefined) {
       throw new Error("isMarketOpen is not defined");
     }
     return this.marketOpen;
+  }
+
+  public setIsRegisterdUpdaterTrue() {
+    this.isRegisteredUpdater = true;
+  }
+
+  public getIsRegisteredUpdater() {
+    return this.isRegisteredUpdater;
   }
 
   private async updateSession() {
@@ -202,9 +215,7 @@ export class Exchange extends EventEmitter {
    * #### UTC 기준 당일 자정과 익일 자정기준으로 마켓세션 생성해서 반환
    */
   private getMidnightUTCSession(): TExchangeSession {
-    const previousMidnight = new Date(
-      new Date().toISOString().slice(0, 10)
-    );
+    const previousMidnight = new Date(toISOYmdStr(new Date()));
     const nextMidnight = previousMidnight;
     nextMidnight.setUTCDate(nextMidnight.getUTCDate() + 1);
     const previous = previousMidnight.toISOString();

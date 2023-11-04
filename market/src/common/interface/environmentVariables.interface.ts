@@ -1,4 +1,4 @@
-import { EnvKey } from "../enum/envKey.emun";
+import { EnvKey } from "../enum/envKey.enum";
 
 export interface EnvironmentVariables {
     [EnvKey.Port]: number;

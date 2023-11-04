@@ -1,9 +1,8 @@
 import { applyDecorators } from '@nestjs/common';
-import { ApiOkResponse, ApiOperation, ApiParam, ApiTags } from '@nestjs/swagger';
+import { ApiOkResponse, ApiOperation, ApiParam } from '@nestjs/swagger';
 
 export function Api_getPriceByExchange() {
   return applyDecorators(
-    ApiTags('App'),
     ApiOperation({
         summary: 'Get Price By Exchange ISO_Code',
         description: '거래소 ISO_Code로 해당 거래소의 Assets의 가격을 조회합니다.',

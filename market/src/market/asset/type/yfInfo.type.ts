@@ -6,8 +6,8 @@ export type TYfInfo = Readonly<{
   shortName: string
   longName?: string
   market?: string
-  exchange?: string
+  exchangeName: string
   exchangeTimezoneName: string
-  exchangeTimezoneShortName?: string
-  [key: string]: string|number|null|boolean|undefined
+  timezone: string
+  [key: string]: any
 }> & TYfPrice;

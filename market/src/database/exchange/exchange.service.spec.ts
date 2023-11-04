@@ -6,7 +6,7 @@ import { TypeOrmConfigService } from '../postgres/typeormConfig.service';
 import { Exchange } from './exchange.entity';
 import { ExchangeService } from './exchange.service';
 import { DataSource } from 'typeorm';
-import { mockKoreaExchange, mockNewYorkStockExchange } from './mock/exchange.mock';
+import { mockKoreaExchange, mockNewYorkStockExchange } from '../mock';
 
 describe('ExchangeService', () => {
   let service: ExchangeService;
@@ -55,11 +55,7 @@ describe('ExchangeService', () => {
 
     it('should return the created record', async () => {
       const result = await service.createOne(mockKoreaExchange);
-      expect(result).toEqual({
-        iso_code: mockKoreaExchange.ISO_Code,
-        iso_timezonename: mockKoreaExchange.ISO_TimezoneName,
-        marketdate: mockKoreaExchange.marketDate,
-      });
+      expect(result).toEqual(mockKoreaExchange);
     });
   });
 

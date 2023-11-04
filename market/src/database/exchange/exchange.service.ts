@@ -1,10 +1,12 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, Logger } from "@nestjs/common";
 import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Repository, FindOptionsWhere } from 'typeorm';
 import { Exchange, RawExchange } from "./exchange.entity";
 
 @Injectable()
 export class ExchangeService {
+  
+  private readonly logger = new Logger('Database_'+ExchangeService.name);
 
   constructor(
     @InjectRepository(Exchange)
@@ -12,24 +14,26 @@ export class ExchangeService {
     private readonly dataSource: DataSource
   ) {}
 
-  public async createOne(value: Exchange) {
-    return (await this.dataSource.query<Exchange[]>(`
-      INSERT INTO exchanges
-        VALUES
-          ('${value.ISO_Code}', '${value.ISO_TimezoneName}', '${value.marketDate}')
-        RETURNING *
-    `))[0];
+  public async createOne(value: Exchange): Promise<Exchange> {
+    return this.rawToEntity(
+      (await this.dataSource.query<RawExchange[]>(`
+        INSERT INTO exchanges
+          VALUES
+            ('${value.ISO_Code}', '${value.ISO_TimezoneName}', '${value.marketDate}')
+          RETURNING *
+      `))[0]
+    );
   }
 
-  public exist(condition: FindOptionsWhere<Exchange> | FindOptionsWhere<Exchange>[]) {
+  public exist(condition: FindOptionsWhere<Exchange> | FindOptionsWhere<Exchange>[]): Promise<boolean> {
     return this.exchangesRepo.exist({ where: condition });
   }
 
-  public readAll() {
+  public readAll(): Promise<Exchange[]> {
     return this.exchangesRepo.find();
   }
 
-  public async readOneByPk(pk: Exchange['ISO_Code']) {
+  public async readOneByPk(pk: Exchange['ISO_Code']): Promise<Exchange> {
     return this.rawToEntity(
       (await this.dataSource.query<RawExchange[]>(`
         SELECT * FROM exchanges
@@ -38,12 +42,15 @@ export class ExchangeService {
     );
   }
 
+  // Todo: warn case
   public async updateMarketDateByPk(pk: Exchange['ISO_Code'], update: Exchange['marketDate']) {
     await this.dataSource.query(`
       UPDATE exchanges
         SET marketdate = '${update}'
         WHERE iso_code = '${pk}'
-    `);
+    `).then(res => {
+      res[1] === 1 || this.logger.warn(`updateMarketDateByPk Failed! | Args: ${[...arguments]}`);
+    });
   }
 
   // Todo: Refac - 다른 엔티티와 공유하는 범용적인 메소드로

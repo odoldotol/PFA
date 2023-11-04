@@ -1,15 +1,21 @@
 import { ConfigModule, ConfigService } from "@nestjs/config";
 import { Test, TestingModule } from "@nestjs/testing";
 import { TypeOrmModule } from "@nestjs/typeorm";
+import exp from "constants";
 import postgresConfig from "src/config/postgres.config";
 import { DataSource } from "typeorm";
 import { Exchange } from "../exchange/exchange.entity";
 import { ExchangeService } from "../exchange/exchange.service";
-import { mockKoreaExchange, mockNewYorkStockExchange } from "../exchange/mock/exchange.mock";
+import { 
+  mockKoreaExchange,
+  mockNewYorkStockExchange,
+  mockApple,
+  mockSamsungElec,
+  mockUsaTreasuryYield10y
+} from "../mock";
 import { TypeOrmConfigService } from "../postgres/typeormConfig.service";
 import { FinancialAsset } from "./financialAsset.entity";
 import { FinancialAssetService } from "./financialAsset.service";
-import { mockApple, mockSamsungElec, mockUsaTreasuryYield10y } from "./mock/asset.mock";
 
 describe('FinancialAssetsService', () => {
   let service: FinancialAssetService;
@@ -55,27 +61,25 @@ describe('FinancialAssetsService', () => {
 
   describe('createMany', () => {
     it('should create records in financial_assets table', async () => {
-      await service.createMany([
-        mockApple,
-        mockSamsungElec,
-        mockUsaTreasuryYield10y
-      ]);
-      const result = await dataSource.query('SELECT * FROM financial_assets');
-      expect(result.length).toBe(3);
+      const values = [mockApple, mockSamsungElec, mockUsaTreasuryYield10y];
+      const result = await service.createMany(values);
+      const queryResult = await dataSource.query('SELECT * FROM financial_assets');
+      expect(result).toEqual(values);
+      expect(queryResult.length).toBe(3);
     });
 
     it('should create if nullable property is undefined', async () => {
-      await service.createMany([
-        {
+      const values = [{
           symbol: mockApple.symbol,
           quoteType: mockApple.quoteType,
           shortName: mockApple.shortName,
           currency: mockApple.currency,
           regularMarketLastClose: mockApple.regularMarketLastClose
-        }
-      ]);
-      const result = await dataSource.query('SELECT * FROM financial_assets');
-      expect(result[0]).toEqual({
+        }];
+      const result = await service.createMany(values);
+      const queryResult = await dataSource.query('SELECT * FROM financial_assets');
+      expect(result).toEqual(values);
+      expect(queryResult[0]).toEqual({
         symbol: mockApple.symbol,
         quotetype: mockApple.quoteType,
         shortname: mockApple.shortName,
@@ -84,6 +88,11 @@ describe('FinancialAssetsService', () => {
         currency: mockApple.currency,
         regularmarketlastclose: mockApple.regularMarketLastClose
       });
+    });
+
+    it('should return empty Array if values is empty', async () => {
+      const result = await service.createMany([]);
+      expect(result).toEqual([]);
     });
   });
 
@@ -112,6 +121,11 @@ describe('FinancialAssetsService', () => {
       const result = await service.readOneByPk(mockSamsungElec.symbol);
       expect(result).toEqual(mockSamsungElec);
     });
+
+    it('should return null if not exist', async () => {
+      const result = await service.readOneByPk(mockSamsungElec.symbol);
+      expect(result).toBe(null);
+    });
   });
 
   describe('readSymbolsByExchange', () => {
@@ -120,6 +134,8 @@ describe('FinancialAssetsService', () => {
       const result = await service.readSymbolsByExchange(mockApple.exchange);
       expect(result).toEqual([mockApple.symbol, mockUsaTreasuryYield10y.symbol]);
     });
+
+    it.todo('exchange 가 null 인 경우');
   });
 
   describe('readManyByExchange', () => {
@@ -128,10 +144,42 @@ describe('FinancialAssetsService', () => {
       const result = await service.readManyByExchange(mockApple.exchange);
       expect(result).toEqual([mockApple, mockUsaTreasuryYield10y]);
     });
+
+    it.todo('exchange 가 null 인 경우');
   });
 
-  describe('updatePrice', () => {
-    it.todo('updatePrice');
+  describe('updatePriceMany', () => {
+    it('should update regularMarketLastClose', async () => {
+      await service.createMany([mockApple, mockSamsungElec, mockUsaTreasuryYield10y]);
+      await service.updatePriceMany([
+        {
+          symbol: mockApple.symbol,
+          regularMarketLastClose: 777
+        },
+        {
+          symbol: mockSamsungElec.symbol,
+          regularMarketLastClose: 77777
+        },
+      ]);
+      const result = await service.readManyByEqualComparison({ quoteType: "EQUITY" });
+      expect(result).toEqual([
+        {
+          ...mockApple,
+          regularMarketLastClose: 777
+        },
+        {
+          ...mockSamsungElec,
+          regularMarketLastClose: 77777
+        }
+      ]);
+    });
+    
+    it.todo('should return { symbol, regularMarketLastClose } of updated records');
+    
+    it('should return empty Array if updateArr is empty', async () => {
+      const result = await service.updatePriceMany([]);
+      expect(result).toEqual([]);
+    });
   });
 
 });

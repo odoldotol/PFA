@@ -1,154 +1,146 @@
 import { Injectable, InternalServerErrorException, Logger, NotFoundException } from "@nestjs/common";
 import { AddAssetsResponse } from "./response/addAssets.response";
-import * as F from "@fxts/core";
-import { ConfigService } from "@nestjs/config";
-import { EnvironmentVariables } from "src/common/interface/environmentVariables.interface";
-import { EnvKey } from "src/common/enum/envKey.emun";
 import { Yf_infoService as DbYfInfoService } from 'src/database/yf_info/yf_info.service';
 import { Either } from "src/common/class/either";
-import { ExchangeService as MkExchangeService } from 'src/market/exchange/exchange.service';
 import { ExchangeService as DbExchangeService } from 'src/database/exchange/exchange.service';
 import { UpdaterService } from "src/updater/updater.service";
-import { Exchange as ExchangeEntity } from 'src/database/exchange/exchange.entity';
-import { TExchangeCore } from "src/common/type/exchange.type";
 import { ResponseGetPriceByTicker } from "./response/getPriceByTicker.response";
-import { exchangeConfigArr } from "src/config/const/exchanges.const";
-import { DBRepository } from "src/database/database.repository";
 import { AssetService as MkAssetService } from 'src/market/asset/asset.service';
+import { FinancialAssetService as DbFinancialAssetService } from "src/database/financialAsset/financialAsset.service";
+import * as F from "@fxts/core";
 
 @Injectable()
 export class AssetService {
 
   private readonly logger = new Logger(AssetService.name);
-  private readonly CHILD_CONCURRENCY = this.configSrv.get(EnvKey.Child_concurrency, 1, { infer: true }) * 50;
 
   constructor(
-    private readonly configSrv: ConfigService<EnvironmentVariables>,
     private readonly mkAssetSrv: MkAssetService,
-    private readonly mkExchangeSrv: MkExchangeService,
     private readonly dbExchangeSrv: DbExchangeService,
     private readonly dbYfInfoSrv: DbYfInfoService,
+    private readonly dbFinAssetSrv: DbFinancialAssetService,
     private readonly updaterSrv: UpdaterService,
-    private readonly dbRepo: DBRepository,
   ) {}
 
-    // TODO - Refac
-    async getPriceByTicker(ticker: string) {
-      let status_price: TExchangeCore | undefined = undefined; // Todo: Refac
-      const price: FulfilledYfInfo = await this.dbYfInfoSrv.findPriceBySymbol(ticker)
-      .then(async res => {
-          if (res === null) {
-              const createResult = await this.addAssets([ticker])
-              if (createResult.failure.info.length > 0) {
-                  if (createResult.failure.info[0].doc === "Mapping key not found.") {
-                      throw new NotFoundException(`Could not find Ticker: ${createResult.failure.info[0].ticker}`);
-                  }
-                  throw new InternalServerErrorException(createResult.failure.info[0]);
-              }
-              status_price = createResult.success.status_price[0]
-              return createResult.success.info[0]
-          } else {
-              return res;
-          }
-      }).catch(err => {
-          throw err;
-      });
-      return new ResponseGetPriceByTicker(
-          price.regularMarketLastClose,
-          exchangeConfigArr.find(ele => ele.ISO_TimezoneName === price.exchangeTimezoneName)!.ISO_Code, // exchange 리팩터링 후 문제
-          price.quoteType === "INDEX" ? "INDEX" : price.currency,
-          status_price);
+  // Todo: 에러 핸들링
+  public async getPriceByTicker(ticker: string): Promise<ResponseGetPriceByTicker> {
+    const asset = await this.dbFinAssetSrv.readOneByPk(ticker);
+    if (asset) return new ResponseGetPriceByTicker(asset);
+    else {
+      const addAssetsRes = await this.addAssets([ticker]);
+      if (addAssetsRes.assets[0] === undefined) {
+        if (addAssetsRes.failure.pre[0]?.doc === "Mapping key not found.")
+          throw new NotFoundException(`Could not find Ticker: ${addAssetsRes.failure.pre[0].ticker}`);
+        else throw new InternalServerErrorException(addAssetsRes);
+      }
+      return new ResponseGetPriceByTicker(addAssetsRes.assets[0], addAssetsRes.exchanges[0]);
+    }
   }
 
-  getPriceByExchange = this.dbRepo.readPriceByISOcode;
-
-  // TODO: Refac - 기능 분리
-  // Todo: Refac - Exchange 리팩터링 후 아직 함께 이팩터링되지 못함
-  addAssets = async (tickerArr: string[]) => {
-    const response = new AddAssetsResponse();
-    const spMap: Map<string, string[]> = new Map();
-
-    await F.pipe( // 중복제거와 exists필터 부분은 단일 티커처리시 필요없음. 이 부분 보완하기
-      new Set(tickerArr).values(), F.toAsync,
-      F.map(this.eitherFilter_existsAsset),
-      F.map(ele => ele.flatMap(this.mkAssetSrv.fetchInfo.bind(this.mkAssetSrv))),
-      F.map(ele => ele.flatMap(this.fulfillYfInfo.bind(this))),
-      F.filter(ele => ele.isLeft() ? (response.failure.info.push(ele.getLeft), false) : true),
-      F.map(ele => ele.getRight),
-      F.concurrent(this.CHILD_CONCURRENCY),
-      F.toArray,
-      F.tap(arr => this.dbYfInfoSrv.insertMany(arr)
-        .then(res => response.success.info = res)
-        .catch(err => (response.failure.info = response.failure.info.concat(err.writeErrors),
-          response.success.info = response.success.info.concat(err.insertedDocs)))),
-      F.each(ele => spMap.has(ele.exchangeTimezoneName) ?
-        spMap.get(ele.exchangeTimezoneName)?.push(ele.symbol) // ?
-        : spMap.set(ele.exchangeTimezoneName, [ele.symbol])));
-    await F.pipe(
-      spMap, F.toAsync,
-      F.filter(this.isNewExchange.bind(this)),
-      F.map(this.applyNewExchange),
-      F.each(ele => ele.isRight() ?
-      // @ts-ignore // exchange 리팩터링 후 문제
-        response.success.status_price.push(ele.getRight)
-        : response.failure.status_price.push(ele.getLeft)));
-    return response;
-  };
-
-  private eitherFilter_existsAsset = async (ticker: string): Promise<Either<any, string>> =>
-    (await this.dbYfInfoSrv.exists(ticker) === null) ?
-      Either.right(ticker) : Either.left({ msg: "Already exists", ticker });
-
-  // Todo: Refac - Exchange 리팩터링 후 억지로 끼워맞춤
-  private fulfillYfInfo = async (info: YfInfo): Promise<Either<any, FulfilledYfInfo>> => {
-    const exchange = this.mkExchangeSrv.findExchange(info.exchangeTimezoneName)! //
-    const ISO_Code = exchange.ISO_Code; //
-    return ISO_Code === undefined ?
-      Either.left({
-        msg: "Could not find ISO_Code",
-        yf_exchangeTimezoneName: info.exchangeTimezoneName,
-        yfSymbol: info.symbol
-      })
-      : Either.right({
-        ...info,
-        regularMarketLastClose: !exchange.isMarketOpen() ? info.regularMarketPrice : info.regularMarketPreviousClose
-      })
-  };
-
-  private async isNewExchange([yf_exchangeTimezoneName, _]: [string, string[]]) {
-    return !(await this.dbExchangeSrv.exist({ ISO_TimezoneName: yf_exchangeTimezoneName }));
+  // Todo: Refac
+  public getPriceByExchange(ISO_Code: string) {
+    return this.dbFinAssetSrv.readManyByExchange(ISO_Code)
+    .then(res => res.map(ele => [
+      ele.symbol,
+      ele.regularMarketLastClose,
+      ele.quoteType === "INDEX" ? "INDEX" : ele.currency
+    ]));
   }
 
-  // TODO - Refac
-  // Todo: Refac - Exchange 리팩터링 후 억지로 끼워맞춤
-  private applyNewExchange = async ([yf_exchangeTimezoneName, symbolArr]: [string, string[]]): Promise<Either<any, ExchangeEntity>> => {
-    const exchange = this.mkExchangeSrv.findExchange(yf_exchangeTimezoneName)! //
-    const ISO_Code = exchange.ISO_Code; //
-    if (ISO_Code === undefined) {
-      this.logger.error(`${symbolArr[0]} : Could not find ISO_Code for ${yf_exchangeTimezoneName}`);
-      return Either.left({
-        msg: "Could not find ISO_Code",
-        yf_exchangeTimezoneName,
-        symbol: symbolArr
-      });
-    } else {
-      return await this.dbExchangeSrv.createOne({
-        ISO_Code,
-        ISO_TimezoneName: yf_exchangeTimezoneName,
-        marketDate: exchange.getMarketDate().toISOString()
-      }).then(async res => {
-        this.logger.verbose(`${ISO_Code} : Created new Exchange`);
-        this.mkExchangeSrv.registerUpdater(this.updaterSrv.updateAssetsOfExchange.bind(this.updaterSrv), res);
-        return Either.right(res);
-      }).catch(error => {
-        this.logger.error(error);
-        return Either.left({
-          error,
-          yf_exchangeTimezoneName,
-          symbol: symbolArr
-        });
-      });
+  // Todo: Refac - 하나의 함수에 지나치게 복잡하게 담겨있음.
+  // Todo: 모든 거래소에 대해 앱 구동부터 전부 업데이트가 활성화되어있으면 훨씬 로직이 단순해질텐데 처음 설계가 쓸대없이 복잡한것 같은데?
+  // Todo: 이미 yf_info 에 존재하는것은 여기서 가져오는게 경제적이긴 한데 지금은 불필요해보임. 추가 고려할것.
+  public async addAssets(tickerArr: readonly string[]): Promise<AddAssetsResponse> {
+    const failures: any[] = [];
+
+    const dedupStringIterable = (iterable: Iterable<string>): Iterable<string> => new Set(iterable).values();
+
+    const processExistAsset = F.curry((ticker: string, exist: boolean) => {
+      if (exist) failures.push({ msg: "Already exists", ticker });
+    });
+
+    const isNotExistAsset = async (ticker: string): Promise<boolean> => F.pipe(
+      ticker,
+      this.dbFinAssetSrv.existByPk.bind(this.dbFinAssetSrv),
+      F.tap(processExistAsset(ticker)),
+      F.not
+    );
+
+    const processFetchFailures = (
+      yfInfoEitherArr: Awaited<ReturnType<typeof this.mkAssetSrv.fetchInfoArr>>
+    ): void => {
+      failures.push(...Either.getLeftArray(yfInfoEitherArr));
     };
-  };
+
+    //
+    const createNewExchanges = (
+      fulfilledYfInfoArr: ReturnType<typeof this.mkAssetSrv.fulfillYfInfo>[]
+    ) => {
+      const newExchangeMap = new Map(
+        fulfilledYfInfoArr
+        .filter(ele => ele.marketExchange?.getIsRegisteredUpdater() === false)
+        .map(ele => [ ele.marketExchange!.ISO_Code, ele.marketExchange! ])
+      );
+
+      const createOneAndRegisterUpdater = async (
+        exchange: typeof newExchangeMap extends Map<infer K, infer V> ? V : never
+      ) => {
+        const exchangeCreationEither = await this.dbExchangeSrv.createOne({
+          ISO_Code: exchange.ISO_Code,
+          ISO_TimezoneName: exchange.ISO_TimezoneName,
+          marketDate: exchange.getMarketDateYmdStr()
+        })
+        .then(res => Either.right<any, typeof res>(res))
+        .catch(err => Either.left<any, Awaited<ReturnType<typeof this.dbExchangeSrv.createOne>>>(err));
+        
+        exchangeCreationEither.isRight() && this.updaterSrv.registerExchangeUpdater(exchangeCreationEither.getRight);
+        return exchangeCreationEither;
+      };
+
+      return Promise.all([...newExchangeMap.values()].map(createOneAndRegisterUpdater));
+    };
+
+    // Todo: return type
+    const createFinAssets = async (
+      fulfilledYfInfoArr: ReturnType<typeof this.mkAssetSrv.fulfillYfInfo>[],
+      exchangeCreationRes: ReturnType<typeof createNewExchanges>
+    ) => {
+      const finAssets = fulfilledYfInfoArr.map(e => ({
+        symbol: e.symbol,
+        quoteType: e.quoteType,
+        shortName: e.shortName,
+        longName: e.longName,
+        exchange: e.marketExchange?.ISO_Code,
+        currency: e.currency,
+        regularMarketLastClose: e.regularMarketLastClose
+      }));
+      await exchangeCreationRes
+      return this.dbFinAssetSrv.createMany(finAssets).catch(err => err);
+      // exchange === undefined 인 경우 추가적인 처리 ?
+    };
+
+    const yfInfoArr = await F.pipe(
+      tickerArr,
+      dedupStringIterable, F.toAsync,
+      F.filter(isNotExistAsset),
+      F.toArray,
+      this.mkAssetSrv.fetchInfoArr.bind(this.mkAssetSrv),
+      F.tap(processFetchFailures),
+      Either.getRightArray
+    );
+
+    const yfInfoCreationRes = await this.dbYfInfoSrv.insertMany(yfInfoArr);
+    
+    const fulfilledYfInfoArr = yfInfoArr.map(this.mkAssetSrv.fulfillYfInfo.bind(this.mkAssetSrv));
+    const exchangeCreationRes = createNewExchanges(fulfilledYfInfoArr);
+    const finAssetCreationRes = await createFinAssets(fulfilledYfInfoArr, exchangeCreationRes);
+
+    return new AddAssetsResponse(
+      failures,
+      yfInfoCreationRes.isLeft() ? yfInfoCreationRes.getLeft.writeErrors : [], // yfInfoFailures
+      await exchangeCreationRes,
+      finAssetCreationRes
+    );
+  }
 
 }

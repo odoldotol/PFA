@@ -9,6 +9,8 @@ import {
   TExchangeConfigArrProvider
 } from "./provider/exchangeConfigArr.provider";
 import * as F from "@fxts/core";
+import { Launcher } from "src/common/enum";
+import { UpdateAssetsOfExchange } from "src/common/interface";
 
 // Todo: 1 차 리팩터링 후, 여전히 이 레이어의 역할이 스스로 분명하지 않음. 업데이트 동작과 관련해서 명확한 분리|통합이 필요함.
 @Injectable()
@@ -36,34 +38,41 @@ export class ExchangeService implements OnModuleInit {
       exchange.on('error', e => {
         throw e; //
       });
-      await exchange.subscribe();
+      await exchange.initiate();
     } catch (e) {
       this.logger.warn(e);
     }
   }
 
   public registerUpdater(
-    updateAssetsOfExchange: (exchange: Exchange, launcher: LogPriceUpdate["launcher"]) => Promise<void>,
-    exchangeCore: TExchangeCore
+    updater: UpdateAssetsOfExchange,
+    exchangeLike: TExchangeCore | Exchange
   ) {
-    const exchange = this.getExchagne(exchangeCore);
-    exchange.on(EMarketEvent.UPDATE, () => updateAssetsOfExchange(exchange, "scheduler"));
+    let exchange: Exchange;
+    if (exchangeLike instanceof Exchange) exchange = exchangeLike;
+    else exchange = this.getExchagne(exchangeLike);
+
+    if (exchange.getIsRegisteredUpdater()) throw new Error("Already registered updater");
+    
+    exchange.on(EMarketEvent.UPDATE, () => updater(exchange, Launcher.SCHEDULER));
+    exchange.setIsRegisterdUpdaterTrue();
+    
     this.logger.verbose(`${exchange.ISO_Code} : Updater Registered`);
   }
 
   public shouldUpdate(exchangeCore: TExchangeCore) {
     const exchange = this.getExchagne(exchangeCore);
-    const result = new Date(exchangeCore.marketDate) < exchange.getMarketDate();
+    const result = exchangeCore.marketDate != exchange.getMarketDateYmdStr();
     result && exchange.isMarketOpen() && this.logger.warn(`${exchange.ISO_Code} : shouldUpdate return "true" while Open`);
     return result;
   }
 
   public fulfillUpdater(
-    updateAssetsOfExchange: (exchange: Exchange, launcher: LogPriceUpdate["launcher"]) => Promise<void>,
+    updater: UpdateAssetsOfExchange,
     exchangeCore: TExchangeCore
   ) {
     const exchange = this.getExchagne(exchangeCore);
-    return updateAssetsOfExchange.bind(null, exchange);
+    return updater.bind(null, exchange);
   }
 
   private getExchagne(exchangeCore: TExchangeCore) {

@@ -16,7 +16,7 @@ export class AssetController {
     private readonly assetSrv: AssetService
   ) {}
 
-  @Post('exchange/:ISO_Code')
+  @Post('price/exchange/:ISO_Code')
   @HttpCode(200)
   @Api_getPriceByExchange()
   getPriceByExchange(@Param('ISO_Code', UpperCasePipe) ISO_Code: string) {
@@ -34,7 +34,7 @@ export class AssetController {
   @HttpCode(200)
   @Api_addAssets()
   addAssets(@Body(UpperCasePipe, new ParseArrayPipe({ items: String })) tickerArr: string[]) {
-      return this.assetSrv.addAssets(tickerArr);
+    return this.assetSrv.addAssets(tickerArr);
   }
 
 }

@@ -1,6 +1,6 @@
 // Todo: Refac
 
-type UpdatePriceSet = [string, FulfilledPrice]
+type UpdatePriceSet = Readonly<[string, FulfilledPrice]>
 
 interface UpdatePriceError {
     readonly error: any
