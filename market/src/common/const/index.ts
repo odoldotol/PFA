@@ -1,1 +1,1 @@
-export * from './healthUri.const';
+export * from './health.const';

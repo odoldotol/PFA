@@ -5,6 +5,7 @@ import { ConfigService } from '@nestjs/config';
 import { EnvironmentVariables } from 'src/common/interface/environmentVariables.interface';
 import { EnvKey } from 'src/common/enum';
 import { HttpService } from 'src/http/http.service';
+import { UPDATE_PRICE_BY_EXCHANGE_URN } from './const';
 
 @Injectable()
 export class ProductApiService {
@@ -27,7 +28,7 @@ export class ProductApiService {
     await this.httpService.tryUntilResolved(
       1000,
       1000 * 5,
-      () => firstValueFrom(this.httpService.post(`api/v1/market/update/price/exchange/${ISO_Code}`, addKey(data)))
+      () => firstValueFrom(this.httpService.post(UPDATE_PRICE_BY_EXCHANGE_URN + ISO_Code, addKey(data)))
     ).then(res => {
       this.logger.verbose(`${ISO_Code} : Response status From Product ${res.status}`);
     }).catch(e => {

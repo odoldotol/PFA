@@ -10,6 +10,11 @@ import { ConfigService } from '@nestjs/config';
 import { EnvironmentVariables } from 'src/common/interface/environmentVariables.interface';
 import { EnvKey } from 'src/common/enum/envKey.enum';
 import { HttpService } from 'src/http/http.service';
+import { 
+  YFINANCE_INFO_URN,
+  YFINANCE_PRICE_URN,
+  EXCHANGE_SESSION_URN
+} from './const';
 
 @Injectable()
 export class ChildApiService {
@@ -23,15 +28,15 @@ export class ChildApiService {
   ) {}
 
   public fetchYfInfo(ticker: string) {
-    return this.post<TResponseYfInfo>(`yf/info/${ticker}`);
+    return this.post<TResponseYfInfo>(YFINANCE_INFO_URN + ticker);
   }
 
   public fetchYfPrice(ticker: string) {
-    return this.post<TResponseYfPrice>(`yf/price/${ticker}`);
+    return this.post<TResponseYfPrice>(YFINANCE_PRICE_URN + ticker);
   }
 
   public fetchEcSession(ISO_Code: string) {
-    return this.post<TExchangeSession>(`ec/session/${ISO_Code}`);
+    return this.post<TExchangeSession>(EXCHANGE_SESSION_URN + ISO_Code);
   }
 
   // Todo: Refac
