@@ -47,7 +47,7 @@ export class AssetService {
     ]));
   }
 
-  // Todo: Refac
+  // Todo: Refac - 하나의 함수에 지나치게 복잡하게 담겨있음.
   // Todo: 모든 거래소에 대해 앱 구동부터 전부 업데이트가 활성화되어있으면 훨씬 로직이 단순해질텐데 처음 설계가 쓸대없이 복잡한것 같은데?
   // Todo: 이미 yf_info 에 존재하는것은 여기서 가져오는게 경제적이긴 한데 지금은 불필요해보임. 추가 고려할것.
   public async addAssets(tickerArr: readonly string[]): Promise<AddAssetsResponse> {
