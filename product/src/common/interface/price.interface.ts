@@ -12,7 +12,7 @@ interface RequestedPrice {
     price: number;
     ISO_Code: ISO_Code;
     currency: Currency;
-    status_price?: StatusPrice;
+    newExchange?: StatusPrice;
 }
 
 interface UpdatePriceByExchangeBodyI {
