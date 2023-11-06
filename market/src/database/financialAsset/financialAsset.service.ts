@@ -24,7 +24,7 @@ export class FinancialAssetService {
         ${values.map(v => `(
           '${v.symbol}',
           '${v.quoteType}',
-          '${v.shortName}',
+          ${v.shortName ? `'${v.shortName}'` : `NULL`},
           ${v.longName ? `'${v.longName}'` : `NULL`},
           '${v.currency}',
           ${v.regularMarketLastClose},
