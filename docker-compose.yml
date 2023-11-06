@@ -27,6 +27,9 @@ services:
       market-mongo:
         condition: service_started
         restart: false
+      market-postgres:
+        condition: service_started
+        restart: false
       market-child:
         condition: service_started
         restart: false
@@ -41,6 +44,20 @@ services:
     networks:
       - market
     restart: always
+    profiles:
+      - pfa
+      - market
+  
+  market-postgres:
+    container_name: pfa-market-postgres
+    image: postgres:latest
+    networks:
+      - market
+    restart: always
+    environment:
+      POSTGRES_USER: test
+      POSTGRES_PASSWORD: test
+      POSTGRES_DB: test
     profiles:
       - pfa
       - market
