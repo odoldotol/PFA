@@ -1,11 +1,15 @@
+# Todo: Dedup market/Dockerfile, product/Dockerfile
+
 FROM keymetrics/pm2:16-alpine
 
 RUN apk update \
 && apk add --no-cache curl
 
-RUN npm install -g npm@latest \
+RUN npm install -g npm@8.19.3 \
 && npm config set fetch-retry-maxtimeout 1200000 \
 && npm config set fetch-timeout 1200000
+
+ENV NODE_OPTIONS="--max-old-space-size=600"
 
 WORKDIR /home/node/app
 COPY package.json .
