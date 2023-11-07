@@ -5,7 +5,6 @@ import {
   ValidationPipe
 } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { ScheduleModule } from '@nestjs/schedule';
 import { KakaoCBModule } from 'src/kakao-chatbot/kakao-chatbot.module';
 import { Pm2Module } from 'src/pm2/pm2.module';
 import { DevModule } from 'src/dev/dev.module';
@@ -28,7 +27,6 @@ import { globalValidationPipeOptions } from './const/globalValidationPipeOptions
       isGlobal: true,
       envFilePath: ".env"
     }),
-    ScheduleModule.forRoot(),
     Pm2Module,
     KakaoCBModule,
     DevModule
