@@ -16,7 +16,11 @@ Docker / pm2 / jest
 <br>
 
 ## Test
+>[CAUTION] npm should be available.
 ```shell
+# First, Install all the dependencies
+$ sh scripts/npm:install
+
 $ sh scripts/test
 ```
 ---
