@@ -21,7 +21,7 @@
     "test:docker:up": "docker compose -p pfa-market-test --profile test -f test/docker-compose.yml up -d",
     "test:docker:up:postgres": "docker compose -p pfa-market-test --profile postgres -f test/docker-compose.yml up -d",
     "test:docker:down": "docker compose -p pfa-market-test --profile test -f test/docker-compose.yml down",
-    "test": "jest",
+    "test": "npm run test:docker:up && jest",
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",

@@ -5,6 +5,7 @@ import { AppModule } from 'src/app/app.module';
 import { PriceService } from 'src/database/inMemory/price.service';
 import { MarketApiService } from 'src/market/market-api/market-api.service';
 import { MarketDate } from 'src/common/class/marketDate.class';
+import { ConnectionService } from 'src/market/market-api/connection.service';
 
 describe('Application Start', () => {
   it.todo('앱 초기화시 최신화 되지 않은 Market 의 선택적 업데이트');
@@ -27,9 +28,9 @@ POST /dev/price/{ticker}`, () => {
     "currency": CURRENCY,
   };
   const MOCK_FETCHED_SPDOCS = [{
-      "ISO_Code": ISO_CODE,
-      "lastMarketDate": "2023-06-26T20:00:00.000Z",
-      "yf_exchangeTimezoneName": "America/New_York",
+    "ISO_Code": ISO_CODE,
+    "marketDate": "2023-06-26T20:00:00.000Z",
+    "ISO_TimezoneName": "America/New_York",
   }];
   const MOCK_FETCHED_ASSETS_BY_ISO_CODE: PSet[] = [[
     SYMBOL,
@@ -45,7 +46,9 @@ POST /dev/price/{ticker}`, () => {
     app = moduleFixture.createNestApplication();
     priceService = app.get(PriceService);
     marketApiService = app.get(MarketApiService);
+    const marketApiConnectionService = app.get(ConnectionService);
     
+    jest.spyOn(marketApiConnectionService, 'onModuleInit').mockReturnValue(Promise.resolve());
     jest.spyOn(marketApiService, 'fetchAllSpDoc').mockResolvedValue(MOCK_FETCHED_SPDOCS);
     jest.spyOn(marketApiService, 'fetchPriceByISOcode').mockResolvedValue(MOCK_FETCHED_ASSETS_BY_ISO_CODE);
 
