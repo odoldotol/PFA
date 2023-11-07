@@ -1,3 +1,3 @@
 sh scripts/pfa:down:all
 
-docker rmi --no-prune redis:7.2-rc2-alpine3.18 pfa-product-redis mongo pfa-market-child pfa-market pfa-product pfa-nginx
+docker rmi --no-prune postgres:15.3-alpine3.18 redis:7.2-rc2-alpine3.18 pfa-product-redis mongo pfa-market-child pfa-market pfa-product pfa-nginx
