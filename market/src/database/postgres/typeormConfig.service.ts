@@ -12,15 +12,8 @@ export class TypeOrmConfigService implements TypeOrmOptionsFactory {
   ) {}
 
   createTypeOrmOptions(): TypeOrmModuleOptions {
-    return {
-      type: 'postgres',
-      host: this.configService.get(EnvKey.PgHost),
-      port: 5432,
-      username: this.configService.get(EnvKey.PgUsername),
-      password: this.configService.get(EnvKey.PgPassword),
-      database: this.configService.get(EnvKey.PgDatabase),
-      autoLoadEntities: true,
-      synchronize: this.configService.get(EnvKey.Docker_env) === 'production' ? false : true,
-    };
+    const typeOrmModuleOptions = this.configService.get(EnvKey.TYPEORM_MODULE_OPTIONS, { infer: true });
+    if (typeOrmModuleOptions === undefined) throw new Error('TypeOrmModuleOptions is undefined');
+    return typeOrmModuleOptions;
   }
 }

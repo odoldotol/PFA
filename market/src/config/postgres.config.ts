@@ -1,11 +1,9 @@
-export default () => {
+import { EnvKey } from 'src/common/enum/envKey.enum';
+import { EnvironmentVariables } from "src/common/interface/environmentVariables.interface";
+import typeOrmModuleOptions from './const/typeOrmModuleOptions.const';
 
-  if (process.env.RACK_ENV === 'production') return {};
-  
-  return {
-    PG_HOST: process.env.RACK_ENV === 'development' ? 'market-postgres' : '127.0.0.1',
-    PG_USERNAME: 'test',
-    PG_PASSWORD: 'test',
-    PG_DATABASE: 'test'
-  };
-};
+export default (): ConfigPostgres => ({
+  [EnvKey.TYPEORM_MODULE_OPTIONS]: typeOrmModuleOptions,
+});
+
+interface ConfigPostgres extends Pick<EnvironmentVariables, EnvKey.TYPEORM_MODULE_OPTIONS> {};

@@ -1,3 +1,4 @@
+import { TypeOrmModuleOptions } from "@nestjs/typeorm";
 import { EnvKey } from "../enum/envKey.enum";
 
 export interface EnvironmentVariables {
@@ -27,5 +28,6 @@ export interface EnvironmentVariables {
 
     // load
     [EnvKey.MONGODB_URI]: string;
+    [EnvKey.TYPEORM_MODULE_OPTIONS]: TypeOrmModuleOptions;
 
 }

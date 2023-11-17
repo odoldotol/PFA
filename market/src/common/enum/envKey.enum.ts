@@ -24,5 +24,6 @@ export enum EnvKey {
     Docker_env = 'RACK_ENV',
 
     // load
-    MONGODB_URI = 'MONGODB_URI'
+    MONGODB_URI = 'MONGODB_URI',
+    TYPEORM_MODULE_OPTIONS = 'TYPEORM_MODULE_OPTIONS'
 }
