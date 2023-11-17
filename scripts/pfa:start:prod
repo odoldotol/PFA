@@ -1,8 +1,8 @@
 set -e
 
-sh scripts/pfa:build
-
 sh scripts/pfa:down:prod
+
+sh scripts/pfa:build
 
 sh scripts/pfa:up:prod
 
