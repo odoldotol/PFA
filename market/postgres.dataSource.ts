@@ -1,9 +1,21 @@
 import { config } from 'dotenv';
-import { DataSource } from 'typeorm';
+import { readFileSync } from 'fs';
+import { DataSource, DataSourceOptions } from 'typeorm';
 
 config();
 
-export default new DataSource({
+const tls = {
+  ssl: {
+    ca: readFileSync("aws-rds.pem")
+  },
+  extra: {
+    ssl: {
+      rejectUnauthorized: false,
+    },
+  }
+};
+
+const dataSourceOptions: DataSourceOptions = {
   type: 'postgres',
   host: process.env.PG_HOST || '127.0.0.1',
   port: 5432,
@@ -14,4 +26,8 @@ export default new DataSource({
   entities: ['src/database/*/*.entity.ts'],
   migrations: ['migrations/postgres/*.ts'],
   migrationsTableName: 'migrations',
-});
+};
+
+if (process.env.RACK_ENV === 'production') Object.assign(dataSourceOptions, tls);
+
+export default new DataSource(dataSourceOptions);
