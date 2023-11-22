@@ -1,8 +1,6 @@
 import { ConfigModule, ConfigService } from "@nestjs/config";
 import { Test, TestingModule } from "@nestjs/testing";
 import { TypeOrmModule } from "@nestjs/typeorm";
-import exp from "constants";
-import postgresConfig from "src/config/postgres.config";
 import { DataSource } from "typeorm";
 import { Exchange } from "../exchange/exchange.entity";
 import { ExchangeService } from "../exchange/exchange.service";
@@ -26,9 +24,7 @@ describe('FinancialAssetsService', () => {
       imports: [
         TypeOrmModule.forRootAsync({
           imports: [
-            ConfigModule.forRoot({
-              load: [postgresConfig]
-            })
+            ConfigModule.forRoot()
           ],
           useClass: TypeOrmConfigService,
           inject: [ConfigService]
