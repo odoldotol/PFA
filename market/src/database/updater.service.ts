@@ -7,6 +7,7 @@ import { TFulfilledYfPrice } from "src/market/asset/type";
 import { TUpdateTuple } from "src/common/type";
 import { Log_priceUpdateService } from "./log_priceUpdate/log_priceUpdate.service";
 import { Log_priceUpdate } from "./log_priceUpdate/log_priceUpdate.schema";
+import { DataSource } from "typeorm";
 import { Launcher } from "src/common/enum";
 import * as F from '@fxts/core';
 
@@ -18,6 +19,7 @@ export class UpdaterService {
   constructor(
     private readonly finAssetSrv: FinancialAssetService,
     private readonly exchangeSrv: ExchangeService,
+    private readonly dataSource: DataSource,
     private readonly log_priceUpdateSrv: Log_priceUpdateService
   ) {}
 
@@ -27,20 +29,39 @@ export class UpdaterService {
     startTime: Date,
     launcher: Launcher
   ) {
-    const fulfilledPriceArr = Either.getRightArray(updateEitherArr);
-    const updateRes = await this.finAssetSrv.updatePriceMany(fulfilledPriceArr);
-    const symbolUpdateResEleMap = new Map(updateRes.map(e => [e.symbol, e]));
+    let updateRes: Promise<TFulfilledYfPrice[]>;
+    const queryRunner = this.dataSource.createQueryRunner();
+    try {
+      await queryRunner.connect();
+      await queryRunner.startTransaction("REPEATABLE READ");
+      await (updateRes = this.finAssetSrv.updatePriceMany(
+        Either.getRightArray(updateEitherArr),
+        queryRunner
+      ));
+      await this.exchangeSrv.updateMarketDateByPk(
+        exchange.ISO_Code,
+        exchange.getMarketDateYmdStr(),
+        queryRunner
+      );
+      await queryRunner.commitTransaction();
+    } catch (err) {
+      await queryRunner.rollbackTransaction();
+      // Todo: warn
+      this.logger.warn(`Transaction Rollback!!!\nError: ${err}`); throw err;
+    } finally {
+      await queryRunner.release();
+    }
 
-    // Todo:
+    // Todo: Refac -----------------------------------------
+    const symbolToUpdateResEleMap = new Map((await updateRes).map(e => [e.symbol, e]));
     const turnLeftIfUpdateFailed = (either: Either<any, TFulfilledYfPrice>) => {
-      if (either.isRight() && symbolUpdateResEleMap.get(either.getRight.symbol) === undefined)
+      if (either.isRight() && symbolToUpdateResEleMap.get(either.getRight.symbol) === undefined)
       return Either.left<any, TFulfilledYfPrice>({
         message: 'updatePriceMany failure',
         data: either.getRight
       });
       else return either;
     };
-
     const convertFulfilledYfPriceToUpdateTuple =
     (rightV: TFulfilledYfPrice): TUpdateTuple => [ rightV.symbol, rightV.regularMarketLastClose ];
 
@@ -49,13 +70,9 @@ export class UpdaterService {
       .map(turnLeftIfUpdateFailed)
       .map(eitherMap(convertFulfilledYfPriceToUpdateTuple))
     );
+    // -----------------------------------------------------
 
-    await this.exchangeSrv.updateMarketDateByPk(
-      exchange.ISO_Code,
-      exchange.getMarketDateYmdStr()
-    );
-
-    // warn: 아래는 불필요한 부분일 수 있음 ----------------
+    // Todo: Refac (불필요한 부분일 수 있음) ---------------------
     const endTime = new Date();
     await this.createLog_priceUpdate(
       launcher,
@@ -67,12 +84,12 @@ export class UpdaterService {
         endTime: endTime.toISOString()
       }
     );
-    // ----------------------------------------------
+    // ------------------------------------------------------
     
     return result;
   }
 
-  // 불필요한 부분일 수 있음
+  // 불필요한 부분일 수 있음 --------------------------------------
   private createLog_priceUpdate(
     launcher: Launcher,
     isStandard: boolean,
@@ -112,5 +129,6 @@ export class UpdaterService {
       // throw error;
     });
   }
+  // ---------------------------------------------------------
 
 }

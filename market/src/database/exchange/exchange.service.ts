@@ -1,6 +1,6 @@
 import { Injectable, Logger } from "@nestjs/common";
 import { InjectRepository } from '@nestjs/typeorm';
-import { DataSource, Repository, FindOptionsWhere } from 'typeorm';
+import { DataSource, Repository, FindOptionsWhere, QueryRunner } from 'typeorm';
 import { Exchange, RawExchange } from "./exchange.entity";
 
 @Injectable()
@@ -43,12 +43,20 @@ export class ExchangeService {
   }
 
   // Todo: warn case
-  public async updateMarketDateByPk(pk: Exchange['ISO_Code'], update: Exchange['marketDate']) {
-    await this.dataSource.query(`
-      UPDATE exchanges
-        SET marketdate = '${update}'
-        WHERE iso_code = '${pk}'
-    `).then(res => {
+  public async updateMarketDateByPk(
+    pk: Exchange['ISO_Code'],
+    update: Exchange['marketDate'],
+    queryRunner?: QueryRunner
+  ) {
+    await this.dataSource.query(
+      `
+        UPDATE exchanges
+          SET marketdate = '${update}'
+          WHERE iso_code = '${pk}'
+      `,
+      undefined,
+      queryRunner
+    ).then(res => {
       res[1] === 1 || this.logger.warn(`updateMarketDateByPk Failed! | Args: ${[...arguments]}`);
     });
   }

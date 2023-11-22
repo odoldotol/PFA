@@ -1,7 +1,7 @@
 import { Injectable, Logger } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { TFulfilledYfPrice } from "src/market/asset/type";
-import { DataSource, Repository } from "typeorm";
+import { DataSource, QueryRunner, Repository } from "typeorm";
 import { FinancialAsset, RawFinancialAsset } from "./financialAsset.entity";
 
 @Injectable()
@@ -76,19 +76,26 @@ export class FinancialAssetService {
     `)).map(this.rawToEntity.bind(this));
   }
 
-  public async updatePriceMany(updateArr: readonly TFulfilledYfPrice[]): Promise<TFulfilledYfPrice[]> {
+  public async updatePriceMany(
+    updateArr: readonly TFulfilledYfPrice[],
+    queryRunner?: QueryRunner
+  ): Promise<TFulfilledYfPrice[]> {
     if (updateArr.length === 0) return Promise.resolve([]);
     const updateColumn = this.entityPropNameToDbColumnName('regularMarketLastClose');
-    return this.dataSource.query<[TFulfilledYfPrice[], number]>(`
-      UPDATE ${this.tableName} AS t
-        SET
-          ${updateColumn} = u.${updateColumn}
-        FROM (VALUES
-          ${updateArr.map(u => `('${u.symbol}', ${u.regularMarketLastClose})`).join(',')}
-        ) AS u(symbol, ${updateColumn})
-        WHERE t.symbol = u.symbol
-        RETURNING t.symbol, t.${updateColumn}
-    `).then(res => {
+    return this.dataSource.query<[TFulfilledYfPrice[], number]>(
+      `
+        UPDATE ${this.tableName} AS t
+          SET
+            ${updateColumn} = u.${updateColumn}
+          FROM (VALUES
+            ${updateArr.map(u => `('${u.symbol}', ${u.regularMarketLastClose})`).join(',')}
+          ) AS u(symbol, ${updateColumn})
+          WHERE t.symbol = u.symbol
+          RETURNING t.symbol, t.${updateColumn}
+      `,
+      undefined,
+      queryRunner
+    ).then(res => {
       res[1] === updateArr.length ||
       this.logger.warn(`updatePriceMany Warn! | Attempt: ${updateArr.length} | Success: ${res[1]}`); // Todo: 여기서 실패된 케이스도 전달하도록
       return res[0].map(this.rawToEntity.bind(this)) as TFulfilledYfPrice[]; //

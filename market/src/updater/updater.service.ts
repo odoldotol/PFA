@@ -66,8 +66,8 @@ export class UpdaterService implements OnModuleInit {
         launcher
       ).then(res => (this.logger.log(`${ISO_Code} : Updater End!!!`), res));
     } catch (error) {
-      this.logger.error(error);
-      this.logger.log(`${ISO_Code} : Updater Failed!!!`);
+      // Todo: warn
+      this.logger.warn(`${ISO_Code} : Updater Failed!!!\nError: ${error}`);
       return;
     }
     
