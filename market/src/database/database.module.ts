@@ -1,29 +1,29 @@
 import { Module } from "@nestjs/common";
-import { MongoModule } from "./mongodb/mongodb.module";
+import { MongodbModule } from "./mongodb/mongodb.module";
 import { PostgresModule } from "./postgres/postgres.module";
-import { ExchangeModule } from "./exchange/exchange.module";
-import { FinancialAssetModule } from "./financialAsset/financialAsset.module";
-import { Log_priceUpdateModule } from "./log_priceUpdate/log_priceUpdate.module";
-import { Yf_infoModule } from "./yf_info/yf_info.module";
+import { Database_ExchangeModule } from "./exchange/exchange.module";
+import { Database_FinancialAssetModule } from "./financialAsset/financialAsset.module";
+import { LogPriceUpdateModule } from "./log_priceUpdate/log_priceUpdate.module";
+import { YfinanceInfoModule } from "./yf_info/yf_info.module";
 import { UpdaterService } from "./updater.service";
 
 @Module({
   imports: [
-    MongoModule,
+    MongodbModule,
     PostgresModule,
-    ExchangeModule,
-    FinancialAssetModule,
-    Log_priceUpdateModule,
-    Yf_infoModule
+    Database_ExchangeModule,
+    Database_FinancialAssetModule,
+    LogPriceUpdateModule,
+    YfinanceInfoModule
   ],
   providers: [
     UpdaterService
   ],
   exports: [
-    ExchangeModule,
-    FinancialAssetModule,
-    Log_priceUpdateModule,
-    Yf_infoModule,
+    Database_ExchangeModule,
+    Database_FinancialAssetModule,
+    LogPriceUpdateModule,
+    YfinanceInfoModule,
     UpdaterService
   ]
 })

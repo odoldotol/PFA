@@ -4,7 +4,7 @@ import { ClientSession, FilterQuery, Model } from "mongoose";
 import { Log_priceUpdate, Log_priceUpdateDocument } from "./log_priceUpdate.schema";
 
 @Injectable()
-export class Log_priceUpdateService {
+export class LogPriceUpdateService {
 
   constructor(
     @InjectModel(Log_priceUpdate.name) private log_priceUpdateModel: Model<Log_priceUpdateDocument>,

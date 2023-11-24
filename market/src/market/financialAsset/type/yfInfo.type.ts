@@ -1,4 +1,4 @@
-import { TYfPrice } from './';
+import { TYfPrice } from '.';
 
 export type TYfInfo = Readonly<{
   quoteType: string

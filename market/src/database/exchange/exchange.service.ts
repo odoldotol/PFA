@@ -4,9 +4,9 @@ import { DataSource, Repository, FindOptionsWhere, QueryRunner } from 'typeorm';
 import { Exchange, RawExchange } from "./exchange.entity";
 
 @Injectable()
-export class ExchangeService {
+export class Database_ExchangeService {
   
-  private readonly logger = new Logger('Database_'+ExchangeService.name);
+  private readonly logger = new Logger('Database_'+Database_ExchangeService.name);
 
   constructor(
     @InjectRepository(Exchange)

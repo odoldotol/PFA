@@ -36,10 +36,10 @@ import {
   ],
   controllers: [AppController],
   providers: [
-    KeepAliveInterceptor,
-    GlobalKeepAliveInterceptorProvider,
+    KeepAliveInterceptor, //
+    GlobalKeepAliveInterceptorProvider, // Todo: 왜 불필요하게 한번 꼬아서 등록했어?
     GlobalValidationPipeProvider,
-    AppTerminator
+    AppTerminator // Todo: 여기 있으면 안됨.
   ]
 })
 export class AppModule implements NestModule {

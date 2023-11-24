@@ -1,9 +1,9 @@
 import { ConfigModule } from "@nestjs/config";
 import { Test, TestingModule } from "@nestjs/testing";
-import { AssetService as MkAssetService } from 'src/market/asset/asset.service';
-import { ExchangeService as DbExchangeService } from "src/database/exchange/exchange.service";
-import { Yf_infoService as DbYfInfoService } from "src/database/yf_info/yf_info.service";
-import { FinancialAssetService as DbFinancialAssetService } from "src/database/financialAsset/financialAsset.service";
+import { Market_FinancialAssetService } from 'src/market/financialAsset/financialAsset.service';
+import { Database_ExchangeService } from "src/database/exchange/exchange.service";
+import { YfinanceInfoService } from "src/database/yf_info/yf_info.service";
+import { Database_FinancialAssetService } from "src/database/financialAsset/financialAsset.service";
 import { UpdaterService } from "src/updater/updater.service";
 import { AssetService } from "./asset.service";
 import { mockApple, mockSamsungElec } from "src/database/mock";
@@ -11,10 +11,10 @@ import { ResponseGetPriceByTicker } from "./response/getPriceByTicker.response";
 import { AddAssetsResponse } from "./response/addAssets.response";
 import { InternalServerErrorException, NotFoundException } from "@nestjs/common";
 
-class MockMkAssetService {}
-class MockDbExchangeService {}
-class MockDbYfInfoService {}
-class MockDbFinancialAssetService {
+class MockMarket_FinancialAssetService {}
+class MockDatabase_ExchangeService {}
+class MockYfinanceInfoService {}
+class MockDatabase_FinancialAssetService {
   public readOneByPk(ticker: string) {
     if (ticker === mockApple.symbol) return Promise.resolve(mockApple);
     else return Promise.resolve(null);
@@ -24,23 +24,23 @@ class MockUpdaterService {}
 
 describe('AssetService', () => {
   let service: AssetService;
-  let dbFinAssetSrv: DbFinancialAssetService;
+  let dbFinAssetSrv: Database_FinancialAssetService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       imports: [ConfigModule.forRoot({ envFilePath: ".env" })],
       providers: [
-        { provide: MkAssetService, useClass: MockMkAssetService },
-        { provide: DbExchangeService, useClass: MockDbExchangeService },
-        { provide: DbYfInfoService, useClass: MockDbYfInfoService },
-        { provide: DbFinancialAssetService, useClass: MockDbFinancialAssetService },
+        { provide: Market_FinancialAssetService, useClass: MockMarket_FinancialAssetService },
+        { provide: Database_ExchangeService, useClass: MockDatabase_ExchangeService },
+        { provide: YfinanceInfoService, useClass: MockYfinanceInfoService },
+        { provide: Database_FinancialAssetService, useClass: MockDatabase_FinancialAssetService },
         { provide: UpdaterService, useClass: MockUpdaterService },
         AssetService
       ],
     }).compile();
 
     service = module.get<AssetService>(AssetService);
-    dbFinAssetSrv = module.get<DbFinancialAssetService>(DbFinancialAssetService);
+    dbFinAssetSrv = module.get<Database_FinancialAssetService>(Database_FinancialAssetService);
   });
 
   afterEach(() => {

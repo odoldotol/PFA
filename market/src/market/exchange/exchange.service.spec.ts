@@ -1,5 +1,5 @@
 import { Test, TestingModule } from "@nestjs/testing";
-import { ExchangeService } from "./exchange.service";
+import { Market_ExchangeService as ExchangeService } from "./exchange.service";
 import { ExchangeContainer } from "./container";
 import { EXCHANGE_CONFIG_ARR_TOKEN } from "./provider/exchangeConfigArr.provider";
 import { mockExchageConfigArr, mockExchangeCoreArr } from "./mock/exchange.mock";

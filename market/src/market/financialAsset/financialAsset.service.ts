@@ -2,14 +2,14 @@ import { Injectable, Logger } from '@nestjs/common';
 import { ChildApiService } from '../child_api/child_api.service';
 import { TFulfilledYfPrice, TYfInfo, TYfPrice, TFulfilledYfInfo } from './type';
 import { Exchange } from '../exchange/class/exchange';
-import { ExchangeService } from '../exchange/exchange.service';
+import { Market_ExchangeService as ExchangeService } from '../exchange/exchange.service';
 import { eitherMap } from 'src/common/class/either';
 import * as F from '@fxts/core';
 
 @Injectable()
-export class AssetService {
+export class Market_FinancialAssetService {
 
-  private readonly logger = new Logger('Market_' + AssetService.name);
+  private readonly logger = new Logger('Market_' + Market_FinancialAssetService.name);
 
   constructor(
     private readonly childApiSrv: ChildApiService,

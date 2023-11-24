@@ -1,11 +1,11 @@
 import { Injectable, Logger } from "@nestjs/common";
 import { Either, eitherMap } from "src/common/class/either";
 import { Exchange } from "src/market/exchange/class/exchange";
-import { FinancialAssetService } from "./financialAsset/financialAsset.service";
-import { ExchangeService } from "./exchange/exchange.service";
-import { TFulfilledYfPrice } from "src/market/asset/type";
+import { Database_FinancialAssetService } from "./financialAsset/financialAsset.service";
+import { Database_ExchangeService } from "./exchange/exchange.service";
+import { TFulfilledYfPrice } from "src/market/financialAsset/type";
 import { TUpdateTuple } from "src/common/type";
-import { Log_priceUpdateService } from "./log_priceUpdate/log_priceUpdate.service";
+import { LogPriceUpdateService } from "./log_priceUpdate/log_priceUpdate.service";
 import { Log_priceUpdate } from "./log_priceUpdate/log_priceUpdate.schema";
 import { DataSource } from "typeorm";
 import { Launcher } from "src/common/enum";
@@ -17,10 +17,10 @@ export class UpdaterService {
   private readonly logger = new Logger("Database_"+UpdaterService.name);
 
   constructor(
-    private readonly finAssetSrv: FinancialAssetService,
-    private readonly exchangeSrv: ExchangeService,
+    private readonly financialAssetSrv: Database_FinancialAssetService,
+    private readonly exchangeSrv: Database_ExchangeService,
     private readonly dataSource: DataSource,
-    private readonly log_priceUpdateSrv: Log_priceUpdateService
+    private readonly logPriceUpdateSrv: LogPriceUpdateService
   ) {}
 
   public async updatePriceStandard(
@@ -34,7 +34,7 @@ export class UpdaterService {
     try {
       await queryRunner.connect();
       await queryRunner.startTransaction("REPEATABLE READ");
-      await (updateRes = this.finAssetSrv.updatePriceMany(
+      await (updateRes = this.financialAssetSrv.updatePriceMany(
         Either.getRightArray(updateEitherArr),
         queryRunner
       ));
@@ -118,7 +118,7 @@ export class UpdaterService {
 
     const fLen = newLogDoc.failure.length;
 
-    return this.log_priceUpdateSrv.create(newLogDoc)
+    return this.logPriceUpdateSrv.create(newLogDoc)
     .then(_ => {
       this.logger.verbose(
         `${launcher === Launcher.SCHEDULER || launcher === Launcher.INITIATOR ? key : launcher} : Log_priceUpdate Doc Created${fLen ? ` (${fLen} failed)` : ''}`

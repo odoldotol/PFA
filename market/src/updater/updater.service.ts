@@ -1,25 +1,26 @@
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { ProductApiService } from 'src/product_api/product_api.service';
-import { ExchangeService as MkExchangeService } from 'src/market/exchange/exchange.service';
-import { ExchangeService as DbExchangeService } from 'src/database/exchange/exchange.service';
-import { FinancialAssetService as DbFinancialAssetService } from 'src/database/financialAsset/financialAsset.service';
-import { AssetService as MkAssetService } from 'src/market/asset/asset.service';
+import { Market_ExchangeService } from 'src/market/exchange/exchange.service';
+import { Database_ExchangeService } from 'src/database/exchange/exchange.service';
+import { Database_FinancialAssetService } from 'src/database/financialAsset/financialAsset.service';
+import { Market_FinancialAssetService } from 'src/market/financialAsset/financialAsset.service';
 import { UpdaterService as DbUpdaterService } from 'src/database/updater.service';
 import { Exchange } from 'src/market/exchange/class/exchange';
 import { TExchangeCore, TUpdateTuple } from 'src/common/type';
 import { Launcher } from 'src/common/enum';
 import * as F from "@fxts/core";
 
+// Todo: UpdaterModule 파괴하고 UpdaterService를 AssetModule의 provider로 넣자.
 @Injectable()
 export class UpdaterService implements OnModuleInit {
 
   private readonly logger = new Logger(UpdaterService.name);
 
   constructor(
-    private readonly mkExchangeSrv: MkExchangeService,
-    private readonly mkAssetSrv: MkAssetService,
-    private readonly dbExchangeSrv: DbExchangeService,
-    private readonly dbFinAssetSrv: DbFinancialAssetService,
+    private readonly market_exchangeSrv: Market_ExchangeService,
+    private readonly market_financialAssetSrv: Market_FinancialAssetService,
+    private readonly database_exchangeSrv: Database_ExchangeService,
+    private readonly database_financialAssetSrv: Database_FinancialAssetService,
     private readonly dbUpdaterSrv: DbUpdaterService,
     private readonly productApiSrv: ProductApiService,
   ) {}
@@ -29,21 +30,21 @@ export class UpdaterService implements OnModuleInit {
   }
 
   public async initiateExchangesUpdater() {
-    const updateNow = (exchange: TExchangeCore) => this.mkExchangeSrv.fulfillUpdater(
+    const updateNow = (exchange: TExchangeCore) => this.market_exchangeSrv.fulfillUpdater(
       this.updateAssetsOfExchange.bind(this),
       exchange
     )(Launcher.INITIATOR);
 
     await F.pipe(
-      this.dbExchangeSrv.readAll(), F.toAsync,
+      this.database_exchangeSrv.readAll(), F.toAsync,
       F.peek(this.registerExchangeUpdater.bind(this)),
-      F.filter(this.mkExchangeSrv.shouldUpdate.bind(this.mkExchangeSrv)),
+      F.filter(this.market_exchangeSrv.shouldUpdate.bind(this.market_exchangeSrv)),
       F.each(updateNow)
     );
   }
 
   public registerExchangeUpdater(exchangeLike: TExchangeCore | Exchange) {
-    this.mkExchangeSrv.registerUpdater(
+    this.market_exchangeSrv.registerUpdater(
       this.updateAssetsOfExchange.bind(this),
       exchangeLike
     );
@@ -56,8 +57,8 @@ export class UpdaterService implements OnModuleInit {
     
     let updateResult
     try {
-      const symbolArr = await this.dbFinAssetSrv.readSymbolsByExchange(ISO_Code);
-      const updateArr = await this.mkAssetSrv.fetchFulfilledPriceArr(exchange, symbolArr);
+      const symbolArr = await this.database_financialAssetSrv.readSymbolsByExchange(ISO_Code);
+      const updateArr = await this.market_financialAssetSrv.fetchFulfilledPriceArr(exchange, symbolArr);
       
       updateResult = await this.dbUpdaterSrv.updatePriceStandard(
         updateArr,

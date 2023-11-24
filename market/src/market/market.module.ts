@@ -1,16 +1,16 @@
 import { Module } from '@nestjs/common';
-import { AssetModule } from './asset/asset.module';
-import { ExchangeModule } from './exchange/exchange.module';
+import { Market_FinancialAssetModule } from './financialAsset/financialAsset.module';
+import { Market_ExchangeModule } from './exchange/exchange.module';
 
 @Module({
   imports: [
-    AssetModule,
-    ExchangeModule,
+    Market_FinancialAssetModule,
+    Market_ExchangeModule,
   ],
   providers: [],
   exports: [
-    AssetModule,
-    ExchangeModule,
+    Market_FinancialAssetModule,
+    Market_ExchangeModule,
   ]
 })
 export class MarketModule {}

@@ -1,24 +1,24 @@
 import { Test, TestingModule } from "@nestjs/testing";
 import { ChildApiService } from "../child_api/child_api.service";
-import { ExchangeService } from "../exchange/exchange.service";
-import { AssetService } from "./asset.service";
+import { Market_ExchangeService as ExchangeService } from "../exchange/exchange.service";
+import { Market_FinancialAssetService as FinancialAssetService } from "./financialAsset.service";
 
 class MockChildApiService {}
 class MockExchangeService {}
 
 describe('MarketService', () => {
-    let service: AssetService;
+    let service: FinancialAssetService;
 
     beforeEach(async () => {
         const module: TestingModule = await Test.createTestingModule({
             providers: [
               { provide: ChildApiService, useClass: MockChildApiService },
               { provide: ExchangeService, useClass: MockExchangeService },
-              AssetService
+              FinancialAssetService
             ],
         }).compile();
 
-        service = module.get(AssetService);
+        service = module.get(FinancialAssetService);
     });
 
     it('should be defined', () => {

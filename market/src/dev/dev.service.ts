@@ -1,36 +1,36 @@
 import { Injectable } from '@nestjs/common';
-import { ExchangeService as DbExchangeService } from 'src/database/exchange/exchange.service';
-import { Log_priceUpdateService as DbLog_priceUpdateService } from 'src/database/log_priceUpdate/log_priceUpdate.service';
-import { Yf_infoService as DbYfInfoService } from "src/database/yf_info/yf_info.service";
-import { ExchangeService as MkExchangeService } from 'src/market/exchange/exchange.service';
+import { Database_ExchangeService } from 'src/database/exchange/exchange.service';
+import { LogPriceUpdateService } from 'src/database/log_priceUpdate/log_priceUpdate.service';
+import { YfinanceInfoService } from "src/database/yf_info/yf_info.service";
+import { Market_ExchangeService } from 'src/market/exchange/exchange.service';
 import * as F from "@fxts/core";
 
 @Injectable()
 export class DevService {
 
   constructor(
-    private readonly dbLogPriceUpdate: DbLog_priceUpdateService,
-    private readonly mkExchangeSrv: MkExchangeService,
-    private readonly dbExchangeSrv: DbExchangeService,
-    private readonly dbYfInfoSrv: DbYfInfoService
+    private readonly logPriceUpdateSrv: LogPriceUpdateService,
+    private readonly market_exchangeSrv: Market_ExchangeService,
+    private readonly database_exchangeSrv: Database_ExchangeService,
+    private readonly yfinanceInfoSrv: YfinanceInfoService
   ) {}
 
   public getAllAssetsInfo() {
-    return this.dbYfInfoSrv.findAll();
+    return this.yfinanceInfoSrv.findAll();
   }
 
   public getAllExchange() {
-    return this.dbExchangeSrv.readAll();
+    return this.database_exchangeSrv.readAll();
   }
 
   public getAllExchangeFromMarket() {
-    return this.mkExchangeSrv.findAll().map(
+    return this.market_exchangeSrv.findAll().map(
       exchange => F.omit(["_events", "logger", "childApiSrv"] as any, exchange)
     );
   }
 
   public getUpdateLog(ISO_Code?: string, limit: number = 5) {
-    return this.dbLogPriceUpdate.search(
+    return this.logPriceUpdateSrv.search(
       ISO_Code ? { key: ISO_Code } : {},
       limit
     );

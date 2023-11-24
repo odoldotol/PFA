@@ -15,4 +15,4 @@ import { EnvKey } from 'src/common/enum/envKey.enum';
     }),
   ],
 })
-export class MongoModule {}
+export class MongodbModule {}
