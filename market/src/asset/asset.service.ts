@@ -3,7 +3,7 @@ import { AddAssetsResponse } from "./response/addAssets.response";
 import { YfinanceInfoService } from 'src/database/yf_info/yf_info.service';
 import { Either } from "src/common/class/either";
 import { Database_ExchangeService } from 'src/database/exchange/exchange.service';
-import { UpdaterService } from "src/updater/updater.service";
+import { UpdaterService } from "./updater.service";
 import { ResponseGetPriceByTicker } from "./response/getPriceByTicker.response";
 import { Market_FinancialAssetService } from 'src/market/financialAsset/financialAsset.service';
 import { Database_FinancialAssetService } from "src/database/financialAsset/financialAsset.service";

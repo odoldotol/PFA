@@ -10,7 +10,6 @@ import { TExchangeCore, TUpdateTuple } from 'src/common/type';
 import { Launcher } from 'src/common/enum';
 import * as F from "@fxts/core";
 
-// Todo: UpdaterModule 파괴하고 UpdaterService를 AssetModule의 provider로 넣자.
 @Injectable()
 export class UpdaterService implements OnModuleInit {
 

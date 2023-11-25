@@ -6,7 +6,6 @@ import {
 import { ConfigModule } from '@nestjs/config';
 import { Pm2Module } from 'src/pm2/pm2.module';
 import { DevModule } from 'src/dev/dev.module';
-import { UpdaterModule } from 'src/updater/updater.module';
 import { DatabaseModule } from 'src/database/database.module';
 import { AssetModule } from 'src/asset/asset.module';
 import { AppController } from './app.controller';
@@ -29,7 +28,6 @@ import {
     }),
     Pm2Module,
     DevModule,
-    UpdaterModule,
     DatabaseModule,
     AssetModule
   ],
