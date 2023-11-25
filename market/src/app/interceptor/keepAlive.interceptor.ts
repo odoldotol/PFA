@@ -9,13 +9,13 @@ export class KeepAliveInterceptor implements NestInterceptor {
 
   intercept(context: ExecutionContext, next: CallHandler) {
     if (this.keepAlive === false) {
-      this.logger.verbose('Disable keepAlive');
       context.switchToHttp().getResponse<Response>().set('Connection', 'close');
     };
     return next.handle()
   }
 
   public disableKeepAlive() {
+    this.logger.log('Disable keepAlive');
     this.keepAlive = false;
   }
 

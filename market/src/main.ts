@@ -1,12 +1,12 @@
 import { Logger } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { ConfigService } from '@nestjs/config';
+import { KeepAliveInterceptor } from 'src/app/interceptor';
 import { AppModule } from 'src/app/app.module';
 import { SwaggerModule } from '@nestjs/swagger';
 import { EnvironmentVariables } from 'src/common/interface/environmentVariables.interface';
 import { EnvKey } from 'src/common/enum/envKey.enum';
 import { versioningOptions } from './versioningOptions.const';
-import { AppTerminator } from './app/app.terminator';
 import { config } from './openApiConfig.const';
 
 const bootstrap = async () => {
@@ -34,8 +34,11 @@ const bootstrap = async () => {
     err => err && logger.error(err)
   );
 
-  process.on('SIGINT', () => {
-    app.get(AppTerminator).terminate(app);
+  process.on('SIGINT', async () => {
+    app.get(KeepAliveInterceptor).disableKeepAlive();
+    await app.close();
+    logger.log('Server closed');
+    process.exit(0);
   });
 };
 

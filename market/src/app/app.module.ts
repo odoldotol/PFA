@@ -12,7 +12,6 @@ import { AssetModule } from 'src/asset/asset.module';
 import { AppController } from './app.controller';
 import { HttpLoggerMiddleware } from './middleware/httpLogger.middleware';
 import { KeepAliveInterceptor } from './interceptor';
-import { AppTerminator } from './app.terminator';
 import mongoUriConfig from 'src/config/mongoUri.config';
 import {
   GlobalValidationPipeProvider,
@@ -36,10 +35,9 @@ import {
   ],
   controllers: [AppController],
   providers: [
-    KeepAliveInterceptor, //
-    GlobalKeepAliveInterceptorProvider, // Todo: 왜 불필요하게 한번 꼬아서 등록했어?
-    GlobalValidationPipeProvider,
-    AppTerminator // Todo: 여기 있으면 안됨.
+    KeepAliveInterceptor,
+    GlobalKeepAliveInterceptorProvider,
+    GlobalValidationPipeProvider
   ]
 })
 export class AppModule implements NestModule {
