@@ -1,45 +1,39 @@
 import { Logger } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { ConfigService } from '@nestjs/config';
-import { KeepAliveInterceptor } from 'src/app/interceptor';
 import { AppModule } from 'src/app/app.module';
-import { SwaggerModule } from '@nestjs/swagger';
 import { EnvironmentVariables } from 'src/common/interface/environmentVariables.interface';
 import { EnvKey } from 'src/common/enum/envKey.enum';
-import { versioningOptions } from './versioningOptions.const';
-import { config } from './openApiConfig.const';
+import { versioningOptions } from './config/const';
+import setupSwagger from './setupSwagger';
+import addTerminator from './addTerminator';
 
 const bootstrap = async () => {
-  const logger = new Logger("NestApplication");
   const app = await NestFactory.create(AppModule);
-  const configService = app.get(ConfigService<EnvironmentVariables>);
 
   app.enableVersioning(versioningOptions);
   
-  SwaggerModule.setup(
-    'docs',
-    app,
-    SwaggerModule.createDocument(app, config)
-  );
+  setupSwagger(app);
+  
+  const configService = app.get(ConfigService<EnvironmentVariables>);
+  const port = configService.get(EnvKey.Port, 6001, { infer: true });
+  
+  await app.listen(port);
 
-  await app.listen(configService.get(EnvKey.Port, 6001, { infer: true }));
-  logger.log('App listen');
+  // Todo: pm2Module 안으로 옮기고 꺼내서 쓰기 --------------------
+  const logger = new Logger("PM2Messenger");
 
-  configService.get(EnvKey.Pm2_name, {infer: true})
-  && process.send
-  && process.send(
+  configService.get(EnvKey.Pm2_name, {infer: true}) &&
+  process.send &&
+  process.send(
     'ready',
     logger.log("Send Ready to Parent Process"),
     { swallowErrors: true },
     err => err && logger.error(err)
   );
+  // --------------------------------------------------------
 
-  process.on('SIGINT', async () => {
-    app.get(KeepAliveInterceptor).disableKeepAlive();
-    await app.close();
-    logger.log('Server closed');
-    process.exit(0);
-  });
+  addTerminator(app);
 };
 
 bootstrap();
