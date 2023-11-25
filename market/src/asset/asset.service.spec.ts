@@ -5,7 +5,7 @@ import { Database_ExchangeService } from "src/database/exchange/exchange.service
 import { YfinanceInfoService } from "src/database/yf_info/yf_info.service";
 import { Database_FinancialAssetService } from "src/database/financialAsset/financialAsset.service";
 import { UpdaterService } from "src/asset/updater.service";
-import { AssetService } from "./asset.service";
+import { AssetService } from "./accessor.service";
 import { mockApple, mockSamsungElec } from "src/database/mock";
 import { ResponseGetPriceByTicker } from "./response/getPriceByTicker.response";
 import { AddAssetsResponse } from "./response/addAssets.response";
