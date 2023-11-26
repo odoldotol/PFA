@@ -1,4 +1,4 @@
-import { FinancialAsset } from "../financialAsset/financialAsset.entity";
+import { FinancialAsset } from "../database/financialAsset/financialAsset.entity";
 
 export const mockSamsungElec: FinancialAsset = {
   symbol: "005930.KS",

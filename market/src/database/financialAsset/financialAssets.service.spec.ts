@@ -10,7 +10,7 @@ import {
   mockApple,
   mockSamsungElec,
   mockUsaTreasuryYield10y
-} from "../mock";
+} from "src/mock";
 import { TypeOrmConfigService } from "../postgres/typeormConfig.service";
 import { FinancialAsset } from "./financialAsset.entity";
 import { Database_FinancialAssetService as FinancialAssetService } from "./financialAsset.service";

@@ -3,19 +3,9 @@ import { Test, TestingModule } from "@nestjs/testing";
 import { Database_FinancialAssetService } from "src/database/financialAsset/financialAsset.service";
 import { AccessorService } from "./accessor.service";
 import { AdderService } from "./adder.service";
-import { mockApple, mockSamsungElec } from "src/database/mock";
+import { mockApple, mockSamsungElec } from "src/mock";
 import { GetPriceByTickerResponse } from "../response/getPriceByTicker.response";
 import { AddAssetsResponse } from "../response/addAssets.response";
-
-class MockDatabase_FinancialAssetService {
-  public readOneByPk(ticker: string) {
-    if (ticker === mockApple.symbol) return Promise.resolve(mockApple);
-    else return Promise.resolve(null);
-  }
-}
-class MockAdderService {
-  public addAssets(tickerArr: string[]) {}
-}
 
 describe('AccessorService', () => {
   let service: AccessorService;
@@ -25,8 +15,8 @@ describe('AccessorService', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
-        { provide: Database_FinancialAssetService, useClass: MockDatabase_FinancialAssetService },
-        { provide: AdderService, useClass: MockAdderService },
+        { provide: Database_FinancialAssetService, useValue: {} },
+        { provide: AdderService, useValue: {} },
         AccessorService
       ],
     }).compile();
@@ -49,43 +39,50 @@ describe('AccessorService', () => {
     let addAssetsSpy: jest.SpyInstance;
 
     beforeEach(() => {
+      database_financialAssetSrv.readOneByPk = jest.fn().mockImplementation((ticker: string) => {
+        if (ticker === mockApple.symbol) return Promise.resolve(mockApple);
+        else return Promise.resolve(null);
+      });
+      adderSrv.addAssets = jest.fn();
       readOneByPkSpy = jest.spyOn(database_financialAssetSrv, "readOneByPk");
       addAssetsSpy = jest.spyOn(adderSrv, "addAssets");
     });
 
-    it('dbFinAsset 에 있음', async () => {
+    it('database_financialAssetSrv 에서 가져올 수 있음', async () => {
       const res = await service.getPriceByTicker(mockApple.symbol);
       expect(res).toEqual(new GetPriceByTickerResponse(mockApple));
       expect(readOneByPkSpy).toBeCalledTimes(1);
       expect(addAssetsSpy).toBeCalledTimes(0);
     });
 
-    it('dbFinAsset 에 없고 addAssets 으로 Asset 생성함', async () => {
-      jest.spyOn(adderSrv, "addAssets").mockResolvedValueOnce(new AddAssetsResponse(
-        [], [], [], [mockSamsungElec]
-      ));
-      const res = await service.getPriceByTicker(mockSamsungElec.symbol);
-      expect(res).toEqual(new GetPriceByTickerResponse(mockSamsungElec));
-      expect(readOneByPkSpy).toBeCalledTimes(1);
-      expect(addAssetsSpy).toBeCalledTimes(1);
-    });
+    describe('database_financialAssetSrv 에서 가져올 수 없고 adderSrv 에서 Asset 추가', () => {
+      it('정상적으로 Asset 추가됨', async () => {
+        jest.spyOn(adderSrv, "addAssets").mockResolvedValueOnce(new AddAssetsResponse(
+          [], [], [], [mockSamsungElec]
+        ));
+        const res = await service.getPriceByTicker(mockSamsungElec.symbol);
+        expect(res).toEqual(new GetPriceByTickerResponse(mockSamsungElec));
+        expect(readOneByPkSpy).toBeCalledTimes(1);
+        expect(addAssetsSpy).toBeCalledTimes(1);
+      });
 
-    it.todo('? dbFinAsset 에 없고 addAssets 으로 Asset 생성함 + (새로운 Exchange 생성됨');
-    it.todo('? dbFinAsset 에 없고 addAssets 으로 Asset 생성함 + (새로운 Exchange 생성 실패함');
-
-    it('dbFinAsset 에 없고 addAssets 으로 생성 실패함', async () => {
-      const addAssetsRes1 = new AddAssetsResponse([{
-        doc: "Mapping key not found.",
-        ticker: mockSamsungElec.symbol
-      }], [], [], []);
-      jest.spyOn(adderSrv, "addAssets").mockResolvedValueOnce(addAssetsRes1);
-      expect(service.getPriceByTicker(mockSamsungElec.symbol)).rejects
-      .toThrow(new NotFoundException(`Could not find Ticker: ${mockSamsungElec.symbol}`));
+      it.todo('새로운 Exchange 생성과 함께 정상적으로 Asset 추가됨');
+      it.todo('새로운 Exchange 생성이 필요하나 실패했고 Asset 은 추가됨');
       
-      const addAssetsRes2 = new AddAssetsResponse([], [], [], []);
-      jest.spyOn(adderSrv, "addAssets").mockResolvedValueOnce(addAssetsRes2);
-      expect(service.getPriceByTicker(mockSamsungElec.symbol)).rejects
-      .toThrow(new InternalServerErrorException(addAssetsRes2));
+      it('Asset 을 추가할 수 없음', async () => {
+        const addAssetsRes1 = new AddAssetsResponse([{
+          doc: "Mapping key not found.",
+          ticker: mockSamsungElec.symbol
+        }], [], [], []);
+        jest.spyOn(adderSrv, "addAssets").mockResolvedValueOnce(addAssetsRes1);
+        expect(service.getPriceByTicker(mockSamsungElec.symbol)).rejects
+        .toThrow(new NotFoundException(`Could not find Ticker: ${mockSamsungElec.symbol}`));
+        
+        const addAssetsRes2 = new AddAssetsResponse([], [], [], []);
+        jest.spyOn(adderSrv, "addAssets").mockResolvedValueOnce(addAssetsRes2);
+        expect(service.getPriceByTicker(mockSamsungElec.symbol)).rejects
+        .toThrow(new InternalServerErrorException(addAssetsRes2));
+      });
     });
   });
 
