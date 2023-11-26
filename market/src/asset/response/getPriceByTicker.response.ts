@@ -2,7 +2,7 @@ import { ApiProperty } from "@nestjs/swagger";
 import { TExchangeCore } from "src/common/type/exchange.type";
 import { FinancialAsset } from "src/database/financialAsset/financialAsset.entity";
 
-export class ResponseGetPriceByTicker {
+export class GetPriceByTickerResponse {
     
     @ApiProperty({type: Number, example: 160})
     readonly price: number;

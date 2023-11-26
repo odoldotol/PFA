@@ -1,5 +1,5 @@
 import { Injectable, Logger } from "@nestjs/common";
-import { AddAssetsResponse } from "./response/addAssets.response";
+import { AddAssetsResponse } from "../response/addAssets.response";
 import { YfinanceInfoService } from 'src/database/yf_info/yf_info.service';
 import { Either } from "src/common/class/either";
 import { Database_ExchangeService } from 'src/database/exchange/exchange.service';
