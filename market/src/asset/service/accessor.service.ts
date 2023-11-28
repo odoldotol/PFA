@@ -21,8 +21,8 @@ export class AccessorService {
     else {
       const addAssetsRes = await this.adderSrv.addAssets([ticker]);
       if (addAssetsRes.assets[0] === undefined) {
-        if (addAssetsRes.failure.pre[0]?.doc === "Mapping key not found.")
-          throw new NotFoundException(`Could not find Ticker: ${addAssetsRes.failure.pre[0].ticker}`);
+        if (addAssetsRes.failure.general[0]?.doc === "Mapping key not found.")
+          throw new NotFoundException(`Could not find Ticker: ${addAssetsRes.failure.general[0].ticker}`);
         else throw new InternalServerErrorException(addAssetsRes);
       }
       return new GetPriceByTickerResponse(addAssetsRes.assets[0], addAssetsRes.exchanges[0]);

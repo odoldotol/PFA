@@ -8,6 +8,7 @@ import { Market_FinancialAssetService } from 'src/market/financialAsset/financia
 import { Database_FinancialAssetService } from "src/database/financialAsset/financialAsset.service";
 import * as F from "@fxts/core";
 
+// Todo: NewExchange 리팩터링 후에 여기도 리팩터링하기
 @Injectable()
 export class AdderService {
 
@@ -21,51 +22,37 @@ export class AdderService {
     private readonly updaterSrv: UpdaterService,
   ) {}
 
-  // Todo: Refac - 하나의 함수에 지나치게 복잡하게 담겨있음. 별도 서비스 객체로 분리하기.
-  // Todo: 모든 거래소에 대해 앱 구동부터 전부 업데이트가 활성화되어있으면 훨씬 로직이 단순해질텐데 처음 설계가 쓸대없이 복잡한것 같은데?
-  // Todo: 이미 yf_info 에 존재하는것은 여기서 가져오는게 경제적이긴 한데 지금은 불필요해보임. 추가 고려할것.
+  // Todo: Refac - Exchange 리팩터링 후에 NewExchange 다룰 필요 없어질것임. 그 후 리팩터링하기
+  // Todo: 이미 yf_info 에 존재하는것은 yf_info 에서 가져오는게 경제적이긴 한데 지금은 불필요해보임. 추가 고려할것.
   public async addAssets(tickerArr: readonly string[]): Promise<AddAssetsResponse> {
-    const failures: any[] = [];
 
-    const processExistAsset = F.curry((ticker: string, exist: boolean) => {
-      if (exist) failures.push({ msg: "Already exists", ticker });
-    });
-
-    const isNotExistAsset = async (ticker: string): Promise<boolean> => F.pipe(
-      ticker,
-      this.database_financialAssetSrv.existByPk.bind(this.database_financialAssetSrv),
-      F.tap(processExistAsset(ticker)),
-      F.not
-    );
-
-    const processFetchFailures = (
-      yfInfoEitherArr: Awaited<ReturnType<typeof this.market_financialAssetSrv.fetchInfoArr>>
-    ): void => {
-      failures.push(...Either.getLeftArray(yfInfoEitherArr));
-    };
-
-    const yfInfoArr = await F.pipe(
+    const eitherYfInfoArr = await F.pipe(
       tickerArr,
       this.dedupStringIterable, F.toAsync,
-      F.filter(isNotExistAsset),
+      F.map(this.getEitherTickerWhetherExistDatabase_financialAsset.bind(this)),
       F.toArray,
-      this.market_financialAssetSrv.fetchInfoArr.bind(this.market_financialAssetSrv),
-      F.tap(processFetchFailures),
-      Either.getRightArray
+      this.market_financialAssetSrv.fetchYfInfosByEitherTickerArr.bind(this.market_financialAssetSrv),
     );
+    const yfInfoArr = Either.getRightArray(eitherYfInfoArr);
+    const generalFailureArr = Either.getLeftArray(eitherYfInfoArr);
 
     const yfInfoCreationRes = await this.yfinanceInfoSrv.insertMany(yfInfoArr);
-    
-    const fulfilledYfInfoArr = yfInfoArr.map(this.market_financialAssetSrv.fulfillYfInfo.bind(this.market_financialAssetSrv));
 
-    const exchangeCreationRes = this.createNewExchanges(fulfilledYfInfoArr);
-    const finAssetCreationRes = await this.createFinAssets(fulfilledYfInfoArr, exchangeCreationRes);
+    const fulfilledYfInfoArr = yfInfoArr.map(
+      this.market_financialAssetSrv.fulfillYfInfo.bind(this.market_financialAssetSrv)
+    );
+    
+    const newExchangeCreationResPromise = this.createNewExchanges(fulfilledYfInfoArr); // 삭제될 예정
+    const financialAssetCreationRes = await this.createFinAssets(
+      fulfilledYfInfoArr,
+      newExchangeCreationResPromise
+    );
 
     return new AddAssetsResponse(
-      failures,
-      yfInfoCreationRes.isLeft() ? yfInfoCreationRes.getLeft.writeErrors : [], // yfInfoFailures
-      await exchangeCreationRes,
-      finAssetCreationRes
+      generalFailureArr,
+      yfInfoCreationRes.isLeft() ? yfInfoCreationRes.getLeft.writeErrors : [],
+      await newExchangeCreationResPromise,
+      financialAssetCreationRes
     );
   }
 
@@ -74,7 +61,13 @@ export class AdderService {
     return new Set(iterable).values();
   }
 
-  // Todo: databaseModule?
+  private async getEitherTickerWhetherExistDatabase_financialAsset(ticker: string): Promise<Either<any, string>> {
+    return (await this.database_financialAssetSrv.existByPk(ticker))
+      ? Either.left({ msg: "Already exists", ticker })
+      : Either.right(ticker);
+  }
+
+  // Todo: Exchange 리팩터링 후에 NewExchange 다룰 필요 없어질것임
   private createNewExchanges(
     fulfilledYfInfoArr: ReturnType<typeof this.market_financialAssetSrv.fulfillYfInfo>[]
   ) {
@@ -108,18 +101,24 @@ export class AdderService {
     fulfilledYfInfoArr: ReturnType<typeof this.market_financialAssetSrv.fulfillYfInfo>[],
     exchangeCreationRes: ReturnType<typeof this.createNewExchanges>
   ) {
-    const finAssets = fulfilledYfInfoArr.map(e => ({
-      symbol: e.symbol,
-      quoteType: e.quoteType,
-      shortName: e.shortName,
-      longName: e.longName,
-      exchange: e.marketExchange?.ISO_Code,
-      currency: e.currency,
-      regularMarketLastClose: e.regularMarketLastClose
-    }));
+    const finAssets = fulfilledYfInfoArr.map(e => {
+      let exchange: string | undefined;
+      e.marketExchange
+        ? exchange = e.marketExchange.ISO_Code
+        : this.logger.warn(`NewExchange: ${e.exchangeName} Ticker: ${e.symbol}`);
+      // Todo: exchange === undefined 인 경우가 이제 진짜 NewExchange 인 경우가 된다.
+      return {
+        symbol: e.symbol,
+        quoteType: e.quoteType,
+        shortName: e.shortName,
+        longName: e.longName,
+        exchange,
+        currency: e.currency,
+        regularMarketLastClose: e.regularMarketLastClose
+      }
+    });
     await exchangeCreationRes
     return this.database_financialAssetSrv.createMany(finAssets).catch(err => err);
-    // exchange === undefined 인 경우 추가적인 처리 ?
   }
 
 }

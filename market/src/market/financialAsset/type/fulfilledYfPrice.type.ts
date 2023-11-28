@@ -1,4 +1,4 @@
-import { TYf } from "src/market/financialAsset/type";
+import { TYf } from "src/market/type";
 
 export type TFulfilledYfPrice = Readonly<{
   regularMarketLastClose: number;

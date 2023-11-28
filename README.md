@@ -200,6 +200,3 @@ AWS EC2 / Nginx <br>
 Docker / pm2 / jest
 
 ---
-<br>
-
-### [Development documents](https://lygorithm.notion.site/PFA-LAPIKI-29bb679db78345a7b9027b60f68da6fa)

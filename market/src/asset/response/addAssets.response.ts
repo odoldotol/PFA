@@ -6,12 +6,12 @@ export class AddAssetsResponse {
 
     @ApiProperty()
     readonly assets: any; // Todo: Type
-    readonly exchanges: TExchangeCore[];
+    readonly exchanges: TExchangeCore[]; // 사라질 예정
 
     @ApiProperty()
     readonly failure: {
-        pre: any[],
-        exchange: any[],
+        general: any[],
+        exchange: any[], // 사라질 예정
         yfInfo: any[]
     };
 
@@ -22,10 +22,10 @@ export class AddAssetsResponse {
         finAssetCreationRes: any
     ) {
         this.assets = finAssetCreationRes;
-        this.exchanges = Either.getRightArray(exchangeCreationRes);
+        this.exchanges = Either.getRightArray(exchangeCreationRes); // 사라질 예정
         this.failure = {
-            pre: [...failures],
-            exchange: Either.getLeftArray(exchangeCreationRes),
+            general: [...failures],
+            exchange: Either.getLeftArray(exchangeCreationRes), // 사라질 예정
             yfInfo: yfInfoFailures,
         };
 

@@ -10,6 +10,7 @@ import { TExchangeCore, TUpdateTuple } from 'src/common/type';
 import { Launcher } from 'src/common/enum';
 import * as F from "@fxts/core";
 
+// Todo: NewExchange 리팩터링 후에 여기도 리팩터링하기 
 @Injectable()
 export class UpdaterService implements OnModuleInit {
 
@@ -57,7 +58,7 @@ export class UpdaterService implements OnModuleInit {
     let updateResult
     try {
       const symbolArr = await this.database_financialAssetSrv.readSymbolsByExchange(ISO_Code);
-      const updateArr = await this.market_financialAssetSrv.fetchFulfilledPriceArr(exchange, symbolArr);
+      const updateArr = await this.market_financialAssetSrv.fetchFulfilledYfPrices(exchange, symbolArr);
       
       updateResult = await this.dbUpdaterSrv.updatePriceStandard(
         updateArr,

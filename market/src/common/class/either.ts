@@ -53,3 +53,7 @@ class EitherLeft<L> extends Either<L, never> {
 export const eitherMap = <L, R, T>(fn: (v: R) => T) => {
   return (either: Either<L, R>) => either.map(fn);
 }
+
+export const eitherFlatMap = <L, R, T, S>(fn: (v: R) => Either<T, S> | Promise<Either<T, S>>) => {
+  return (either: Either<L, R>) => either.flatMap(fn);
+}

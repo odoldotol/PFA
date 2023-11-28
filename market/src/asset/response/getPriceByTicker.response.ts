@@ -13,17 +13,15 @@ export class GetPriceByTickerResponse {
     @ApiProperty({type: String, example: 'USD'})
     readonly currency: string;
 
-    // TODO - 제거되어야함. 상위클래스로 묶어야함. getPriceByTicker 함수 리팩터링 필요.
-    // @ApiProperty({required: false})
-    readonly newExchange?: TExchangeCore; // Todo: Refac
+    readonly newExchange?: TExchangeCore; // 제거될 예정
 
     constructor(
         finAsset: FinancialAsset,
-        exchange?: TExchangeCore
+        exchange?: TExchangeCore // 제거될 예정
     ) {
         this.price = finAsset.regularMarketLastClose;
         this.ISO_Code = finAsset.exchange;
         this.currency = finAsset.currency;
-        this.newExchange = exchange;
+        this.newExchange = exchange; // 제거될 예정
     }
 }

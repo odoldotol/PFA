@@ -5,9 +5,16 @@ import { Database_ExchangeService } from "src/database/exchange/exchange.service
 import { YfinanceInfoService } from "src/database/yf_info/yf_info.service";
 import { Database_FinancialAssetService } from "src/database/financialAsset/financialAsset.service";
 import { UpdaterService } from "src/asset/service/updater.service";
+import { mockApple, mockSamsungElec } from "src/mock";
+import { Either, eitherFlatMap } from "src/common/class/either";
+import { AddAssetsResponse } from "../response/addAssets.response";
+import { TYfInfo } from "src/market/type";
 
 describe('AdderService', () => {
   let service: AdderService;
+  let market_financialAssetSrv: Market_FinancialAssetService;
+  let database_financialAssetSrv: Database_FinancialAssetService;
+  let yfinanceInfoSrv: YfinanceInfoService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -22,6 +29,9 @@ describe('AdderService', () => {
     }).compile();
 
     service = module.get<AdderService>(AdderService);
+    market_financialAssetSrv = module.get<Market_FinancialAssetService>(Market_FinancialAssetService);
+    database_financialAssetSrv = module.get<Database_FinancialAssetService>(Database_FinancialAssetService);
+    yfinanceInfoSrv = module.get<YfinanceInfoService>(YfinanceInfoService);
   });
 
   afterEach(() => {
@@ -33,9 +43,41 @@ describe('AdderService', () => {
   });
 
   describe('addAssets', () => {
-    it.todo('전부 이미 존재하는경우');
-    it.todo('생성');
-    it.todo('생성 + 새로운 Exchange 생성');
+
+    beforeEach(() => {
+      database_financialAssetSrv.existByPk = jest.fn(async ticker => {
+        return ticker === mockApple.symbol ? true : false;
+      });
+      market_financialAssetSrv.fetchYfInfosByEitherTickerArr = jest.fn(eitherTickerArr => {
+        return Promise.all(eitherTickerArr.map(eitherTicker => eitherFlatMap(_ => Either.right({} as TYfInfo))(eitherTicker)));
+      });
+      yfinanceInfoSrv.insertMany = jest.fn().mockResolvedValue(Either.right([]));
+      market_financialAssetSrv.fulfillYfInfo = jest.fn().mockReturnValue({});
+      database_financialAssetSrv.createMany = jest.fn().mockResolvedValue([]);
+    });
+    
+    // 현재 주된 역할은 하나의 ticker 에 대한 처리임.
+    describe('하나의 ticker 에 대한 처리', () => {
+      it('이미 database_financialAssetSrv 에서 availabe', () => {
+        const result = service.addAssets([mockApple.symbol]);
+        expect(result).resolves.toEqual(new AddAssetsResponse([{msg:"Already exists", ticker: mockApple.symbol}], [], [], []));
+      });
+
+      it('fetch 에러', () => {
+        market_financialAssetSrv.fetchYfInfosByEitherTickerArr = jest.fn().mockResolvedValueOnce([Either.left({msg: 'fetch error'})]);
+        const result = service.addAssets([mockSamsungElec.symbol]);
+        expect(result).resolves.toEqual(new AddAssetsResponse([{msg: 'fetch error'}], [], [], []));
+      });
+
+      it.todo('yf_info 생성');
+      it.todo('newExchange 생성');
+
+      it('financialAsset 생성', () => {
+        database_financialAssetSrv.createMany = jest.fn().mockResolvedValueOnce([mockSamsungElec]);
+        const result = service.addAssets([mockSamsungElec.symbol]);
+        expect(result).resolves.toEqual(new AddAssetsResponse([], [], [], [mockSamsungElec]));
+      });
+    });
   });
 
 });
