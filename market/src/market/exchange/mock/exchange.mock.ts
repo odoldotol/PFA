@@ -1,6 +1,6 @@
 import { TExchangeCore } from "src/common/type/exchange.type";
-import { TExchangeConfigArrProvider } from "../provider/exchangeConfigArr.provider";
 import * as F from "@fxts/core";
+import { TExchangeConfig } from "src/config/const";
 
 const COUNT = 2;
 
@@ -21,7 +21,7 @@ const mockISO_TimezoneName = makeNumberingStrArray("ISO_TimezoneName");
 const mockMarket = makeNumberingStrArray("market");
 const mockMarketDate = makeNumberingStrArray(new Date().toISOString());
 
-export const mockExchageConfigArr: TExchangeConfigArrProvider = makeMappedArray(
+export const mockExchageConfigArr: TExchangeConfig[] = makeMappedArray(
   n => ({
     ISO_Code: mockISO_Code[n],
     ISO_TimezoneName: mockISO_TimezoneName[n],

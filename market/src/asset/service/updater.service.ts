@@ -3,7 +3,7 @@ import { ProductApiService } from 'src/product_api/product_api.service';
 import { Market_ExchangeService } from 'src/market/exchange/exchange.service';
 import { Database_ExchangeService } from 'src/database/exchange/exchange.service';
 import { Database_FinancialAssetService } from 'src/database/financialAsset/financialAsset.service';
-import { Market_FinancialAssetService } from 'src/market/financialAsset/financialAsset.service';
+import { MarketService } from 'src/market/market.service';
 import { UpdaterService as DbUpdaterService } from 'src/database/updater.service';
 import { Exchange } from 'src/market/exchange/class/exchange';
 import { TExchangeCore, TUpdateTuple } from 'src/common/type';
@@ -18,7 +18,7 @@ export class UpdaterService implements OnModuleInit {
 
   constructor(
     private readonly market_exchangeSrv: Market_ExchangeService,
-    private readonly market_financialAssetSrv: Market_FinancialAssetService,
+    private readonly marketSrv: MarketService,
     private readonly database_exchangeSrv: Database_ExchangeService,
     private readonly database_financialAssetSrv: Database_FinancialAssetService,
     private readonly dbUpdaterSrv: DbUpdaterService,
@@ -58,7 +58,7 @@ export class UpdaterService implements OnModuleInit {
     let updateResult
     try {
       const symbolArr = await this.database_financialAssetSrv.readSymbolsByExchange(ISO_Code);
-      const updateArr = await this.market_financialAssetSrv.fetchFulfilledYfPrices(exchange, symbolArr);
+      const updateArr = await this.marketSrv.fetchFulfilledYfPrices(exchange, symbolArr);
       
       updateResult = await this.dbUpdaterSrv.updatePriceStandard(
         updateArr,

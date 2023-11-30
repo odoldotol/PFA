@@ -8,10 +8,11 @@ import { ChildApiService } from "../../child_api/child_api.service";
 import { EMarketEvent } from "../enum/eventName.enum";
 import { TCloseEventArgs, TOpenEventArgs } from "../type";
 import { TExchangeSession, TFailure as TChildApiFailure } from "../../child_api/type";
+import { buildLoggerContext } from "src/common/util";
 
 // Todo: 다시 Scheduler 사용하던가 스트림패턴 적용하든 이벤트 관리에만 집중하는 클래스 따로 만들자
 export class Exchange extends EventEmitter {
-  private readonly logger = new Logger(Exchange.name);
+  private readonly logger: Logger;
 
   public readonly market: string;
   public readonly ISO_Code: string; // id
@@ -34,6 +35,7 @@ export class Exchange extends EventEmitter {
     this.ISO_TimezoneName = exchangeConfig.ISO_TimezoneName;
     this.YF_update_margin = exchangeConfig.YF_update_margin || YF_update_margin_default;
     this.childApiSrv = childApiSrv;
+    this.logger = new Logger(buildLoggerContext(Exchange, this.ISO_Code));
   }
 
   public async initiate() {
@@ -109,8 +111,7 @@ export class Exchange extends EventEmitter {
       this.marketOpenHandler.bind(this),
       this.calculateRemainingTimeInMs(nextOpenDate)
     );
-    this.logger.verbose(
-      `${this.ISO_Code} : NextOpen at ${toLoggingStyle(nextOpenDate)}`);
+    this.logger.verbose(`NextOpen at ${toLoggingStyle(nextOpenDate)}`);
   }
 
   private subscribeNextClose(nextCloseDate: Date) {
@@ -118,8 +119,7 @@ export class Exchange extends EventEmitter {
       this.marketCloseHandler.bind(this),
       this.calculateRemainingTimeInMs(nextCloseDate)
     );
-    this.logger.verbose(
-      `${this.ISO_Code} : NextClose at ${toLoggingStyle(nextCloseDate)}`);
+    this.logger.verbose(`NextClose at ${toLoggingStyle(nextCloseDate)}`);
   }
 
   private subscribeNextUpdate(nextUpdateDate: Date) {
@@ -127,8 +127,7 @@ export class Exchange extends EventEmitter {
       this.marketUpdateHandler.bind(this),
       this.calculateRemainingTimeInMs(nextUpdateDate)
     );
-    this.logger.verbose(
-      `${this.ISO_Code} : NextUpdate at ${toLoggingStyle(nextUpdateDate)}`);
+    this.logger.verbose(`NextUpdate at ${toLoggingStyle(nextUpdateDate)}`);
   }
 
   private getSesstion() {
@@ -142,7 +141,7 @@ export class Exchange extends EventEmitter {
     try {
       this.marketOpen = true;
       await this.updateSession();
-      this.logger.verbose(`${this.ISO_Code} : Open`);
+      this.logger.verbose(`Open`);
       const { nextCloseDate, nextUpdateDate } = this.executeSubscribesWhenOpen();
       const openEventArgs: TOpenEventArgs = [ nextCloseDate, nextUpdateDate ];
       this.emit(EMarketEvent.OPEN, ...openEventArgs);
@@ -156,7 +155,7 @@ export class Exchange extends EventEmitter {
       this.marketOpen = false;
       await this.updateSession();
       this.calculateMarketDate();
-      this.logger.verbose(`${this.ISO_Code} : Close`);
+      this.logger.verbose(`Close`);
       const { nextOpenDate } = this.executeSubscribesWhenClose();
       const closeEventArgs: TCloseEventArgs = [ nextOpenDate ];
       this.emit(EMarketEvent.CLOSE, ...closeEventArgs);
@@ -166,7 +165,7 @@ export class Exchange extends EventEmitter {
   }
 
   private marketUpdateHandler() {
-    this.logger.verbose(`${this.ISO_Code} : Update`);
+    this.logger.verbose(`Update`);
     this.emit(EMarketEvent.UPDATE);
   }
 

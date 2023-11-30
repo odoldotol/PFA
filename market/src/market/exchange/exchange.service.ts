@@ -3,11 +3,6 @@ import { TExchangeCore } from "src/common/type/exchange.type";
 import { ChildApiService } from "../child_api/child_api.service";
 import { Exchange } from "./class/exchange";
 import { EMarketEvent } from "./enum/eventName.enum";
-import { ExchangeContainer } from "./container";
-import { 
-  EXCHANGE_CONFIG_ARR_TOKEN,
-  TExchangeConfigArrProvider
-} from "./provider/exchangeConfigArr.provider";
 import * as F from "@fxts/core";
 import { Launcher } from "src/common/enum";
 import { UpdateAssetsOfExchange } from "src/common/interface";
@@ -17,19 +12,21 @@ import { UpdateAssetsOfExchange } from "src/common/interface";
 export class Market_ExchangeService implements OnModuleInit {
 
   private readonly logger = new Logger(Market_ExchangeService.name);
+  private readonly exchangeMap: Map<Exchange["ISO_Code"], Exchange>;
 
   constructor(
-    private readonly container: ExchangeContainer,
-    @Inject(EXCHANGE_CONFIG_ARR_TOKEN) private readonly exchangeConfigArr: TExchangeConfigArrProvider,
-    private readonly childApiSrv: ChildApiService
-  ) {}
+    ...exchangeProviderArr: Exchange[]
+  ) {
+    this.exchangeMap = new Map(
+      exchangeProviderArr.map(exchangeProvider => [exchangeProvider.ISO_Code, exchangeProvider])
+    );
+  }
 
   async onModuleInit() {
     await F.pipe(
-      this.exchangeConfigArr, F.toAsync,
-      F.map(a => new Exchange(a, this.childApiSrv)), // is it anti-pattern?
+      this.exchangeMap.values(), F.toAsync,
       F.peek(this.subscribe.bind(this)),
-      F.each(a => this.container.add(a))
+      F.toArray
     );
   }
 
@@ -76,7 +73,7 @@ export class Market_ExchangeService implements OnModuleInit {
   }
 
   private getExchagne(exchangeCore: TExchangeCore) {
-    const exchange = this.container.getOne(exchangeCore.ISO_Code);
+    const exchange = this.exchangeMap.get(exchangeCore.ISO_Code);
     if (!exchange) {
       throw new Error("Not exists exchange");
     }
@@ -86,7 +83,7 @@ export class Market_ExchangeService implements OnModuleInit {
   // ----------- Legacy 지원 메서드 ------------------------------
   // Todo: 리팩터링 완료후 사라져야할 메서드
   public findExchange(ISO_TimezoneName: string) {
-    return [...this.container.getAll().values()].find((exchange) => {
+    return [...this.exchangeMap.values()].find((exchange) => {
       if (exchange.ISO_TimezoneName === ISO_TimezoneName) {
         return true;
       }
@@ -95,7 +92,7 @@ export class Market_ExchangeService implements OnModuleInit {
 
   // DEV
   public findAll() {
-    return [...this.container.getAll().values()];
+    return [...this.exchangeMap.values()];
   }
 
 }

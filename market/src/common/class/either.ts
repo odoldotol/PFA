@@ -17,7 +17,7 @@ export abstract class Either<L, R> {
     return this.isRight() ? this.toPromise(fn(this.getRight)) : this.toPromise(Either.left(this.getLeft));
   }
 
-  map<S>(fn: (v: R) => S): Promise<Either<L, Awaited<S>>> {
+  map<S>(fn: (v: R) => S | Promise<S>): Promise<Either<L, S>> {
     return this.flatMap(async v => Either.right(await fn(v)));
   }
 
@@ -50,7 +50,7 @@ class EitherLeft<L> extends Either<L, never> {
   get getLeft() { return this.getWhatever; }
 }
 
-export const eitherMap = <L, R, T>(fn: (v: R) => T) => {
+export const eitherMap = <L, R, T>(fn: (v: R) => T | Promise<T>) => {
   return (either: Either<L, R>) => either.map(fn);
 }
 

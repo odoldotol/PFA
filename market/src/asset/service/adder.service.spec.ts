@@ -1,6 +1,7 @@
 import { Test, TestingModule } from "@nestjs/testing";
 import { AdderService } from "./adder.service";
 import { Market_FinancialAssetService } from 'src/market/financialAsset/financialAsset.service';
+import { MarketService } from "src/market/market.service";
 import { Database_ExchangeService } from "src/database/exchange/exchange.service";
 import { YfinanceInfoService } from "src/database/yf_info/yf_info.service";
 import { Database_FinancialAssetService } from "src/database/financialAsset/financialAsset.service";
@@ -13,6 +14,7 @@ import { TYfInfo } from "src/market/type";
 describe('AdderService', () => {
   let service: AdderService;
   let market_financialAssetSrv: Market_FinancialAssetService;
+  let marketSrv: MarketService;
   let database_financialAssetSrv: Database_FinancialAssetService;
   let yfinanceInfoSrv: YfinanceInfoService;
 
@@ -20,6 +22,7 @@ describe('AdderService', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         { provide: Market_FinancialAssetService, useValue: {} },
+        { provide: MarketService, useValue: {} },
         { provide: Database_ExchangeService, useValue: {} },
         { provide: YfinanceInfoService, useValue: {} },
         { provide: Database_FinancialAssetService, useValue: {} },
@@ -30,6 +33,7 @@ describe('AdderService', () => {
 
     service = module.get<AdderService>(AdderService);
     market_financialAssetSrv = module.get<Market_FinancialAssetService>(Market_FinancialAssetService);
+    marketSrv = module.get<MarketService>(MarketService);
     database_financialAssetSrv = module.get<Database_FinancialAssetService>(Database_FinancialAssetService);
     yfinanceInfoSrv = module.get<YfinanceInfoService>(YfinanceInfoService);
   });
@@ -52,7 +56,7 @@ describe('AdderService', () => {
         return Promise.all(eitherTickerArr.map(eitherTicker => eitherFlatMap(_ => Either.right({} as TYfInfo))(eitherTicker)));
       });
       yfinanceInfoSrv.insertMany = jest.fn().mockResolvedValue(Either.right([]));
-      market_financialAssetSrv.fulfillYfInfo = jest.fn().mockReturnValue({});
+      marketSrv.fulfillYfInfo = jest.fn().mockReturnValue({});
       database_financialAssetSrv.createMany = jest.fn().mockResolvedValue([]);
     });
     

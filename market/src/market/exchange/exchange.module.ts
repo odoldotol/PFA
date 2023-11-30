@@ -1,16 +1,30 @@
-import { Module } from "@nestjs/common";
+import { DynamicModule, Module } from "@nestjs/common";
 import { ChildApiModule } from "../child_api/child_api.module";
 import { Market_ExchangeService } from "./exchange.service";
-import { ExchangeContainer } from "./container";
-import { ExchangeConfigArrProvider } from "./provider/exchangeConfigArr.provider";
+import { TExchangeConfig } from "src/config/const";
+import {
+  generateExchangeConfigValueProviderArr,
+  generateExchangeFactoryProviderArr,
+  generateExchangeServiceFactoryProvider
+} from "./provider";
 
-@Module({
-  imports: [ChildApiModule],
-  providers: [
-    Market_ExchangeService,
-    ExchangeContainer,
-    ExchangeConfigArrProvider
-  ],
-  exports: [Market_ExchangeService]
-})
-export class Market_ExchangeModule {}
+@Module({})
+export class Market_ExchangeModule {
+  static register(exchangeConfigArr: TExchangeConfig[]): DynamicModule {
+
+    const exchangeConfigProviderArr = generateExchangeConfigValueProviderArr(exchangeConfigArr);
+    const exchangeProviderArr = generateExchangeFactoryProviderArr(exchangeConfigArr);
+    const exchangeServiceProvider = generateExchangeServiceFactoryProvider(exchangeConfigArr);
+
+    return {
+      module: Market_ExchangeModule,
+      imports: [ChildApiModule],
+      providers: [
+        ...exchangeConfigProviderArr,
+        ...exchangeProviderArr,
+        exchangeServiceProvider
+      ],
+      exports: [Market_ExchangeService],
+    }
+  }
+}

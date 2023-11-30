@@ -6,6 +6,7 @@ import { Database_ExchangeService } from 'src/database/exchange/exchange.service
 import { UpdaterService } from "./updater.service";
 import { Market_FinancialAssetService } from 'src/market/financialAsset/financialAsset.service';
 import { Database_FinancialAssetService } from "src/database/financialAsset/financialAsset.service";
+import { MarketService } from "src/market/market.service";
 import * as F from "@fxts/core";
 
 // Todo: NewExchange 리팩터링 후에 여기도 리팩터링하기
@@ -16,6 +17,7 @@ export class AdderService {
 
   constructor(
     private readonly market_financialAssetSrv: Market_FinancialAssetService,
+    private readonly marketSrv: MarketService,
     private readonly database_exchangeSrv: Database_ExchangeService,
     private readonly yfinanceInfoSrv: YfinanceInfoService,
     private readonly database_financialAssetSrv: Database_FinancialAssetService,
@@ -39,7 +41,7 @@ export class AdderService {
     const yfInfoCreationRes = await this.yfinanceInfoSrv.insertMany(yfInfoArr);
 
     const fulfilledYfInfoArr = yfInfoArr.map(
-      this.market_financialAssetSrv.fulfillYfInfo.bind(this.market_financialAssetSrv)
+      this.marketSrv.fulfillYfInfo.bind(this.marketSrv)
     );
     
     const newExchangeCreationResPromise = this.createNewExchanges(fulfilledYfInfoArr); // 삭제될 예정
@@ -69,7 +71,7 @@ export class AdderService {
 
   // Todo: Exchange 리팩터링 후에 NewExchange 다룰 필요 없어질것임
   private createNewExchanges(
-    fulfilledYfInfoArr: ReturnType<typeof this.market_financialAssetSrv.fulfillYfInfo>[]
+    fulfilledYfInfoArr: ReturnType<typeof this.marketSrv.fulfillYfInfo>[]
   ) {
     const newExchangeMap = new Map(
       fulfilledYfInfoArr
@@ -98,7 +100,7 @@ export class AdderService {
   // Todo: databaseModule?
   // Todo: return type
   private async createFinAssets(
-    fulfilledYfInfoArr: ReturnType<typeof this.market_financialAssetSrv.fulfillYfInfo>[],
+    fulfilledYfInfoArr: ReturnType<typeof this.marketSrv.fulfillYfInfo>[],
     exchangeCreationRes: ReturnType<typeof this.createNewExchanges>
   ) {
     const finAssets = fulfilledYfInfoArr.map(e => {
