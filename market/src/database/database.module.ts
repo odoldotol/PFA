@@ -5,7 +5,7 @@ import { Database_ExchangeModule } from "./exchange/exchange.module";
 import { Database_FinancialAssetModule } from "./financialAsset/financialAsset.module";
 import { LogPriceUpdateModule } from "./log_priceUpdate/log_priceUpdate.module";
 import { YfinanceInfoModule } from "./yf_info/yf_info.module";
-import { UpdaterService } from "./updater.service";
+import { DatabaseService } from "./database.service";
 
 @Module({
   imports: [
@@ -17,14 +17,14 @@ import { UpdaterService } from "./updater.service";
     YfinanceInfoModule
   ],
   providers: [
-    UpdaterService
+    DatabaseService
   ],
   exports: [
     Database_ExchangeModule,
     Database_FinancialAssetModule,
     LogPriceUpdateModule,
     YfinanceInfoModule,
-    UpdaterService
+    DatabaseService
   ]
 })
 export class DatabaseModule {}

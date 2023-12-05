@@ -58,7 +58,7 @@ describe('AccessorService', () => {
     describe('database_financialAssetSrv 에서 가져올 수 없고 adderSrv 에서 Asset 추가', () => {
       it('정상적으로 Asset 추가됨', async () => {
         jest.spyOn(adderSrv, "addAssets").mockResolvedValueOnce(new AddAssetsResponse(
-          [], [], [], [mockSamsungElec]
+          [], [], [mockSamsungElec]
         ));
         const res = await service.getPriceByTicker(mockSamsungElec.symbol);
         expect(res).toEqual(new GetPriceByTickerResponse(mockSamsungElec));
@@ -73,12 +73,12 @@ describe('AccessorService', () => {
         const addAssetsRes1 = new AddAssetsResponse([{
           doc: "Mapping key not found.",
           ticker: mockSamsungElec.symbol
-        }], [], [], []);
+        }], [], []);
         jest.spyOn(adderSrv, "addAssets").mockResolvedValueOnce(addAssetsRes1);
         expect(service.getPriceByTicker(mockSamsungElec.symbol)).rejects
         .toThrow(new NotFoundException(`Could not find Ticker: ${mockSamsungElec.symbol}`));
         
-        const addAssetsRes2 = new AddAssetsResponse([], [], [], []);
+        const addAssetsRes2 = new AddAssetsResponse([], [], []);
         jest.spyOn(adderSrv, "addAssets").mockResolvedValueOnce(addAssetsRes2);
         expect(service.getPriceByTicker(mockSamsungElec.symbol)).rejects
         .toThrow(new InternalServerErrorException(addAssetsRes2));

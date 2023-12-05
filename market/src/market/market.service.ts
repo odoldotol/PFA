@@ -3,7 +3,7 @@ import { Market_ExchangeService } from "./exchange/exchange.service";
 import { Market_FinancialAssetService } from "./financialAsset/financialAsset.service";
 import { TYfInfo, TYfPrice } from "./type";
 import { TFulfilledYfInfo, TFulfilledYfPrice } from "./financialAsset/type";
-import { Exchange } from "./exchange/class/exchange";
+import { Market_Exchange } from "./exchange/class/exchange";
 import * as F from '@fxts/core';
 import { eitherMap } from "src/common/class/either";
 
@@ -23,7 +23,7 @@ export class MarketService {
     );
   }
 
-  public async fetchFulfilledYfPrices(exchange: Exchange, tickerArr: string[]) {
+  public async fetchFulfilledYfPrices(exchange: Market_Exchange, tickerArr: string[]) {
     const yfPriceArr = await this.financialAssetSrv.fetchYfPrices(tickerArr);
     return F.pipe(
       yfPriceArr, F.toAsync,
@@ -33,7 +33,7 @@ export class MarketService {
   }
 
   public fulfillYfInfo(yfInfo: TYfInfo): TFulfilledYfInfo {
-    const marketExchange = this.exchangeSrv.findExchange(yfInfo.exchangeTimezoneName);
+    const marketExchange = this.exchangeSrv.findOneByYfInfo(yfInfo);
     return {
       ...yfInfo,
       marketExchange,
@@ -44,7 +44,7 @@ export class MarketService {
   }
 
   private fulfillYfPrice(
-    exchange: Exchange,
+    exchange: Market_Exchange,
     {
       symbol, 
       regularMarketPreviousClose,

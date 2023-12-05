@@ -1,18 +1,20 @@
-import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
+import { Injectable, Logger, OnApplicationBootstrap } from '@nestjs/common';
 import { ProductApiService } from 'src/product_api/product_api.service';
 import { Market_ExchangeService } from 'src/market/exchange/exchange.service';
 import { Database_ExchangeService } from 'src/database/exchange/exchange.service';
 import { Database_FinancialAssetService } from 'src/database/financialAsset/financialAsset.service';
 import { MarketService } from 'src/market/market.service';
-import { UpdaterService as DbUpdaterService } from 'src/database/updater.service';
-import { Exchange } from 'src/market/exchange/class/exchange';
-import { TExchangeCore, TUpdateTuple } from 'src/common/type';
+import { DatabaseService } from 'src/database/database.service';
+import { Market_Exchange } from 'src/market/exchange/class/exchange';
+import { TUpdateTuple } from 'src/common/type';
 import { Launcher } from 'src/common/enum';
+import { EMarketEvent } from 'src/market/exchange/enum/eventName.enum';
+import { Exchange } from 'src/database/exchange/exchange.entity';
+import { Either } from 'src/common/class/either';
 import * as F from "@fxts/core";
 
-// Todo: NewExchange 리팩터링 후에 여기도 리팩터링하기 
 @Injectable()
-export class UpdaterService implements OnModuleInit {
+export class UpdaterService implements OnApplicationBootstrap {
 
   private readonly logger = new Logger(UpdaterService.name);
 
@@ -21,65 +23,108 @@ export class UpdaterService implements OnModuleInit {
     private readonly marketSrv: MarketService,
     private readonly database_exchangeSrv: Database_ExchangeService,
     private readonly database_financialAssetSrv: Database_FinancialAssetService,
-    private readonly dbUpdaterSrv: DbUpdaterService,
+    private readonly databaseSrv: DatabaseService,
     private readonly productApiSrv: ProductApiService,
   ) {}
 
-  async onModuleInit() {
-    await this.initiateExchangesUpdater();
+  async onApplicationBootstrap() {
+    await this.synchronizeAllExchangesWithMarket();
+    this.registerUpdaterAllExchanges();
   }
 
-  public async initiateExchangesUpdater() {
-    const updateNow = (exchange: TExchangeCore) => this.market_exchangeSrv.fulfillUpdater(
-      this.updateAssetsOfExchange.bind(this),
-      exchange
-    )(Launcher.INITIATOR);
+  private async synchronizeAllExchangesWithMarket(): Promise<void> {
+    await this.createNewExchanges();
+    await this.updateAssetsOutofdateExchanges();
+  }
 
+  private registerUpdaterAllExchanges(): void {
+    this.market_exchangeSrv.getAll()
+    .forEach(exchange => exchange.isUpdaterRegistered()
+      ? this.logger.warn(`${exchange.ISO_Code} : Already registered updater`) //
+      : this.registerUpdater(exchange)
+    );
+  }
+
+  private registerUpdater(exchange: Market_Exchange): void {
+    exchange.on(
+      EMarketEvent.UPDATE,
+      this.updateAssetsOfExchange.bind(this, Launcher.SCHEDULER, exchange)
+    );
+    exchange.setUpdaterRegisteredTrue();
+    this.logger.verbose(`${exchange.ISO_Code} : Updater Registered`);
+  }
+
+  private async createNewExchanges(): Promise<void> {
     await F.pipe(
-      this.database_exchangeSrv.readAll(), F.toAsync,
-      F.peek(this.registerExchangeUpdater.bind(this)),
-      F.filter(this.market_exchangeSrv.shouldUpdate.bind(this.market_exchangeSrv)),
-      F.each(updateNow)
+      this.market_exchangeSrv.getAll(),
+      F.toAsync,
+      F.filter(this.isNewExchange.bind(this)),
+      F.peek(this.createExchange.bind(this)),
+      F.each(this.logNewExchange.bind(this))
     );
   }
 
-  public registerExchangeUpdater(exchangeLike: TExchangeCore | Exchange) {
-    this.market_exchangeSrv.registerUpdater(
-      this.updateAssetsOfExchange.bind(this),
-      exchangeLike
+  private async updateAssetsOutofdateExchanges(): Promise<void> {
+    await F.pipe(
+      this.database_exchangeSrv.readAll(),
+      F.filter(this.isOutofdateExchange.bind(this)),
+      F.map(exchange => this.market_exchangeSrv.getOne(exchange)!), // 필터링 하면서 동시에 변경까지 가능한 mapFilter 있으면 좋겠다.
+      F.peek(this.warnUpdateWhileMarketOpen.bind(this)),
+      F.toAsync,
+      F.map(this.updateAssetsOfExchange.bind(this, Launcher.INITIATOR)),
+      F.toArray
     );
   }
 
-  public async updateAssetsOfExchange(exchange: Exchange, launcher: Launcher) {
+  private async isNewExchange(exchange: Market_Exchange): Promise<boolean> {
+    return F.not((await this.database_exchangeSrv.exist({ ISO_Code: exchange.ISO_Code })));
+  }
+
+  private createExchange(exchange: Market_Exchange): Promise<Exchange> {
+    return this.database_exchangeSrv.createOne({
+      ISO_Code: exchange.ISO_Code,
+      ISO_TimezoneName: exchange.ISO_TimezoneName,
+      marketDate: exchange.marketDate
+    });
+  }
+
+  private logNewExchange(exchange: Market_Exchange): void {
+    this.logger.verbose(`New Exchange Created: ${exchange.ISO_Code}`);
+  }
+
+  private isOutofdateExchange(exchange: Exchange): boolean {
+    return exchange.marketDate != this.market_exchangeSrv.getOne(exchange.ISO_Code)!.marketDate;
+  }
+
+  private warnUpdateWhileMarketOpen(exchange: Market_Exchange) {
+    exchange.isMarketOpen() && this.logger.warn(`${exchange.ISO_Code} : Run Updater while Open`);
+  }
+
+  // Todo: return type
+  private async updateAssetsOfExchange(launcher: Launcher, exchange: Market_Exchange): Promise<void> {
     const { ISO_Code } = exchange;
     this.logger.log(`${ISO_Code} : Updater Run!!!`);
     const startTime = new Date();
     
-    let updateResult
+    let updateResult: Either<any, TUpdateTuple>[];
     try {
       const symbolArr = await this.database_financialAssetSrv.readSymbolsByExchange(ISO_Code);
       const updateArr = await this.marketSrv.fetchFulfilledYfPrices(exchange, symbolArr);
       
-      updateResult = await this.dbUpdaterSrv.updatePriceStandard(
+      updateResult = await this.databaseSrv.updatePriceStandard(
         updateArr,
         exchange,
         startTime,
         launcher
       ).then(res => (this.logger.log(`${ISO_Code} : Updater End!!!`), res));
     } catch (error) {
-      // Todo: warn
-      this.logger.warn(`${ISO_Code} : Updater Failed!!!\nError: ${error}`);
+      // Todo: error
+      this.logger.error(`${ISO_Code} : Updater Failed!!!\nError: ${error}`);
       return;
     }
-    
-    const marketDate = exchange.getMarketDateYmdStr();
-    const priceArrs: TUpdateTuple[] = F.pipe(
-      updateResult,
-      F.filter(ele => ele.isRight()),
-      F.map(ele => ele.getRight),
-      F.toArray
-    );
-    this.productApiSrv.updatePriceByExchange(ISO_Code, { marketDate, priceArrs });
+
+    const priceArrs = Either.getRightArray(updateResult);
+    this.productApiSrv.updatePriceByExchange(ISO_Code, { marketDate: exchange.marketDate, priceArrs });
   }
 
 }

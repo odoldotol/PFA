@@ -1,22 +1,35 @@
 import { FactoryProvider } from "@nestjs/common";
-import { Exchange } from "../class/exchange";
+import { Market_ExchangeConfig } from "../class/exchangeConfig";
+import { Market_ExchangeSession } from "../class/exchangeSession";
+import { Market_Exchange } from "../class/exchange";
 import { TExchangeConfig } from "src/config/const";
 import {
-  EXCHANGE_CONFIG_TOKEN_SUFFIX,
+  EXCHANGE_CONFIG_PROVIDER_TOKEN_SUFFIX,
+  EXCHANGE_SESSION_PROVIDER_TOKEN_SUFFIX,
   EXCHANGE_PROVIDER_TOKEN_SUFFIX
 } from "../const";
-import { ChildApiService } from "src/market/child_api/child_api.service";
+import { buildInjectionToken } from "src/common/util";
 
 export const generateExchangeFactoryProviderArr = (
   exchangeConfigArr: TExchangeConfig[]
-): FactoryProvider<Exchange>[] => exchangeConfigArr.map((exchangeConfig) => ({
-  provide: exchangeConfig.ISO_Code + EXCHANGE_PROVIDER_TOKEN_SUFFIX,
+): FactoryProvider<Market_Exchange>[] =>
+exchangeConfigArr.map(exchangeConfig => ({
+  provide: buildInjectionToken(
+    exchangeConfig.ISO_Code,
+    EXCHANGE_PROVIDER_TOKEN_SUFFIX
+  ),
   useFactory: (
-    exchangeConfig: TExchangeConfig,
-    childApiSrv: ChildApiService
-  ) => new Exchange(exchangeConfig, childApiSrv),
+    exchangeConfig: Market_ExchangeConfig,
+    exchangeSession: Market_ExchangeSession
+  ) => new Market_Exchange(exchangeConfig, exchangeSession),
   inject: [
-    exchangeConfig.ISO_Code + EXCHANGE_CONFIG_TOKEN_SUFFIX,
-    ChildApiService
+    buildInjectionToken(
+      exchangeConfig.ISO_Code,
+      EXCHANGE_CONFIG_PROVIDER_TOKEN_SUFFIX
+    ),
+    buildInjectionToken(
+      exchangeConfig.ISO_Code,
+      EXCHANGE_SESSION_PROVIDER_TOKEN_SUFFIX
+    )
   ]
 }));

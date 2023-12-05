@@ -1,166 +1,130 @@
-import { Logger } from "@nestjs/common";
-import { Either } from "src/common/class/either";
+import { Logger, OnApplicationBootstrap } from "@nestjs/common";
 import { toLoggingStyle, toISOYmdStr } from "src/common/util/date";
-import { TExchangeConfig } from "src/config/const/exchanges.const";
-import { YF_CCC_ISO_Code, YF_update_margin_default } from "src/config/const/yf.const";
 import { EventEmitter } from "stream";
-import { ChildApiService } from "../../child_api/child_api.service";
 import { EMarketEvent } from "../enum/eventName.enum";
-import { TCloseEventArgs, TOpenEventArgs } from "../type";
-import { TExchangeSession, TFailure as TChildApiFailure } from "../../child_api/type";
+import { TCloseEventArg, TOpenEventArg } from "../type";
 import { buildLoggerContext } from "src/common/util";
+import { Market_ExchangeConfig } from "./exchangeConfig";
+import { Market_ExchangeSession } from "./exchangeSession";
 
 // Todo: 다시 Scheduler 사용하던가 스트림패턴 적용하든 이벤트 관리에만 집중하는 클래스 따로 만들자
-export class Exchange extends EventEmitter {
-  private readonly logger: Logger;
+export class Market_Exchange extends EventEmitter implements OnApplicationBootstrap {
+  private readonly logger = new Logger(buildLoggerContext(Market_Exchange, this.ISO_Code));
 
-  public readonly market: string;
-  public readonly ISO_Code: string; // id
-  public readonly ISO_TimezoneName: string;
-  public readonly YF_update_margin: number;
-  private readonly childApiSrv: ChildApiService;
-  private session?: TExchangeSession;
-  private isInitiated = false;
-  private isRegisteredUpdater = false;
-  private marketOpen?: boolean;
-  private marketDate?: Date;
+  private marketDateYmdStr!: string;
+  private marketOpen!: boolean;
+
+  // Todo: 여전히 필요한가?
+  private updaterRegistered = false;
 
   constructor(
-    exchangeConfig: TExchangeConfig,
-    childApiSrv: ChildApiService
+    private readonly config: Market_ExchangeConfig,
+    private readonly session: Market_ExchangeSession
   ) {
     super();
-    this.market = exchangeConfig.market;
-    this.ISO_Code = exchangeConfig.ISO_Code;
-    this.ISO_TimezoneName = exchangeConfig.ISO_TimezoneName;
-    this.YF_update_margin = exchangeConfig.YF_update_margin || YF_update_margin_default;
-    this.childApiSrv = childApiSrv;
-    this.logger = new Logger(buildLoggerContext(Exchange, this.ISO_Code));
+    this.on("error", e => this.logger.error(e)); //
   }
 
-  public async initiate() {
-    if (this.isInitiated) {
-      throw new Error("Already Initiated");
-    }
-    await this.updateSession();
-    const marketOpen = this.calculateMarketOpen()
-    if (marketOpen) {
-      this.executeSubscribesWhenOpen();
+  onApplicationBootstrap() {
+    if (this.calculateMarketOpen()) {
+      this.subscribeNextEventWhenMarketOpen();
     } else {
-      this.executeSubscribesWhenClose();
-      const nextUpdateDate = this.isInMarginGap();
-      nextUpdateDate && this.subscribeNextUpdate(nextUpdateDate);
+      this.subscribeNextEventWhenMarketClose();
+      let nextUpdateDate
+      (nextUpdateDate = this.isInMarginGap()) && this.subscribeNextUpdate(nextUpdateDate);
     }
     this.calculateMarketDate();
-    this.isInitiated = true;
   }
 
-  public getMarketDate() {
-    if (!this.marketDate) {
-      throw new Error("marketDate is not defined");
-    }
-    return this.marketDate;
+  public get ISO_Code(): Market_ExchangeConfig["ISO_Code"] {
+    return this.config.ISO_Code;
   }
 
-  public getMarketDateYmdStr() {
-    return toISOYmdStr(this.getMarketDate());
+  public get ISO_TimezoneName(): Market_ExchangeConfig["ISO_TimezoneName"] {
+    return this.config.ISO_TimezoneName;
   }
 
-  public isMarketOpen() {
-    if (this.marketOpen === undefined) {
-      throw new Error("isMarketOpen is not defined");
-    }
+  public get marketDate(): string {
+    return this.marketDateYmdStr;
+  }
+
+  public isMarketOpen(): boolean {
     return this.marketOpen;
   }
 
-  public setIsRegisterdUpdaterTrue() {
-    this.isRegisteredUpdater = true;
+  // Todo: 여전히 필요한가?
+  public setUpdaterRegisteredTrue() {
+    this.updaterRegistered = true;
   }
 
-  public getIsRegisteredUpdater() {
-    return this.isRegisteredUpdater;
+  // Todo: 여전히 필요한가?
+  public isUpdaterRegistered() {
+    return this.updaterRegistered;
   }
 
-  private async updateSession() {
-    this.session = await this.fetchExchangeSession(this.ISO_Code)
-    .then(either => either.getRight);
+  private subscribeNextEventWhenMarketOpen(): TOpenEventArg {
+    return {
+      nextCloseDate: this.subscribeNextClose(),
+      nextUpdateDate: this.subscribeNextUpdate()
+    };
+  }
+  
+  private subscribeNextEventWhenMarketClose(): TCloseEventArg {
+    return { nextOpenDate: this.subscribeNextOpen() };
   }
 
-  private fetchExchangeSession(
-    ISO_Code: string
-  ): Promise<Either<TChildApiFailure, TExchangeSession>> {
-    if (ISO_Code === YF_CCC_ISO_Code) {
-      return Promise.resolve(Either.right(this.getMidnightUTCSession()));
-    } else {
-      return this.childApiSrv.fetchEcSession(ISO_Code);
-    }
-  };
-
-  private calculateMarketOpen() {
-    const { previous_open, previous_close } = this.getSesstion();
-    this.marketOpen = new Date(previous_open) > new Date(previous_close);
-    return this.marketOpen;
-  }
-
-  private calculateMarketDate() {
-    this.marketDate = new Date(this.getSesstion().previous_close);
-  }
-
-  private subscribeNextOpen(nextOpenDate: Date) {
+  private subscribeNextOpen(): Date {
+    const nextOpenDate = this.session.nextOpen;
     setTimeout(
       this.marketOpenHandler.bind(this),
       this.calculateRemainingTimeInMs(nextOpenDate)
     );
     this.logger.verbose(`NextOpen at ${toLoggingStyle(nextOpenDate)}`);
+    return nextOpenDate;
   }
 
-  private subscribeNextClose(nextCloseDate: Date) {
+  private subscribeNextClose(): Date {
+    const nextCloseDate = this.session.nextClose;
     setTimeout(
       this.marketCloseHandler.bind(this),
       this.calculateRemainingTimeInMs(nextCloseDate)
     );
     this.logger.verbose(`NextClose at ${toLoggingStyle(nextCloseDate)}`);
+    return nextCloseDate;
   }
 
-  private subscribeNextUpdate(nextUpdateDate: Date) {
+  private subscribeNextUpdate(nextUpdateDate?: Date): Date {
+    nextUpdateDate || (nextUpdateDate = this.getNextUpdateDate());
     setTimeout(
       this.marketUpdateHandler.bind(this),
       this.calculateRemainingTimeInMs(nextUpdateDate)
     );
     this.logger.verbose(`NextUpdate at ${toLoggingStyle(nextUpdateDate)}`);
-  }
-
-  private getSesstion() {
-    if (!this.session) {
-      throw new Error("session is not defined");
-    }
-    return this.session;
+    return nextUpdateDate;
   }
 
   private async marketOpenHandler() {
     try {
-      this.marketOpen = true;
-      await this.updateSession();
-      this.logger.verbose(`Open`);
-      const { nextCloseDate, nextUpdateDate } = this.executeSubscribesWhenOpen();
-      const openEventArgs: TOpenEventArgs = [ nextCloseDate, nextUpdateDate ];
-      this.emit(EMarketEvent.OPEN, ...openEventArgs);
+      await this.session.updateSession();
+      this.openMarket();
+      this.emit(EMarketEvent.OPEN, this.subscribeNextEventWhenMarketOpen());
     } catch (e) {
       this.emit("error", e);
+      this.onApplicationBootstrap();
+      this.logger.warn('marketOpenHandler: onApplicationBootstrap has been called again and completed');
     }
   }
 
   private async marketCloseHandler() {
     try {
-      this.marketOpen = false;
-      await this.updateSession();
+      await this.session.updateSession();
       this.calculateMarketDate();
-      this.logger.verbose(`Close`);
-      const { nextOpenDate } = this.executeSubscribesWhenClose();
-      const closeEventArgs: TCloseEventArgs = [ nextOpenDate ];
-      this.emit(EMarketEvent.CLOSE, ...closeEventArgs);
+      this.closeMarket();
+      this.emit(EMarketEvent.CLOSE, this.subscribeNextEventWhenMarketClose());
     } catch (e) {
       this.emit("error", e);
+      this.onApplicationBootstrap();
+      this.logger.warn(`marketCloseHandler: onApplicationBootstrap has been called again and completed`);
     }
   }
 
@@ -169,62 +133,54 @@ export class Exchange extends EventEmitter {
     this.emit(EMarketEvent.UPDATE);
   }
 
-  private executeSubscribesWhenOpen() {
-    const nextCloseDate = this.getNextCloseDate();
-    const nextUpdateDate = this.getNextUpdateDate(nextCloseDate);
-    this.subscribeNextClose(nextCloseDate);
-    this.subscribeNextUpdate(nextUpdateDate);
-    return { nextCloseDate, nextUpdateDate };
+  private openMarket(): void {
+    this.marketOpen = true;
+    this.logger.verbose(`Open`);
   }
-  
-  private executeSubscribesWhenClose() {
-    const nextOpenDate = this.getNextOpenDate();
-    this.subscribeNextOpen(nextOpenDate);
-    return { nextOpenDate };
+
+  private closeMarket(): void {
+    this.marketOpen = false;
+    this.logger.verbose(`Close`);
   }
 
   private calculateRemainingTimeInMs(date: Date) {
     return date.getTime() - new Date().getTime();
   }
 
-  private getNextOpenDate() {
-    return new Date(this.getSesstion().next_open);
-  }
-
-  private getNextCloseDate() {
-    return new Date(this.getSesstion().next_close);
-  }
-
-  private getNextUpdateDate(nextCloseDate: Date) {
-    const nextUpdateDate = new Date(nextCloseDate);
-    nextUpdateDate.setMilliseconds(nextUpdateDate.getMilliseconds() + this.YF_update_margin);
+  /**
+   * ### 다음 정규장의 업데이트 Date 를 반환한다.
+   * - 주의: 현재 세션이 YF_margin_gap 내부에 있어도 건넌뛰고 다음 정규장을 반환함
+   */
+  private getNextUpdateDate(): Date {
+    const nextUpdateDate = new Date(this.session.nextClose);
+    nextUpdateDate.setMilliseconds(
+      nextUpdateDate.getMilliseconds() + this.config.YF_update_margin
+    );
     return nextUpdateDate;
   }
 
+  /**
+   * ### 현재 세션이 YF_margin_gap 내부에 있는지 판단
+   * 아니면 false 반환하지만 내부에 있다면 다음 nextUpdateDate 를 반환한다.
+   */
   private isInMarginGap() {
     const now = new Date();
-    const previousCloseDate = new Date(this.getSesstion().previous_close);
+    const previousCloseDate = this.session.previousClose;
     const previousCloseAddeMarginDate = new Date(previousCloseDate);
-    previousCloseAddeMarginDate
-      .setMilliseconds(previousCloseAddeMarginDate.getMilliseconds() + this.YF_update_margin);
-    return previousCloseDate < now && now < previousCloseAddeMarginDate && previousCloseAddeMarginDate;
+    previousCloseAddeMarginDate.setMilliseconds(
+      previousCloseAddeMarginDate.getMilliseconds() + this.config.YF_update_margin
+    );
+    return previousCloseDate < now && now < previousCloseAddeMarginDate &&
+    previousCloseAddeMarginDate;
   }
 
-  /**
-   * #### UTC 기준 당일 자정과 익일 자정기준으로 마켓세션 생성해서 반환
-   */
-  private getMidnightUTCSession(): TExchangeSession {
-    const previousMidnight = new Date(toISOYmdStr(new Date()));
-    const nextMidnight = previousMidnight;
-    nextMidnight.setUTCDate(nextMidnight.getUTCDate() + 1);
-    const previous = previousMidnight.toISOString();
-    const next = nextMidnight.toISOString();
-    return {
-      previous_open: previous,
-      previous_close: previous,
-      next_open: next,
-      next_close: next
-    };
+  private calculateMarketDate(): string {
+    return this.marketDateYmdStr = toISOYmdStr(this.session.previousClose);
+  }
+
+  private calculateMarketOpen(): boolean {
+    return this.marketOpen
+    = new Date(this.session.previousOpen) > new Date(this.session.previousClose);
   }
 
 }

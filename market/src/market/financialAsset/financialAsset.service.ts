@@ -1,9 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ChildApiService } from '../child_api/child_api.service';
-import { TFulfilledYfPrice, TFulfilledYfInfo } from './type';
-import { TYfInfo, TYfPrice } from '../type';
-import { Exchange } from '../exchange/class/exchange';
-import { Either, eitherMap, eitherFlatMap } from 'src/common/class/either';
+import { Either, eitherFlatMap } from 'src/common/class/either';
 import * as F from '@fxts/core';
 
 @Injectable()

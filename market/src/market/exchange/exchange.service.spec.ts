@@ -1,40 +1,34 @@
 import { Test, TestingModule } from "@nestjs/testing";
-import { Market_ExchangeService as ExchangeService } from "./exchange.service";
+import { Market_ExchangeService } from "./exchange.service";
 import { mockExchageConfigArr } from "./mock/exchange.mock";
-import { ChildApiService } from "../child_api/child_api.service";
-import { 
-  EXCHANGE_CONFIG_TOKEN_SUFFIX,
-  EXCHANGE_PROVIDER_TOKEN_SUFFIX
-} from "./const";
+import { EXCHANGE_PROVIDER_TOKEN_SUFFIX } from "./const";
 import { generateExchangeServiceFactoryProvider } from "./provider";
+import { buildInjectionToken } from "src/common/util";
+import { ValueProvider } from "@nestjs/common";
 
-const mockExchangeConfigProviderArr = mockExchageConfigArr.map(exchangeConfig => ({
-  provide: exchangeConfig.ISO_Code + EXCHANGE_CONFIG_TOKEN_SUFFIX,
-  useValue: {}
-}));
-
-const mockExchangeProviderArr = mockExchageConfigArr.map(exchangeConfig => ({
-  provide: exchangeConfig.ISO_Code + EXCHANGE_PROVIDER_TOKEN_SUFFIX,
+const mockExchangeProviderArr: ValueProvider[]
+= mockExchageConfigArr.map(exchangeConfig => ({
+  provide: buildInjectionToken(
+    exchangeConfig.ISO_Code,
+    EXCHANGE_PROVIDER_TOKEN_SUFFIX
+  ),
   useValue: {}
 }));
 
 const mockExchangeServiceProvider = generateExchangeServiceFactoryProvider(mockExchageConfigArr);
 
 describe("ExchangeService", () => {
-  
-  let service: ExchangeService;
+  let service: Market_ExchangeService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
-        { provide: ChildApiService, useValue: {} },
-        ...mockExchangeConfigProviderArr,
         ...mockExchangeProviderArr,
         mockExchangeServiceProvider
       ],
     }).compile();
 
-    service = module.get<ExchangeService>(ExchangeService);
+    service = module.get<Market_ExchangeService>(Market_ExchangeService);
   });
 
   afterEach(() => {

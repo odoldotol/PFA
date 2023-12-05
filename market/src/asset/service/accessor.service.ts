@@ -1,13 +1,10 @@
-import { Injectable, InternalServerErrorException, Logger, NotFoundException } from "@nestjs/common";
+import { Injectable, InternalServerErrorException, NotFoundException } from "@nestjs/common";
 import { GetPriceByTickerResponse } from "../response/getPriceByTicker.response";
 import { Database_FinancialAssetService } from "src/database/financialAsset/financialAsset.service";
 import { AdderService } from "./adder.service";
-import * as F from "@fxts/core";
 
 @Injectable()
 export class AccessorService {
-
-  private readonly logger = new Logger(AccessorService.name);
 
   constructor(
     private readonly database_financialAssetSrv: Database_FinancialAssetService,
@@ -25,11 +22,11 @@ export class AccessorService {
           throw new NotFoundException(`Could not find Ticker: ${addAssetsRes.failure.general[0].ticker}`);
         else throw new InternalServerErrorException(addAssetsRes);
       }
-      return new GetPriceByTickerResponse(addAssetsRes.assets[0], addAssetsRes.exchanges[0]);
+      return new GetPriceByTickerResponse(addAssetsRes.assets[0]);
     }
   }
 
-  // Todo: Refac
+  // Todo: Refac - Response Type
   public getPriceByExchange(ISO_Code: string) {
     return this.database_financialAssetSrv.readManyByExchange(ISO_Code)
     .then(res => res.map(ele => [

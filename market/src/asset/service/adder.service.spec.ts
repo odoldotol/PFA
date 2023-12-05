@@ -64,13 +64,13 @@ describe('AdderService', () => {
     describe('하나의 ticker 에 대한 처리', () => {
       it('이미 database_financialAssetSrv 에서 availabe', () => {
         const result = service.addAssets([mockApple.symbol]);
-        expect(result).resolves.toEqual(new AddAssetsResponse([{msg:"Already exists", ticker: mockApple.symbol}], [], [], []));
+        expect(result).resolves.toEqual(new AddAssetsResponse([{msg:"Already exists", ticker: mockApple.symbol}], [], []));
       });
 
       it('fetch 에러', () => {
         market_financialAssetSrv.fetchYfInfosByEitherTickerArr = jest.fn().mockResolvedValueOnce([Either.left({msg: 'fetch error'})]);
         const result = service.addAssets([mockSamsungElec.symbol]);
-        expect(result).resolves.toEqual(new AddAssetsResponse([{msg: 'fetch error'}], [], [], []));
+        expect(result).resolves.toEqual(new AddAssetsResponse([{msg: 'fetch error'}], [], []));
       });
 
       it.todo('yf_info 생성');
@@ -79,7 +79,7 @@ describe('AdderService', () => {
       it('financialAsset 생성', () => {
         database_financialAssetSrv.createMany = jest.fn().mockResolvedValueOnce([mockSamsungElec]);
         const result = service.addAssets([mockSamsungElec.symbol]);
-        expect(result).resolves.toEqual(new AddAssetsResponse([], [], [], [mockSamsungElec]));
+        expect(result).resolves.toEqual(new AddAssetsResponse([], [], [mockSamsungElec]));
       });
     });
   });

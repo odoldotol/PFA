@@ -1,6 +1,6 @@
 import { Injectable, Logger } from "@nestjs/common";
 import { Either, eitherMap } from "src/common/class/either";
-import { Exchange } from "src/market/exchange/class/exchange";
+import { Market_Exchange } from "src/market/exchange/class/exchange";
 import { Database_FinancialAssetService } from "./financialAsset/financialAsset.service";
 import { Database_ExchangeService } from "./exchange/exchange.service";
 import { TFulfilledYfPrice } from "src/market/financialAsset/type";
@@ -12,9 +12,9 @@ import { Launcher } from "src/common/enum";
 import * as F from '@fxts/core';
 
 @Injectable()
-export class UpdaterService {
+export class DatabaseService {
 
-  private readonly logger = new Logger("Database_"+UpdaterService.name);
+  private readonly logger = new Logger(DatabaseService.name);
 
   constructor(
     private readonly financialAssetSrv: Database_FinancialAssetService,
@@ -25,10 +25,10 @@ export class UpdaterService {
 
   public async updatePriceStandard(
     updateEitherArr: readonly Either<any, TFulfilledYfPrice>[],
-    exchange: Exchange,
+    exchange: Market_Exchange,
     startTime: Date,
     launcher: Launcher
-  ) {
+  ): Promise<Either<any, TUpdateTuple>[]> {
     let updateRes: Promise<TFulfilledYfPrice[]>;
     const queryRunner = this.dataSource.createQueryRunner();
     try {
@@ -40,7 +40,7 @@ export class UpdaterService {
       ));
       await this.exchangeSrv.updateMarketDateByPk(
         exchange.ISO_Code,
-        exchange.getMarketDateYmdStr(),
+        exchange.marketDate,
         queryRunner
       );
       await queryRunner.commitTransaction();
@@ -53,12 +53,13 @@ export class UpdaterService {
     }
 
     // Todo: Refac -----------------------------------------
+    // financialAssetSrv.updatePriceMany 에서 부터 성공 실패를 Either 로 반환하도록 해야한다.
     const symbolToUpdateResEleMap = new Map((await updateRes).map(e => [e.symbol, e]));
     const turnLeftIfUpdateFailed = (either: Either<any, TFulfilledYfPrice>) => {
-      if (either.isRight() && symbolToUpdateResEleMap.get(either.getRight.symbol) === undefined)
+      if (either.isRight() && symbolToUpdateResEleMap.get(either.right.symbol) === undefined)
       return Either.left<any, TFulfilledYfPrice>({
         message: 'updatePriceMany failure',
-        data: either.getRight
+        data: either.right
       });
       else return either;
     };
@@ -113,7 +114,7 @@ export class UpdaterService {
 
     F.pipe(
       updateResult.updatePriceResult,
-      F.each(ele => ele.isRight() ? newLogDoc.success.push(ele.getRight) : newLogDoc.failure.push(ele.getLeft))
+      F.each(ele => ele.isRight() ? newLogDoc.success.push(ele.right) : newLogDoc.failure.push(ele.left))
     );
 
     const fLen = newLogDoc.failure.length;

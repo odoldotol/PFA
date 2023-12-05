@@ -1,7 +1,7 @@
-import { Exchange } from "src/market/exchange/class/exchange"
+import { Market_Exchange } from "src/market/exchange/class/exchange"
 import { TFulfilledYfPrice } from ".";
 import { TYfInfo } from "src/market/type";
 
 export type TFulfilledYfInfo = Readonly<{
-  marketExchange?: Exchange;
+  marketExchange?: Market_Exchange;
 }> & TYfInfo & TFulfilledYfPrice;

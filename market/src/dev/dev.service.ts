@@ -24,7 +24,7 @@ export class DevService {
   }
 
   public getAllExchangeFromMarket() {
-    return this.market_exchangeSrv.findAll().map(
+    return this.market_exchangeSrv.getAll().map(
       exchange => F.omit(["_events", "logger", "childApiSrv"] as any, exchange)
     );
   }
