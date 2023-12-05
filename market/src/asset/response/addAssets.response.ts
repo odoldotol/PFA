@@ -1,31 +1,24 @@
-import { ApiProperty } from "@nestjs/swagger";
-import { Either } from "src/common/class/either";
-import { TExchangeCore } from "src/common/type";
+import { ApiProperty, ApiPropertyOptions } from "@nestjs/swagger";
 
 export class AddAssetsResponse {
 
-    @ApiProperty()
+    @ApiProperty({ description: 'Creation 결과' })
     readonly assets: any; // Todo: Type
-    readonly exchanges: TExchangeCore[];
 
     @ApiProperty()
     readonly failure: {
-        pre: any[],
-        exchange: any[],
+        general: any[],
         yfInfo: any[]
     };
 
     constructor(
-        failures: any[],
+        generalFailures: any[],
         yfInfoFailures: any[],
-        exchangeCreationRes: Either<any, TExchangeCore>[],
         finAssetCreationRes: any
     ) {
         this.assets = finAssetCreationRes;
-        this.exchanges = Either.getRightArray(exchangeCreationRes);
         this.failure = {
-            pre: [...failures],
-            exchange: Either.getLeftArray(exchangeCreationRes),
+            general: [...generalFailures],
             yfInfo: yfInfoFailures,
         };
 

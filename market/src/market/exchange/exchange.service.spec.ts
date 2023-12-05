@@ -1,34 +1,34 @@
 import { Test, TestingModule } from "@nestjs/testing";
-import { ExchangeService } from "./exchange.service";
-import { ExchangeContainer } from "./container";
-import { EXCHANGE_CONFIG_ARR_TOKEN } from "./provider/exchangeConfigArr.provider";
-import { mockExchageConfigArr, mockExchangeCoreArr } from "./mock/exchange.mock";
-import { ChildApiService } from "../child_api/child_api.service";
-import { mockChildApiService } from "./mock/childApiService.mock";
+import { Market_ExchangeService } from "./exchange.service";
+import { mockExchageConfigArr } from "./mock/exchange.mock";
+import { EXCHANGE_PROVIDER_TOKEN_SUFFIX } from "./const";
+import { generateExchangeServiceFactoryProvider } from "./provider";
+import { buildInjectionToken } from "src/common/util";
+import { ValueProvider } from "@nestjs/common";
+
+const mockExchangeProviderArr: ValueProvider[]
+= mockExchageConfigArr.map(exchangeConfig => ({
+  provide: buildInjectionToken(
+    exchangeConfig.ISO_Code,
+    EXCHANGE_PROVIDER_TOKEN_SUFFIX
+  ),
+  useValue: {}
+}));
+
+const mockExchangeServiceProvider = generateExchangeServiceFactoryProvider(mockExchageConfigArr);
 
 describe("ExchangeService", () => {
-  
-  let service: ExchangeService;
-  let container: ExchangeContainer;
+  let service: Market_ExchangeService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
-        ExchangeService,
-        ExchangeContainer,
-        {
-          provide: EXCHANGE_CONFIG_ARR_TOKEN,
-          useValue: mockExchageConfigArr
-        },
-        {
-          provide: ChildApiService,
-          useValue: mockChildApiService
-        }
+        ...mockExchangeProviderArr,
+        mockExchangeServiceProvider
       ],
     }).compile();
 
-    service = module.get<ExchangeService>(ExchangeService);
-    container = module.get<ExchangeContainer>(ExchangeContainer);
+    service = module.get<Market_ExchangeService>(Market_ExchangeService);
   });
 
   afterEach(() => {
@@ -37,20 +37,6 @@ describe("ExchangeService", () => {
 
   it("should be defined", () => {
     expect(service).toBeDefined();
-  });
-
-  describe("onModuleInit", () => {
-    it("exchange 생성하고 컨테이너에 넣기", async () => {
-      const addSpy = jest.spyOn(container, "add");
-      await service.onModuleInit();
-      expect(addSpy).toBeCalledTimes(mockExchageConfigArr.length);
-    });
-
-    it.todo("구독")
-  });
-
-  describe("shouldUpdate: 업데이트 해야하는지 여부", () => {
-    it.todo("");
   });
 
 });

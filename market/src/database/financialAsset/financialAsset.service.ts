@@ -1,13 +1,13 @@
 import { Injectable, Logger } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { TFulfilledYfPrice } from "src/market/asset/type";
+import { TFulfilledYfPrice } from "src/market/financialAsset/type";
 import { DataSource, QueryRunner, Repository } from "typeorm";
 import { FinancialAsset, RawFinancialAsset } from "./financialAsset.entity";
 
 @Injectable()
-export class FinancialAssetService {
+export class Database_FinancialAssetService {
 
-  private readonly logger = new Logger('Database_'+FinancialAssetService.name);
+  private readonly logger = new Logger('Database_'+Database_FinancialAssetService.name);
   private readonly tableName = this.finAssetsRepo.metadata.tableName;
 
   constructor(

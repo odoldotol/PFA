@@ -5,7 +5,12 @@ import {
   TResponseYfInfo,
   TResponseYfPrice,
   TExchangeSession,
-  TFailure } from './type';
+  TFailure
+} from './type';
+import { 
+  TYfInfo,
+  TYfPrice
+} from '../type';
 import { ConfigService } from '@nestjs/config';
 import { EnvironmentVariables } from 'src/common/interface/environmentVariables.interface';
 import { EnvKey } from 'src/common/enum/envKey.enum';
@@ -27,12 +32,14 @@ export class ChildApiService {
     private readonly httpService: HttpService
   ) {}
 
-  public fetchYfInfo(ticker: string) {
-    return this.post<TResponseYfInfo>(YFINANCE_INFO_URN + ticker);
+  public async fetchYfInfo(ticker: string) {
+    return (await this.post<TResponseYfInfo>(YFINANCE_INFO_URN + ticker))
+    .map(v => Object.assign(v.info, v.fastinfo, v.metadata, v.price) as TYfInfo);
   }
 
-  public fetchYfPrice(ticker: string) {
-    return this.post<TResponseYfPrice>(YFINANCE_PRICE_URN + ticker);
+  public async fetchYfPrice(ticker: string) {
+    return (await this.post<TResponseYfPrice>(YFINANCE_PRICE_URN + ticker))
+    .map(v => Object.assign(v, { symbol: ticker }) as TYfPrice);
   }
 
   public fetchEcSession(ISO_Code: string) {

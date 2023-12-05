@@ -3,17 +3,17 @@ import { Test, TestingModule } from "@nestjs/testing";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { DataSource } from "typeorm";
 import { Exchange } from "../exchange/exchange.entity";
-import { ExchangeService } from "../exchange/exchange.service";
+import { Database_ExchangeService as ExchangeService } from "../exchange/exchange.service";
 import { 
   mockKoreaExchange,
   mockNewYorkStockExchange,
   mockApple,
   mockSamsungElec,
   mockUsaTreasuryYield10y
-} from "../mock";
+} from "src/mock";
 import { TypeOrmConfigService } from "../postgres/typeormConfig.service";
 import { FinancialAsset } from "./financialAsset.entity";
-import { FinancialAssetService } from "./financialAsset.service";
+import { Database_FinancialAssetService as FinancialAssetService } from "./financialAsset.service";
 
 describe('FinancialAssetsService', () => {
   let service: FinancialAssetService;

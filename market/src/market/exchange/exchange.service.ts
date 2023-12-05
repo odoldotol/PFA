@@ -1,101 +1,44 @@
-import { Inject, Injectable, Logger, OnModuleInit } from "@nestjs/common";
-import { TExchangeCore } from "src/common/type/exchange.type";
-import { ChildApiService } from "../child_api/child_api.service";
-import { Exchange } from "./class/exchange";
-import { EMarketEvent } from "./enum/eventName.enum";
-import { ExchangeContainer } from "./container";
-import { 
-  EXCHANGE_CONFIG_ARR_TOKEN,
-  TExchangeConfigArrProvider
-} from "./provider/exchangeConfigArr.provider";
-import * as F from "@fxts/core";
-import { Launcher } from "src/common/enum";
-import { UpdateAssetsOfExchange } from "src/common/interface";
+import { Market_Exchange } from "./class/exchange";
+import { TYfInfo } from "../type";
+import { TExchangeCore } from "src/common/type";
 
 // Todo: 1 차 리팩터링 후, 여전히 이 레이어의 역할이 스스로 분명하지 않음. 업데이트 동작과 관련해서 명확한 분리|통합이 필요함.
-@Injectable()
-export class ExchangeService implements OnModuleInit {
+export class Market_ExchangeService {
 
-  private readonly logger = new Logger(ExchangeService.name);
+  private readonly exchangeMap: Map<Market_Exchange["ISO_Code"], Market_Exchange>;
 
   constructor(
-    private readonly container: ExchangeContainer,
-    @Inject(EXCHANGE_CONFIG_ARR_TOKEN) private readonly exchangeConfigArr: TExchangeConfigArrProvider,
-    private readonly childApiSrv: ChildApiService
-  ) {}
-
-  async onModuleInit() {
-    await F.pipe(
-      this.exchangeConfigArr, F.toAsync,
-      F.map(a => new Exchange(a, this.childApiSrv)), // is it anti-pattern?
-      F.peek(this.subscribe.bind(this)),
-      F.each(a => this.container.add(a))
-    );
-  }
-
-  private async subscribe(exchange: Exchange) {
-    try {
-      exchange.on('error', e => {
-        throw e; //
-      });
-      await exchange.initiate();
-    } catch (e) {
-      this.logger.warn(e);
-    }
-  }
-
-  public registerUpdater(
-    updater: UpdateAssetsOfExchange,
-    exchangeLike: TExchangeCore | Exchange
+    exchangeProviderArr: Market_Exchange[]
   ) {
-    let exchange: Exchange;
-    if (exchangeLike instanceof Exchange) exchange = exchangeLike;
-    else exchange = this.getExchagne(exchangeLike);
-
-    if (exchange.getIsRegisteredUpdater()) throw new Error("Already registered updater");
-    
-    exchange.on(EMarketEvent.UPDATE, () => updater(exchange, Launcher.SCHEDULER));
-    exchange.setIsRegisterdUpdaterTrue();
-    
-    this.logger.verbose(`${exchange.ISO_Code} : Updater Registered`);
+    this.exchangeMap = new Map(exchangeProviderArr.map(exchangeProvider => [
+      exchangeProvider.ISO_Code,
+      exchangeProvider
+    ]));
   }
 
-  public shouldUpdate(exchangeCore: TExchangeCore) {
-    const exchange = this.getExchagne(exchangeCore);
-    const result = exchangeCore.marketDate != exchange.getMarketDateYmdStr();
-    result && exchange.isMarketOpen() && this.logger.warn(`${exchange.ISO_Code} : shouldUpdate return "true" while Open`);
-    return result;
+  // Todo: 확실히 Exchange 를 반환하는 상황에서 호출했을때 ! Assertion 없이 undefined 가 아니라는 것을 타입스크립트가 알 수 있도록 하기 (config 레벨에서 ISO_Code 에 대한 타입정의를 할까?)
+  public getOne(ISO_Code: Market_Exchange["ISO_Code"]): Market_Exchange | undefined;
+  public getOne(exchangeCore: TExchangeCore): Market_Exchange | undefined;
+  public getOne(arg: Market_Exchange["ISO_Code"] | TExchangeCore) {
+    const ISO_Code = typeof arg === "string" ? arg : arg.ISO_Code;
+    return this.exchangeMap.get(ISO_Code);
   }
 
-  public fulfillUpdater(
-    updater: UpdateAssetsOfExchange,
-    exchangeCore: TExchangeCore
-  ) {
-    const exchange = this.getExchagne(exchangeCore);
-    return updater.bind(null, exchange);
+  public getAll() {
+    return [...this.exchangeMap.values()];
   }
 
-  private getExchagne(exchangeCore: TExchangeCore) {
-    const exchange = this.container.getOne(exchangeCore.ISO_Code);
-    if (!exchange) {
-      throw new Error("Not exists exchange");
-    }
-    return exchange;
-  }
-
-  // ----------- Legacy 지원 메서드 ------------------------------
-  // Todo: 리팩터링 완료후 사라져야할 메서드
-  public findExchange(ISO_TimezoneName: string) {
-    return [...this.container.getAll().values()].find((exchange) => {
-      if (exchange.ISO_TimezoneName === ISO_TimezoneName) {
-        return true;
-      }
-    });
-  }
-
-  // DEV
-  public findAll() {
-    return [...this.container.getAll().values()];
+  /**
+   * ### YfInfo 로 Exchange 를 찾기
+   * #### 현제 방식
+   * - 하나의 Timezone 에 복수의 Exchange 가 존재하지 않기 때문에 Timezone 과 Exchange 를 1:1 매칭하여 구별.
+   * - 만약, 예외 발견되면 이 방식은 무용지물.
+   * #### 권장 방식
+   * - YahooFinance 에서 Exchange 를 구별하는 방식과 ISO_Code 를 매칭.
+   * - 이것과 관련한 설정파일이 필요해지는 번거로움이 예상됨.
+   */
+  public findOneByYfInfo(yfInfo: TYfInfo) {
+    return this.getAll().find(exchange => exchange.ISO_TimezoneName === yfInfo.exchangeTimezoneName);
   }
 
 }

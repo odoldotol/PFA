@@ -96,4 +96,4 @@ export const exchangeConfigArr: TExchangeConfig[] = [
     "exchange_website":"https://www.cmegroup.com/",
     "ISO_TimezoneName":"America/Chicago"
   },
-]
+];

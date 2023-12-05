@@ -3,9 +3,9 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { TypeOrmConfigService } from '../postgres/typeormConfig.service';
 import { Exchange } from './exchange.entity';
-import { ExchangeService } from './exchange.service';
+import { Database_ExchangeService as ExchangeService } from './exchange.service';
 import { DataSource } from 'typeorm';
-import { mockKoreaExchange, mockNewYorkStockExchange } from '../mock';
+import { mockKoreaExchange, mockNewYorkStockExchange } from 'src/mock';
 
 describe('ExchangeService', () => {
   let service: ExchangeService;

@@ -11,7 +11,7 @@ type MongooseInsertManyError<T = any> = {
 }
 
 @Injectable()
-export class Yf_infoService {
+export class YfinanceInfoService {
 
   constructor(
     @InjectModel(Yf_info.name) private yf_infoModel: Model<Yf_infoDocument>,
