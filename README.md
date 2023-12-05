@@ -2,9 +2,10 @@
 
 ## Stack
 NodeJS (16) / Typescript / NestJS <br>
-child_process / axios / cron / rxjs / fxts <br>
+PostgreSQL / typeorm <br>
 MongoDB Atlas / mongoose <br>
-cache-manager / Redis / node-redis
+cache-manager / Redis / node-redis <br>
+child_process / axios / cron / rxjs / fxts <br>
 
 Python (3.8) / Fastapi / uvicorn <br>
 yfinance / exchange_calendars
@@ -136,12 +137,19 @@ $ sh scripts/pfa:down:all
 <br>
 
 ## Deploy
-### Compose .env files
+![initial](https://storage.googleapis.com/odoldotol-image-store/deploy-dia.png)
+
+#### RDS Certificate
+```
+market/aws-rds.pem
+```
+
+#### Compose .env files
 ```
 market/.env.guide
 product/.env.guide
 ```
-Then,
+#### Then,
 ```shell
 $ sh scripts/pfa:start:prod
 ```
@@ -176,27 +184,4 @@ $ sh scripts/pfa:start:prod
 - ### [Additional] Market-Child https://child.lapiki-invest.com/docs
 
 ---
----
-
-<br>
-
-## Structure
-![initial](https://storage.googleapis.com/odoldotol-image-store/Screen%20Shot%202023-06-22%20at%203.51.03%20AM.png)
-
----
-
-<br>
-
-## Stack
-NodeJS (16) / Typescript / NestJS <br>
-child_process / axios / cron / rxjs / fxts <br>
-MongoDB Atlas / mongoose <br>
-cache-manager / Redis / node-redis
-
-Python (3.8) / Fastapi / uvicorn <br>
-yfinance / exchange_calendars
-
-AWS EC2 / Nginx <br>
-Docker / pm2 / jest
-
 ---
