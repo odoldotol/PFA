@@ -12,7 +12,7 @@ export class Market_FinancialAssetService {
     private readonly childApiSrv: ChildApiService
   ) {}
 
-  public fetchYfInfos(tickerArr: string[]) {
+  public fetchYfInfos(tickerArr: readonly string[]) {
     return F.pipe(
       tickerArr, F.toAsync,
       F.map(this.childApiSrv.fetchYfInfo.bind(this)),
@@ -21,7 +21,7 @@ export class Market_FinancialAssetService {
     );
   }
 
-  public fetchYfInfosByEitherTickerArr(eitherTickerArr: Either<any, string>[]) {
+  public fetchYfInfosByEitherTickerArr(eitherTickerArr: readonly Either<any, string>[]) {
     return F.pipe(
       eitherTickerArr, F.toAsync,
       F.map(eitherFlatMap(this.childApiSrv.fetchYfInfo.bind(this))),
@@ -30,7 +30,7 @@ export class Market_FinancialAssetService {
     );
   }
 
-  public fetchYfPrices(tickerArr: string[]) {
+  public fetchYfPrices(tickerArr: readonly string[]) {
     return F.pipe(
       tickerArr, F.toAsync,
       F.map(this.childApiSrv.fetchYfPrice.bind(this)),

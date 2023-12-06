@@ -48,7 +48,7 @@ The initial service scope of this app is 0.
 ### Localy API Docs
 - #### Product http://localhost:7001/docs
 - #### Market http://localhost:6001/docs
-- #### [Additional] Market-Child http://localhost:8001/docs
+- #### Market-Child http://localhost:8001/docs
 ---
 <br>
 
@@ -123,11 +123,11 @@ This design approach has two main goals:
 <br>
 
 ### Clear all about this project
->down and remove all container and images about pfa
+>down and remove all containers and images about pfa
 ```shell
 $ sh scripts/pfa:clear
 ```
->if you just want to dowm all pfa container
+>if you just want to down all pfa containers
 ```shell
 $ sh scripts/pfa:down:all
 ```
@@ -181,7 +181,11 @@ $ sh scripts/pfa:start:prod
 - ### Product https://product.lapiki-invest.com/docs
 
 - ### Market https://market.lapiki-invest.com/docs
-- ### [Additional] Market-Child https://child.lapiki-invest.com/docs
+- ### Market-Child https://child.lapiki-invest.com/docs
 
 ---
 ---
+
+<br>
+<br>
+

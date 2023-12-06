@@ -68,7 +68,7 @@ export class UpdaterService implements OnApplicationBootstrap {
     await F.pipe(
       this.database_exchangeSrv.readAll(),
       F.filter(this.isOutofdateExchange.bind(this)),
-      F.map(exchange => this.market_exchangeSrv.getOne(exchange)!), // 필터링 하면서 동시에 변경까지 가능한 mapFilter 있으면 좋겠다.
+      F.map(exchange => this.market_exchangeSrv.getOne(exchange)!),
       F.peek(this.warnUpdateWhileMarketOpen.bind(this)),
       F.toAsync,
       F.map(this.updateAssetsOfExchange.bind(this, Launcher.INITIATOR)),

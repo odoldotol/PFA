@@ -1,3 +1,5 @@
+import { promiseWarp } from "../util";
+
 export abstract class Either<L, R> {
 
   constructor(
@@ -32,20 +34,14 @@ export abstract class Either<L, R> {
     fn: (v: R) => Either<T, S> | Promise<Either<T, S>>
   ): Promise<Either<L | T, S>> {
     return this.isRight()
-      ? this.toPromise(fn(this.right))
-      : this.toPromise(Either.left(this.left));
+      ? promiseWarp(fn(this.right))
+      : promiseWarp(Either.left(this.left));
   }
 
   public map<S>(
     fn: (v: R) => S | Promise<S>
   ): Promise<Either<L, S>> {
     return this.flatMap(async v => Either.right(await fn(v)));
-  }
-
-  private toPromise<T>(r: T): Promise<Awaited<T>> {
-    return r instanceof Promise
-      ? r
-      : Promise.resolve(r);
   }
 
   public static getRightArray<L, R>(
@@ -99,3 +95,12 @@ export const eitherFlatMap = <L, R, T, S>(
 ): ((either: Either<L, R>) => Promise<Either<L | T, S>>) => {
   return either => either.flatMap(fn);
 };
+
+/**
+ * ### Wrap settled promise with Either
+ */
+export const eitherWrap = <T, S = any>(
+  promise: Promise<T>
+): Promise<Either<S, T>> => promise
+.then(Either.right<S, T>)
+.catch(Either.left<S, T>);

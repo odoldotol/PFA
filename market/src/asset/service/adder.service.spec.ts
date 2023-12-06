@@ -49,9 +49,6 @@ describe('AdderService', () => {
   describe('addAssets', () => {
 
     beforeEach(() => {
-      database_financialAssetSrv.existByPk = jest.fn(async ticker => {
-        return ticker === mockApple.symbol ? true : false;
-      });
       market_financialAssetSrv.fetchYfInfosByEitherTickerArr = jest.fn(eitherTickerArr => {
         return Promise.all(eitherTickerArr.map(eitherTicker => eitherFlatMap(_ => Either.right({} as TYfInfo))(eitherTicker)));
       });
@@ -61,16 +58,11 @@ describe('AdderService', () => {
     });
     
     // 현재 주된 역할은 하나의 ticker 에 대한 처리임.
-    describe('하나의 ticker 에 대한 처리', () => {
-      it('이미 database_financialAssetSrv 에서 availabe', () => {
-        const result = service.addAssets([mockApple.symbol]);
-        expect(result).resolves.toEqual(new AddAssetsResponse([{msg:"Already exists", ticker: mockApple.symbol}], [], []));
-      });
-
+    describe('addAssetsFromFilteredTickers - 하나의 right ticker 에 대한 처리', () => {
       it('fetch 에러', () => {
         market_financialAssetSrv.fetchYfInfosByEitherTickerArr = jest.fn().mockResolvedValueOnce([Either.left({msg: 'fetch error'})]);
-        const result = service.addAssets([mockSamsungElec.symbol]);
-        expect(result).resolves.toEqual(new AddAssetsResponse([{msg: 'fetch error'}], [], []));
+        const result = service.addAssetsFromFilteredTickers([Either.right(mockSamsungElec.symbol)]);
+        expect(result).resolves.toEqual(new AddAssetsResponse([{msg: 'fetch error'}], Either.right([]), Either.right([])));
       });
 
       it.todo('yf_info 생성');
@@ -78,8 +70,8 @@ describe('AdderService', () => {
 
       it('financialAsset 생성', () => {
         database_financialAssetSrv.createMany = jest.fn().mockResolvedValueOnce([mockSamsungElec]);
-        const result = service.addAssets([mockSamsungElec.symbol]);
-        expect(result).resolves.toEqual(new AddAssetsResponse([], [], [mockSamsungElec]));
+        const result = service.addAssetsFromFilteredTickers([Either.right(mockSamsungElec.symbol)]);
+        expect(result).resolves.toEqual(new AddAssetsResponse([], Either.right([]), Either.right([mockSamsungElec])));
       });
     });
   });

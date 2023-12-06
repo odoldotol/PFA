@@ -6,6 +6,7 @@ import { AdderService } from "./adder.service";
 import { mockApple, mockSamsungElec } from "src/mock";
 import { GetPriceByTickerResponse } from "../response/getPriceByTicker.response";
 import { AddAssetsResponse } from "../response/addAssets.response";
+import { Either } from "src/common/class/either";
 
 describe('AccessorService', () => {
   let service: AccessorService;
@@ -43,9 +44,9 @@ describe('AccessorService', () => {
         if (ticker === mockApple.symbol) return Promise.resolve(mockApple);
         else return Promise.resolve(null);
       });
-      adderSrv.addAssets = jest.fn();
+      adderSrv.addAssetsFromFilteredTickers = jest.fn();
       readOneByPkSpy = jest.spyOn(database_financialAssetSrv, "readOneByPk");
-      addAssetsSpy = jest.spyOn(adderSrv, "addAssets");
+      addAssetsSpy = jest.spyOn(adderSrv, "addAssetsFromFilteredTickers");
     });
 
     it('database_financialAssetSrv 에서 가져올 수 있음', async () => {
@@ -57,8 +58,9 @@ describe('AccessorService', () => {
 
     describe('database_financialAssetSrv 에서 가져올 수 없고 adderSrv 에서 Asset 추가', () => {
       it('정상적으로 Asset 추가됨', async () => {
-        jest.spyOn(adderSrv, "addAssets").mockResolvedValueOnce(new AddAssetsResponse(
-          [], [], [mockSamsungElec]
+        jest.spyOn(adderSrv, "addAssetsFromFilteredTickers")
+        .mockResolvedValueOnce(new AddAssetsResponse(
+          [], Either.right([]), Either.right([mockSamsungElec])
         ));
         const res = await service.getPriceByTicker(mockSamsungElec.symbol);
         expect(res).toEqual(new GetPriceByTickerResponse(mockSamsungElec));
@@ -73,13 +75,15 @@ describe('AccessorService', () => {
         const addAssetsRes1 = new AddAssetsResponse([{
           doc: "Mapping key not found.",
           ticker: mockSamsungElec.symbol
-        }], [], []);
-        jest.spyOn(adderSrv, "addAssets").mockResolvedValueOnce(addAssetsRes1);
+        }], Either.right([]), Either.right([]));
+        jest.spyOn(adderSrv, "addAssetsFromFilteredTickers")
+        .mockResolvedValueOnce(addAssetsRes1);
         expect(service.getPriceByTicker(mockSamsungElec.symbol)).rejects
         .toThrow(new NotFoundException(`Could not find Ticker: ${mockSamsungElec.symbol}`));
         
-        const addAssetsRes2 = new AddAssetsResponse([], [], []);
-        jest.spyOn(adderSrv, "addAssets").mockResolvedValueOnce(addAssetsRes2);
+        const addAssetsRes2 = new AddAssetsResponse([], Either.right([]), Either.right([]));
+        jest.spyOn(adderSrv, "addAssetsFromFilteredTickers")
+        .mockResolvedValueOnce(addAssetsRes2);
         expect(service.getPriceByTicker(mockSamsungElec.symbol)).rejects
         .toThrow(new InternalServerErrorException(addAssetsRes2));
       });

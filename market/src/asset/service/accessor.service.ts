@@ -2,6 +2,7 @@ import { Injectable, InternalServerErrorException, NotFoundException } from "@ne
 import { GetPriceByTickerResponse } from "../response/getPriceByTicker.response";
 import { Database_FinancialAssetService } from "src/database/financialAsset/financialAsset.service";
 import { AdderService } from "./adder.service";
+import { Either } from "src/common/class/either";
 
 @Injectable()
 export class AccessorService {
@@ -16,7 +17,7 @@ export class AccessorService {
     const asset = await this.database_financialAssetSrv.readOneByPk(ticker);
     if (asset) return new GetPriceByTickerResponse(asset);
     else {
-      const addAssetsRes = await this.adderSrv.addAssets([ticker]);
+      const addAssetsRes = await this.adderSrv.addAssetsFromFilteredTickers([Either.right(ticker)]);
       if (addAssetsRes.assets[0] === undefined) {
         if (addAssetsRes.failure.general[0]?.doc === "Mapping key not found.")
           throw new NotFoundException(`Could not find Ticker: ${addAssetsRes.failure.general[0].ticker}`);
