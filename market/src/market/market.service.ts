@@ -6,6 +6,7 @@ import { TFulfilledYfInfo, TFulfilledYfPrice } from "./financialAsset/type";
 import { Market_Exchange } from "./exchange/class/exchange";
 import * as F from '@fxts/core';
 import { eitherMap } from "src/common/class/either";
+import { TExchangeCore } from "src/common/type";
 
 @Injectable()
 export class MarketService {
@@ -23,11 +24,15 @@ export class MarketService {
     );
   }
 
-  public async fetchFulfilledYfPrices(exchange: Market_Exchange, tickerArr: string[]) {
+  public async fetchFulfilledYfPrices(
+    exchange: TExchangeCore,
+    tickerArr: string[]
+  ) {
     const yfPriceArr = await this.financialAssetSrv.fetchYfPrices(tickerArr);
+    const marketExchange = this.exchangeSrv.getOne(exchange)!; //
     return F.pipe(
       yfPriceArr, F.toAsync,
-      F.map(eitherMap(this.fulfillYfPrice.bind(this, exchange))),
+      F.map(eitherMap(this.fulfillYfPrice.bind(this, marketExchange))),
       F.toArray
     );
   }
@@ -37,8 +42,8 @@ export class MarketService {
     return {
       ...yfInfo,
       marketExchange,
-      regularMarketLastClose: marketExchange?.isMarketOpen()
-        ? yfInfo.regularMarketPreviousClose
+      regularMarketLastClose: marketExchange?.isMarketOpen() ?
+        yfInfo.regularMarketPreviousClose
         : yfInfo.regularMarketPrice
     }
   }
@@ -53,7 +58,9 @@ export class MarketService {
   ): TFulfilledYfPrice {
     return {
       symbol,
-      regularMarketLastClose: exchange.isMarketOpen() ? regularMarketPreviousClose : regularMarketPrice
+      regularMarketLastClose: exchange.isMarketOpen() ?
+        regularMarketPreviousClose
+        : regularMarketPrice
     };
   }
 

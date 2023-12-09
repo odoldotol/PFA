@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { firstValueFrom } from 'rxjs';
-import { TUpdateTuple } from 'src/common/type';
+import { TExchangeCore, TUpdateTuple } from 'src/common/type';
 import { ConfigService } from '@nestjs/config';
 import { EnvironmentVariables } from 'src/common/interface/environmentVariables.interface';
 import { EnvKey } from 'src/common/enum';
@@ -19,11 +19,14 @@ export class ProductApiService {
   ) {}
 
   public async updatePriceByExchange(
-    ISO_Code: string,
-    data: { marketDate: string, priceArrs: TUpdateTuple[] } // Todo: type
+    exchange: TExchangeCore,
+    updateTupleArr: TUpdateTuple[]
   ) {
     // @ts-ignore // Todo: 인증,권한 구현하기
     const addKey = <T>(body: T) => (body["key"] = this.TEMP_KEY, body);
+
+    const ISO_Code = exchange.ISO_Code;
+    const data = { marketDate: exchange.marketDate, priceArrs: updateTupleArr } // Todo: type
 
     await this.httpService.tryUntilResolved(
       1000,

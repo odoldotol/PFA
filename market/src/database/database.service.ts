@@ -4,7 +4,7 @@ import { Market_Exchange } from "src/market/exchange/class/exchange";
 import { Database_FinancialAssetService } from "./financialAsset/financialAsset.service";
 import { Database_ExchangeService } from "./exchange/exchange.service";
 import { TFulfilledYfPrice } from "src/market/financialAsset/type";
-import { TUpdateTuple } from "src/common/type";
+import { TExchangeCore, TUpdateTuple } from "src/common/type";
 import { LogPriceUpdateService } from "./log_priceUpdate/log_priceUpdate.service";
 import { Log_priceUpdate } from "./log_priceUpdate/log_priceUpdate.schema";
 import { DataSource } from "typeorm";
@@ -25,7 +25,7 @@ export class DatabaseService {
 
   public async updatePriceStandard(
     updateEitherArr: readonly Either<any, TFulfilledYfPrice>[],
-    exchange: Market_Exchange,
+    exchange: TExchangeCore,
     startTime: Date,
     launcher: Launcher
   ): Promise<Either<any, TUpdateTuple>[]> {

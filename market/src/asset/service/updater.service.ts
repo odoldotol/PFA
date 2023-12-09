@@ -6,7 +6,7 @@ import { Database_FinancialAssetService } from 'src/database/financialAsset/fina
 import { MarketService } from 'src/market/market.service';
 import { DatabaseService } from 'src/database/database.service';
 import { Market_Exchange } from 'src/market/exchange/class/exchange';
-import { TUpdateTuple } from 'src/common/type';
+import { TExchangeCore, TUpdateTuple } from 'src/common/type';
 import { Launcher } from 'src/common/enum';
 import { EMarketEvent } from 'src/market/exchange/enum/eventName.enum';
 import { Exchange } from 'src/database/exchange/exchange.entity';
@@ -56,8 +56,7 @@ export class UpdaterService implements OnApplicationBootstrap {
 
   private async createNewExchanges(): Promise<void> {
     await F.pipe(
-      this.market_exchangeSrv.getAll(),
-      F.toAsync,
+      this.market_exchangeSrv.getAll(), F.toAsync,
       F.filter(this.isNewExchange.bind(this)),
       F.peek(this.createExchange.bind(this)),
       F.each(this.logNewExchange.bind(this))
@@ -67,10 +66,7 @@ export class UpdaterService implements OnApplicationBootstrap {
   private async updateAssetsOutofdateExchanges(): Promise<void> {
     await F.pipe(
       this.database_exchangeSrv.readAll(),
-      F.filter(this.isOutofdateExchange.bind(this)),
-      F.map(exchange => this.market_exchangeSrv.getOne(exchange)!),
-      F.peek(this.warnUpdateWhileMarketOpen.bind(this)),
-      F.toAsync,
+      F.filter(this.isOutofdateExchange.bind(this)), F.toAsync,
       F.map(this.updateAssetsOfExchange.bind(this, Launcher.INITIATOR)),
       F.toArray
     );
@@ -93,26 +89,34 @@ export class UpdaterService implements OnApplicationBootstrap {
   }
 
   private isOutofdateExchange(exchange: Exchange): boolean {
-    return exchange.marketDate != this.market_exchangeSrv.getOne(exchange.ISO_Code)!.marketDate;
+    const marketExchange = this.market_exchangeSrv.getOne(exchange.ISO_Code)!;
+    const result = exchange.marketDate != marketExchange.marketDate;
+    
+    // Todo: Warn 처리
+    result &&
+    marketExchange.isMarketOpen() &&
+    this.logger.warn(`${exchange.ISO_Code} : Run Updater while Open`);
+
+    return result;
   }
 
-  private warnUpdateWhileMarketOpen(exchange: Market_Exchange) {
-    exchange.isMarketOpen() && this.logger.warn(`${exchange.ISO_Code} : Run Updater while Open`);
-  }
-
-  // Todo: return type
-  private async updateAssetsOfExchange(launcher: Launcher, exchange: Market_Exchange): Promise<void> {
+  // Todo: Refac
+  private async updateAssetsOfExchange(
+    launcher: Launcher,
+    exchange: TExchangeCore
+  ): Promise<Either<any, TUpdateTuple[]>> {
     const { ISO_Code } = exchange;
     this.logger.log(`${ISO_Code} : Updater Run!!!`);
     const startTime = new Date();
     
     let updateResult: Either<any, TUpdateTuple>[];
     try {
-      const symbolArr = await this.database_financialAssetSrv.readSymbolsByExchange(ISO_Code);
-      const updateArr = await this.marketSrv.fetchFulfilledYfPrices(exchange, symbolArr);
-      
+      const updateEitherArr = await this.marketSrv.fetchFulfilledYfPrices(
+        exchange,
+        await this.database_financialAssetSrv.readSymbolsByExchange(ISO_Code)
+      );
       updateResult = await this.databaseSrv.updatePriceStandard(
-        updateArr,
+        updateEitherArr,
         exchange,
         startTime,
         launcher
@@ -120,11 +124,12 @@ export class UpdaterService implements OnApplicationBootstrap {
     } catch (error) {
       // Todo: error
       this.logger.error(`${ISO_Code} : Updater Failed!!!\nError: ${error}`);
-      return;
+      return Either.left(error);
     }
 
     const priceArrs = Either.getRightArray(updateResult);
-    this.productApiSrv.updatePriceByExchange(ISO_Code, { marketDate: exchange.marketDate, priceArrs });
+    this.productApiSrv.updatePriceByExchange(exchange, priceArrs);
+    return Either.right(priceArrs);
   }
 
 }
