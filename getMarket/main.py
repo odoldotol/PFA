@@ -63,15 +63,19 @@ def get_info_by_ticker(ticker: str) -> Union[R_Info, R_Error]:
   result = {}
   try:
     Ticker = yf.Ticker(ticker)
-    Ticker.fast_info.currency # 잘못된 티커 빠르게 에러던지기 위한
+    fast_info = Ticker.fast_info
+    fast_info.currency # 잘못된 티커 빠르게 에러던지기 위한
     try:
       # raise Exception("info") # 성능상 info 건너뛰기
       info = Ticker.info
     except:
       info = {"symbol": None}
       result["fastinfo"] = {}
-      for i in Ticker.fast_info: # lazy loading ResponseValidationError 조치
-        result["fastinfo"][i] = Ticker.fast_info[i]
+      for i in fast_info: # lazy loading ResponseValidationError 조치
+        v = fast_info[i]
+        if isNaN(v): # nan 조치
+          v = None
+        result["fastinfo"][i] = v
       result["price"] = getPrice(Ticker)
 
     metadata = Ticker.get_history_metadata()
@@ -128,3 +132,6 @@ def getPrice(Ticker: yf.Ticker) -> Price:
     "regularMarketPrice": priceChart['Close'][-1],
     "regularMarketPreviousClose": priceChart['Close'][-2]
   }
+
+def isNaN(num: any) -> bool:
+  return type(num) == float and num != num
