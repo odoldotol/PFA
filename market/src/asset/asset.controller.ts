@@ -3,6 +3,7 @@ import { ApiTags } from "@nestjs/swagger";
 import { UpperCasePipe } from "src/common/pipe/upperCasePipe";
 import { AccessorService } from "./service/accessor.service";
 import { AdderService } from "./service/adder.service";
+import { ExchangeIsoCode, Ticker } from "src/common/interface";
 import { 
   Api_getPriceByExchange,
   Api_addAssets,
@@ -21,21 +22,21 @@ export class AssetController {
   @Post('price/exchange/:ISO_Code')
   @HttpCode(200)
   @Api_getPriceByExchange()
-  getPriceByExchange(@Param('ISO_Code', UpperCasePipe) ISO_Code: string) {
-    return this.accessorSrv.getPriceByExchange(ISO_Code);
+  getPriceByExchange(@Param('ISO_Code', UpperCasePipe) isoCode: ExchangeIsoCode) {
+    return this.accessorSrv.getPriceByExchange(isoCode);
   }
 
   @Post('price/ticker/:ticker')
   @HttpCode(200)
   @Api_getPriceByTicker()
-  getPriceByTicker(@Param('ticker', UpperCasePipe) ticker: string) {
+  getPriceByTicker(@Param('ticker', UpperCasePipe) ticker: Ticker) {
     return this.accessorSrv.getPriceByTicker(ticker);
   }
 
   @Post()
   @HttpCode(200)
   @Api_addAssets()
-  addAssets(@Body(UpperCasePipe, new ParseArrayPipe({ items: String })) tickerArr: string[]) {
+  addAssets(@Body(UpperCasePipe, new ParseArrayPipe({ items: String })) tickerArr: Ticker[]) {
     return this.adderSrv.addAssets(tickerArr);
   }
 

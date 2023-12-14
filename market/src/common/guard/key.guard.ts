@@ -1,3 +1,6 @@
+// 임시. 사라질 예정.
+// AWS Security Group 에서 관리할 영역이지만 임시로 전체 허용하려고 만든 Guard.
+
 import { Injectable, CanActivate, ExecutionContext } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 

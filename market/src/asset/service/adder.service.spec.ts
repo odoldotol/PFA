@@ -7,9 +7,9 @@ import { YfinanceInfoService } from "src/database/yf_info/yf_info.service";
 import { Database_FinancialAssetService } from "src/database/financialAsset/financialAsset.service";
 import { UpdaterService } from "src/asset/service/updater.service";
 import { mockApple, mockSamsungElec } from "src/mock";
-import { Either, eitherFlatMap } from "src/common/class/either";
 import { AddAssetsResponse } from "../response/addAssets.response";
-import { TYfInfo } from "src/market/type";
+import { YfInfo } from "src/common/interface";
+import Either, * as E from "src/common/class/either";
 
 describe('AdderService', () => {
   let service: AdderService;
@@ -50,7 +50,7 @@ describe('AdderService', () => {
 
     beforeEach(() => {
       market_financialAssetSrv.fetchYfInfosByEitherTickerArr = jest.fn(eitherTickerArr => {
-        return Promise.all(eitherTickerArr.map(eitherTicker => eitherFlatMap(_ => Either.right({} as TYfInfo))(eitherTicker)));
+        return Promise.all(eitherTickerArr.map(eitherTicker => E.flatMap(_ => Either.right({} as YfInfo))(eitherTicker)));
       });
       yfinanceInfoSrv.insertMany = jest.fn().mockResolvedValue(Either.right([]));
       marketSrv.fulfillYfInfo = jest.fn().mockReturnValue({});

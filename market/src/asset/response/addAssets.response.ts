@@ -1,5 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { Either } from "src/common/class/either";
+import Either from "src/common/class/either";
 import { FinancialAsset } from "src/database/financialAsset/financialAsset.entity";
 import { Yf_info } from "src/database/yf_info/yf_info.schema";
 

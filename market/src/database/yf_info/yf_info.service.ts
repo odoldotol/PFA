@@ -1,8 +1,8 @@
 import { Injectable } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
-import { ClientSession, Model } from "mongoose";
-import { Either } from "src/common/class/either";
+import { Model } from "mongoose";
 import { Yf_info, Yf_infoDocument } from "./yf_info.schema";
+import Either, * as E from "src/common/class/either";
 
 // temp
 type MongooseInsertManyError<T = any> = {
@@ -17,23 +17,14 @@ export class YfinanceInfoService {
     @InjectModel(Yf_info.name) private yf_infoModel: Model<Yf_infoDocument>,
   ) {}
 
-  // // [DEV]
-  // testPickOne = (exchangeTimezoneName: string) => this.findOne({ exchangeTimezoneName },
-  //     "-_id symbol regularMarketPrice regularMarketPreviousClose regularMarketLastClose");
-
-  // exists = (symbol: string) => this.yf_infoModel.exists({ symbol }).exec();
-
-  public insertMany(arr: readonly Yf_info[]): Promise<Either<MongooseInsertManyError<Yf_info>, Yf_info[]>> {
-    return this.yf_infoModel.insertMany(arr, { ordered: false })
-      .then(<T>(res: T) => Either.right<MongooseInsertManyError, T>(res))
-      .catch(err => Either.left(err));
+  public insertMany(
+    yfInfoArr: readonly Yf_info[]
+  ): Promise<Either<MongooseInsertManyError<Yf_info>, Yf_info[]>> {
+    return E.wrapPromise(this.yf_infoModel.insertMany(
+      yfInfoArr,
+      { ordered: false }
+    ));
   }
-
-  // findPricesByExchange = (exchangeTimezoneName: string) => this.find({ exchangeTimezoneName },
-  //     "-_id symbol regularMarketLastClose currency quoteType");
-
-  // findPriceBySymbol = (symbol: string)  => this.findOne({ symbol },
-  //     "-_id regularMarketLastClose exchangeTimezoneName currency quoteType");
 
   public findAll() {
     return this.find(
@@ -42,15 +33,13 @@ export class YfinanceInfoService {
     );
   }
 
-  // findOne = (filter: object, projection?: object|string|Array<string>) => {
-  //     const q = this.yf_infoModel.findOne(filter)
-  //     if (projection) q.select(projection);
-  //     return q.lean().exec();};
-
-  private find(filter: object, projection?: object | string | Array<string>) {
+  private find(
+    filter: object,
+    projection?: object | string | Array<string>
+  ) {
     const q = this.yf_infoModel.find(filter);
     if (projection) q.select(projection);
     return q.lean().exec();
-  };
+  }
 
 }

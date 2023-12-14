@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { TypeOrmModuleOptions, TypeOrmOptionsFactory } from "@nestjs/typeorm";
-import { EnvironmentVariables } from 'src/common/interface/environmentVariables.interface';
+import { EnvironmentVariables } from 'src/common/interface';
 import { EnvKey } from 'src/common/enum/envKey.enum';
 import { readFileSync } from "fs";
 
@@ -16,11 +16,11 @@ export class TypeOrmConfigService implements TypeOrmOptionsFactory {
 
     const production: TypeOrmModuleOptions = {
       type: 'postgres',
-      host: this.configService.get(EnvKey.PgHost),
+      host: this.configService.get(EnvKey.PG_HOST),
       port: 5432,
-      username: this.configService.get(EnvKey.PgUsername),
-      password: this.configService.get(EnvKey.PgPassword),
-      database: this.configService.get(EnvKey.PgDatabase),
+      username: this.configService.get(EnvKey.PG_USERNAME),
+      password: this.configService.get(EnvKey.PG_PASSWORD),
+      database: this.configService.get(EnvKey.PG_DATABASE),
       synchronize: false,
       autoLoadEntities: true,
       /* Todo: RDS 프록시 사용해보기
@@ -61,8 +61,8 @@ export class TypeOrmConfigService implements TypeOrmOptionsFactory {
       autoLoadEntities: true
     };
 
-    if (this.configService.get(EnvKey.Docker_env) === 'production') return production;
-    else if (this.configService.get(EnvKey.Docker_env) === 'development') return developmentDocker;
+    if (this.configService.get(EnvKey.DOCKER_ENV) === 'production') return production;
+    else if (this.configService.get(EnvKey.DOCKER_ENV) === 'development') return developmentDocker;
     else return developmentLocal;
   }
 

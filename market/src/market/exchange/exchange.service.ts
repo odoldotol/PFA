@@ -1,27 +1,28 @@
 import { Market_Exchange } from "./class/exchange";
-import { TYfInfo } from "../type";
-import { TExchangeCore } from "src/common/type";
+import {
+  CoreExchange,
+  ExchangeIsoCode,
+  YfInfo
+} from "src/common/interface";
 
-// Todo: 1 차 리팩터링 후, 여전히 이 레이어의 역할이 스스로 분명하지 않음. 업데이트 동작과 관련해서 명확한 분리|통합이 필요함.
 export class Market_ExchangeService {
 
-  private readonly exchangeMap: Map<Market_Exchange["ISO_Code"], Market_Exchange>;
+  private readonly exchangeMap: Map<ExchangeIsoCode, Market_Exchange>;
 
   constructor(
     exchangeProviderArr: Market_Exchange[]
   ) {
     this.exchangeMap = new Map(exchangeProviderArr.map(exchangeProvider => [
-      exchangeProvider.ISO_Code,
+      exchangeProvider.isoCode,
       exchangeProvider
     ]));
   }
 
-  // Todo: 확실히 Exchange 를 반환하는 상황에서 호출했을때 ! Assertion 없이 undefined 가 아니라는 것을 타입스크립트가 알 수 있도록 하기 (config 레벨에서 ISO_Code 에 대한 타입정의를 할까?)
-  public getOne(ISO_Code: Market_Exchange["ISO_Code"]): Market_Exchange | undefined;
-  public getOne(exchangeCore: TExchangeCore): Market_Exchange | undefined;
-  public getOne(arg: Market_Exchange["ISO_Code"] | TExchangeCore) {
-    const ISO_Code = typeof arg === "string" ? arg : arg.ISO_Code;
-    return this.exchangeMap.get(ISO_Code);
+  public getOne(isoCode: ExchangeIsoCode): Market_Exchange;
+  public getOne(coreExchange: CoreExchange): Market_Exchange;
+  public getOne(arg: ExchangeIsoCode | CoreExchange): Market_Exchange {
+    const isoCode = typeof arg === "string" ? arg : arg.isoCode;
+    return this.exchangeMap.get(isoCode)!;
   }
 
   public getAll() {
@@ -37,8 +38,9 @@ export class Market_ExchangeService {
    * - YahooFinance 에서 Exchange 를 구별하는 방식과 ISO_Code 를 매칭.
    * - 이것과 관련한 설정파일이 필요해지는 번거로움이 예상됨.
    */
-  public findOneByYfInfo(yfInfo: TYfInfo) {
-    return this.getAll().find(exchange => exchange.ISO_TimezoneName === yfInfo.exchangeTimezoneName);
+  public findOneByYfInfo(yfInfo: YfInfo): Market_Exchange | null {
+    return this.getAll()
+    .find(exchange => exchange.isoTimezoneName === yfInfo.exchangeTimezoneName) || null;
   }
 
 }

@@ -1,29 +1,29 @@
 import { EnvKey } from "../enum/envKey.enum";
 
 export interface EnvironmentVariables {
-    [EnvKey.Port]: number;
+    [EnvKey.PORT]: number;
 
     // .env
-    [EnvKey.MongoDB_name]: string;
-    [EnvKey.MongoDB_url]: string;
-    [EnvKey.MongoDB_query]: string;
-    [EnvKey.ChildApiTimeout]: number;
-    [EnvKey.Child_concurrency]: number;
-    [EnvKey.ProductApiTimeout]: number;
-    [EnvKey.TempKey]: string;
-    [EnvKey.PgHost]: string;
-    [EnvKey.PgUsername]: string;
-    [EnvKey.PgPassword]: string;
-    [EnvKey.PgDatabase]: string;
+    [EnvKey.MONGODB_NAME]: string;
+    [EnvKey.MONGODB_URL]: string;
+    [EnvKey.MONGODB_QUERY]: string;
+    [EnvKey.CHILD_API_TIMEOUT]: number;
+    [EnvKey.CHILD_CONCURRENCY]: number;
+    [EnvKey.PRODUCT_API_TIMEOUT]: number;
+    [EnvKey.TEMP_KEY]: string;
+    [EnvKey.PG_HOST]: string;
+    [EnvKey.PG_USERNAME]: string;
+    [EnvKey.PG_PASSWORD]: string;
+    [EnvKey.PG_DATABASE]: string;
 
     // pm2
-    [EnvKey.Pm2_name]: string;
-    [EnvKey.PM2_listen_timeout]: number;
+    [EnvKey.PM2_NAME]: string;
+    [EnvKey.PM2_LISTEN_TIMEOUT]: number;
 
     // docker
-    [EnvKey.Docker_childApiBaseUrl]: string;
-    [EnvKey.Docker_productApiBaseUrl]: string;
-    [EnvKey.Docker_env]: string;
+    [EnvKey.DOCKER_CHILD_API_BASE_URL]: string;
+    [EnvKey.DOCKER_PRODUCT_API_BASE_URL]: string;
+    [EnvKey.DOCKER_ENV]: string;
 
     // load
     [EnvKey.MONGODB_URI]: string;

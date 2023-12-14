@@ -1,3 +1,5 @@
+// Pm2 는 제거되어야함
+
 import { Injectable, Logger, OnApplicationBootstrap, OnModuleInit } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import * as pm2 from "pm2";
@@ -9,9 +11,9 @@ import { EnvironmentVariables } from "src/common/interface/environmentVariables.
 export class Pm2Service implements OnModuleInit {
 
     private readonly logger = new Logger(Pm2Service.name);
-    private readonly PM2_NAME = this.configService.get(EnvKey.Pm2_name, { infer: true });
+    private readonly PM2_NAME = this.configService.get(EnvKey.PM2_NAME, { infer: true });
     readonly IS_RUN_BY_PM2: boolean;
-    private readonly PM2_listen_timeout = this.configService.get(EnvKey.PM2_listen_timeout, { infer: true });
+    private readonly PM2_listen_timeout = this.configService.get(EnvKey.PM2_LISTEN_TIMEOUT, { infer: true });
     private readonly PM2_ID!: number;
     private msgBus: any;
     private isOld: boolean = false;

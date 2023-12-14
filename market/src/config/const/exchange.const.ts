@@ -1,99 +1,93 @@
-import { TExchangeISO } from "src/common/type/exchange.type";
-import { YF_CCC_ISO_Code } from "./yf.const";
+import { ConfigExchanges } from "src/common/interface";
+import { YAHOO_FINANCE_CCC_EXCHANGE_ISO_CODE } from "./yahooFinance.const";
+
+/*
+- CONFIG_EXCHANGES2 의 Key 에서 ExchangeIsoCode 타입을 얻음.
+- ExchangeIsoCode 를 사용하여 ConfigExchanges 타입을 만듦.
+- 타입의 직간접적 참조를 피하면서 ConfigExchanges 로 CONFIG_EXCHANGES2 의 타입검사를 하기위해
+  새로운 상수 CONFIG_EXCHANGES 를 선언하고 ConfigExchanges 타입으로 CONFIG_EXCHANGES2 를 할당함.
+*/
 
 /**
- * #### Property Description:
- * - "YF_update_margin" is milliseconds.
- * - "ISO_Code" should be unique.
+ * #### Description:
+ * - Key: ISO_Code
+ * - Value: ConfigExchange
+ * - YahooFinance_update_margin - milliseconds.
  * 
  * #### References:
  * - https://www.iso20022.org/market-identifier-codes
  * - https://github.com/gerrymanoim/exchange_calendars#calendars
  */
-export type TExchangeConfig = TExchangeISO & Readonly<{
-  market: string;
-  country?: string;
-  exchange_website?: string;
-  YF_update_margin?: number;
-}>;
-
-export const exchangeConfigArr: TExchangeConfig[] = [
-  {
+export const CONFIG_EXCHANGES2 = {
+  "BVMF": {
     "market":"BMF Bovespa",
-    "ISO_Code":"BVMF",
     "country":"Brazil",
     "exchange_website":"http://www.b3.com.br/en_us/",
     "ISO_TimezoneName":"America/Sao_Paulo"
   },
-  {
+  "XFRA": {
     "market":"Frankfurt Stock Exchange",
-    "ISO_Code":"XFRA",
     "country":"Germany",
     "exchange_website":"http://en.boerse-frankfurt.de/",
     "ISO_TimezoneName":"Europe/Berlin"
   },
-  {
+  "XLON": {
     "market":"London Stock Exchange",
-    "ISO_Code":"XLON",
     "country":"England",
     "exchange_website":"https://www.londonstockexchange.com/",
     "ISO_TimezoneName":"Europe/London"
   },
-  {
+  "XNYS": {
     "market":"New York Stock Exchange",
-    "ISO_Code":"XNYS",
     "country":"USA",
     "exchange_website":"https://www.nyse.com/index",
     "ISO_TimezoneName":"America/New_York",
-    "YF_update_margin": 59000,
+    "yahooFinance_update_margin": 59000,
   },
-  {
+  "XSHG": {
     "market":"Shanghai Stock Exchange",
-    "ISO_Code":"XSHG",
     "country":"China",
     "exchange_website":"http://www.sse.com.cn/",
     "ISO_TimezoneName":"Asia/Shanghai"
   },
-  {
+  "XTKS": {
     "market":"Tokyo Stock Exchange",
-    "ISO_Code":"XTKS",
     "country":"Japan",
     "exchange_website":"https://www.jpx.co.jp/english/",
     "ISO_TimezoneName":"Asia/Tokyo"
   },
-  {
+  "XTSE": {
     "market":"Toronto Stock Exchange",
-    "ISO_Code":"XTSE",
     "country":"Canada",
     "exchange_website":"https://www.tsx.com/",
     "ISO_TimezoneName":"America/Toronto",
-    "YF_update_margin": 59000,
+    "yahooFinance_update_margin": 59000,
   },
-  {
+  [YAHOO_FINANCE_CCC_EXCHANGE_ISO_CODE]: {
     "market":"yahoo finance CCC",
-    "ISO_Code":YF_CCC_ISO_Code,
     "ISO_TimezoneName":"UTC",
-    "YF_update_margin": 10,
+    "yahooFinance_update_margin": 10,
   },
-  {
+  "XKRX": {
     "market":"Korea Exchange",
-    "ISO_Code":"XKRX",
     "country":"South Korea",
     "exchange_website":"http://global.krx.co.kr",
     "ISO_TimezoneName":"Asia/Seoul"
   },
-  {
+  "XHKG": {
     "market":"Hong Kong Stock Exchange",
-    "ISO_Code":"XHKG",
     "country":"Hong Kong",
     "exchange_website":"https://www.hkex.com.hk/?sc_lang=en",
     "ISO_TimezoneName":"Asia/Hong_Kong"
   },
-  {
+  "CMES": {
     "market":"Chicago Mercantile Exchange",
-    "ISO_Code":"CMES",
     "country":"USA",
     "exchange_website":"https://www.cmegroup.com/",
     "ISO_TimezoneName":"America/Chicago"
   },
-];
+};
+
+const CONFIG_EXCHANGES: ConfigExchanges = CONFIG_EXCHANGES2;
+
+export default CONFIG_EXCHANGES;

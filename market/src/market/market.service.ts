@@ -1,12 +1,19 @@
 import { Injectable } from "@nestjs/common";
 import { Market_ExchangeService } from "./exchange/exchange.service";
-import { Market_FinancialAssetService } from "./financialAsset/financialAsset.service";
-import { TYfInfo, TYfPrice } from "./type";
-import { TFulfilledYfInfo, TFulfilledYfPrice } from "./financialAsset/type";
+import {
+  Market_FinancialAssetService
+} from "./financialAsset/financialAsset.service";
 import { Market_Exchange } from "./exchange/class/exchange";
+import {
+  CoreExchange,
+  FulfilledYfInfo,
+  FulfilledYfPrice,
+  Ticker,
+  YfInfo,
+  YfPrice
+} from "src/common/interface";
+import * as E from "src/common/class/either";
 import * as F from '@fxts/core';
-import { eitherMap } from "src/common/class/either";
-import { TExchangeCore } from "src/common/type";
 
 @Injectable()
 export class MarketService {
@@ -15,52 +22,50 @@ export class MarketService {
     private readonly financialAssetSrv: Market_FinancialAssetService
   ) {}
 
-  public fetchFulfilledYfInfos(tickerArr: string[]) {
+  public fetchFulfilledYfInfos(tickerArr: Ticker[]) {
     const yfInfoArr = this.financialAssetSrv.fetchYfInfos(tickerArr);
     return F.pipe(
       yfInfoArr, F.toAsync,
-      F.map(eitherMap(this.fulfillYfInfo.bind(this))),
+      F.map(E.map(this.fulfillYfInfo.bind(this))),
       F.toArray
     );
   }
 
   public async fetchFulfilledYfPrices(
-    exchange: TExchangeCore,
-    tickerArr: string[]
+    exchange: CoreExchange,
+    tickerArr: Ticker[]
   ) {
     const yfPriceArr = await this.financialAssetSrv.fetchYfPrices(tickerArr);
-    const marketExchange = this.exchangeSrv.getOne(exchange)!; //
+    const marketExchange = this.exchangeSrv.getOne(exchange);
     return F.pipe(
       yfPriceArr, F.toAsync,
-      F.map(eitherMap(this.fulfillYfPrice.bind(this, marketExchange))),
+      F.map(E.map(this.fulfillYfPrice.bind(this, marketExchange))),
       F.toArray
     );
   }
 
-  public fulfillYfInfo(yfInfo: TYfInfo): TFulfilledYfInfo {
+  public fulfillYfInfo(yfInfo: YfInfo): FulfilledYfInfo {
     const marketExchange = this.exchangeSrv.findOneByYfInfo(yfInfo);
-    return {
-      ...yfInfo,
-      marketExchange,
-      regularMarketLastClose: marketExchange?.isMarketOpen() ?
-        yfInfo.regularMarketPreviousClose
-        : yfInfo.regularMarketPrice
-    }
+    return Object.assign(
+      yfInfo,
+      { marketExchange },
+      this.fulfillYfPrice(marketExchange, yfInfo)
+    );
   }
 
   private fulfillYfPrice(
-    exchange: Market_Exchange,
+    exchange: Market_Exchange | null,
     {
       symbol, 
       regularMarketPreviousClose,
       regularMarketPrice
-    }: TYfPrice
-  ): TFulfilledYfPrice {
+    }: YfPrice
+  ): FulfilledYfPrice {
     return {
       symbol,
-      regularMarketLastClose: exchange.isMarketOpen() ?
-        regularMarketPreviousClose
-        : regularMarketPrice
+      regularMarketLastClose: exchange?.isMarketOpen() ?
+        regularMarketPreviousClose :
+        regularMarketPrice
     };
   }
 

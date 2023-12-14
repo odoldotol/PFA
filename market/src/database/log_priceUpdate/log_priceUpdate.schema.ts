@@ -1,7 +1,7 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
 import mongoose from "mongoose";
 import { Launcher } from "src/common/enum";
-import { TUpdateTuple } from "src/common/type";
+import { UpdateTuple } from "src/common/interface";
 
 export type Log_priceUpdateDocument = Log_priceUpdate & mongoose.Document;
 
@@ -35,7 +35,7 @@ export class Log_priceUpdate {
   @Prop({
     type: mongoose.Schema.Types.Mixed // Array<[String, Object]>
   })
-  success!: TUpdateTuple[]
+  success!: UpdateTuple[]
 
   @Prop({
     type: mongoose.Schema.Types.Mixed

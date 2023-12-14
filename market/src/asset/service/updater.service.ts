@@ -6,11 +6,10 @@ import { Database_FinancialAssetService } from 'src/database/financialAsset/fina
 import { MarketService } from 'src/market/market.service';
 import { DatabaseService } from 'src/database/database.service';
 import { Market_Exchange } from 'src/market/exchange/class/exchange';
-import { TExchangeCore, TUpdateTuple } from 'src/common/type';
-import { Launcher } from 'src/common/enum';
-import { EMarketEvent } from 'src/market/exchange/enum/eventName.enum';
 import { Exchange } from 'src/database/exchange/exchange.entity';
-import { Either } from 'src/common/class/either';
+import { CoreExchange, UpdateTuple } from 'src/common/interface';
+import { Launcher, MarketEvent } from 'src/common/enum';
+import Either, * as E from 'src/common/class/either';
 import * as F from "@fxts/core";
 
 @Injectable()
@@ -40,18 +39,18 @@ export class UpdaterService implements OnApplicationBootstrap {
   private registerUpdaterAllExchanges(): void {
     this.market_exchangeSrv.getAll()
     .forEach(exchange => exchange.isUpdaterRegistered()
-      ? this.logger.warn(`${exchange.ISO_Code} : Already registered updater`) //
+      ? this.logger.warn(`${exchange.isoCode} : Already registered updater`) //
       : this.registerUpdater(exchange)
     );
   }
 
   private registerUpdater(exchange: Market_Exchange): void {
     exchange.on(
-      EMarketEvent.UPDATE,
+      MarketEvent.UPDATE,
       this.updateAssetsOfExchange.bind(this, Launcher.SCHEDULER, exchange)
     );
     exchange.setUpdaterRegisteredTrue();
-    this.logger.verbose(`${exchange.ISO_Code} : Updater Registered`);
+    this.logger.verbose(`${exchange.isoCode} : Updater Registered`);
   }
 
   private async createNewExchanges(): Promise<void> {
@@ -73,29 +72,29 @@ export class UpdaterService implements OnApplicationBootstrap {
   }
 
   private async isNewExchange(exchange: Market_Exchange): Promise<boolean> {
-    return F.not((await this.database_exchangeSrv.exist({ ISO_Code: exchange.ISO_Code })));
+    return F.not((await this.database_exchangeSrv.exist({ isoCode: exchange.isoCode })));
   }
 
   private createExchange(exchange: Market_Exchange): Promise<Exchange> {
     return this.database_exchangeSrv.createOne({
-      ISO_Code: exchange.ISO_Code,
-      ISO_TimezoneName: exchange.ISO_TimezoneName,
+      isoCode: exchange.isoCode,
+      isoTimezoneName: exchange.isoTimezoneName,
       marketDate: exchange.marketDate
     });
   }
 
   private logNewExchange(exchange: Market_Exchange): void {
-    this.logger.verbose(`New Exchange Created: ${exchange.ISO_Code}`);
+    this.logger.verbose(`New Exchange Created: ${exchange.isoCode}`);
   }
 
   private isOutofdateExchange(exchange: Exchange): boolean {
-    const marketExchange = this.market_exchangeSrv.getOne(exchange.ISO_Code)!;
+    const marketExchange = this.market_exchangeSrv.getOne(exchange.isoCode);
     const result = exchange.marketDate != marketExchange.marketDate;
     
     // Todo: Warn 처리
     result &&
     marketExchange.isMarketOpen() &&
-    this.logger.warn(`${exchange.ISO_Code} : Run Updater while Open`);
+    this.logger.warn(`${exchange.isoCode} : Run Updater while Open`);
 
     return result;
   }
@@ -103,31 +102,31 @@ export class UpdaterService implements OnApplicationBootstrap {
   // Todo: Refac
   private async updateAssetsOfExchange(
     launcher: Launcher,
-    exchange: TExchangeCore
-  ): Promise<Either<any, TUpdateTuple[]>> {
-    const { ISO_Code } = exchange;
-    this.logger.log(`${ISO_Code} : Updater Run!!!`);
+    exchange: CoreExchange
+  ): Promise<Either<any, UpdateTuple[]>> {
+    const { isoCode } = exchange;
+    this.logger.log(`${isoCode} : Updater Run!!!`);
     const startTime = new Date();
     
-    let updateResult: Either<any, TUpdateTuple>[];
+    let updateResult: Either<any, UpdateTuple>[];
     try {
       const updateEitherArr = await this.marketSrv.fetchFulfilledYfPrices(
         exchange,
-        await this.database_financialAssetSrv.readSymbolsByExchange(ISO_Code)
+        await this.database_financialAssetSrv.readSymbolsByExchange(isoCode)
       );
       updateResult = await this.databaseSrv.updatePriceStandard(
         updateEitherArr,
         exchange,
         startTime,
         launcher
-      ).then(res => (this.logger.log(`${ISO_Code} : Updater End!!!`), res));
+      ).then(res => (this.logger.log(`${isoCode} : Updater End!!!`), res));
     } catch (error) {
       // Todo: error
-      this.logger.error(`${ISO_Code} : Updater Failed!!!\nError: ${error}`);
+      this.logger.error(`${isoCode} : Updater Failed!!!\nError: ${error}`);
       return Either.left(error);
     }
 
-    const priceArrs = Either.getRightArray(updateResult);
+    const priceArrs = E.getRightArray(updateResult);
     this.productApiSrv.updatePriceByExchange(exchange, priceArrs);
     return Either.right(priceArrs);
   }

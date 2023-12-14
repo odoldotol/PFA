@@ -1,6 +1,6 @@
-import { promiseWarp } from "../util";
+import { warpWithPromise } from "../util";
 
-export abstract class Either<L, R> {
+export default abstract class Either<L, R> {
 
   constructor(
     private readonly eitherValue: L | R
@@ -34,8 +34,8 @@ export abstract class Either<L, R> {
     fn: (v: R) => Either<T, S> | Promise<Either<T, S>>
   ): Promise<Either<L | T, S>> {
     return this.isRight()
-      ? promiseWarp(fn(this.right))
-      : promiseWarp(Either.left(this.left));
+      ? warpWithPromise(fn(this.right))
+      : warpWithPromise(Either.left(this.left));
   }
 
   public map<S>(
@@ -44,21 +44,6 @@ export abstract class Either<L, R> {
     return this.flatMap(async v => Either.right(await fn(v)));
   }
 
-  public static getRightArray<L, R>(
-    arr: readonly Either<L, R>[]
-  ): R[] {
-    return arr
-    .filter(v => v.isRight())
-    .map(v => v.right);
-  }
-
-  public static getLeftArray<L, R>(
-    arr: readonly Either<L, R>[]
-  ): L[] {
-    return arr
-    .filter(v => v.isLeft())
-    .map(v => v.left);
-  }
 }
 
 class EitherRight<R> extends Either<never, R> {
@@ -70,6 +55,7 @@ class EitherRight<R> extends Either<never, R> {
   public get left(): never {
     throw new Error(`Either left Error. Either is Right, value: ${this.value}`);
   }
+
 }
 
 class EitherLeft<L> extends Either<L, never> {
@@ -84,22 +70,34 @@ class EitherLeft<L> extends Either<L, never> {
 
 }
 
-export const eitherMap = <L, R, T>(
+export const map = <L, R, T>(
   fn: (v: R) => T | Promise<T>
 ): ((either: Either<L, R>) => Promise<Either<L, T>>) => {
   return either => either.map(fn);
 };
 
-export const eitherFlatMap = <L, R, T, S>(
+export const flatMap = <L, R, T, S>(
   fn: (v: R) => Either<T, S> | Promise<Either<T, S>>
 ): ((either: Either<L, R>) => Promise<Either<L | T, S>>) => {
   return either => either.flatMap(fn);
 };
 
+export const getRightArray = <L, R>(
+  eitherArr: readonly Either<L, R>[]
+): R[] => eitherArr
+.filter(either => either.isRight())
+.map(either => either.right);
+
+export const getLeftArray = <L, R>(
+  eitherArr: readonly Either<L, R>[]
+): L[] => eitherArr
+.filter(either => either.isLeft())
+.map(either => either.left);
+
 /**
  * ### Wrap settled promise with Either
  */
-export const eitherWrap = <T, S = any>(
+export const wrapPromise = <T, S = any>(
   promise: Promise<T>
 ): Promise<Either<S, T>> => promise
 .then(Either.right<S, T>)

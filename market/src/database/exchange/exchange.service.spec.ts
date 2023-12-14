@@ -44,8 +44,8 @@ describe('ExchangeService', () => {
       await service.createOne(mockKoreaExchange);
       const result = await dataSource.query('SELECT * FROM exchanges');
       expect(result[0]).toEqual({
-        iso_code: mockKoreaExchange.ISO_Code,
-        iso_timezonename: mockKoreaExchange.ISO_TimezoneName,
+        iso_code: mockKoreaExchange.isoCode,
+        iso_timezonename: mockKoreaExchange.isoTimezoneName,
         marketdate: mockKoreaExchange.marketDate,
       });
     });
@@ -58,9 +58,9 @@ describe('ExchangeService', () => {
 
   describe('exist', () => {
     it('should return boolean if exist or not', async () => {
-      expect(await service.exist({ ISO_Code: mockKoreaExchange.ISO_Code })).toBe(false);
+      expect(await service.exist({ isoCode: mockKoreaExchange.isoCode })).toBe(false);
       await service.createOne(mockKoreaExchange);
-      expect(await service.exist({ ISO_Code: mockKoreaExchange.ISO_Code })).toBe(true);
+      expect(await service.exist({ isoCode: mockKoreaExchange.isoCode })).toBe(true);
     });
   });
 
@@ -77,7 +77,7 @@ describe('ExchangeService', () => {
     it('should return a record by primary key', async () => {
       await service.createOne(mockKoreaExchange);
       await service.createOne(mockNewYorkStockExchange);
-      const result = await service.readOneByPk(mockKoreaExchange.ISO_Code);
+      const result = await service.readOneByPk(mockKoreaExchange.isoCode);
       expect(result).toEqual(mockKoreaExchange);
     });
   });
@@ -86,8 +86,8 @@ describe('ExchangeService', () => {
     it('should update marketDate of a record found by primary key', async () => {
       await service.createOne(mockKoreaExchange);
       const marketDate = '2023-07-04';
-      await service.updateMarketDateByPk(mockKoreaExchange.ISO_Code, marketDate);
-      const result = await service.readOneByPk(mockKoreaExchange.ISO_Code);
+      await service.updateMarketDateByPk(mockKoreaExchange.isoCode, marketDate);
+      const result = await service.readOneByPk(mockKoreaExchange.isoCode);
       expect(result).toEqual(Object.assign(mockKoreaExchange, { marketDate }));
     });
   });

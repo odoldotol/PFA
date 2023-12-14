@@ -3,6 +3,7 @@ import { Database_ExchangeService } from 'src/database/exchange/exchange.service
 import { LogPriceUpdateService } from 'src/database/log_priceUpdate/log_priceUpdate.service';
 import { YfinanceInfoService } from "src/database/yf_info/yf_info.service";
 import { Market_ExchangeService } from 'src/market/exchange/exchange.service';
+import { ExchangeIsoCode } from 'src/common/interface';
 import * as F from "@fxts/core";
 
 @Injectable()
@@ -25,11 +26,11 @@ export class DevService {
 
   public getAllExchangeFromMarket() {
     return this.market_exchangeSrv.getAll().map(
-      exchange => F.omit(["_events", "logger", "childApiSrv"] as any, exchange)
+      exchange => F.omit(["_events", "logger", "config", "session"] as any, exchange)
     );
   }
 
-  public getUpdateLog(ISO_Code?: string, limit: number = 5) {
+  public getUpdateLog(ISO_Code?: ExchangeIsoCode, limit: number = 5) {
     return this.logPriceUpdateSrv.search(
       ISO_Code ? { key: ISO_Code } : {},
       limit

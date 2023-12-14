@@ -1,22 +1,26 @@
-import {
-  TExchangeConfig,
-  YF_update_margin_DEFAULT
-} from "src/config/const";
+import { 
+  ConfigExchange,
+  ExchangeIsoCode,
+  ExchangeIso,
+  IsoTimezoneName
+} from "src/common/interface";
+import { YAHOO_FINANCE_UPDATE_MARGIN_DEFAULT } from "src/config/const";
 
-export class Market_ExchangeConfig {
-
+export class Market_ExchangeConfig
+  implements ExchangeIso
+{
   public readonly market: string;
-  public readonly ISO_Code: string;
-  public readonly ISO_TimezoneName: string;
-  public readonly YF_update_margin: number;
+  public readonly isoTimezoneName: IsoTimezoneName;
+  public readonly yahooFinanceUpdateMargin: number;
 
   constructor(
-    config: TExchangeConfig,
+    public readonly isoCode: ExchangeIsoCode,
+    config: ConfigExchange,
   ) {
     this.market = config.market;
-    this.ISO_Code = config.ISO_Code;
-    this.ISO_TimezoneName = config.ISO_TimezoneName;
-    this.YF_update_margin = config.YF_update_margin || YF_update_margin_DEFAULT;
+    this.isoTimezoneName = config.ISO_TimezoneName;
+    this.yahooFinanceUpdateMargin = config.yahooFinance_update_margin ||
+      YAHOO_FINANCE_UPDATE_MARGIN_DEFAULT;
   }
 
 }

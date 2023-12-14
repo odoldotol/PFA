@@ -1,27 +1,27 @@
 export enum EnvKey {
-    Port = 'PORT',
+    PORT = 'PORT',
     
     // .env
-    MongoDB_name = 'MONGO_database',
-    MongoDB_url = 'MONGO_URL',
-    MongoDB_query = 'MONGO_Query',
-    ChildApiTimeout = 'CHILD_API_TIMEOUT',
-    Child_concurrency = 'CHILD_CONCURRENCY',
-    ProductApiTimeout = 'PRODUCT_API_TIMEOUT',
-    TempKey = 'TEMP_KEY',
-    PgHost = 'PG_HOST',
-    PgUsername = 'PG_USERNAME',
-    PgPassword = 'PG_PASSWORD',
-    PgDatabase = 'PG_DATABASE',
+    MONGODB_NAME = 'MONGO_database',
+    MONGODB_URL = 'MONGO_URL',
+    MONGODB_QUERY = 'MONGO_Query',
+    CHILD_API_TIMEOUT = 'CHILD_API_TIMEOUT',
+    CHILD_CONCURRENCY = 'CHILD_CONCURRENCY',
+    PRODUCT_API_TIMEOUT = 'PRODUCT_API_TIMEOUT',
+    TEMP_KEY = 'TEMP_KEY',
+    PG_HOST = 'PG_HOST',
+    PG_USERNAME = 'PG_USERNAME',
+    PG_PASSWORD = 'PG_PASSWORD',
+    PG_DATABASE = 'PG_DATABASE',
 
     // pm2
-    Pm2_name = 'PM2_NAME',
-    PM2_listen_timeout = 'listen_timeout',
+    PM2_NAME = 'PM2_NAME',
+    PM2_LISTEN_TIMEOUT = 'listen_timeout',
 
     // docker
-    Docker_childApiBaseUrl = 'CHILD_API_BASE_URL',
-    Docker_productApiBaseUrl = 'PRODUCT_API_BASE_URL',
-    Docker_env = 'RACK_ENV',
+    DOCKER_CHILD_API_BASE_URL = 'CHILD_API_BASE_URL',
+    DOCKER_PRODUCT_API_BASE_URL = 'PRODUCT_API_BASE_URL',
+    DOCKER_ENV = 'RACK_ENV',
 
     // load
     MONGODB_URI = 'MONGODB_URI'

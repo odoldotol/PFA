@@ -1,15 +1,16 @@
 import { Column, Entity, PrimaryColumn, ManyToOne, JoinColumn, Index } from 'typeorm';
 import { Exchange } from '../exchange/exchange.entity';
+import { Currency, ExchangeIsoCode, QuoteType, Ticker } from 'src/common/interface';
 
 // Todo: nullable 에는 undefined 를 막고 null 을 명시적으로 주어야 하도록 하는게 더 편할것같다.
 @Entity({ name: 'financial_assets' })
 @Index(['exchange', 'symbol'], { unique: true })
 export class FinancialAsset {
   @PrimaryColumn({ type: 'varchar', length: 15, name: 'symbol' })
-  symbol!: string;
+  symbol!: Ticker;
 
   @Column({ type: 'varchar', length: 10, name: 'quotetype' })
-  quoteType!: string;
+  quoteType!: QuoteType;
 
   /*
   최소한 shortName 은 가져야하는게 초기 계획이긴했다.
@@ -23,22 +24,22 @@ export class FinancialAsset {
   longName?: string;
 
   @ManyToOne(() => Exchange, { nullable: true })
-  @JoinColumn({ name: 'exchange', referencedColumnName: 'ISO_Code', foreignKeyConstraintName: 'financial_assets_exchange_fkey' })
-  exchange?: string;
+  @JoinColumn({ name: 'exchange', referencedColumnName: 'isoCode', foreignKeyConstraintName: 'financial_assets_exchange_fkey' })
+  exchange?: ExchangeIsoCode;
 
   @Column({ type: 'char', length: 3, name: 'currency' })
-  currency!: string;
+  currency!: Currency;
 
   @Column({ type: 'double precision', name: 'regularmarketlastclose' })
   regularMarketLastClose!: number;
 }
 
 export type RawFinancialAsset = {
-  symbol: string;
-  quotetype: string;
+  symbol: Ticker;
+  quotetype: QuoteType;
   shortname: string | null;
   longname: string | null;
-  exchange: string | null;
-  currency: string;
+  exchange: ExchangeIsoCode | null;
+  currency: Currency;
   regularmarketlastclose: number;
 };

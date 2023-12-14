@@ -1,6 +1,7 @@
 import { Controller, Get, Query, Version } from '@nestjs/common';
 import { ApiExcludeEndpoint, ApiTags } from '@nestjs/swagger';
 import { DevService } from './dev.service';
+import { ExchangeIsoCode } from 'src/common/interface';
 import { UpperCasePipe } from 'src/common/pipe/upperCasePipe';
 import { ApiCommonResponse } from 'src/common/decorator/apiCommonResponse.decorator';
 import {
@@ -47,8 +48,11 @@ export class DevController {
 
   @Get('update/log')
   @Api_getUpdateLog()
-  getUpdateLog(@Query('ISO_Code', UpperCasePipe) ISO_Code?: string, @Query('limit') limit?: number) {
-    return this.devService.getUpdateLog(ISO_Code, limit);
+  getUpdateLog(
+    @Query('ISO_Code', UpperCasePipe) isoCode?: ExchangeIsoCode,
+    @Query('limit') limit?: number
+  ) {
+    return this.devService.getUpdateLog(isoCode, limit);
   }
 
 }

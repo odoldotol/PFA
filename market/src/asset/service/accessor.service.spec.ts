@@ -6,7 +6,7 @@ import { AdderService } from "./adder.service";
 import { mockApple, mockSamsungElec } from "src/mock";
 import { GetPriceByTickerResponse } from "../response/getPriceByTicker.response";
 import { AddAssetsResponse } from "../response/addAssets.response";
-import { Either } from "src/common/class/either";
+import Either from "src/common/class/either";
 
 describe('AccessorService', () => {
   let service: AccessorService;

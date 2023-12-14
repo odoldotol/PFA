@@ -1,12 +1,24 @@
 import { Injectable, Logger } from "@nestjs/common";
 import { InjectRepository } from '@nestjs/typeorm';
-import { DataSource, Repository, FindOptionsWhere, QueryRunner } from 'typeorm';
-import { Exchange, RawExchange } from "./exchange.entity";
+import {
+  DataSource,
+  Repository,
+  FindOptionsWhere,
+  QueryRunner
+} from 'typeorm';
+import {
+  Exchange,
+  RawExchange
+} from "./exchange.entity";
+import {
+  ExchangeIsoCode,
+  MarketDate
+} from "src/common/interface";
 
 @Injectable()
 export class Database_ExchangeService {
   
-  private readonly logger = new Logger('Database_'+Database_ExchangeService.name);
+  private readonly logger = new Logger(Database_ExchangeService.name);
 
   constructor(
     @InjectRepository(Exchange)
@@ -19,13 +31,15 @@ export class Database_ExchangeService {
       (await this.dataSource.query<RawExchange[]>(`
         INSERT INTO exchanges
           VALUES
-            ('${value.ISO_Code}', '${value.ISO_TimezoneName}', '${value.marketDate}')
+            ('${value.isoCode}', '${value.isoTimezoneName}', '${value.marketDate}')
           RETURNING *
       `))[0]
     );
   }
 
-  public exist(condition: FindOptionsWhere<Exchange> | FindOptionsWhere<Exchange>[]): Promise<boolean> {
+  public exist(
+    condition: FindOptionsWhere<Exchange> | FindOptionsWhere<Exchange>[]
+  ): Promise<boolean> {
     return this.exchangesRepo.exist({ where: condition });
   }
 
@@ -33,7 +47,7 @@ export class Database_ExchangeService {
     return this.exchangesRepo.find();
   }
 
-  public async readOneByPk(pk: Exchange['ISO_Code']): Promise<Exchange> {
+  public async readOneByPk(pk: ExchangeIsoCode): Promise<Exchange> {
     return this.rawToEntity(
       (await this.dataSource.query<RawExchange[]>(`
         SELECT * FROM exchanges
@@ -44,8 +58,8 @@ export class Database_ExchangeService {
 
   // Todo: warn case
   public async updateMarketDateByPk(
-    pk: Exchange['ISO_Code'],
-    update: Exchange['marketDate'],
+    pk: ExchangeIsoCode,
+    update: MarketDate,
     queryRunner?: QueryRunner
   ) {
     await this.dataSource.query(
@@ -69,7 +83,7 @@ export class Database_ExchangeService {
       if (v === null) {
         return;
       } else {
-        exchange[col.propertyName as keyof Exchange] = v;
+        exchange[col.propertyName as keyof Exchange] = v as any; //
       }
     });
     return exchange;

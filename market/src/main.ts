@@ -2,7 +2,7 @@ import { Logger } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { ConfigService } from '@nestjs/config';
 import { AppModule } from 'src/app/app.module';
-import { EnvironmentVariables } from 'src/common/interface/environmentVariables.interface';
+import { EnvironmentVariables } from 'src/common/interface';
 import { EnvKey } from 'src/common/enum/envKey.enum';
 import { versioningOptions } from './config/const';
 import setupSwagger from './setupSwagger';
@@ -16,14 +16,14 @@ const bootstrap = async () => {
   setupSwagger(app);
   
   const configService = app.get(ConfigService<EnvironmentVariables>);
-  const port = configService.get(EnvKey.Port, 6001, { infer: true });
+  const port = configService.get(EnvKey.PORT, 6001, { infer: true });
   
   await app.listen(port);
 
   // Todo: pm2Module 안으로 옮기고 꺼내서 쓰기 --------------------
   const logger = new Logger("PM2Messenger");
 
-  configService.get(EnvKey.Pm2_name, {infer: true}) &&
+  configService.get(EnvKey.PM2_NAME, {infer: true}) &&
   process.send &&
   process.send(
     'ready',

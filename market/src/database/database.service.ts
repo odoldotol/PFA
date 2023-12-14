@@ -1,14 +1,16 @@
 import { Injectable, Logger } from "@nestjs/common";
-import { Either, eitherMap } from "src/common/class/either";
-import { Market_Exchange } from "src/market/exchange/class/exchange";
+import { DataSource } from "typeorm";
 import { Database_FinancialAssetService } from "./financialAsset/financialAsset.service";
 import { Database_ExchangeService } from "./exchange/exchange.service";
-import { TFulfilledYfPrice } from "src/market/financialAsset/type";
-import { TExchangeCore, TUpdateTuple } from "src/common/type";
 import { LogPriceUpdateService } from "./log_priceUpdate/log_priceUpdate.service";
 import { Log_priceUpdate } from "./log_priceUpdate/log_priceUpdate.schema";
-import { DataSource } from "typeorm";
+import {
+  CoreExchange,
+  UpdateTuple,
+  FulfilledYfPrice
+} from "src/common/interface";
 import { Launcher } from "src/common/enum";
+import Either, * as E from "src/common/class/either";
 import * as F from '@fxts/core';
 
 @Injectable()
@@ -23,23 +25,24 @@ export class DatabaseService {
     private readonly logPriceUpdateSrv: LogPriceUpdateService
   ) {}
 
+  // Todo: Refac
   public async updatePriceStandard(
-    updateEitherArr: readonly Either<any, TFulfilledYfPrice>[],
-    exchange: TExchangeCore,
+    updateEitherArr: readonly Either<any, FulfilledYfPrice>[],
+    exchange: CoreExchange,
     startTime: Date,
     launcher: Launcher
-  ): Promise<Either<any, TUpdateTuple>[]> {
-    let updateRes: Promise<TFulfilledYfPrice[]>;
+  ): Promise<Either<any, UpdateTuple>[]> {
+    let updateRes: Promise<FulfilledYfPrice[]>;
     const queryRunner = this.dataSource.createQueryRunner();
     try {
       await queryRunner.connect();
       await queryRunner.startTransaction("REPEATABLE READ");
       await (updateRes = this.financialAssetSrv.updatePriceMany(
-        Either.getRightArray(updateEitherArr),
+        E.getRightArray(updateEitherArr),
         queryRunner
       ));
       await this.exchangeSrv.updateMarketDateByPk(
-        exchange.ISO_Code,
+        exchange.isoCode,
         exchange.marketDate,
         queryRunner
       );
@@ -55,21 +58,21 @@ export class DatabaseService {
     // Todo: Refac -----------------------------------------
     // financialAssetSrv.updatePriceMany 에서 부터 성공 실패를 Either 로 반환하도록 해야한다.
     const symbolToUpdateResEleMap = new Map((await updateRes).map(e => [e.symbol, e]));
-    const turnLeftIfUpdateFailed = (either: Either<any, TFulfilledYfPrice>) => {
+    const turnLeftIfUpdateFailed = (either: Either<any, FulfilledYfPrice>) => {
       if (either.isRight() && symbolToUpdateResEleMap.get(either.right.symbol) === undefined)
-      return Either.left<any, TFulfilledYfPrice>({
+      return Either.left<any, FulfilledYfPrice>({
         message: 'updatePriceMany failure',
         data: either.right
       });
       else return either;
     };
     const convertFulfilledYfPriceToUpdateTuple =
-    (rightV: TFulfilledYfPrice): TUpdateTuple => [ rightV.symbol, rightV.regularMarketLastClose ];
+    (rightV: FulfilledYfPrice): UpdateTuple => [ rightV.symbol, rightV.regularMarketLastClose ];
 
-    const result: Either<any, TUpdateTuple>[] = await Promise.all(
+    const result: Either<any, UpdateTuple>[] = await Promise.all(
       updateEitherArr
       .map(turnLeftIfUpdateFailed)
-      .map(eitherMap(convertFulfilledYfPriceToUpdateTuple))
+      .map(E.map(convertFulfilledYfPriceToUpdateTuple))
     );
     // -----------------------------------------------------
 
@@ -78,7 +81,7 @@ export class DatabaseService {
     await this.createLog_priceUpdate(
       launcher,
       true,
-      exchange.ISO_Code,
+      exchange.isoCode,
       {
         updatePriceResult: result,
         startTime: startTime.toISOString(),
@@ -96,7 +99,7 @@ export class DatabaseService {
     isStandard: boolean,
     key: string | Array<string | Object>,
     updateResult: {
-      updatePriceResult: Either<any, TUpdateTuple>[],
+      updatePriceResult: Either<any, UpdateTuple>[],
       startTime: string,
       endTime: string
     }

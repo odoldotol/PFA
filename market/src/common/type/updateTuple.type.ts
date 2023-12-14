@@ -1,1 +1,0 @@
-export type TUpdateTuple = Readonly<[string, number]>;

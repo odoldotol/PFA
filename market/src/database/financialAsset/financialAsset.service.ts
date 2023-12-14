@@ -1,13 +1,24 @@
 import { Injectable, Logger } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { TFulfilledYfPrice } from "src/market/financialAsset/type";
-import { DataSource, QueryRunner, Repository } from "typeorm";
-import { FinancialAsset, RawFinancialAsset } from "./financialAsset.entity";
+import {
+  DataSource,
+  QueryRunner,
+  Repository
+} from "typeorm";
+import {
+  FinancialAsset,
+  RawFinancialAsset
+} from "./financialAsset.entity";
+import {
+  ExchangeIsoCode,
+  FulfilledYfPrice,
+  Ticker
+} from "src/common/interface";
 
 @Injectable()
 export class Database_FinancialAssetService {
 
-  private readonly logger = new Logger('Database_'+Database_FinancialAssetService.name);
+  private readonly logger = new Logger(Database_FinancialAssetService.name);
   private readonly tableName = this.finAssetsRepo.metadata.tableName;
 
   constructor(
@@ -16,7 +27,9 @@ export class Database_FinancialAssetService {
     private readonly dataSource: DataSource
   ) {}
 
-  public async createMany(values: readonly FinancialAsset[]): Promise<FinancialAsset[]> {
+  public async createMany(
+    values: readonly FinancialAsset[]
+  ): Promise<FinancialAsset[]> {
     if (values.length === 0) return Promise.resolve([]);
     return (await this.dataSource.query<RawFinancialAsset[]>(`
     INSERT INTO ${this.tableName}
@@ -34,7 +47,9 @@ export class Database_FinancialAssetService {
     `)).map(this.rawToEntity.bind(this));
   }
 
-  public existByPk(pk: FinancialAsset['symbol']): Promise<boolean> {
+  public existByPk(
+    pk: Ticker
+  ): Promise<boolean> {
     return this.finAssetsRepo.exist({ where: { symbol: pk } });
   }
 
@@ -42,7 +57,9 @@ export class Database_FinancialAssetService {
    * Development Temporary Method
    * @description Returns LIMIT 100
    */
-  public async readManyByEqualComparison(filter: Partial<FinancialAsset>): Promise<FinancialAsset[]> {
+  public async readManyByEqualComparison(
+    filter: Partial<FinancialAsset>
+  ): Promise<FinancialAsset[]> {
     return (await this.dataSource.query<RawFinancialAsset[]>(`
       SELECT * FROM ${this.tableName}
         WHERE ${Object.entries(filter)
@@ -52,7 +69,7 @@ export class Database_FinancialAssetService {
     `)).map(this.rawToEntity.bind(this));
   }
 
-  public async readOneByPk(pk: FinancialAsset['symbol']): Promise<FinancialAsset | null> {
+  public async readOneByPk(pk: Ticker): Promise<FinancialAsset | null> {
     const raw = (await this.dataSource.query<RawFinancialAsset[]>(`
     SELECT * FROM ${this.tableName}
       WHERE symbol = '${pk}'
@@ -62,14 +79,20 @@ export class Database_FinancialAssetService {
     else return null;
   }
 
-  public async readSymbolsByExchange(exchange: FinancialAsset['exchange']): Promise<FinancialAsset['symbol'][]> {
+  // Todo: undefined 대신 null 을 인자로 받아라
+  public async readSymbolsByExchange(
+    exchange?: ExchangeIsoCode
+  ): Promise<Ticker[]> {
     return (await this.dataSource.query<{ symbol: string }[]>(`
       SELECT symbol FROM ${this.tableName}
         WHERE exchange ${exchange ? `= '${exchange}'` : `is NULL`}
     `)).map(({ symbol }) => symbol);
   }
 
-  public async readManyByExchange(exchange: FinancialAsset['exchange']): Promise<FinancialAsset[]> {
+  // Todo: undefined 대신 null 을 인자로 받아라
+  public async readManyByExchange(
+    exchange?: ExchangeIsoCode
+  ): Promise<FinancialAsset[]> {
     return (await this.dataSource.query<RawFinancialAsset[]>(`
       SELECT * FROM ${this.tableName}
         WHERE exchange ${exchange ? `= '${exchange}'` : `is NULL`}
@@ -77,12 +100,12 @@ export class Database_FinancialAssetService {
   }
 
   public async updatePriceMany(
-    updateArr: readonly TFulfilledYfPrice[],
+    updateArr: readonly FulfilledYfPrice[],
     queryRunner?: QueryRunner
-  ): Promise<TFulfilledYfPrice[]> {
+  ): Promise<FulfilledYfPrice[]> {
     if (updateArr.length === 0) return Promise.resolve([]);
     const updateColumn = this.entityPropNameToDbColumnName('regularMarketLastClose');
-    return this.dataSource.query<[TFulfilledYfPrice[], number]>(
+    return this.dataSource.query<[FulfilledYfPrice[], number]>(
       `
         UPDATE ${this.tableName} AS t
           SET
@@ -98,19 +121,26 @@ export class Database_FinancialAssetService {
     ).then(res => {
       res[1] === updateArr.length ||
       this.logger.warn(`updatePriceMany Warn! | Attempt: ${updateArr.length} | Success: ${res[1]}`); // Todo: 여기서 실패된 케이스도 전달하도록
-      return res[0].map(this.rawToEntity.bind(this)) as TFulfilledYfPrice[]; //
+      return res[0].map(this.rawToEntity.bind(this)) as FulfilledYfPrice[]; //
     });
   }
 
   // Todo: Refac - 다른 엔티티 서비스와도 공유할 수 있도록?
-  private entityPropNameToDbColumnName = (propertyName: keyof FinancialAsset) => {
+  private entityPropNameToDbColumnName(
+    propertyName: keyof FinancialAsset
+  ) {
     return this.finAssetsRepo.metadata.columns.find(
       col => col.propertyName === propertyName
     )!.databaseName;
   }
 
   // Todo: Refac - 다른 엔티티와 공유하는 범용적인 메소드로
-  private rawToEntity<T extends Raw>(raw: T): T extends RawFinancialAsset ? FinancialAsset : Partial<FinancialAsset> {
+  private rawToEntity<T extends Raw>(
+    raw: T
+  ): T extends RawFinancialAsset ?
+    FinancialAsset :
+    Partial<FinancialAsset>
+  {
     const finAsset = this.finAssetsRepo.create();
     this.finAssetsRepo.metadata.columns.forEach(col => {
       const v = raw[col.databaseName as keyof RawFinancialAsset];

@@ -1,17 +1,33 @@
 import { Logger, OnApplicationBootstrap } from "@nestjs/common";
-import { toLoggingStyle, toISOYmdStr } from "src/common/util/date";
 import { EventEmitter } from "stream";
-import { EMarketEvent } from "../enum/eventName.enum";
-import { TCloseEventArg, TOpenEventArg } from "../type";
-import { buildLoggerContext } from "src/common/util";
 import { Market_ExchangeConfig } from "./exchangeConfig";
 import { Market_ExchangeSession } from "./exchangeSession";
+import {
+  CoreExchange,
+  ExchangeIsoCode,
+  IsoTimezoneName,
+  MarketDate
+} from "src/common/interface";
+import {
+  CloseEventArg,
+  OpenEventArg
+} from "../interface";
+import { MarketEvent } from "src/common/enum";
+import { buildLoggerContext } from "src/common/util";
+import {
+  getLogStyleStr,
+  getISOYmdStr
+} from "src/common/util/date";
 
-// Todo: 다시 Scheduler 사용하던가 스트림패턴 적용하든 이벤트 관리에만 집중하는 클래스 따로 만들자
-export class Market_Exchange extends EventEmitter implements OnApplicationBootstrap {
-  private readonly logger = new Logger(buildLoggerContext(Market_Exchange, this.ISO_Code));
+export class Market_Exchange
+  extends EventEmitter
+  implements OnApplicationBootstrap, CoreExchange
+{
+  private readonly logger = new Logger(
+    buildLoggerContext(Market_Exchange, this.isoCode)
+  );
 
-  private marketDateYmdStr!: string;
+  private marketDateYmdStr!: MarketDate;
   private marketOpen!: boolean;
 
   // Todo: 여전히 필요한가?
@@ -30,21 +46,22 @@ export class Market_Exchange extends EventEmitter implements OnApplicationBootst
       this.subscribeNextEventWhenMarketOpen();
     } else {
       this.subscribeNextEventWhenMarketClose();
-      let nextUpdateDate
-      (nextUpdateDate = this.isInMarginGap()) && this.subscribeNextUpdate(nextUpdateDate);
+      let nextUpdateDate;
+      (nextUpdateDate = this.isInMarginGap()) &&
+        this.subscribeNextUpdate(nextUpdateDate);
     }
     this.calculateMarketDate();
   }
 
-  public get ISO_Code(): Market_ExchangeConfig["ISO_Code"] {
-    return this.config.ISO_Code;
+  public get isoCode(): ExchangeIsoCode {
+    return this.config.isoCode;
   }
 
-  public get ISO_TimezoneName(): Market_ExchangeConfig["ISO_TimezoneName"] {
-    return this.config.ISO_TimezoneName;
+  public get isoTimezoneName(): IsoTimezoneName {
+    return this.config.isoTimezoneName;
   }
 
-  public get marketDate(): string {
+  public get marketDate(): MarketDate {
     return this.marketDateYmdStr;
   }
 
@@ -62,14 +79,14 @@ export class Market_Exchange extends EventEmitter implements OnApplicationBootst
     return this.updaterRegistered;
   }
 
-  private subscribeNextEventWhenMarketOpen(): TOpenEventArg {
+  private subscribeNextEventWhenMarketOpen(): OpenEventArg {
     return {
       nextCloseDate: this.subscribeNextClose(),
       nextUpdateDate: this.subscribeNextUpdate()
     };
   }
   
-  private subscribeNextEventWhenMarketClose(): TCloseEventArg {
+  private subscribeNextEventWhenMarketClose(): CloseEventArg {
     return { nextOpenDate: this.subscribeNextOpen() };
   }
 
@@ -79,7 +96,7 @@ export class Market_Exchange extends EventEmitter implements OnApplicationBootst
       this.marketOpenHandler.bind(this),
       this.calculateRemainingTimeInMs(nextOpenDate)
     );
-    this.logger.verbose(`NextOpen at ${toLoggingStyle(nextOpenDate)}`);
+    this.logger.verbose(`NextOpen at ${getLogStyleStr(nextOpenDate)}`);
     return nextOpenDate;
   }
 
@@ -89,7 +106,7 @@ export class Market_Exchange extends EventEmitter implements OnApplicationBootst
       this.marketCloseHandler.bind(this),
       this.calculateRemainingTimeInMs(nextCloseDate)
     );
-    this.logger.verbose(`NextClose at ${toLoggingStyle(nextCloseDate)}`);
+    this.logger.verbose(`NextClose at ${getLogStyleStr(nextCloseDate)}`);
     return nextCloseDate;
   }
 
@@ -99,7 +116,7 @@ export class Market_Exchange extends EventEmitter implements OnApplicationBootst
       this.marketUpdateHandler.bind(this),
       this.calculateRemainingTimeInMs(nextUpdateDate)
     );
-    this.logger.verbose(`NextUpdate at ${toLoggingStyle(nextUpdateDate)}`);
+    this.logger.verbose(`NextUpdate at ${getLogStyleStr(nextUpdateDate)}`);
     return nextUpdateDate;
   }
 
@@ -107,7 +124,7 @@ export class Market_Exchange extends EventEmitter implements OnApplicationBootst
     try {
       await this.session.updateSession();
       this.openMarket();
-      this.emit(EMarketEvent.OPEN, this.subscribeNextEventWhenMarketOpen());
+      this.emit(MarketEvent.OPEN, this.subscribeNextEventWhenMarketOpen());
     } catch (e) {
       this.emit("error", e);
       this.onApplicationBootstrap();
@@ -120,7 +137,7 @@ export class Market_Exchange extends EventEmitter implements OnApplicationBootst
       await this.session.updateSession();
       this.calculateMarketDate();
       this.closeMarket();
-      this.emit(EMarketEvent.CLOSE, this.subscribeNextEventWhenMarketClose());
+      this.emit(MarketEvent.CLOSE, this.subscribeNextEventWhenMarketClose());
     } catch (e) {
       this.emit("error", e);
       this.onApplicationBootstrap();
@@ -130,7 +147,7 @@ export class Market_Exchange extends EventEmitter implements OnApplicationBootst
 
   private marketUpdateHandler() {
     this.logger.verbose(`Update`);
-    this.emit(EMarketEvent.UPDATE);
+    this.emit(MarketEvent.UPDATE);
   }
 
   private openMarket(): void {
@@ -154,7 +171,7 @@ export class Market_Exchange extends EventEmitter implements OnApplicationBootst
   private getNextUpdateDate(): Date {
     const nextUpdateDate = new Date(this.session.nextClose);
     nextUpdateDate.setMilliseconds(
-      nextUpdateDate.getMilliseconds() + this.config.YF_update_margin
+      nextUpdateDate.getMilliseconds() + this.config.yahooFinanceUpdateMargin
     );
     return nextUpdateDate;
   }
@@ -168,14 +185,14 @@ export class Market_Exchange extends EventEmitter implements OnApplicationBootst
     const previousCloseDate = this.session.previousClose;
     const previousCloseAddeMarginDate = new Date(previousCloseDate);
     previousCloseAddeMarginDate.setMilliseconds(
-      previousCloseAddeMarginDate.getMilliseconds() + this.config.YF_update_margin
+      previousCloseAddeMarginDate.getMilliseconds() + this.config.yahooFinanceUpdateMargin
     );
     return previousCloseDate < now && now < previousCloseAddeMarginDate &&
     previousCloseAddeMarginDate;
   }
 
-  private calculateMarketDate(): string {
-    return this.marketDateYmdStr = toISOYmdStr(this.session.previousClose);
+  private calculateMarketDate(): MarketDate {
+    return this.marketDateYmdStr = getISOYmdStr(this.session.previousClose);
   }
 
   private calculateMarketOpen(): boolean {

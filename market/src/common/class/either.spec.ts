@@ -1,4 +1,4 @@
-import { Either } from "./either";
+import Either, * as E from "./either";
 
 describe('Either', () => {
 
@@ -82,7 +82,7 @@ describe('Either', () => {
   describe('static getRightArray', () => {
     it('getRightArray', () => {
       const eitherArr = [eitherRight, eitherLeft, eitherRight, eitherLeft];
-      const eitherRightArr = Either.getRightArray(eitherArr);
+      const eitherRightArr = E.getRightArray(eitherArr);
       expect(eitherRightArr).toEqual([testValue.right, testValue.right]);
     });
   });
@@ -90,7 +90,7 @@ describe('Either', () => {
   describe('static getLeftArray', () => {
     it('getLeftArray', () => {
       const eitherArr = [eitherRight, eitherLeft, eitherRight, eitherLeft];
-      const eitherLeftArr = Either.getLeftArray(eitherArr);
+      const eitherLeftArr = E.getLeftArray(eitherArr);
       expect(eitherLeftArr).toEqual([testValue.left, testValue.left]);
     });
   });

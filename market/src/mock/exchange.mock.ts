@@ -1,13 +1,13 @@
 import { Exchange } from "../database/exchange/exchange.entity";
 
 export const mockKoreaExchange: Exchange = {
-  ISO_Code: 'XKRX',
-  ISO_TimezoneName: 'Asia/Seoul',
+  isoCode: 'XKRX',
+  isoTimezoneName: 'Asia/Seoul',
   marketDate: '2023-03-25',
 };
 
 export const mockNewYorkStockExchange: Exchange = {
-  ISO_Code: "XNYS",
-  ISO_TimezoneName: "America/New_York",
+  isoCode: "XNYS",
+  isoTimezoneName: "America/New_York",
   marketDate: '2023-03-25',
 };

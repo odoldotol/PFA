@@ -1,19 +1,31 @@
-import { Column, Entity, PrimaryColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  PrimaryColumn
+} from 'typeorm';
+import {
+  CoreExchange,
+  ExchangeIsoCode,
+  IsoTimezoneName,
+  MarketDate
+} from 'src/common/interface';
 
 @Entity({ name: 'exchanges' })
-export class Exchange {
+export class Exchange
+  implements CoreExchange
+{
   @PrimaryColumn({ type: 'char', length: 4, name: 'iso_code' }) // Todo: 4글자 미만이면 인서트 막기
-  ISO_Code!: string;
+  isoCode!: ExchangeIsoCode;
 
   @Column({ type: 'varchar', length: 30, name: 'iso_timezonename' })
-  ISO_TimezoneName!: string;
+  isoTimezoneName!: IsoTimezoneName;
 
   @Column({ type: 'char', length: 10, name: 'marketdate' }) // Todo: nnnn-nn-nn 형식 아니면 인서트 막기
-  marketDate!: string;
+  marketDate!: MarketDate;
 }
 
 export type RawExchange = {
-  iso_code: string;
-  iso_timezonename: string;
-  marketdate: string;
+  iso_code: ExchangeIsoCode;
+  iso_timezonename: IsoTimezoneName;
+  marketdate: MarketDate;
 };

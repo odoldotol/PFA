@@ -1,7 +1,7 @@
-export const toLoggingStyle = (date: Date) => {
+export const getLogStyleStr = (date: Date) => {
   return date.toLocaleString("us", { timeZone: "Asia/Seoul" });
 }
 
-export const toISOYmdStr = (date: Date) => {
+export const getISOYmdStr = (date: Date) => {
   return date.toISOString().slice(0, 10);
 }

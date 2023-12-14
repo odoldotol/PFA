@@ -1,25 +1,18 @@
 import { OnModuleInit } from "@nestjs/common";
-import { Either } from "src/common/class/either";
-import { toISOYmdStr } from "src/common/util";
-import {
-  TExchangeConfig,
-  YF_CCC_ISO_Code
-} from "src/config/const";
 import { ChildApiService } from "src/market/child_api/child_api.service";
-import {
-  TExchangeSession,
-  TFailure as TChildApiFailure
-} from "src/market/child_api/type";
+import { ExchangeIsoCode } from "src/common/interface";
+import { ExchangeSession } from "src/market/interface";
+import { YAHOO_FINANCE_CCC_EXCHANGE_ISO_CODE } from "src/config/const";
+import { getISOYmdStr } from "src/common/util";
+import Either from "src/common/class/either";
 
-export class Market_ExchangeSession implements OnModuleInit {
-
-  private nextOpenDate!: Date;
-  private nextCloseDate!: Date;
-  private previousOpenDate!: Date;
-  private previousCloseDate!: Date;
+export class Market_ExchangeSession
+  implements OnModuleInit, ExchangeSession
+{
+  private session!: ExchangeSession;
 
   constructor(
-    private readonly config: TExchangeConfig,
+    private readonly isoCode: ExchangeIsoCode,
     private readonly childApiSrv: ChildApiService
   ) {}
 
@@ -27,44 +20,36 @@ export class Market_ExchangeSession implements OnModuleInit {
     await this.updateSession();
   }
 
-  public get ISO_Code(): TExchangeConfig["ISO_Code"] {
-    return this.config.ISO_Code;
-  }
-
   public get nextOpen(): Date {
-    return this.nextOpenDate;
+    return this.session.nextOpen;
   }
 
   public get nextClose(): Date {
-    return this.nextCloseDate;
+    return this.session.nextClose;
   }
 
   public get previousOpen(): Date {
-    return this.previousOpenDate;
+    return this.session.previousOpen;
   }
 
   public get previousClose(): Date {
-    return this.previousCloseDate;
+    return this.session.previousClose;
   }
 
   public async updateSession(): Promise<void> {
-    await this.fetchExchangeSession(this.ISO_Code)
+    await this.fetchExchangeSession(this.isoCode)
     .then(either => {
-      const session = either.right;
-      this.previousOpenDate = new Date(session.previous_open);
-      this.previousCloseDate = new Date(session.previous_close);
-      this.nextOpenDate = new Date(session.next_open);
-      this.nextCloseDate = new Date(session.next_close);
+      this.session = either.right; //
     });
   }
 
   private fetchExchangeSession(
-    ISO_Code: string
-  ): Promise<Either<TChildApiFailure, TExchangeSession>> {
-    if (ISO_Code === YF_CCC_ISO_Code) {
+    isoCode: ExchangeIsoCode
+  ): Promise<Either<any, ExchangeSession>> {
+    if (isoCode === YAHOO_FINANCE_CCC_EXCHANGE_ISO_CODE) {
       return Promise.resolve(Either.right(this.getMidnightUTCSession()));
     } else {
-      return this.childApiSrv.fetchEcSession(ISO_Code);
+      return this.childApiSrv.fetchEcSession(isoCode);
     }
   };
 
@@ -73,17 +58,15 @@ export class Market_ExchangeSession implements OnModuleInit {
    * #### UTC 기준 당일 자정과 익일 자정기준으로 마켓세션 생성해서 반환
    * @todo 세션 구성을 설정파일에서 관리하도록 하자.
    */
-  private getMidnightUTCSession(): TExchangeSession {
-    const previousMidnight = new Date(toISOYmdStr(new Date()));
+  private getMidnightUTCSession(): ExchangeSession {
+    const previousMidnight = new Date(getISOYmdStr(new Date()));
     const nextMidnight = previousMidnight;
     nextMidnight.setUTCDate(nextMidnight.getUTCDate() + 1);
-    const previous = previousMidnight.toISOString();
-    const next = nextMidnight.toISOString();
     return {
-      previous_open: previous,
-      previous_close: previous,
-      next_open: next,
-      next_close: next
+      previousOpen: previousMidnight,
+      previousClose: previousMidnight,
+      nextOpen: nextMidnight,
+      nextClose: nextMidnight,
     };
   }
 
