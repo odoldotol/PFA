@@ -1,17 +1,7 @@
-<img src = https://storage.googleapis.com/odoldotol-image-store/Likelion.jpg
-style="
-  margin-left: auto;
-  display: block;
-  object-fit: cover;
-  object-position: 0% 54%;
-  width: 400px;
-  height: 160px;
-">
+<div align="right">
+  <img src="https://storage.googleapis.com/odoldotol-image-store/Likelion2.jpg" alt="" height="160">
+</div>
 
----
-
-<br>
-<br>
 
 # Level 1
 
@@ -80,8 +70,10 @@ The service scope expands through queries.
 <br>
 
 ---
-## Logs Monitering
+
 <br>
+
+## Logs Monitering
 
 ### Product Server
 ```shell
@@ -111,6 +103,9 @@ $ sh scripts/pfa:logs:market-child
 <br>
 
 ---
+
+<br>
+
 ## Reload
 ```shell
 # Product Server (pm2 in container)
@@ -154,7 +149,7 @@ $ sh scripts/pfa:down:all
 <br>
 
 ## Deploy
-![initial](https://storage.googleapis.com/odoldotol-image-store/deploy-dia.png)
+![deploy-dia](https://storage.googleapis.com/odoldotol-image-store/deploy-dia.png)
 
 #### RDS Certificate
 ```
@@ -182,7 +177,7 @@ $ sh scripts/pfa:start:prod
 
 <br>
 
-![initial](https://storage.googleapis.com/odoldotol-image-store/ezgif.com-gif-maker.gif)
+![kakao-chatbot](https://storage.googleapis.com/odoldotol-image-store/ezgif.com-gif-maker.gif)
 
 ---
 
@@ -192,7 +187,7 @@ $ sh scripts/pfa:start:prod
 
 ### [getPrice Api](https://product.lapiki-invest.com/docs#/Development/DevController_getPrice)
 
-![initial](https://storage.googleapis.com/odoldotol-image-store/ezgif.com-video-to-gif.gif)
+![product-api](https://storage.googleapis.com/odoldotol-image-store/ezgif.com-video-to-gif.gif)
 
 ## Docs
 - ### Product https://product.lapiki-invest.com/docs
