@@ -7,6 +7,10 @@ import { Database_ExchangeService as ExchangeService } from './exchange.service'
 import { DataSource } from 'typeorm';
 import { mockKoreaExchange, mockNewYorkStockExchange } from 'src/mock';
 
+/* TypeOrmModule 에러
+Jest 병열 + synchronize: true 가 문제를 일으키는것?
+테스트에는 문제 없을 것 같지만 그래도 나중에 에러 잡아보기.
+*/
 describe('ExchangeService', () => {
   let service: ExchangeService;
   let dataSource: DataSource;
