@@ -4,11 +4,7 @@ import { Database_FinancialAssetService } from "./financialAsset/financialAsset.
 import { Database_ExchangeService } from "./exchange/exchange.service";
 import { LogPriceUpdateService } from "./log_priceUpdate/log_priceUpdate.service";
 import { Log_priceUpdate } from "./log_priceUpdate/log_priceUpdate.schema";
-import {
-  CoreExchange,
-  UpdateTuple,
-  FulfilledYfPrice
-} from "src/common/interface";
+import { CoreExchange, FulfilledYfPrice } from "src/common/interface";
 import { Launcher } from "src/common/enum";
 import Either, * as E from "src/common/class/either";
 import * as F from '@fxts/core';
@@ -31,7 +27,7 @@ export class DatabaseService {
     exchange: CoreExchange,
     startTime: Date,
     launcher: Launcher
-  ): Promise<Either<any, UpdateTuple>[]> {
+  ): Promise<Either<any, FulfilledYfPrice>[]> {
     let updateRes: Promise<FulfilledYfPrice[]>;
     const queryRunner = this.dataSource.createQueryRunner();
     try {
@@ -66,14 +62,9 @@ export class DatabaseService {
       });
       else return either;
     };
-    const convertFulfilledYfPriceToUpdateTuple =
-    (rightV: FulfilledYfPrice): UpdateTuple => [ rightV.symbol, rightV.regularMarketLastClose ];
 
-    const result: Either<any, UpdateTuple>[] = await Promise.all(
-      updateEitherArr
-      .map(turnLeftIfUpdateFailed)
-      .map(E.map(convertFulfilledYfPriceToUpdateTuple))
-    );
+    const result: Either<any, FulfilledYfPrice>[]
+    = updateEitherArr.map(turnLeftIfUpdateFailed);
     // -----------------------------------------------------
 
     // Todo: Refac (불필요한 부분일 수 있음) ---------------------
@@ -99,7 +90,7 @@ export class DatabaseService {
     isStandard: boolean,
     key: string | Array<string | Object>,
     updateResult: {
-      updatePriceResult: Either<any, UpdateTuple>[],
+      updatePriceResult: Either<any, FulfilledYfPrice>[],
       startTime: string,
       endTime: string
     }

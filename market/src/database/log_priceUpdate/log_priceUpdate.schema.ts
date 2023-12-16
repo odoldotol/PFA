@@ -1,7 +1,7 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
 import mongoose from "mongoose";
 import { Launcher } from "src/common/enum";
-import { UpdateTuple } from "src/common/interface";
+import { FulfilledYfPrice } from "src/common/interface";
 
 export type Log_priceUpdateDocument = Log_priceUpdate & mongoose.Document;
 
@@ -33,9 +33,9 @@ export class Log_priceUpdate {
   key!: string | Array<string | Object>
 
   @Prop({
-    type: mongoose.Schema.Types.Mixed // Array<[String, Object]>
+    type: mongoose.Schema.Types.Mixed
   })
-  success!: UpdateTuple[]
+  success!: FulfilledYfPrice[]
 
   @Prop({
     type: mongoose.Schema.Types.Mixed

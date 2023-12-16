@@ -4,11 +4,14 @@ import { HttpService } from 'src/http/http.service';
 import {
   EnvironmentVariables,
   CoreExchange,
-  UpdateTuple
+  FulfilledYfPrice,
+  Ticker,
+  MarketDate
 } from 'src/common/interface';
 import { EnvKey } from 'src/common/enum';
 import { UPDATE_PRICE_BY_EXCHANGE_URN } from './const';
 import { firstValueFrom } from 'rxjs';
+import Either, * as E from 'src/common/class/either';
 
 @Injectable()
 export class ProductApiService {
@@ -27,21 +30,23 @@ export class ProductApiService {
 
   public async updatePriceByExchange(
     exchange: CoreExchange,
-    updateTupleArr: UpdateTuple[]
+    updateResult: Either<any, FulfilledYfPrice>[]
   ) {
-    // @ts-ignore // Todo: 인증,권한 구현하기
-    const addKey = <T>(body: T) => (body["key"] = this.TEMP_KEY, body);
-
     const isoCode = exchange.isoCode;
-    const data = { marketDate: exchange.marketDate, priceArrs: updateTupleArr } // Todo: type
+    const data: updatePriceByExchangeData = {
+      marketDate: exchange.marketDate,
+      priceArrs: E.getRightArray(updateResult).map(this.convertToUpdateTuple)
+    };
+
+    const httpCb = () => firstValueFrom(this.httpService.post(
+      UPDATE_PRICE_BY_EXCHANGE_URN + isoCode,
+      this.addKey(data)
+    ));
 
     await this.httpService.tryUntilResolved(
       1000,
       1000 * 5,
-      () => firstValueFrom(this.httpService.post(
-        UPDATE_PRICE_BY_EXCHANGE_URN + isoCode,
-        addKey(data)
-      ))
+      httpCb
     ).then(res => {
       this.logger.verbose(`${isoCode} : Response status From Product ${res.status}`);
     }).catch(e => {
@@ -49,4 +54,39 @@ export class ProductApiService {
     });
   }
 
+  private addKey<T>(data: T extends ProductApiData ? T : never): T {
+    return (data.key = this.TEMP_KEY, data);
+  }
+
+  /**
+   * Product API 리팩터링 하면서 삭제 예정
+   */
+  private convertToUpdateTuple(
+    fulfilledYfPrice: FulfilledYfPrice
+  ): UpdateTuple {
+    return [
+      fulfilledYfPrice.symbol,
+      fulfilledYfPrice.regularMarketLastClose
+    ];
+  }
+
 }
+
+// Todo: interface
+
+/**
+ * Product API 리팩터링 하면서 삭제 예정
+ */
+type UpdateTuple = Readonly<[Ticker, number]>;
+
+type updatePriceByExchangeData
+= ProductApiData
+& Readonly<{
+  marketDate: MarketDate;
+  priceArrs: UpdateTuple[];
+}>;
+
+// Todo: Refac - keyGuard
+type ProductApiData = {
+  key?: string; //
+};

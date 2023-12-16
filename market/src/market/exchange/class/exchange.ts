@@ -38,7 +38,8 @@ export class Market_Exchange
     private readonly session: Market_ExchangeSession
   ) {
     super();
-    this.on("error", e => this.logger.error(e)); //
+    // Todo: error 핸들링
+    this.on("error", e => this.logger.error(e));
   }
 
   onApplicationBootstrap() {

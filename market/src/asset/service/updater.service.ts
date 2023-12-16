@@ -7,9 +7,9 @@ import { MarketService } from 'src/market/market.service';
 import { DatabaseService } from 'src/database/database.service';
 import { Market_Exchange } from 'src/market/exchange/class/exchange';
 import { Exchange } from 'src/database/exchange/exchange.entity';
-import { CoreExchange, UpdateTuple } from 'src/common/interface';
+import { CoreExchange, FulfilledYfPrice } from 'src/common/interface';
 import { Launcher, MarketEvent } from 'src/common/enum';
-import Either, * as E from 'src/common/class/either';
+import Either from 'src/common/class/either';
 import * as F from "@fxts/core";
 
 @Injectable()
@@ -47,7 +47,7 @@ export class UpdaterService implements OnApplicationBootstrap {
   private registerUpdater(exchange: Market_Exchange): void {
     exchange.on(
       MarketEvent.UPDATE,
-      this.updateAssetsOfExchange.bind(this, Launcher.SCHEDULER, exchange)
+      this.updateListener.bind(this, exchange)
     );
     exchange.setUpdaterRegisteredTrue();
     this.logger.verbose(`${exchange.isoCode} : Updater Registered`);
@@ -69,6 +69,11 @@ export class UpdaterService implements OnApplicationBootstrap {
       F.map(this.updateAssetsOfExchange.bind(this, Launcher.INITIATOR)),
       F.toArray
     );
+  }
+
+  private updateListener(exchange: Market_Exchange) {
+    this.updateAssetsOfExchange(Launcher.SCHEDULER, exchange)
+    .catch(e => exchange.emit("error", e));
   }
 
   private async isNewExchange(exchange: Market_Exchange): Promise<boolean> {
@@ -99,36 +104,27 @@ export class UpdaterService implements OnApplicationBootstrap {
     return result;
   }
 
-  // Todo: Refac
   private async updateAssetsOfExchange(
     launcher: Launcher,
     exchange: CoreExchange
-  ): Promise<Either<any, UpdateTuple[]>> {
+  ): Promise<Either<any, FulfilledYfPrice>[]> {
     const { isoCode } = exchange;
     this.logger.log(`${isoCode} : Updater Run!!!`);
     const startTime = new Date();
     
-    let updateResult: Either<any, UpdateTuple>[];
-    try {
-      const updateEitherArr = await this.marketSrv.fetchFulfilledYfPrices(
-        exchange,
-        await this.database_financialAssetSrv.readSymbolsByExchange(isoCode)
-      );
-      updateResult = await this.databaseSrv.updatePriceStandard(
-        updateEitherArr,
-        exchange,
-        startTime,
-        launcher
-      ).then(res => (this.logger.log(`${isoCode} : Updater End!!!`), res));
-    } catch (error) {
-      // Todo: error
-      this.logger.error(`${isoCode} : Updater Failed!!!\nError: ${error}`);
-      return Either.left(error);
-    }
+    const updateEitherArr = await this.marketSrv.fetchFulfilledYfPrices(
+      exchange,
+      await this.database_financialAssetSrv.readSymbolsByExchange(isoCode)
+    );
+    const updateResult = await this.databaseSrv.updatePriceStandard(
+      updateEitherArr,
+      exchange,
+      startTime,
+      launcher
+    ).then(res => (this.logger.log(`${isoCode} : Updater End!!!`), res));
 
-    const priceArrs = E.getRightArray(updateResult);
-    this.productApiSrv.updatePriceByExchange(exchange, priceArrs);
-    return Either.right(priceArrs);
+    this.productApiSrv.updatePriceByExchange(exchange, updateResult);
+    return updateResult;
   }
 
 }
