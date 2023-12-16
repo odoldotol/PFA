@@ -3,7 +3,10 @@ import {
   InternalServerErrorException,
   NotFoundException
 } from "@nestjs/common";
-import { GetPriceByTickerResponse } from "../response/getPriceByTicker.response";
+import {
+  GetPriceByTickerResponse,
+  GetPriceByExchangeResponse
+} from "../response";
 import {
   Database_FinancialAssetService
 } from "src/database/financialAsset/financialAsset.service";
@@ -39,14 +42,12 @@ export class AccessorService {
     }
   }
 
-  // Todo: Refac - Response Type, API npm
-  public getPriceByExchange(isoCode: ExchangeIsoCode) {
-    return this.database_financialAssetSrv.readManyByExchange(isoCode)
-    .then(res => res.map(ele => [
-      ele.symbol,
-      ele.regularMarketLastClose,
-      ele.quoteType === "INDEX" ? "INDEX" : ele.currency
-    ]));
+  public async getPriceByExchange(
+    isoCode: ExchangeIsoCode
+  ): Promise<GetPriceByExchangeResponse> {
+    return new GetPriceByExchangeResponse(
+      await this.database_financialAssetSrv.readManyByExchange(isoCode)
+    );
   }
 
 }
