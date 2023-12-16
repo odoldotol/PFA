@@ -2,6 +2,10 @@ import { CONFIG_EXCHANGES2 } from "src/config/const/exchange.const";
 import { IsoTimezoneName } from "./";
 
 export type ExchangeIsoCode = keyof typeof CONFIG_EXCHANGES2;
+
+/**
+ * YYYY-MM-DD
+ */
 export type MarketDate = string;
 
 export interface ExchangeIso {
