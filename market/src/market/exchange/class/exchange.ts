@@ -39,10 +39,10 @@ export class Market_Exchange
   ) {
     super();
     // Todo: error 핸들링
-    this.on("error", e => this.logger.error(e));
+    this.on("error", e => this.logger.error(e.stack));
   }
 
-  onApplicationBootstrap() {
+  public onApplicationBootstrap() {
     if (this.calculateMarketOpen()) {
       this.subscribeNextEventWhenMarketOpen();
     } else {

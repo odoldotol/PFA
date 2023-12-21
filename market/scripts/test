@@ -1,5 +1,7 @@
 npm run test
 
+npm run test:docker:down
+
 npm run test:e2e
 
-npm run test:docker:down
+npm run test:e2e:docker:down

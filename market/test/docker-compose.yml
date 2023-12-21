@@ -11,6 +11,7 @@ services:
     restart: always
     profiles:
       - test
+      - e2e
   
   postgres:
     container_name: pfa-market-test-postgres
@@ -26,4 +27,16 @@ services:
       POSTGRES_DB: test
     profiles:
       - test
+      - e2e
       - postgres
+
+  market-child:
+    container_name: pfa-market-test-child
+    image: pfa-market-child:latest
+    ports:
+      - "8001:8001"
+    expose:
+      - "8001"
+    restart: always
+    profiles:
+      - e2e

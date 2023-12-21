@@ -22,34 +22,14 @@ export class DatabaseService {
   ) {}
 
   // Todo: Refac
-  public async updatePriceStandard(
+  public async updateRegularMarketClose(
     updateEitherArr: readonly Either<any, FulfilledYfPrice>[],
     exchange: CoreExchange,
-    startTime: Date,
-    launcher: Launcher
   ): Promise<Either<any, FulfilledYfPrice>[]> {
-    let updateRes: Promise<FulfilledYfPrice[]>;
-    const queryRunner = this.dataSource.createQueryRunner();
-    try {
-      await queryRunner.connect();
-      await queryRunner.startTransaction("REPEATABLE READ");
-      await (updateRes = this.financialAssetSrv.updatePriceMany(
-        E.getRightArray(updateEitherArr),
-        queryRunner
-      ));
-      await this.exchangeSrv.updateMarketDateByPk(
-        exchange.isoCode,
-        exchange.marketDate,
-        queryRunner
-      );
-      await queryRunner.commitTransaction();
-    } catch (err) {
-      await queryRunner.rollbackTransaction();
-      // Todo: warn
-      this.logger.warn(`Transaction Rollback!!!\nError: ${err}`); throw err;
-    } finally {
-      await queryRunner.release();
-    }
+    const updateRes = this.updateRegularMarketCloseTx(
+      E.getRightArray(updateEitherArr),
+      exchange
+    );
 
     // Todo: Refac -----------------------------------------
     // financialAssetSrv.updatePriceMany 에서 부터 성공 실패를 Either 로 반환하도록 해야한다.
@@ -66,51 +46,47 @@ export class DatabaseService {
     const result: Either<any, FulfilledYfPrice>[]
     = updateEitherArr.map(turnLeftIfUpdateFailed);
     // -----------------------------------------------------
-
-    // Todo: Refac (불필요한 부분일 수 있음) ---------------------
-    const endTime = new Date();
-    await this.createLog_priceUpdate(
-      launcher,
-      true,
-      exchange.isoCode,
-      {
-        updatePriceResult: result,
-        startTime: startTime.toISOString(),
-        endTime: endTime.toISOString()
-      }
-    );
-    // ------------------------------------------------------
     
     return result;
   }
 
-  // 불필요한 부분일 수 있음 --------------------------------------
-  private createLog_priceUpdate(
-    launcher: Launcher,
-    isStandard: boolean,
-    key: string | Array<string | Object>,
-    updateResult: {
-      updatePriceResult: Either<any, FulfilledYfPrice>[],
-      startTime: string,
-      endTime: string
+  /**
+   * Todo: 트렌젝션이 성공하면 가격 업데이트의 성공 실패 를 반환해야 한다.
+   */
+  private async updateRegularMarketCloseTx(
+    fulfilledYfPriceArr: readonly FulfilledYfPrice[],
+    exchange: CoreExchange,
+  ): Promise<FulfilledYfPrice[]> {
+    let updateRes: Promise<FulfilledYfPrice[]>;
+    const queryRunner = this.dataSource.createQueryRunner();
+    try {
+      await queryRunner.connect();
+      await queryRunner.startTransaction("REPEATABLE READ");
+      await (updateRes = this.financialAssetSrv.updatePriceMany(
+        fulfilledYfPriceArr,
+        queryRunner
+      ));
+      await this.exchangeSrv.updateMarketDateByPk(
+        exchange.isoCode,
+        exchange.marketDate,
+        queryRunner
+      );
+      await queryRunner.commitTransaction();
+    } catch (err) {
+      await queryRunner.rollbackTransaction();
+      // Todo: warn
+      this.logger.warn(`Transaction Rollback!!!\nError: ${err}`); throw err;
+    } finally {
+      await queryRunner.release();
     }
+    return updateRes;
+  }
+
+  // 불필요한 부분일 수 있음 --------------------------------------
+  public createLogPriceUpdate(
+    newLogDoc: Log_priceUpdate
   ) {
-    const newLogDoc: Log_priceUpdate = {
-      launcher,
-      isStandard,
-      key,
-      success: [],
-      failure: [],
-      startTime: updateResult.startTime,
-      endTime: updateResult.endTime,
-      duration: new Date(updateResult.endTime).getTime() - new Date(updateResult.startTime).getTime()
-    };
-
-    F.pipe(
-      updateResult.updatePriceResult,
-      F.each(ele => ele.isRight() ? newLogDoc.success.push(ele.right) : newLogDoc.failure.push(ele.left))
-    );
-
+    const { launcher, key } = newLogDoc;
     const fLen = newLogDoc.failure.length;
 
     return this.logPriceUpdateSrv.create(newLogDoc)

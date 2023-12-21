@@ -24,7 +24,10 @@ Docker / pm2 / jest
 <br>
 
 ## Test
->[CAUTION] npm should be available.
+>[CAUTION] <br>
+npm, docker compose(V2) should be available. <br>
+docker daemon should be running. <br>
+Local Port 5432, 6379, 27017 should be available.
 ```shell
 # First, Install all the dependencies
 $ sh scripts/npm:install
@@ -36,7 +39,8 @@ $ sh scripts/test
 <br>
 
 ## Run
->[CAUTION] docker compose and cURL should be available.
+>[CAUTION] <br>
+cURL should be available.
 ```shell
 $ sh scripts/pfa:start
 ```

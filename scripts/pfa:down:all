@@ -3,6 +3,7 @@ sh scripts/pfa:down
 cd market
 
 npm run test:docker:down
+npm run test:e2e:docker:down
 
 cd ../product
 

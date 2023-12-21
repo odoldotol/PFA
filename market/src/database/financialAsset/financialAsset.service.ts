@@ -99,6 +99,9 @@ export class Database_FinancialAssetService {
     `)).map(this.rawToEntity.bind(this));
   }
 
+  /**
+   * Todo: 부분의 성공, 실패를 반환해야한다.
+   */
   public async updatePriceMany(
     updateArr: readonly FulfilledYfPrice[],
     queryRunner?: QueryRunner
