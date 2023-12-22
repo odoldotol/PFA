@@ -2,7 +2,7 @@ set -e
 
 sh scripts/pfa:build
 
-sh scripts/pfa:down
+sh scripts/pfa:stop:all
 
 sh scripts/pfa:up
 

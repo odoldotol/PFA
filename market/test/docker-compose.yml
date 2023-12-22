@@ -4,6 +4,8 @@ services:
   mongo:
     container_name: pfa-market-test-mongo
     image: mongo:latest
+    networks:
+      - default
     ports:
       - "27017:27017"
     expose:
@@ -16,6 +18,8 @@ services:
   postgres:
     container_name: pfa-market-test-postgres
     image: postgres:15.3-alpine3.18
+    networks:
+      - default
     ports:
       - "5432:5432"
     expose:
@@ -33,6 +37,8 @@ services:
   market-child:
     container_name: pfa-market-test-child
     image: pfa-market-child:latest
+    networks:
+      - default
     ports:
       - "8001:8001"
     expose:
@@ -40,3 +46,8 @@ services:
     restart: always
     profiles:
       - e2e
+
+networks:
+  default:
+    name: pfa-market-test-network
+    driver: bridge

@@ -1,6 +1,7 @@
 set -e
 
-sh scripts/pfa:down:prod
+sh scripts/pfa:stop:prod # 프리티어 리소스 이슈로 스탑먼저 하는게 안전
+sh scripts/pfa:stop:all
 
 sh scripts/pfa:build
 

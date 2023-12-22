@@ -48,6 +48,8 @@ describe('Market E2E', () => {
     let seedExchangeArr: RawExchange[];
     let seedFinancialAssetArr: RawFinancialAsset[];
 
+    jest.setTimeout(30000);
+
     beforeAll(async () => {
       marketExchangeSrv = app.get(Market_ExchangeService);
 
@@ -74,8 +76,6 @@ describe('Market E2E', () => {
       // mock productApi - Product 서버에 실재로 요청을 보내지 않기.
       jest.spyOn(ProductApiService.prototype, 'updatePriceByExchange')
       .mockResolvedValue();
-
-      jest.setTimeout(30000);
 
       /* 타이머 in 이벤트 루프 테스트의 어려움.
       타이머가 루프에 존재하는 한 jest 는 테스트를 끝내지 못함.

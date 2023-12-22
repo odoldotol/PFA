@@ -18,6 +18,7 @@
     "pm2:prod": "pm2 startOrRestart ecosystem.config.js --only pfa_product_prod --env production",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
     "test:docker:up": "docker compose -p pfa-product-test --profile test -f test/docker-compose.yml up -d",
+    "test:docker:stop": "docker compose -p pfa-product-test --profile test -f test/docker-compose.yml stop",
     "test:docker:down": "docker compose -p pfa-product-test --profile test -f test/docker-compose.yml down",
     "test": "npm run test:docker:up && jest",
     "test:watch": "jest --watch",

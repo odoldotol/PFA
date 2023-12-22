@@ -25,9 +25,9 @@ Docker / pm2 / jest
 
 ## Test
 >[CAUTION] <br>
-npm, docker compose(V2) should be available. <br>
-docker daemon should be running. <br>
-Local Port 5432, 6379, 27017 should be available.
+>npm, docker compose(V2) should be available. <br>
+>docker daemon should be running. <br>
+>Local Port 5432, 6379, 27017 should be available.
 ```shell
 # First, Install all the dependencies
 $ sh scripts/npm:install
@@ -40,7 +40,7 @@ $ sh scripts/test
 
 ## Run
 >[CAUTION] <br>
-cURL should be available.
+>cURL should be available.
 ```shell
 $ sh scripts/pfa:start
 ```
@@ -139,12 +139,17 @@ This design approach has two main goals:
 <br>
 
 ### Clear all about this project
->down and remove all containers and images about pfa
+>[CAUTION] <br>
+>down and remove all containers and images about pfa.
 ```shell
 $ sh scripts/pfa:clear
 ```
->if you just want to down all pfa containers
+>if you just want to stop or down all pfa containers,
 ```shell
+# stop
+$ sh scripts/pfa:stop:all
+
+# down
 $ sh scripts/pfa:down:all
 ```
 

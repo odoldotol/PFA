@@ -1,0 +1,10 @@
+sh scripts/pfa:stop
+
+cd market
+
+npm run test:docker:stop
+npm run test:e2e:docker:stop
+
+cd ../product
+
+npm run test:docker:stop
