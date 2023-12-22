@@ -2,10 +2,13 @@ import {
   Body,
   Controller,
   HttpCode,
+  HttpStatus,
   Param,
   ParseArrayPipe,
-  Post
+  Post,
+  Res
 } from "@nestjs/common";
+import { Response } from 'express';
 import { ApiTags } from "@nestjs/swagger";
 import { AccessorService } from "./service/accessor.service";
 import { AdderService } from "./service/adder.service";
@@ -32,7 +35,7 @@ export class AssetController {
   ) {}
 
   @Post('price/exchange/:ISO_Code')
-  @HttpCode(200)
+  @HttpCode(HttpStatus.OK)
   @Api_getPriceByExchange()
   getPriceByExchange(
     @Param('ISO_Code', UpperCasePipe) isoCode: ExchangeIsoCode
@@ -41,16 +44,30 @@ export class AssetController {
   }
 
   @Post('price/ticker/:ticker')
-  @HttpCode(200)
   @Api_getPriceByTicker()
-  getPriceByTicker(
-    @Param('ticker', UpperCasePipe) ticker: Ticker
-  ): Promise<GetPriceByTickerResponse> {
-    return this.accessorSrv.getPriceByTicker(ticker);
+  async getPriceByTicker(
+    @Param('ticker', UpperCasePipe) ticker: Ticker,
+    @Res() response: Response
+  ): Promise<void> {
+    let body: GetPriceByTickerResponse;
+    let status: HttpStatus;
+    const asset = await this.accessorSrv.getPriceByTicker(ticker);
+    if (asset) {
+      body = new GetPriceByTickerResponse(asset);
+      status = HttpStatus.OK;
+    } else {
+      body = new GetPriceByTickerResponse(
+        await this.accessorSrv.addPriceByTicker(ticker)
+      );
+      status = HttpStatus.CREATED;
+    }
+    response
+    .status(status)
+    .send(body)
   }
 
   @Post()
-  @HttpCode(200)
+  @HttpCode(HttpStatus.OK)
   @Api_addAssets()
   addAssets(
     @Body(UpperCasePipe, new ParseArrayPipe({ items: String })) tickerArr: Ticker[]

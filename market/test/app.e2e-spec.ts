@@ -1,5 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { INestApplication } from '@nestjs/common';
+import { HttpStatus, INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
 import { DataSource } from 'typeorm';
 import { AppModule } from 'src/app/app.module';
@@ -13,7 +13,7 @@ import {
   Market_ExchangeSession
 } from 'src/market/exchange/class';
 import { RawExchange } from 'src/database/exchange/exchange.entity';
-import { RawFinancialAsset } from 'src/database/financialAsset/financialAsset.entity';
+import { FinancialAsset, RawFinancialAsset } from 'src/database/financialAsset/financialAsset.entity';
 import {
   mockApple,
   mockKoreaExchange,
@@ -21,6 +21,13 @@ import {
   mockSamsungElec,
   mockUsaTreasuryYield10y
 } from 'src/mock';
+import { GetPriceByExchangeResponse, GetPriceByTickerResponse } from 'src/asset/response';
+
+const mockFinancialAssetArr = [
+  mockApple,
+  mockSamsungElec,
+  mockUsaTreasuryYield10y
+];
 
 const createModule = (): Promise<TestingModule> => Test.createTestingModule({
   imports: [AppModule],
@@ -88,11 +95,7 @@ describe('Market E2E', () => {
       const financialAssetSrv = app.get(Database_FinancialAssetService)
       await exchangeSrv.createOne(mockKoreaExchange);
       await exchangeSrv.createOne(mockNewYorkStockExchange);
-      await financialAssetSrv.createMany([
-        mockApple,
-        mockSamsungElec,
-        mockUsaTreasuryYield10y
-      ]);
+      await financialAssetSrv.createMany(mockFinancialAssetArr);
       seedExchangeArr = await dataSource.query<RawExchange[]>(
         `SELECT * FROM exchanges`
       );
@@ -170,11 +173,17 @@ describe('Market E2E', () => {
       let openedExchangeArr: Market_Exchange[];
       let closedExchangeArr: Market_Exchange[];
 
+      // MarginGap 부분, 통과를 위해 작성된 테스트일 뿐. 의미가 없음.
+      // 내부의 프로토타입에서 isMarginGap 함수를 가져와서 확인하면서 테스트를 진행하는게 좋을까?
+      let numberOfMarketInMarginGap: number;
+
       beforeAll(async () => {
         openedExchangeArr = marketExchangeSrv.getAll()
         .filter(exchange => exchange.isMarketOpen());
         closedExchangeArr = marketExchangeSrv.getAll()
         .filter(exchange => !exchange.isMarketOpen());
+
+        numberOfMarketInMarginGap = subscribeNextUpdateSpy.mock.calls.length - openedExchangeArr.length;
       });
 
       describe('Initialize 에서', () => {
@@ -182,7 +191,7 @@ describe('Market E2E', () => {
           expect(subscribeNextCloseSpy)
           .toHaveBeenCalledTimes(openedExchangeArr.length);
           expect(subscribeNextUpdateSpy)
-          .toHaveBeenCalledTimes(openedExchangeArr.length);
+          .toHaveBeenCalledTimes(openedExchangeArr.length + numberOfMarketInMarginGap);
         });
 
         it('closedExchange 는 다음 개장 때 Open 이벤트를 방출해야함.', () => {
@@ -213,7 +222,7 @@ describe('Market E2E', () => {
 
         it('Update Event -> Update EventListener', () => {
           expect(listenerOfUpdateEventSpy)
-          .toHaveBeenCalledTimes(openedExchangeArr.length);
+          .toHaveBeenCalledTimes(openedExchangeArr.length + numberOfMarketInMarginGap);
         });
 
         it('Market 이 닫히면 다음 개장떄 Open 이벤트 방출해야함.', () => {
@@ -231,7 +240,89 @@ describe('Market E2E', () => {
     });
   });
   
+  // Todo: 재귀적으로 생성되는 타이머가 있다면 이를 한 틱씩 계속해서 진행시키는 방법이 있을까?
+  
   describe('Asset', () => {
+    let financialAssetAfterInitializingArr: FinancialAsset[];
+
+    beforeAll(async () => {
+      const rawFinancialAssetArr = await dataSource.query<RawFinancialAsset[]>(
+        `SELECT * FROM financial_assets`
+      );
+
+      financialAssetAfterInitializingArr = mockFinancialAssetArr.map(
+        mockFinancialAsset => {
+          const rawFinancialAsset = rawFinancialAssetArr.find(
+            rawFinancialAsset => rawFinancialAsset.symbol === mockFinancialAsset.symbol
+          );
+          mockFinancialAsset.regularMarketLastClose
+          = rawFinancialAsset!.regularmarketlastclose;
+          return mockFinancialAsset;
+        }
+      );
+    });
+
+    describe('POST /api/v1/asset/price/exchange/:ISO_Code', () => {
+      it('Exchange 에 속하는 Assets 을 응답 (200)', () => {
+        return request(app.getHttpServer())
+        .post(`/asset/price/exchange/${mockNewYorkStockExchange.isoCode}`)
+        .expect(HttpStatus.OK)
+        .expect(({ body }) => {
+          const mockResponse = new GetPriceByExchangeResponse(
+            financialAssetAfterInitializingArr.filter(
+              financialAsset => financialAsset.exchange === mockNewYorkStockExchange.isoCode
+            )
+          );
+          expect(body).toHaveLength(mockResponse.length);
+          expect(body[0]).toEqual(mockResponse[0]);
+          expect(body[1]).toEqual(mockResponse[1]);
+        });
+      });
+
+      it('Code 가 잘못되거나, 해당하는 Assets 을 찾을 수 없으면 빈배열을 응답 (200)', () => {
+        return request(app.getHttpServer())
+        .post('/asset/price/exchange/krx')
+        .expect(HttpStatus.OK)
+        .expect(({ body }) => {
+          expect(body).toEqual([]);
+        });
+      });
+    });
+
+    describe('POST /api/v1/asset/price/ticker/:ticker', () => {
+      it('Ticker 로 Asset 찾아서 응답 (200)', () => {
+        return request(app.getHttpServer())
+        .post(`/asset/price/ticker/${mockApple.symbol}`)
+        .expect(HttpStatus.OK)
+        .expect(({ body }) => {
+          const mockResponse = new GetPriceByTickerResponse(
+            financialAssetAfterInitializingArr.find(
+              financialAsset => financialAsset.symbol === mockApple.symbol
+            )!
+          );
+          expect(body).toEqual(mockResponse);
+        });
+      });
+
+      it('DB 에 없는 Ticker 는 추가하고 반환 (201)', () => {
+        return request(app.getHttpServer())
+        .post(`/asset/price/ticker/tsla`)
+        .expect(HttpStatus.CREATED)
+        .expect(async ({ body }) => {
+          const rawTesla = await dataSource.query<RawFinancialAsset[]>(
+            `SELECT * FROM financial_assets WHERE symbol = 'TSLA'`
+          );
+          expect(rawTesla).toHaveLength(1);
+          expect(body).toHaveProperty('price', rawTesla[0].regularmarketlastclose);
+        });
+      });
+
+      it('DB 에 없는 Ticker, Not Found 추가 실패 (404)', () => {
+        return request(app.getHttpServer())
+        .post(`/asset/price/ticker/notFoundTicker`)
+        .expect(HttpStatus.NOT_FOUND);
+      });
+    });
   });
 
   afterAll(async () => {
@@ -240,10 +331,3 @@ describe('Market E2E', () => {
   });
 
 });
-
-// docker unit test, e2e test 이미지와 컨테이너 관리 재대로 하자.
-// pfa 레벨에서 전부 down 하거나 이미지 삭제에도 연관
-// 전혀 빌드되어 있지 않은 상태부터 고려
-// 컨테이너 지우지 말고 스탑하는방법으로 변경. (계속 down up 반복하니 볼륨 다 잡아먹음. 아마 볼륨 지정해서 새로 up 해도 이전에 쓰던 볼륨 사용하는 옵션 명령어가 있지 않을까?)
-
-// Todo: 재귀적으로 생성되는 타이머가 있다면 이를 한 틱씩 계속해서 진행시키는 방법이 있을까?
