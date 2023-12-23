@@ -6,7 +6,7 @@ import { Database_ExchangeService } from "src/database/exchange/exchange.service
 import { YfinanceInfoService } from "src/database/yf_info/yf_info.service";
 import { Database_FinancialAssetService } from "src/database/financialAsset/financialAsset.service";
 import { UpdaterService } from "src/asset/service/updater.service";
-import { mockApple, mockSamsungElec } from "src/mock";
+import { mockSamsungElec } from "src/mock";
 import { AddAssetsResponse } from "../response/addAssets.response";
 import { YfInfo } from "src/common/interface";
 import Either, * as E from "src/common/class/either";

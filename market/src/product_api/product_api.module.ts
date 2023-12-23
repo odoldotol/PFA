@@ -16,12 +16,12 @@ import { EnvKey } from 'src/common/enum';
           EnvKey.DOCKER_PRODUCT_API_BASE_URL,
           'http://localhost:7001',
           { infer: true }
-        ),
+        )!,
         timeout: configService.get(
           EnvKey.PRODUCT_API_TIMEOUT,
           10000,
           { infer: true }
-        ),
+        )!,
       }),
       inject: [ConfigService]
     })],

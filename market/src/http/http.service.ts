@@ -1,14 +1,12 @@
-import { Inject, Injectable, Logger } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { HttpService as NestHttpService } from '@nestjs/axios';
 import { AxiosResponse, AxiosError, AxiosInstance } from 'axios';
 
 @Injectable()
 export class HttpService extends NestHttpService {
 
-  private readonly logger = new Logger(HttpService.name);
-
   constructor(
-    @Inject('AXIOS_INSTANCE_TOKEN') private readonly axiosInstance: AxiosInstance,
+    @Inject('AXIOS_INSTANCE_TOKEN') axiosInstance: AxiosInstance,
   ) {
     super(axiosInstance);
   }

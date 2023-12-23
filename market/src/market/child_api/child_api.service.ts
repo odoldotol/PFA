@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { HttpService } from 'src/http/http.service';
 import {
@@ -26,8 +26,6 @@ import Either from "src/common/class/either";
 
 @Injectable()
 export class ChildApiService {
-
-  private readonly logger = new Logger(ChildApiService.name);
 
   // Todo: 동시성 재한 리팩터링
   public readonly CONCURRENCY = this.configService.get(

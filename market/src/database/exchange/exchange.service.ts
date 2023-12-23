@@ -33,7 +33,7 @@ export class Database_ExchangeService {
           VALUES
             ('${value.isoCode}', '${value.isoTimezoneName}', '${value.marketDate}')
           RETURNING *
-      `))[0]
+      `))[0]!
     );
   }
 
@@ -52,7 +52,7 @@ export class Database_ExchangeService {
       (await this.dataSource.query<RawExchange[]>(`
         SELECT * FROM exchanges
           WHERE iso_code = '${pk}'
-      `))[0]
+      `))[0]!
     );
   }
 

@@ -5,7 +5,7 @@ import { HttpService } from './http.service';
 
 @Module({})
 export class HttpModule extends NestHttpModule {
-  static registerAsync(options: HttpModuleAsyncOptions): DynamicModule {
+  static override registerAsync(options: HttpModuleAsyncOptions): DynamicModule {
     const module = super.registerAsync(options);
     module.providers!.push(HttpService);
     module.providers!.push(HealthService);

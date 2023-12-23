@@ -18,14 +18,14 @@ export class FinancialAsset {
   api 가 정상일때 몽고아틀라스에서 업데이트하고, 여유있을때 값 채워넣는걸로 하자.
   */
   @Column({ type: 'varchar', length: 100, name: 'shortname', nullable: true })
-  shortName?: string;
+  shortName: string | undefined;
 
   @Column({ type: 'varchar', length: 200, name: 'longname', nullable: true })
-  longName?: string;
+  longName: string | undefined;
 
   @ManyToOne(() => Exchange, { nullable: true })
   @JoinColumn({ name: 'exchange', referencedColumnName: 'isoCode', foreignKeyConstraintName: 'financial_assets_exchange_fkey' })
-  exchange?: ExchangeIsoCode;
+  exchange: ExchangeIsoCode | undefined;
 
   @Column({ type: 'char', length: 3, name: 'currency' })
   currency!: Currency;

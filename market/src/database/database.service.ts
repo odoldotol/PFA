@@ -7,7 +7,6 @@ import { Log_priceUpdate } from "./log_priceUpdate/log_priceUpdate.schema";
 import { CoreExchange, FulfilledYfPrice } from "src/common/interface";
 import { Launcher } from "src/common/enum";
 import Either, * as E from "src/common/class/either";
-import * as F from '@fxts/core';
 
 @Injectable()
 export class DatabaseService {
@@ -95,7 +94,7 @@ export class DatabaseService {
         `${launcher === Launcher.SCHEDULER || launcher === Launcher.INITIATOR ? key : launcher} : Log_priceUpdate Doc Created${fLen ? ` (${fLen} failed)` : ''}`
       );
     })
-    .catch(error => {
+    .catch(_ => {
       this.logger.warn(`${launcher} : Failed to Create Log_priceUpdate Doc!!!`);
       // throw error;
     });

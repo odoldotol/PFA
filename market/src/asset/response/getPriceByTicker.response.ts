@@ -9,7 +9,7 @@ export class GetPriceByTickerResponse {
     readonly price: number;
 
     @ApiProperty({type: String, example: 'XNYS'})
-    readonly ISO_Code?: ExchangeIsoCode; //
+    readonly ISO_Code: ExchangeIsoCode | undefined; //
 
     @ApiProperty({type: String, example: 'USD'})
     readonly currency: string;

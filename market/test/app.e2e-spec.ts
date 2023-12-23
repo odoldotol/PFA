@@ -313,7 +313,7 @@ describe('Market E2E', () => {
             `SELECT * FROM financial_assets WHERE symbol = 'TSLA'`
           );
           expect(rawTesla).toHaveLength(1);
-          expect(body).toHaveProperty('price', rawTesla[0].regularmarketlastclose);
+          expect(body).toHaveProperty('price', rawTesla[0]!.regularmarketlastclose);
         });
       });
 

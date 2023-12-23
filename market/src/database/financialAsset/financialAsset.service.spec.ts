@@ -73,6 +73,8 @@ describe('FinancialAssetsService', () => {
           symbol: mockApple.symbol,
           quoteType: mockApple.quoteType,
           shortName: mockApple.shortName,
+          longName: undefined,
+          exchange: undefined,
           currency: mockApple.currency,
           regularMarketLastClose: mockApple.regularMarketLastClose
         }];

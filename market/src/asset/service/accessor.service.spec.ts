@@ -59,14 +59,14 @@ describe('AccessorService', () => {
       .mockImplementation(async (
         eitherTickerArr: readonly Either<any, string>[]
       ): Promise<AddAssetsResponse> => {
-        if (eitherTickerArr[0].right === mockSamsungElec.symbol) {
+        if (eitherTickerArr[0]!.right === mockSamsungElec.symbol) {
           return new AddAssetsResponse(
             [], Either.right([]), Either.right([mockSamsungElec])
           );
         } else {
           return new AddAssetsResponse([{
             doc: "Mapping key not found.",
-            ticker: eitherTickerArr[0].right
+            ticker: eitherTickerArr[0]!.right
           }], Either.right([]), Either.right([]));
         }
       });

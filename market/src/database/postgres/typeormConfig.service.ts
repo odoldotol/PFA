@@ -16,11 +16,11 @@ export class TypeOrmConfigService implements TypeOrmOptionsFactory {
 
     const production: TypeOrmModuleOptions = {
       type: 'postgres',
-      host: this.configService.get(EnvKey.PG_HOST),
+      host: this.configService.get(EnvKey.PG_HOST)!,
       port: 5432,
-      username: this.configService.get(EnvKey.PG_USERNAME),
-      password: this.configService.get(EnvKey.PG_PASSWORD),
-      database: this.configService.get(EnvKey.PG_DATABASE),
+      username: this.configService.get(EnvKey.PG_USERNAME)!,
+      password: this.configService.get(EnvKey.PG_PASSWORD)!,
+      database: this.configService.get(EnvKey.PG_DATABASE)!,
       synchronize: false,
       autoLoadEntities: true,
       /* Todo: RDS 프록시 사용해보기
