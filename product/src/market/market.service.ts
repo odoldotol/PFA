@@ -51,7 +51,7 @@ export class MarketService implements OnModuleInit, OnApplicationBootstrap {
         this.marketApiSrv.fetchAllSpDoc(), toAsync,
         map(this.spDocToSp));
 
-    private spDocToSp = (spDoc: StatusPrice) => [ spDoc.ISO_Code, MarketDate.fromSpDoc(spDoc) ] as Sp;
+    private spDocToSp = (spDoc: StatusPrice) => [ spDoc.isoCode, MarketDate.fromSpDoc(spDoc) ] as Sp;
 
     private isSpLatest = async (sp: Sp) => MarketDate.areEqual(last(sp), await this.dbSrv.readCcStatusPrice(head(sp)));
 
@@ -126,7 +126,7 @@ export class MarketService implements OnModuleInit, OnApplicationBootstrap {
 
     getAllStatusPrice = async () => pipe(
         this.marketApiSrv.fetchAllSpDoc(), toAsync,
-        map(sp => sp.ISO_Code),
+        map(sp => sp.isoCode),
         map(async c => [c, await this.dbSrv.readCcStatusPrice(c)] as Sp),
         fromEntries);
 

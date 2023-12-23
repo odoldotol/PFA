@@ -17,7 +17,7 @@ export class DatabaseService {
     ) {}
     
     createCcPriceStatusWithRP = (rP: RequestedPrice) => rP.newExchange &&
-        this.marketDateSrv.create([rP.newExchange.ISO_Code, MarketDate.fromSpDoc(rP.newExchange)]);
+        this.marketDateSrv.create([rP.newExchange.isoCode, MarketDate.fromSpDoc(rP.newExchange)]);
     createCcPrice(arg: CacheSet<CachedPriceI>) {
         return this.priceSrv.create(arg);
     }
