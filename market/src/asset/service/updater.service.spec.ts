@@ -5,7 +5,7 @@ import { Database_ExchangeService } from "src/database/exchange/exchange.service
 import { Database_FinancialAssetService } from "src/database/financialAsset/financialAsset.service";
 import { UpdaterService } from "src/asset/service/updater.service";
 import { DatabaseService } from 'src/database/database.service';
-import { ProductApiService } from 'src/product_api/product_api.service';
+import { ProductApiService } from 'src/productApi/productApi.service';
 
 describe('UpdaterService', () => {
   let service: UpdaterService;

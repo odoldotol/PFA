@@ -1,5 +1,5 @@
 import { Module } from "@nestjs/common";
-import { ChildApiModule } from "../child_api/child_api.module";
+import { ChildApiModule } from "../childApi/childApi.module";
 import { Market_FinancialAssetService } from "./financialAsset.service";
 
 @Module({

@@ -4,8 +4,8 @@ import {
   Module,
   ValueProvider
 } from "@nestjs/common";
-import { ChildApiModule } from "../child_api/child_api.module";
-import { ExchangeSessionApiService } from "../child_api/exchangeSessionApi.service";
+import { ChildApiModule } from "../childApi/childApi.module";
+import { ExchangeSessionApiService } from "../childApi/exchangeSessionApi.service";
 import {
   Market_ExchangeConfig,
   Market_ExchangeSession,

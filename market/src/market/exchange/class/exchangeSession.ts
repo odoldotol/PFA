@@ -1,5 +1,5 @@
 import { OnModuleInit } from "@nestjs/common";
-import { ExchangeSessionApiService } from "src/market/child_api/exchangeSessionApi.service";
+import { ExchangeSessionApiService } from "src/market/childApi/exchangeSessionApi.service";
 import { ExchangeIsoCode } from "src/common/interface";
 import { ExchangeSession } from "src/market/interface";
 import { YAHOO_FINANCE_CCC_EXCHANGE_ISO_CODE } from "src/config/const";

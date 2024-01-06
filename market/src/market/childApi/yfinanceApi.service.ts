@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { ChildApiService } from './child_api.service';
+import { ChildApiService } from './childApi.service';
 import {
   Ticker,
   YfInfo,

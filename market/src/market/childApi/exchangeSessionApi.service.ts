@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { ChildApiService } from './child_api.service';
+import { ChildApiService } from './childApi.service';
 import { ExchangeIsoCode } from 'src/common/interface';
 import { ExchangeSession } from '../interface';
 import { ChildError, ChildResponseEcSession } from './interface';

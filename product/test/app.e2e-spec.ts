@@ -28,9 +28,9 @@ POST /dev/price/{ticker}`, () => {
     "currency": CURRENCY,
   };
   const MOCK_FETCHED_SPDOCS = [{
-    "ISO_Code": ISO_CODE,
+    "isoCode": ISO_CODE,
     "marketDate": "2023-06-26T20:00:00.000Z",
-    "ISO_TimezoneName": "America/New_York",
+    "isoTimezoneName": "America/New_York",
   }];
   const MOCK_FETCHED_ASSETS_BY_ISO_CODE: PSet[] = [[
     SYMBOL,

@@ -1,7 +1,7 @@
 import { Module } from "@nestjs/common";
 import { DatabaseModule } from "src/database/database.module";
 import { MarketModule } from "src/market/market.module";
-import { ProductApiModule } from "src/product_api/product_api.module";
+import { ProductApiModule } from "src/productApi/productApi.module";
 import { AssetController } from "./asset.controller";
 import { UpdaterService } from "./service/updater.service";
 import { AdderService } from "./service/adder.service";

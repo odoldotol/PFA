@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { YfinanceApiService } from '../child_api/yfinanceApi.service';
+import { YfinanceApiService } from '../childApi/yfinanceApi.service';
 import { Ticker, YfInfo, YfPrice } from 'src/common/interface';
 import Either, * as E from 'src/common/class/either';
 import * as F from '@fxts/core';

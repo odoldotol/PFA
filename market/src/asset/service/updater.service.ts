@@ -1,5 +1,5 @@
 import { Injectable, Logger, OnApplicationBootstrap } from '@nestjs/common';
-import { ProductApiService } from 'src/product_api/product_api.service';
+import { ProductApiService } from 'src/productApi/productApi.service';
 import { Market_ExchangeService } from 'src/market/exchange/exchange.service';
 import { Database_ExchangeService } from 'src/database/exchange/exchange.service';
 import { Database_FinancialAssetService } from 'src/database/financialAsset/financialAsset.service';

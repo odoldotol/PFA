@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { HttpModule } from 'src/http/http.module';
-import { ProductApiService } from './product_api.service';
+import { ProductApiService } from './productApi.service';
 import { EnvironmentVariables } from 'src/common/interface';
 import { EnvKey } from 'src/common/enum';
 

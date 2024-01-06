@@ -2,7 +2,7 @@ import { Test, TestingModule } from "@nestjs/testing";
 import { ValueProvider } from "@nestjs/common";
 import { Market_ExchangeModule } from "./exchange.module";
 import { Market_ExchangeService } from "./exchange.service";
-import { EXCHANGE_PROVIDER_TOKEN_SUFFIX } from "./const";
+import { EXCHANGE_PROVIDER_TOKEN } from "./const";
 import { MOCK_CONFIG_EXCHANGES } from "./mock/exchange.mock";
 import { buildInjectionToken } from "src/common/util";
 import * as F from "@fxts/core";
@@ -12,7 +12,7 @@ const mockExchangeProviderTokenArr = F.pipe(
   F.keys,
   F.map(isoCode => buildInjectionToken(
     isoCode,
-    EXCHANGE_PROVIDER_TOKEN_SUFFIX
+    EXCHANGE_PROVIDER_TOKEN
   )),
   F.toArray
 );

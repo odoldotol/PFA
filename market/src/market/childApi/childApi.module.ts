@@ -3,7 +3,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { HttpModule } from 'src/http/http.module';
 import { TaskQueueModule } from 'src/taskQueue/taskQueue.module';
 import { ConnectionService } from './connection.service';
-import { ChildApiService } from './child_api.service';
+import { ChildApiService } from './childApi.service';
 import { ExchangeSessionApiService } from './exchangeSessionApi.service';
 import { YfinanceApiService } from './yfinanceApi.service';
 import { EnvKey } from 'src/common/enum/envKey.enum';

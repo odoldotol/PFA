@@ -6,7 +6,7 @@ import { AppModule } from 'src/app/app.module';
 import { Database_ExchangeService } from 'src/database/exchange/exchange.service';
 import { Database_FinancialAssetService } from 'src/database/financialAsset/financialAsset.service';
 import { UpdaterService } from 'src/asset/service';
-import { ProductApiService } from 'src/product_api/product_api.service';
+import { ProductApiService } from 'src/productApi/productApi.service';
 import { Market_ExchangeService } from 'src/market/exchange/exchange.service';
 import {
   Market_Exchange,
