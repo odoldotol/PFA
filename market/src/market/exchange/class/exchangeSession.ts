@@ -1,5 +1,5 @@
 import { OnModuleInit } from "@nestjs/common";
-import { ChildApiService } from "src/market/child_api/child_api.service";
+import { ExchangeSessionApiService } from "src/market/child_api/exchangeSessionApi.service";
 import { ExchangeIsoCode } from "src/common/interface";
 import { ExchangeSession } from "src/market/interface";
 import { YAHOO_FINANCE_CCC_EXCHANGE_ISO_CODE } from "src/config/const";
@@ -13,7 +13,7 @@ export class Market_ExchangeSession
 
   constructor(
     private readonly isoCode: ExchangeIsoCode,
-    private readonly childApiSrv: ChildApiService
+    private readonly exchangeSessionApiSrv: ExchangeSessionApiService
   ) {}
 
   async onModuleInit() {
@@ -45,11 +45,11 @@ export class Market_ExchangeSession
 
   private fetchExchangeSession(
     isoCode: ExchangeIsoCode
-  ): Promise<Either<any, ExchangeSession>> {
+  ): Promise<Either<any/* */, ExchangeSession>> {
     if (isoCode === YAHOO_FINANCE_CCC_EXCHANGE_ISO_CODE) {
       return Promise.resolve(Either.right(this.getMidnightUTCSession()));
     } else {
-      return this.childApiSrv.fetchEcSession(isoCode);
+      return this.exchangeSessionApiSrv.fetchEcSession(isoCode);
     }
   };
 

@@ -8,6 +8,7 @@ export interface EnvironmentVariables {
     [EnvKey.MONGODB_URL]: string;
     [EnvKey.MONGODB_QUERY]: string;
     [EnvKey.CHILD_API_TIMEOUT]: number;
+    [EnvKey.CHILD_WORKERS]: number;
     [EnvKey.CHILD_CONCURRENCY]: number;
     [EnvKey.PRODUCT_API_TIMEOUT]: number;
     [EnvKey.TEMP_KEY]: string;

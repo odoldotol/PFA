@@ -5,7 +5,7 @@ import {
   ValueProvider
 } from "@nestjs/common";
 import { ChildApiModule } from "../child_api/child_api.module";
-import { ChildApiService } from "../child_api/child_api.service";
+import { ExchangeSessionApiService } from "../child_api/exchangeSessionApi.service";
 import {
   Market_ExchangeConfig,
   Market_ExchangeSession,
@@ -14,9 +14,9 @@ import {
 import { Market_ExchangeService } from "./exchange.service";
 import { ConfigExchange, ConfigExchanges, ExchangeIsoCode } from "src/common/interface";
 import {
-  EXCHANGE_CONFIG_PROVIDER_TOKEN_SUFFIX,
-  EXCHANGE_PROVIDER_TOKEN_SUFFIX,
-  EXCHANGE_SESSION_PROVIDER_TOKEN_SUFFIX
+  EXCHANGE_CONFIG_PROVIDER_TOKEN,
+  EXCHANGE_PROVIDER_TOKEN,
+  EXCHANGE_SESSION_PROVIDER_TOKEN
 } from "./const";
 import { buildInjectionToken } from "src/common/util";
 import * as F from "@fxts/core";
@@ -49,7 +49,7 @@ export class Market_ExchangeModule {
     return {
       provide: buildInjectionToken(
         isoCode,
-        EXCHANGE_CONFIG_PROVIDER_TOKEN_SUFFIX
+        EXCHANGE_CONFIG_PROVIDER_TOKEN
       ),
       useValue: new Market_ExchangeConfig(
         isoCode,
@@ -65,15 +65,15 @@ export class Market_ExchangeModule {
     return {
       provide: buildInjectionToken(
         isoCode,
-        EXCHANGE_SESSION_PROVIDER_TOKEN_SUFFIX
+        EXCHANGE_SESSION_PROVIDER_TOKEN
       ),
       useFactory: (
-        childApiSrv: ChildApiService
+        exchangeSessionApiSrv: ExchangeSessionApiService
       ) => new Market_ExchangeSession(
         isoCode,
-        childApiSrv
+        exchangeSessionApiSrv
       ),
-      inject: [ ChildApiService ]
+      inject: [ ExchangeSessionApiService ]
     }
   }
 
@@ -84,7 +84,7 @@ export class Market_ExchangeModule {
     return {
       provide: buildInjectionToken(
         isoCode,
-        EXCHANGE_PROVIDER_TOKEN_SUFFIX
+        EXCHANGE_PROVIDER_TOKEN
       ),
       useFactory: (
         exchangeConfig: Market_ExchangeConfig,
@@ -96,11 +96,11 @@ export class Market_ExchangeModule {
       inject: [
         buildInjectionToken(
           isoCode,
-          EXCHANGE_CONFIG_PROVIDER_TOKEN_SUFFIX
+          EXCHANGE_CONFIG_PROVIDER_TOKEN
         ),
         buildInjectionToken(
           isoCode,
-          EXCHANGE_SESSION_PROVIDER_TOKEN_SUFFIX
+          EXCHANGE_SESSION_PROVIDER_TOKEN
         )
       ]
     }
@@ -124,7 +124,7 @@ export class Market_ExchangeModule {
   ): string {
     return buildInjectionToken(
       isoCode,
-      EXCHANGE_PROVIDER_TOKEN_SUFFIX
+      EXCHANGE_PROVIDER_TOKEN
     );
   }
 

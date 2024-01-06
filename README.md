@@ -11,14 +11,14 @@
 NodeJS (16) / Typescript / NestJS <br>
 PostgreSQL / typeorm <br>
 MongoDB Atlas / mongoose <br>
-cache-manager / Redis / node-redis <br>
-child_process / axios / cron / rxjs / fxts <br>
-
-Python (3.8) / Fastapi / uvicorn <br>
-yfinance / exchange_calendars
+~~cache-manager~~ / Redis / node-redis <br>
+~~child_process~~ / ~~cron~~ / fxts <br>
 
 AWS EC2 / Nginx <br>
-Docker / pm2 / jest
+Docker / pm2 (will be deprecated) / jest <br>
+
+Python (3.8) / Fastapi / uvicorn <br>
+yfinance / exchange_calendars <br>
 
 ---
 <br>
