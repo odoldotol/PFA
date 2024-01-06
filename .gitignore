@@ -78,3 +78,7 @@ Temporary Items
 
 # key
 *.pem
+
+# environment variable files
+.env.market
+.env.product

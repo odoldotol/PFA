@@ -2,7 +2,7 @@ set -e
 
 echo "\n\n-- Market Child Checking..."
 
-docker exec pfa-market-child /bin/bash -c "bash health-check"
+docker exec pfa-market-child /bin/bash -c "bash docker-scripts/health-check"
 echo "-- Healthy!!"
 
 echo "\n-- Market Checking..."

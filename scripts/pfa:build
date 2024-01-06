@@ -1,5 +1,9 @@
 set -e
 
+echo "\n\n------------------ Build Python Base -------------------------------------------\n"
+docker build -f ./Dockerfile-pythonBase . -t pfa-base-python
+echo "\n\n------------------ Build Node Base ---------------------------------------------\n"
+docker build -f ./Dockerfile-nodeBase . -t pfa-base-node
 echo "\n\n------------------ Build Market Child ------------------------------------------\n"
 docker build ./marketChild -t pfa-market-child
 echo "\n\n------------------ Build Market ------------------------------------------------\n"

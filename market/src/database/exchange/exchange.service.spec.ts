@@ -7,6 +7,10 @@ import { Database_ExchangeService as ExchangeService } from './exchange.service'
 import { DataSource } from 'typeorm';
 import { mockKoreaExchange, mockNewYorkStockExchange } from 'src/mock';
 
+// 도커 컨테이너 처음 만들면서 테스트시 타임아웃 걸리는 경우 종종 있음. 컨테이너의 health 체킹 이후에 테스트를 실행하면 될것같음.
+// 우선 임시로 시간 늘림.
+jest.setTimeout(10000);
+
 /* TypeOrmModule 에러
 Jest 병열 + synchronize: true 가 문제를 일으키는것?
 테스트에는 문제 없을 것 같지만 그래도 나중에 에러 잡아보기.

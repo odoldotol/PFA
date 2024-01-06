@@ -25,7 +25,7 @@ import { globalValidationPipeOptions } from './const/globalValidationPipeOptions
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: ".env"
+      envFilePath: ".env.product"
     }),
     Pm2Module,
     KakaoCBModule,

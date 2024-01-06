@@ -1,0 +1,18 @@
+CHILD_WORKERS=1
+
+FILE=".env.market"
+if [ -e $FILE ]; then
+  while read line || [ -n "$line" ];
+  do
+    if [[ "$line" = *"CHILD_WORKERS"* ]]; then
+      value=$(echo $line | cut -d '=' -f2)
+      r=${value//[0-9]/}
+      if [[ "$value" != "" && -z "$r" ]] ; then
+        CHILD_WORKERS=$value
+      fi
+      break
+    fi
+  done < $FILE
+fi
+
+uvicorn main:app --host=0.0.0.0 --port 8001 --workers $CHILD_WORKERS

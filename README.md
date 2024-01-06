@@ -167,8 +167,8 @@ market/aws-rds.pem
 
 #### Compose .env files
 ```
-market/.env.guide
-product/.env.guide
+env/.env.market.guide.production
+env/.env.product.guide.production
 ```
 #### Then,
 ```shell

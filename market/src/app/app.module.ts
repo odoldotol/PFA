@@ -20,7 +20,7 @@ import {
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: ".env",
+      envFilePath: ".env.market",
       load: [
         mongoUriConfig,
       ]
