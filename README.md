@@ -56,7 +56,12 @@ The initial service scope of this app is 0.
 <br>
 
 ---
-### Localy API Docs
+### APIs
+Here are three servers running. <br>
+The Market server focuses on updating and managing market data. <br>
+The Product server directly serves data. <br>
+The Market-Child is just a server dependent on the market server." <br>
+
 - #### Product http://localhost:7001/docs
 - #### Market http://localhost:6001/docs
 - #### Market-Child http://localhost:8001/docs
@@ -134,6 +139,17 @@ This design approach has two main goals:
 
 <br>
 
+### Details
+
+The following is a sequence diagram showing the initialization to the listen phase of the market server.
+
+![market-init-dia](https://storage.googleapis.com/odoldotol-image-store/market-init-dia.png)
+
+...
+
+
+<br>
+
 ---
 
 <br>
@@ -162,7 +178,7 @@ $ sh scripts/pfa:down:all
 
 #### RDS Certificate
 ```
-market/aws-rds.pem
+cert/aws-rds.pem
 ```
 
 #### Compose .env files
@@ -198,9 +214,8 @@ $ sh scripts/pfa:start:prod
 
 ![product-api](https://storage.googleapis.com/odoldotol-image-store/ezgif.com-video-to-gif.gif)
 
-## Docs
+## APIs
 - ### Product https://product.lapiki-invest.com/docs
-
 - ### Market https://market.lapiki-invest.com/docs
 - ### Market-Child https://child.lapiki-invest.com/docs
 

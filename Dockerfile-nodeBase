@@ -10,3 +10,4 @@ RUN npm install -g npm@8.19.3 \
 ENV NODE_OPTIONS="--max-old-space-size=600"
 
 COPY ./env .
+COPY ./cert .
