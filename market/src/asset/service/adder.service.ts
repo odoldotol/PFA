@@ -6,7 +6,6 @@ import {
 import {
   Database_FinancialAssetService
 } from "src/database/financialAsset/financialAsset.service";
-import { MarketService } from "src/market/market.service";
 import { FinancialAsset } from "src/database/financialAsset/financialAsset.entity";
 import {
   FulfilledYfInfo,
@@ -25,7 +24,6 @@ export class AdderService {
 
   constructor(
     private readonly market_financialAssetSrv: Market_FinancialAssetService,
-    private readonly marketSrv: MarketService,
     private readonly yfinanceInfoSrv: YfinanceInfoService,
     private readonly database_financialAssetSrv: Database_FinancialAssetService,
   ) {}
@@ -81,7 +79,7 @@ export class AdderService {
   ) {
     return E.wrapPromise(F.pipe(
       yfInfoArr,
-      F.map(this.marketSrv.fulfillYfInfo.bind(this.marketSrv)),
+      F.map(this.market_financialAssetSrv.fulfillYfInfo.bind(this.market_financialAssetSrv)),
       F.peek(this.logNewExchange.bind(this)),
       F.map(this.getFinancialAssetFromFuilfilledYfInfo),
       F.toArray,

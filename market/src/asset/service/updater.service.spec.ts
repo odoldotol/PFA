@@ -1,5 +1,5 @@
 import { Test, TestingModule } from "@nestjs/testing";
-import { MarketService } from "src/market/market.service";
+import { Market_FinancialAssetService } from "src/market/financialAsset/financialAsset.service";
 import { Database_FinancialAssetService } from "src/database/financialAsset/financialAsset.service";
 import { Asset_UpdaterService } from "src/asset/service/updater.service";
 
@@ -9,7 +9,7 @@ describe('UpdaterService', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
-        { provide: MarketService, useValue: {} },
+        { provide: Market_FinancialAssetService, useValue: {} },
         { provide: Database_FinancialAssetService, useValue: {} },
         Asset_UpdaterService
       ],

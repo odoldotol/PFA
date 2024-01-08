@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { MarketService } from 'src/market/market.service';
+import { Market_FinancialAssetService } from 'src/market/financialAsset/financialAsset.service';
 import { Database_FinancialAssetService } from 'src/database/financialAsset/financialAsset.service';
 import { FulfilledYfPrice, ExchangeIsoCode } from 'src/common/interface';
 import Either from 'src/common/class/either';
@@ -8,7 +8,7 @@ import Either from 'src/common/class/either';
 export class Asset_UpdaterService {
 
   constructor(
-    private readonly marketSrv: MarketService,
+    private readonly market_financialAssetSrv: Market_FinancialAssetService,
     private readonly database_financialAssetSrv: Database_FinancialAssetService,
   ) {}
 
@@ -16,7 +16,7 @@ export class Asset_UpdaterService {
     isoCode: ExchangeIsoCode
   ): Promise<Either<any, FulfilledYfPrice>[]> {
     const tickerArr = await this.database_financialAssetSrv.readSymbolsByExchange(isoCode);
-    return this.marketSrv.fetchFulfilledYfPrices(isoCode, tickerArr);
+    return this.market_financialAssetSrv.fetchFulfilledYfPrices(isoCode, tickerArr);
   }
 
 }
