@@ -3,9 +3,9 @@ import Either from "src/common/class/either";
 import { FinancialAsset } from "src/database/financialAsset/financialAsset.entity";
 import { Yf_info } from "src/database/yf_info/yf_info.schema";
 
-export class AddAssetsResponse {
+export class SubscribeAssetsResponse {
 
-  @ApiProperty({ description: '정상적으로 추가된 Assets' })
+  @ApiProperty({ description: '정상적으로 구독된 Assets' })
   readonly assets: FinancialAsset[] = [];
 
   @ApiProperty()

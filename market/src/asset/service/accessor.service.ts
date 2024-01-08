@@ -5,19 +5,27 @@ import {
 } from "@nestjs/common";
 import { GetPriceByExchangeResponse } from "../response";
 import {
+  Market_FinancialAssetService
+} from "src/market/financialAsset/financialAsset.service";
+import {
   Database_FinancialAssetService
 } from "src/database/financialAsset/financialAsset.service";
-import { AdderService } from "./adder.service";
+import { SubscriberService } from "./subscriber.service";
 import { FinancialAsset } from "src/database/financialAsset/financialAsset.entity";
-import { ExchangeIsoCode, Ticker } from "src/common/interface";
+import {
+  ExchangeIsoCode,
+  FulfilledYfPrice,
+  Ticker
+} from "src/common/interface";
 import Either from "src/common/class/either";
 
 @Injectable()
 export class AccessorService {
 
   constructor(
+    private readonly market_financialAssetSrv: Market_FinancialAssetService,
     private readonly database_financialAssetSrv: Database_FinancialAssetService,
-    private readonly adderSrv: AdderService,
+    private readonly subscriberSrv: SubscriberService,
   ) {}
 
   public getPrice(
@@ -26,22 +34,22 @@ export class AccessorService {
     return this.database_financialAssetSrv.readOneByPk(ticker);
   }
 
-  public async addAssetAndGetPrice(
+  public async subscribeAssetAndGetPrice(
     ticker: Ticker
   ): Promise<FinancialAsset> {
-    const addAssetsRes = await this.adderSrv.addAssetsFromFilteredTickers([
+    const subscribeAssetsRes = await this.subscriberSrv.subscribeAssetsFromFilteredTickers([
       Either.right(ticker)
     ]);
-    if (addAssetsRes.assets[0] === undefined) {
-      if (addAssetsRes.failure.general[0]?.doc === "Mapping key not found.") {
+    if (subscribeAssetsRes.assets[0] === undefined) {
+      if (subscribeAssetsRes.failure.general[0]?.doc === "Mapping key not found.") {
         throw new NotFoundException(
-          `Could not find Ticker: ${addAssetsRes.failure.general[0].ticker}`
+          `Could not find Ticker: ${subscribeAssetsRes.failure.general[0].ticker}`
         );
       } else {
-        throw new InternalServerErrorException(addAssetsRes);
+        throw new InternalServerErrorException(subscribeAssetsRes);
       }
     } else {
-      return addAssetsRes.assets[0];
+      return subscribeAssetsRes.assets[0];
     }
   }
 
@@ -51,6 +59,13 @@ export class AccessorService {
     return new GetPriceByExchangeResponse(
       await this.database_financialAssetSrv.readManyByExchange(isoCode)
     );
+  }
+
+  public async fetchFulfilledYfPricesOfSubscribedAssets(
+    isoCode: ExchangeIsoCode
+  ): Promise<Either<any, FulfilledYfPrice>[]> {
+    const tickerArr = await this.database_financialAssetSrv.readSymbolsByExchange(isoCode);
+    return this.market_financialAssetSrv.fetchFulfilledYfPrices(isoCode, tickerArr);
   }
 
 }

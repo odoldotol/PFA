@@ -12,15 +12,15 @@ import {
   Ticker,
   YfInfo
 } from "src/common/interface";
-import { AddAssetsResponse } from "../response/addAssets.response";
+import { SubscribeAssetsResponse } from "../response/subscribeAssets.response";
 import { dedupStrIter } from "src/common/util";
 import Either, * as E from "src/common/class/either";
 import * as F from "@fxts/core";
 
 @Injectable()
-export class AdderService {
+export class SubscriberService {
 
-  private readonly logger = new Logger(AdderService.name);
+  private readonly logger = new Logger(SubscriberService.name);
 
   constructor(
     private readonly market_financialAssetSrv: Market_FinancialAssetService,
@@ -28,18 +28,18 @@ export class AdderService {
     private readonly database_financialAssetSrv: Database_FinancialAssetService,
   ) {}
 
-  public async addAssets(
+  public async subscribeAssets(
     tickerArr: readonly Ticker[]
-  ): Promise<AddAssetsResponse> {
-    return this.addAssetsFromFilteredTickers(
-      await this.filterAddAssetTickers(tickerArr)
+  ): Promise<SubscribeAssetsResponse> {
+    return this.subscribeAssetsFromFilteredTickers(
+      await this.filterTickersToSubscribe(tickerArr)
     );
   }
 
   // Todo: 이미 yf_info 에 존재하는것은 yf_info 에서 가져오는게 경제적이긴 한데 지금은 불필요해보임. 추가 고려할것.
-  public async addAssetsFromFilteredTickers(
+  public async subscribeAssetsFromFilteredTickers(
     eitherTickerArr: readonly Either<any, Ticker>[]
-  ): Promise<AddAssetsResponse> {
+  ): Promise<SubscribeAssetsResponse> {
 
     const eitherYfInfoArr
     = await this.market_financialAssetSrv.fetchYfInfosByEitherTickerArr(eitherTickerArr);
@@ -48,25 +48,25 @@ export class AdderService {
     const yfInfoCreationRes = await this.yfinanceInfoSrv.insertMany(yfInfoArr);
     const financialAssetCreationRes = await this.createFinancialAssets(yfInfoArr);
 
-    return new AddAssetsResponse(
+    return new SubscribeAssetsResponse(
       E.getLeftArray(eitherYfInfoArr),
       yfInfoCreationRes,
       financialAssetCreationRes
     );
   }
 
-  private filterAddAssetTickers(
+  private filterTickersToSubscribe(
     tickerArr: readonly Ticker[]
   ): Promise<Either<any, Ticker>[]> {
     return F.pipe(
       tickerArr,
       dedupStrIter, F.toAsync,
-      F.map(this.getEitherTickerWhetherExist.bind(this)),
+      F.map(this.getEitherTickerWhetherSubscribed.bind(this)),
       F.toArray,
     );
   }
 
-  private async getEitherTickerWhetherExist(
+  private async getEitherTickerWhetherSubscribed(
     ticker: Ticker
   ): Promise<Either<any, Ticker>> {
     return (await this.database_financialAssetSrv.existByPk(ticker)) ?

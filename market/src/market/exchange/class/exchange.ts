@@ -42,15 +42,8 @@ export class Market_Exchange
     this.on("error", e => this.logger.error(e.stack));
   }
 
-  public onApplicationBootstrap() {
-    if (this.calculateMarketOpen()) {
-      this.subscribeNextEventWhenMarketOpen();
-    } else {
-      this.subscribeNextEventWhenMarketClose();
-      let nextUpdateDate;
-      (nextUpdateDate = this.isInMarginGap()) &&
-        this.subscribeNextUpdate(nextUpdateDate);
-    }
+  onApplicationBootstrap() {
+    this.subscribe();
     this.calculateMarketDate();
   }
 
@@ -78,6 +71,17 @@ export class Market_Exchange
   // Todo: 여전히 필요한가?
   public isUpdaterRegistered() {
     return this.updaterRegistered;
+  }
+
+  private subscribe() {
+    if (this.calculateMarketOpen()) {
+      this.subscribeNextEventWhenMarketOpen();
+    } else {
+      this.subscribeNextEventWhenMarketClose();
+      let nextUpdateDate;
+      (nextUpdateDate = this.isInMarginGap()) &&
+        this.subscribeNextUpdate(nextUpdateDate);
+    }
   }
 
   private subscribeNextEventWhenMarketOpen(): OpenEventArg {
@@ -128,8 +132,8 @@ export class Market_Exchange
       this.emit(MarketEvent.OPEN, this.subscribeNextEventWhenMarketOpen());
     } catch (e) {
       this.emit("error", e);
-      this.onApplicationBootstrap();
-      this.logger.warn('marketOpenHandler: onApplicationBootstrap has been called again and completed');
+      this.subscribe();
+      this.logger.warn('marketOpenHandler: subscribe has been called again and completed');
     }
   }
 
@@ -141,8 +145,8 @@ export class Market_Exchange
       this.emit(MarketEvent.CLOSE, this.subscribeNextEventWhenMarketClose());
     } catch (e) {
       this.emit("error", e);
-      this.onApplicationBootstrap();
-      this.logger.warn(`marketCloseHandler: onApplicationBootstrap has been called again and completed`);
+      this.subscribe();
+      this.logger.warn(`marketCloseHandler: subscribe has been called again and completed`);
     }
   }
 

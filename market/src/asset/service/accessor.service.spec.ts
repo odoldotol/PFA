@@ -1,11 +1,14 @@
 import { NotFoundException } from "@nestjs/common";
 import { Test, TestingModule } from "@nestjs/testing";
 import {
+  Market_FinancialAssetService
+} from "src/market/financialAsset/financialAsset.service";
+import {
   Database_FinancialAssetService
 } from "src/database/financialAsset/financialAsset.service";
 import { AccessorService } from "./accessor.service";
-import { AdderService } from "./adder.service";
-import { AddAssetsResponse } from "../response/addAssets.response";
+import { SubscriberService } from "./subscriber.service";
+import { SubscribeAssetsResponse } from "../response/subscribeAssets.response";
 import Either from "src/common/class/either";
 import { Ticker } from "src/common/interface";
 import { mockApple, mockSamsungElec } from "src/mock";
@@ -13,20 +16,21 @@ import { mockApple, mockSamsungElec } from "src/mock";
 describe('AccessorService', () => {
   let service: AccessorService;
   let database_financialAssetSrv: Database_FinancialAssetService;
-  let adderSrv: AdderService;
+  let subscriberSrv: SubscriberService;
 
   beforeAll(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
+        { provide: Market_FinancialAssetService, useValue: {} },
         { provide: Database_FinancialAssetService, useValue: {} },
-        { provide: AdderService, useValue: {} },
+        { provide: SubscriberService, useValue: {} },
         AccessorService
       ],
     }).compile();
 
     service = module.get(AccessorService);
     database_financialAssetSrv = module.get(Database_FinancialAssetService);
-    adderSrv = module.get(AdderService);
+    subscriberSrv = module.get(SubscriberService);
   });
 
   it('should be defined', () => {
@@ -53,18 +57,18 @@ describe('AccessorService', () => {
     });
   });
 
-  describe('addAssetAndGetPrice', () => {
+  describe('subscribeAssetAndGetPrice', () => {
     beforeAll(() => {
-      adderSrv.addAssetsFromFilteredTickers = jest.fn()
+      subscriberSrv.subscribeAssetsFromFilteredTickers = jest.fn()
       .mockImplementation(async (
         eitherTickerArr: readonly Either<any, string>[]
-      ): Promise<AddAssetsResponse> => {
+      ): Promise<SubscribeAssetsResponse> => {
         if (eitherTickerArr[0]!.right === mockSamsungElec.symbol) {
-          return new AddAssetsResponse(
+          return new SubscribeAssetsResponse(
             [], Either.right([]), Either.right([mockSamsungElec])
           );
         } else {
-          return new AddAssetsResponse([{
+          return new SubscribeAssetsResponse([{
             doc: "Mapping key not found.",
             ticker: eitherTickerArr[0]!.right
           }], Either.right([]), Either.right([]));
@@ -73,13 +77,13 @@ describe('AccessorService', () => {
     });
 
     it('정상적으로 Asset 추가됨', async () => {
-      const res = await service.addAssetAndGetPrice(mockSamsungElec.symbol);
+      const res = await service.subscribeAssetAndGetPrice(mockSamsungElec.symbol);
       expect(res).toEqual(mockSamsungElec);
     });
 
     it('Asset 을 추가할 수 없음. Not Found.', async () => {
       const notFoundTicker = "notFoundTicker";
-      expect(service.addAssetAndGetPrice(notFoundTicker)).rejects
+      expect(service.subscribeAssetAndGetPrice(notFoundTicker)).rejects
       .toThrow(new NotFoundException(`Could not find Ticker: ${notFoundTicker}`));
     });
   });

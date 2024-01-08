@@ -3,8 +3,7 @@ import { Market_FinancialAssetModule } from "src/market/financialAsset/financial
 import { Database_FinancialAssetModule } from "src/database/financialAsset/financialAsset.module";
 import { YfinanceInfoModule } from "src/database/yf_info/yf_info.module";
 import { AssetController } from "./asset.controller";
-import { Asset_UpdaterService } from "./service/updater.service";
-import { AdderService } from "./service/adder.service";
+import { SubscriberService } from "./service/subscriber.service";
 import { AccessorService } from "./service/accessor.service";
 
 @Module({
@@ -15,10 +14,9 @@ import { AccessorService } from "./service/accessor.service";
   ],
   controllers: [AssetController],
   providers: [
-    Asset_UpdaterService,
-    AdderService,
+    SubscriberService,
     AccessorService
   ],
-  exports: [Asset_UpdaterService]
+  exports: [AccessorService]
 })
 export class AssetModule {}

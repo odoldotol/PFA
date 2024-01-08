@@ -4,8 +4,8 @@ import {
   OnApplicationBootstrap
 } from "@nestjs/common";
 import { ExchangeService } from "src/exchange/exchange.service";
-import { Asset_UpdaterService } from "src/asset/service";
-import { DatabaseService } from "src/database/database.service";
+import { AccessorService } from "src/asset/service";
+import { Database_UpdaterService } from "src/database/updater/updater.service";
 import { ProductApiService } from "src/productApi/productApi.service";
 import { Market_Exchange } from "src/market/exchange/class";
 import { Log_priceUpdate } from "src/database/log_priceUpdate/log_priceUpdate.schema";
@@ -22,8 +22,8 @@ export class UpdaterService
 
   constructor(
     private readonly exchangeSrv: ExchangeService,
-    private readonly assetUpdaterSrv: Asset_UpdaterService,
-    private readonly databaseSrv: DatabaseService,
+    private readonly accessorSrv: AccessorService,
+    private readonly database_updaterSrv: Database_UpdaterService,
     private readonly productApiSrv: ProductApiService,
   ) {}
 
@@ -58,8 +58,9 @@ export class UpdaterService
     this.logger.log(`${isoCode} : Update Run!!!`);
     const startTime = new Date();
     
-    const updateEitherArr = await this.assetUpdaterSrv.getUpdateEitherArr(isoCode);
-    const updateResult = await this.databaseSrv.updateRegularMarketClose(
+    const updateEitherArr
+    = await this.accessorSrv.fetchFulfilledYfPricesOfSubscribedAssets(isoCode);
+    const updateResult = await this.database_updaterSrv.update(
       updateEitherArr,
       exchange,
     ).then(res => (this.logger.log(`${isoCode} : Update End!!!`), res));
@@ -77,7 +78,7 @@ export class UpdaterService
       duration: endTime.getTime() - startTime.getTime()
     };
 
-    this.databaseSrv.createLogPriceUpdate(newLogDoc);
+    this.database_updaterSrv.createLog(newLogDoc);
     // ------------------------------------------------------
 
     this.productApiSrv.updatePriceByExchange(exchange, updateResult);

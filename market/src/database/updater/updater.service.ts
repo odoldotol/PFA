@@ -1,17 +1,17 @@
 import { Injectable, Logger } from "@nestjs/common";
 import { DataSource } from "typeorm";
-import { Database_FinancialAssetService } from "./financialAsset/financialAsset.service";
-import { Database_ExchangeService } from "./exchange/exchange.service";
-import { LogPriceUpdateService } from "./log_priceUpdate/log_priceUpdate.service";
-import { Log_priceUpdate } from "./log_priceUpdate/log_priceUpdate.schema";
+import { Database_FinancialAssetService } from "../financialAsset/financialAsset.service";
+import { Database_ExchangeService } from "../exchange/exchange.service";
+import { LogPriceUpdateService } from "../log_priceUpdate/log_priceUpdate.service";
+import { Log_priceUpdate } from "../log_priceUpdate/log_priceUpdate.schema";
 import { CoreExchange, FulfilledYfPrice } from "src/common/interface";
 import { Launcher } from "src/common/enum";
 import Either, * as E from "src/common/class/either";
 
 @Injectable()
-export class DatabaseService {
+export class Database_UpdaterService {
 
-  private readonly logger = new Logger(DatabaseService.name);
+  private readonly logger = new Logger(Database_UpdaterService.name);
 
   constructor(
     private readonly financialAssetSrv: Database_FinancialAssetService,
@@ -21,11 +21,11 @@ export class DatabaseService {
   ) {}
 
   // Todo: Refac
-  public async updateRegularMarketClose(
+  public async update(
     updateEitherArr: readonly Either<any, FulfilledYfPrice>[],
     exchange: CoreExchange,
   ): Promise<Either<any, FulfilledYfPrice>[]> {
-    const updateRes = this.updateRegularMarketCloseTx(
+    const updateRes = this.updateTx(
       E.getRightArray(updateEitherArr),
       exchange
     );
@@ -52,7 +52,7 @@ export class DatabaseService {
   /**
    * Todo: 트렌젝션이 성공하면 가격 업데이트의 성공 실패 를 반환해야 한다.
    */
-  private async updateRegularMarketCloseTx(
+  private async updateTx(
     fulfilledYfPriceArr: readonly FulfilledYfPrice[],
     exchange: CoreExchange,
   ): Promise<FulfilledYfPrice[]> {
@@ -82,7 +82,7 @@ export class DatabaseService {
   }
 
   // 불필요한 부분일 수 있음 --------------------------------------
-  public createLogPriceUpdate(
+  public createLog(
     newLogDoc: Log_priceUpdate
   ) {
     const { launcher, key } = newLogDoc;

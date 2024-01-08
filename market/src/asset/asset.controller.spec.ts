@@ -2,7 +2,7 @@ import { Test } from '@nestjs/testing';
 import { HttpStatus, NotFoundException } from '@nestjs/common';
 import { Response } from 'express';
 import { AssetController } from './asset.controller';
-import { AccessorService, AdderService } from './service';
+import { AccessorService, SubscriberService } from './service';
 import { GetPriceByTickerResponse } from './response';
 import { Ticker } from 'src/common/interface';
 import { mockApple, mockSamsungElec } from "src/mock";
@@ -16,14 +16,14 @@ describe('AssetController', () => {
   let assetController: AssetController;
   let accessorService: AccessorService;
 
-  let getPriceByTickerSpy: jest.SpyInstance;
-  let addPriceByTickerSpy: jest.SpyInstance;
+  let getPriceSpy: jest.SpyInstance;
+  let subscribeAssetAndGetPriceSpy: jest.SpyInstance;
 
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
       controllers: [AssetController],
       providers: [
-        { provide: AdderService, useValue: {} },
+        { provide: SubscriberService, useValue: {} },
         {
           provide: AccessorService,
           useValue: {
@@ -32,7 +32,7 @@ describe('AssetController', () => {
                 return Promise.resolve(mockApple);
               } else return Promise.resolve(null);
             }),
-            addAssetAndGetPrice: jest.fn((ticker: Ticker) => {
+            subscribeAssetAndGetPrice: jest.fn((ticker: Ticker) => {
               if (ticker === mockSamsungElec.symbol) {
                 return Promise.resolve(mockSamsungElec);
               } else throw new NotFoundException(
@@ -47,8 +47,8 @@ describe('AssetController', () => {
     assetController = moduleRef.get(AssetController);
     accessorService = moduleRef.get(AccessorService);
 
-    getPriceByTickerSpy = jest.spyOn(accessorService, 'getPrice');
-    addPriceByTickerSpy = jest.spyOn(accessorService, 'addAssetAndGetPrice');
+    getPriceSpy = jest.spyOn(accessorService, 'getPrice');
+    subscribeAssetAndGetPriceSpy = jest.spyOn(accessorService, 'subscribeAssetAndGetPrice');
   });
 
   describe('getPriceByTicker', () => {
@@ -69,9 +69,9 @@ describe('AssetController', () => {
         mockApple.symbol,
         mockResponse
       );
-      expect(getPriceByTickerSpy).toHaveBeenCalledTimes(1);
-      expect(getPriceByTickerSpy).toHaveBeenCalledWith(mockApple.symbol);
-      expect(addPriceByTickerSpy).not.toHaveBeenCalled();
+      expect(getPriceSpy).toHaveBeenCalledTimes(1);
+      expect(getPriceSpy).toHaveBeenCalledWith(mockApple.symbol);
+      expect(subscribeAssetAndGetPriceSpy).not.toHaveBeenCalled();
       expect(responseStatusSpy).toHaveBeenCalledTimes(1);
       expect(responseStatusSpy).toHaveBeenCalledWith(HttpStatus.OK);
       expect(responseSendSpy).toHaveBeenCalledTimes(1);
@@ -84,10 +84,10 @@ describe('AssetController', () => {
         mockSamsungElec.symbol,
         mockResponse
       );
-      expect(getPriceByTickerSpy).toHaveBeenCalledTimes(1);
-      expect(getPriceByTickerSpy).toHaveBeenCalledWith(mockSamsungElec.symbol);
-      expect(addPriceByTickerSpy).toHaveBeenCalledTimes(1);
-      expect(addPriceByTickerSpy).toHaveBeenCalledWith(mockSamsungElec.symbol);
+      expect(getPriceSpy).toHaveBeenCalledTimes(1);
+      expect(getPriceSpy).toHaveBeenCalledWith(mockSamsungElec.symbol);
+      expect(subscribeAssetAndGetPriceSpy).toHaveBeenCalledTimes(1);
+      expect(subscribeAssetAndGetPriceSpy).toHaveBeenCalledWith(mockSamsungElec.symbol);
       expect(responseStatusSpy).toHaveBeenCalledTimes(1);
       expect(responseStatusSpy).toHaveBeenCalledWith(HttpStatus.CREATED);
       expect(responseSendSpy).toHaveBeenCalledTimes(1);
@@ -103,10 +103,10 @@ describe('AssetController', () => {
       )).rejects.toThrow(new NotFoundException(
         `Could not find Ticker: ${notFoundTicker}`
       ));
-      expect(getPriceByTickerSpy).toHaveBeenCalledTimes(1);
-      expect(getPriceByTickerSpy).toHaveBeenCalledWith(notFoundTicker);
-      expect(addPriceByTickerSpy).toHaveBeenCalledTimes(1);
-      expect(addPriceByTickerSpy).toHaveBeenCalledWith(notFoundTicker);
+      expect(getPriceSpy).toHaveBeenCalledTimes(1);
+      expect(getPriceSpy).toHaveBeenCalledWith(notFoundTicker);
+      expect(subscribeAssetAndGetPriceSpy).toHaveBeenCalledTimes(1);
+      expect(subscribeAssetAndGetPriceSpy).toHaveBeenCalledWith(notFoundTicker);
     });
   });
 });

@@ -11,16 +11,16 @@ import {
 import { Response } from 'express';
 import { ApiTags } from "@nestjs/swagger";
 import { AccessorService } from "./service/accessor.service";
-import { AdderService } from "./service/adder.service";
+import { SubscriberService } from "./service/subscriber.service";
 import {
-  AddAssetsResponse,
+  SubscribeAssetsResponse,
   GetPriceByExchangeResponse,
   GetPriceByTickerResponse
 } from "./response";
 import { ExchangeIsoCode, Ticker } from "src/common/interface";
 import { 
   Api_getPriceByExchange,
-  Api_addAssets,
+  Api_subscribeAssets,
   Api_getPriceByTicker
 } from "./decorator";
 import { UpperCasePipe } from "src/common/pipe/upperCasePipe";
@@ -31,7 +31,7 @@ export class AssetController {
 
   constructor(
     private readonly accessorSrv: AccessorService,
-    private readonly adderSrv: AdderService,
+    private readonly subscribeerSrv: SubscriberService,
   ) {}
 
   @Post('price/exchange/:ISO_Code')
@@ -57,7 +57,7 @@ export class AssetController {
       status = HttpStatus.OK;
     } else {
       body = new GetPriceByTickerResponse(
-        await this.accessorSrv.addAssetAndGetPrice(ticker)
+        await this.accessorSrv.subscribeAssetAndGetPrice(ticker)
       );
       status = HttpStatus.CREATED;
     }
@@ -66,13 +66,13 @@ export class AssetController {
     .send(body)
   }
 
-  @Post()
+  @Post('subscribe')
   @HttpCode(HttpStatus.OK)
-  @Api_addAssets()
-  addAssets(
+  @Api_subscribeAssets()
+  subscribeAssets(
     @Body(UpperCasePipe, new ParseArrayPipe({ items: String })) tickerArr: Ticker[]
-  ): Promise<AddAssetsResponse> {
-    return this.adderSrv.addAssets(tickerArr);
+  ): Promise<SubscribeAssetsResponse> {
+    return this.subscribeerSrv.subscribeAssets(tickerArr);
   }
 
 }

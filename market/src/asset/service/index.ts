@@ -1,3 +1,2 @@
 export * from './accessor.service';
-export * from './adder.service';
-export * from './updater.service';
+export * from './subscriber.service';
