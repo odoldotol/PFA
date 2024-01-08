@@ -2,10 +2,8 @@ import { Test, TestingModule } from "@nestjs/testing";
 import { AdderService } from "./adder.service";
 import { Market_FinancialAssetService } from 'src/market/financialAsset/financialAsset.service';
 import { MarketService } from "src/market/market.service";
-import { Database_ExchangeService } from "src/database/exchange/exchange.service";
 import { YfinanceInfoService } from "src/database/yf_info/yf_info.service";
 import { Database_FinancialAssetService } from "src/database/financialAsset/financialAsset.service";
-import { UpdaterService } from "src/asset/service/updater.service";
 import { mockSamsungElec } from "src/mock";
 import { AddAssetsResponse } from "../response/addAssets.response";
 import { YfInfo } from "src/common/interface";
@@ -23,10 +21,8 @@ describe('AdderService', () => {
       providers: [
         { provide: Market_FinancialAssetService, useValue: {} },
         { provide: MarketService, useValue: {} },
-        { provide: Database_ExchangeService, useValue: {} },
         { provide: YfinanceInfoService, useValue: {} },
         { provide: Database_FinancialAssetService, useValue: {} },
-        { provide: UpdaterService, useValue: {} },
         AdderService
       ],
     }).compile();

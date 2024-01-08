@@ -1,29 +1,21 @@
 import { Test, TestingModule } from "@nestjs/testing";
-import { Market_ExchangeService } from 'src/market/exchange/exchange.service';
 import { MarketService } from "src/market/market.service";
-import { Database_ExchangeService } from "src/database/exchange/exchange.service";
 import { Database_FinancialAssetService } from "src/database/financialAsset/financialAsset.service";
-import { UpdaterService } from "src/asset/service/updater.service";
-import { DatabaseService } from 'src/database/database.service';
-import { ProductApiService } from 'src/productApi/productApi.service';
+import { Asset_UpdaterService } from "src/asset/service/updater.service";
 
 describe('UpdaterService', () => {
-  let service: UpdaterService;
+  let service: Asset_UpdaterService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
-        { provide: Market_ExchangeService, useValue: {} },
         { provide: MarketService, useValue: {} },
-        { provide: Database_ExchangeService, useValue: {} },
         { provide: Database_FinancialAssetService, useValue: {} },
-        { provide: DatabaseService, useValue: {} },
-        { provide: ProductApiService, useValue: {} },
-        UpdaterService
+        Asset_UpdaterService
       ],
     }).compile();
 
-    service = module.get<UpdaterService>(UpdaterService);
+    service = module.get(Asset_UpdaterService);
   });
 
   afterEach(() => {

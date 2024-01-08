@@ -5,7 +5,7 @@ import {
 } from "./financialAsset/financialAsset.service";
 import { Market_Exchange } from "./exchange/class/exchange";
 import {
-  CoreExchange,
+  ExchangeIsoCode,
   FulfilledYfInfo,
   FulfilledYfPrice,
   Ticker,
@@ -32,11 +32,11 @@ export class MarketService {
   }
 
   public async fetchFulfilledYfPrices(
-    exchange: CoreExchange,
+    isoCode: ExchangeIsoCode,
     tickerArr: Ticker[]
   ) {
     const yfPriceArr = await this.financialAssetSrv.fetchYfPrices(tickerArr);
-    const marketExchange = this.exchangeSrv.getOne(exchange);
+    const marketExchange = this.exchangeSrv.getOne(isoCode);
     return F.pipe(
       yfPriceArr, F.toAsync,
       F.map(E.map(this.fulfillYfPrice.bind(this, marketExchange))),

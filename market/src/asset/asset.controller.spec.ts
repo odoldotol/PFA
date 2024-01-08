@@ -27,12 +27,12 @@ describe('AssetController', () => {
         {
           provide: AccessorService,
           useValue: {
-            getPriceByTicker: jest.fn((ticker: Ticker) => {
+            getPrice: jest.fn((ticker: Ticker) => {
               if (ticker === mockApple.symbol) {
                 return Promise.resolve(mockApple);
               } else return Promise.resolve(null);
             }),
-            addPriceByTicker: jest.fn((ticker: Ticker) => {
+            addAssetAndGetPrice: jest.fn((ticker: Ticker) => {
               if (ticker === mockSamsungElec.symbol) {
                 return Promise.resolve(mockSamsungElec);
               } else throw new NotFoundException(
@@ -47,8 +47,8 @@ describe('AssetController', () => {
     assetController = moduleRef.get(AssetController);
     accessorService = moduleRef.get(AccessorService);
 
-    getPriceByTickerSpy = jest.spyOn(accessorService, 'getPriceByTicker');
-    addPriceByTickerSpy = jest.spyOn(accessorService, 'addPriceByTicker');
+    getPriceByTickerSpy = jest.spyOn(accessorService, 'getPrice');
+    addPriceByTickerSpy = jest.spyOn(accessorService, 'addAssetAndGetPrice');
   });
 
   describe('getPriceByTicker', () => {
@@ -65,7 +65,7 @@ describe('AssetController', () => {
     });
 
     it('should return 200 and asset', async () => {
-      await assetController.getPriceByTicker(
+      await assetController.getPrice(
         mockApple.symbol,
         mockResponse
       );
@@ -80,7 +80,7 @@ describe('AssetController', () => {
     });
 
     it('should return 201 and asset', async () => {
-      await assetController.getPriceByTicker(
+      await assetController.getPrice(
         mockSamsungElec.symbol,
         mockResponse
       );
@@ -97,7 +97,7 @@ describe('AssetController', () => {
 
     it('should throw NotFoundException', async () => {
       const notFoundTicker = "notFoundTicker";
-      await expect(assetController.getPriceByTicker(
+      await expect(assetController.getPrice(
         notFoundTicker,
         mockResponse
       )).rejects.toThrow(new NotFoundException(

@@ -1,23 +1,26 @@
 import { Module } from "@nestjs/common";
-import { DatabaseModule } from "src/database/database.module";
 import { MarketModule } from "src/market/market.module";
-import { ProductApiModule } from "src/productApi/productApi.module";
+import { Market_FinancialAssetModule } from "src/market/financialAsset/financialAsset.module";
+import { Database_FinancialAssetModule } from "src/database/financialAsset/financialAsset.module";
+import { YfinanceInfoModule } from "src/database/yf_info/yf_info.module";
 import { AssetController } from "./asset.controller";
-import { UpdaterService } from "./service/updater.service";
+import { Asset_UpdaterService } from "./service/updater.service";
 import { AdderService } from "./service/adder.service";
 import { AccessorService } from "./service/accessor.service";
 
 @Module({
   imports: [
     MarketModule,
-    DatabaseModule,
-    ProductApiModule
+    Market_FinancialAssetModule,
+    Database_FinancialAssetModule,
+    YfinanceInfoModule
   ],
   controllers: [AssetController],
   providers: [
-    UpdaterService,
+    Asset_UpdaterService,
     AdderService,
     AccessorService
   ],
+  exports: [Asset_UpdaterService]
 })
 export class AssetModule {}

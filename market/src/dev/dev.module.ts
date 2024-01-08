@@ -1,13 +1,15 @@
 import { Module } from '@nestjs/common';
 import { DevController } from './dev.controller';
 import { DevService } from './dev.service';
-import { DatabaseModule } from 'src/database/database.module';
-import { MarketModule } from 'src/market/market.module';
+import { LogPriceUpdateModule } from 'src/database/log_priceUpdate/log_priceUpdate.module';
+import { YfinanceInfoModule } from 'src/database/yf_info/yf_info.module';
+import { Market_ExchangeModule } from 'src/market/exchange/exchange.module';
 
 @Module({
   imports: [
-    DatabaseModule,
-    MarketModule
+    LogPriceUpdateModule,
+    YfinanceInfoModule,
+    Market_ExchangeModule
   ],
   controllers: [DevController],
   providers: [DevService],

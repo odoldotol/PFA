@@ -16,15 +16,7 @@ import { DatabaseService } from "./database.service";
     LogPriceUpdateModule,
     YfinanceInfoModule
   ],
-  providers: [
-    DatabaseService
-  ],
-  exports: [
-    Database_ExchangeModule,
-    Database_FinancialAssetModule,
-    LogPriceUpdateModule,
-    YfinanceInfoModule,
-    DatabaseService
-  ]
+  providers: [DatabaseService],
+  exports: [DatabaseService]
 })
 export class DatabaseModule {}

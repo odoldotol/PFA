@@ -22,7 +22,7 @@
     "test:docker:up:postgres": "docker compose -p pfa-market-test --profile postgres -f test/docker-compose.yml up -d",
     "test:docker:stop": "docker compose -p pfa-market-test --profile test -f test/docker-compose.yml stop",
     "test:docker:down": "docker compose -p pfa-market-test --profile test -f test/docker-compose.yml down",
-    "test:e2e:docker:build:child": "docker build ../getMarket -t pfa-market-child",
+    "test:e2e:docker:build:child": "docker build ../marketChild -t pfa-market-child",
     "test:e2e:docker:up": "docker compose -p pfa-market-test --profile e2e -f test/docker-compose.yml up -d",
     "test:e2e:docker:stop": "docker compose -p pfa-market-test --profile e2e -f test/docker-compose.yml stop",
     "test:e2e:docker:down": "docker compose -p pfa-market-test --profile e2e -f test/docker-compose.yml down",

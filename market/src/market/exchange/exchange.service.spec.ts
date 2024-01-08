@@ -1,6 +1,6 @@
 import { Test, TestingModule } from "@nestjs/testing";
 import { ValueProvider } from "@nestjs/common";
-import { Market_ExchangeModule } from "./exchange.module";
+import { Market_ExchangeRootModule } from "./exchange.module";
 import { Market_ExchangeService } from "./exchange.service";
 import { EXCHANGE_PROVIDER_TOKEN } from "./const";
 import { MOCK_CONFIG_EXCHANGES } from "./mock/exchange.mock";
@@ -29,7 +29,7 @@ const mockExchangeProviderArr
 );
 
 const mockExchangeServiceProvider
-= Market_ExchangeModule.generateExchangeServiceProvider(mockExchangeProviderTokenArr);
+= Market_ExchangeRootModule.generateExchangeServiceProvider(mockExchangeProviderTokenArr);
 
 describe("ExchangeService", () => {
   let service: Market_ExchangeService;

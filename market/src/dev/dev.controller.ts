@@ -1,13 +1,12 @@
 import { Controller, Get, Query, Version } from '@nestjs/common';
-import { ApiExcludeEndpoint, ApiTags } from '@nestjs/swagger';
+import { ApiTags } from '@nestjs/swagger';
 import { DevService } from './dev.service';
 import { ExchangeIsoCode } from 'src/common/interface';
 import { UpperCasePipe } from 'src/common/pipe/upperCasePipe';
 import { ApiCommonResponse } from 'src/common/decorator/apiCommonResponse.decorator';
 import {
   Api_getAllAssetsInfo,
-  Api_getAllExchangeFromMarket,
-  Api_getAllExchange,
+  Api_getAllExchangesFromMarket,
   Api_getUpdateLog
 } from './decorator';
 
@@ -28,22 +27,9 @@ export class DevController {
 
   @Version('1.1')
   @Get('exchange/market')
-  @Api_getAllExchangeFromMarket()
-  getAllExchangeFromMarket() {
-    return this.devService.getAllExchangeFromMarket();
-  }
-
-  @Version('1.1')
-  @Get('exchange/server')
-  @Api_getAllExchange()
-  getAllExchange() {
-    return this.devService.getAllExchange();
-  }
-
-  @Get('status_price/info')
-  @ApiExcludeEndpoint()
-  getAllStatusPrice() {
-    return this.getAllExchange();
+  @Api_getAllExchangesFromMarket()
+  getAllExchangesFromMarket() {
+    return this.devService.getAllExchangesFromMarket();
   }
 
   @Get('update/log')

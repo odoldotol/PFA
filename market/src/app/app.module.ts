@@ -6,7 +6,7 @@ import {
 import { ConfigModule } from '@nestjs/config';
 import { Pm2Module } from 'src/pm2/pm2.module';
 import { DevModule } from 'src/dev/dev.module';
-import { AssetModule } from 'src/asset/asset.module';
+import { UpdaterModule } from 'src/updater/updater.module';
 import { AppController } from './app.controller';
 import { HttpLoggerMiddleware } from './middleware/httpLogger.middleware';
 import { KeepAliveInterceptor } from './interceptor';
@@ -27,7 +27,7 @@ import {
     }),
     Pm2Module,
     DevModule,
-    AssetModule
+    UpdaterModule,
   ],
   controllers: [AppController],
   providers: [

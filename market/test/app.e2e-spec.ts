@@ -5,7 +5,7 @@ import { DataSource } from 'typeorm';
 import { AppModule } from 'src/app/app.module';
 import { Database_ExchangeService } from 'src/database/exchange/exchange.service';
 import { Database_FinancialAssetService } from 'src/database/financialAsset/financialAsset.service';
-import { UpdaterService } from 'src/asset/service';
+import { UpdaterService } from 'src/updater/updater.service';
 import { ProductApiService } from 'src/productApi/productApi.service';
 import { Market_ExchangeService } from 'src/market/exchange/exchange.service';
 import {
@@ -77,7 +77,7 @@ describe('Market E2E', () => {
       리스너 안에서 실행되는 메서드를 일반적인 방법으로는 mock 하지 못하는 문제를 발견 (이건 더 확인해보기). */
       listenerOfUpdateEventSpy = jest.spyOn(
         UpdaterService.prototype as any,
-        'listenerOfUpdateEvent'
+        'updater'
       ).mockImplementation(); // Fake 타이머로 호출될때 실제 업데이트TX 를 실행하게 되면 Jest 가 테스트를 병열적으로 진행하면서 동기화때 호출하는 업데이트TX 와 겹칠 수 있기에 noop.
 
       // mock productApi - Product 서버에 실재로 요청을 보내지 않기.

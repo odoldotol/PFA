@@ -33,7 +33,7 @@ describe('AccessorService', () => {
     expect(service).toBeDefined();
   });
 
-  describe('getPriceByTicker', () => {
+  describe('getPrice', () => {
     beforeAll(() => {
       database_financialAssetSrv.readOneByPk = jest.fn()
       .mockImplementation((ticker: Ticker) => {
@@ -43,17 +43,17 @@ describe('AccessorService', () => {
     });
 
     it('database_financialAssetSrv 에서 가져올 수 있음', async () => {
-      const res = await service.getPriceByTicker(mockApple.symbol);
+      const res = await service.getPrice(mockApple.symbol);
       expect(res).toEqual(mockApple);
     });
 
     it('database_financialAssetSrv 에서 가져올 수 없음', async () => {
-      const res = await service.getPriceByTicker(mockSamsungElec.symbol);
+      const res = await service.getPrice(mockSamsungElec.symbol);
       expect(res).toEqual(null);
     });
   });
 
-  describe('addPriceByTicker', () => {
+  describe('addAssetAndGetPrice', () => {
     beforeAll(() => {
       adderSrv.addAssetsFromFilteredTickers = jest.fn()
       .mockImplementation(async (
@@ -73,13 +73,13 @@ describe('AccessorService', () => {
     });
 
     it('정상적으로 Asset 추가됨', async () => {
-      const res = await service.addPriceByTicker(mockSamsungElec.symbol);
+      const res = await service.addAssetAndGetPrice(mockSamsungElec.symbol);
       expect(res).toEqual(mockSamsungElec);
     });
 
     it('Asset 을 추가할 수 없음. Not Found.', async () => {
       const notFoundTicker = "notFoundTicker";
-      expect(service.addPriceByTicker(notFoundTicker)).rejects
+      expect(service.addAssetAndGetPrice(notFoundTicker)).rejects
       .toThrow(new NotFoundException(`Could not find Ticker: ${notFoundTicker}`));
     });
   });

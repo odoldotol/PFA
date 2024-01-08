@@ -45,19 +45,19 @@ export class AssetController {
 
   @Post('price/ticker/:ticker')
   @Api_getPriceByTicker()
-  async getPriceByTicker(
+  async getPrice(
     @Param('ticker', UpperCasePipe) ticker: Ticker,
     @Res() response: Response
   ): Promise<void> {
     let body: GetPriceByTickerResponse;
     let status: HttpStatus;
-    const asset = await this.accessorSrv.getPriceByTicker(ticker);
+    const asset = await this.accessorSrv.getPrice(ticker);
     if (asset) {
       body = new GetPriceByTickerResponse(asset);
       status = HttpStatus.OK;
     } else {
       body = new GetPriceByTickerResponse(
-        await this.accessorSrv.addPriceByTicker(ticker)
+        await this.accessorSrv.addAssetAndGetPrice(ticker)
       );
       status = HttpStatus.CREATED;
     }

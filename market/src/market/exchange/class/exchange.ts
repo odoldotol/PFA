@@ -11,7 +11,7 @@ import {
 import {
   CloseEventArg,
   OpenEventArg
-} from "../interface";
+} from "src/common/interface";
 import { MarketEvent } from "src/common/enum";
 import { buildLoggerContext } from "src/common/util";
 import {
@@ -148,7 +148,7 @@ export class Market_Exchange
 
   private marketUpdateHandler() {
     this.logger.verbose(`Update`);
-    this.emit(MarketEvent.UPDATE);
+    this.emit(MarketEvent.UPDATE, this);
   }
 
   private openMarket(): void {

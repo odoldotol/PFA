@@ -18,11 +18,12 @@ import {
   EXCHANGE_PROVIDER_TOKEN,
   EXCHANGE_SESSION_PROVIDER_TOKEN
 } from "./const";
+import CONFIG_EXCHANGES from "src/config/const/exchange.const";
 import { buildInjectionToken } from "src/common/util";
 import * as F from "@fxts/core";
 
 @Module({})
-export class Market_ExchangeModule {
+export class Market_ExchangeRootModule {
   public static register(
     CONFIG_EXCHANGES: ConfigExchanges
   ): DynamicModule {
@@ -30,7 +31,7 @@ export class Market_ExchangeModule {
     const exchangeProviderTokenArr
     = configMap(this.generateExchangeProviderToken);
     return {
-      module: Market_ExchangeModule,
+      module: Market_ExchangeRootModule,
       imports: [ChildApiModule],
       providers: [
         ...configMap(this.generateExchangeConfigProvider),
@@ -145,3 +146,9 @@ export class Market_ExchangeModule {
   }
 
 }
+
+@Module({
+  imports: [Market_ExchangeRootModule.register(CONFIG_EXCHANGES)],
+  exports: [Market_ExchangeRootModule]
+})
+export class Market_ExchangeModule {}

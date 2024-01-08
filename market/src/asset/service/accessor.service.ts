@@ -20,13 +20,13 @@ export class AccessorService {
     private readonly adderSrv: AdderService,
   ) {}
 
-  public getPriceByTicker(
+  public getPrice(
     ticker: Ticker
   ): Promise<FinancialAsset | null> {
     return this.database_financialAssetSrv.readOneByPk(ticker);
   }
 
-  public async addPriceByTicker(
+  public async addAssetAndGetPrice(
     ticker: Ticker
   ): Promise<FinancialAsset> {
     const addAssetsRes = await this.adderSrv.addAssetsFromFilteredTickers([
