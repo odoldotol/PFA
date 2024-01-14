@@ -5,16 +5,22 @@ import { MarketService } from 'src/market/market.service';
 @Injectable()
 export class DevService {
 
-    constructor(
-        private readonly dbSrv: DatabaseService,
-        private readonly marketService: MarketService,) {}
+  constructor(
+    private readonly dbSrv: DatabaseService,
+    private readonly marketService: MarketService,
+  ) {}
 
-    getPrice = this.marketService.getPrice;
+  public getPrice(...args: Parameters<MarketService['getPrice']>) {
+    return this.marketService.getPrice(...args);
+  }
 
-    public async getAllMarketDate() {
-        const map = await this.dbSrv.getAllMarketDateAsMap();
-        return Object.fromEntries(map);
-    };
-    
-    getAllCacheKey = this.dbSrv.getAllCcKeys
+  public async getAllMarketDate() {
+    const map = await this.dbSrv.getAllMarketDateAsMap();
+    return Object.fromEntries(map);
+  };
+
+  public getAllCacheKey(...args: Parameters<DatabaseService['getAllCcKeys']>) {
+    return this.dbSrv.getAllCcKeys(...args);
+  }
+
 }

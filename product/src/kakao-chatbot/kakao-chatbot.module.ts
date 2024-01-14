@@ -5,10 +5,11 @@ import { MarketModule } from "../market/market.module";
 import { DBModule } from "../database/database.module";
 
 @Module({
-    imports: [
-        MarketModule,
-        DBModule],
-    controllers: [KakaoCBController],
-    providers: [KakaoCBService]
+  imports: [
+    MarketModule,
+    DBModule
+  ],
+  controllers: [KakaoCBController],
+  providers: [KakaoCBService]
 })
 export class KakaoCBModule {}

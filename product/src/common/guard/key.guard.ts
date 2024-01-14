@@ -6,7 +6,7 @@ import { EnvKey } from 'src/common/enum/envKey.emun';
 @Injectable()
 export class TempKeyGuard implements CanActivate {
 
-  private readonly TEMP_KEY = this.configService.get(EnvKey.TempKey, 'TEMP_KEY', { infer: true });
+  private readonly TEMP_KEY = this.configService.get(EnvKey.TEMP_KEY, 'TEMP_KEY', { infer: true });
 
   constructor(
       private readonly configService: ConfigService<EnvironmentVariables>,

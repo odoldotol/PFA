@@ -9,7 +9,8 @@ import { MarketApiModule } from './market-api/market-api.module';
   imports: [
     MarketApiModule,
     DBModule,
-    Pm2Module],
+    Pm2Module
+  ],
   controllers: [MarketController],
   providers: [MarketService],
   exports: [MarketService]

@@ -1,6 +1,6 @@
 import { ConfigModule } from "@nestjs/config";
 import { Test, TestingModule } from "@nestjs/testing";
-import { ConnectService } from "./connect.service";
+import { ConnectionService } from "./connect.service";
 import { createClient } from 'redis';
 
 const testClient = createClient({
@@ -31,15 +31,15 @@ it("test 에 이용할 redis 인스턴스가 6379 포트에 준비되어 있어�
 describe('RedisConnectService', () => {
 
     let module: TestingModule;
-    let service: ConnectService;
+    let service: ConnectionService;
 
     beforeEach(async () => {
         module = await Test.createTestingModule({
             imports: [ConfigModule],
-            providers: [ConnectService],
+            providers: [ConnectionService],
         }).compile();
 
-        service = module.get<ConnectService>(ConnectService);
+        service = module.get(ConnectionService);
         
         await module.init();
     });

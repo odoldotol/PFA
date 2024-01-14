@@ -2,6 +2,7 @@ import { Test, TestingModule } from "@nestjs/testing";
 import { RedisService } from "./redis.service";
 import { RedisRepository } from "./redis.repository";
 import { InMemorySchema } from "../class/schema.class";
+import { InMemoryRepository } from "../interface";
 
 const TEST_KEY_PREFIX = "test:";
 const TEST_TTL = 60;
@@ -28,8 +29,8 @@ class MockRedisService {
 describe("RedisRepository", () => {
 
     let module: TestingModule;
-    let repository_obj: InMemoryRepositoryI<TestObjEntityClass>;
-    let repository_str: InMemoryRepositoryI<TestStrEntityClass>;
+    let repository_obj: InMemoryRepository<TestObjEntityClass>;
+    let repository_str: InMemoryRepository<TestStrEntityClass>;
     let service: RedisService;
 
     beforeAll(async () => {

@@ -1,6 +1,6 @@
-import { CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+// import { CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 
-@Entity()
+// @Entity()
 export class Action {
 /*
     @PrimaryGeneratedColumn()

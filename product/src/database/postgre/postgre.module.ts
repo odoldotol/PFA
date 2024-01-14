@@ -1,29 +1,14 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { DataSource } from 'typeorm';
+import { TypeOrmConfigService } from './typeormConfig.service';
 
 @Module({
   imports: [
-    // TypeOrmModule.forRootAsync({
-    //   imports: [],
-    //   useFactory: () => ({
-    //     type: 'postgres',
-    //     host: 'localhost',
-    //     port: 5432,
-    //     username: 'gyu',
-    //     password: '',
-    //     database: 'pfa_dev',
-    //     entities: [], //
-    //     synchronize: true, //
-    //     // logging: true, //
-    //     autoLoadEntities: true, //
-    //   }),
-    //   inject: [],
-    // }),
+    TypeOrmModule.forRootAsync({
+      useClass: TypeOrmConfigService,
+    })
   ],
   providers: [],
-  exports: [],
+  exports: []
 })
-export class PostgreModule {
-  // constructor(private dataSource: DataSource) {}
-}
+export class PostgresModule {}

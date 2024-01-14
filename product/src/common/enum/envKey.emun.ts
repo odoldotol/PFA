@@ -1,18 +1,23 @@
 export enum EnvKey {
-    Port = 'PORT',
-    
-    // .env
-    MarketApiTimeout = 'MARKET_API_TIMEOUT',
-    TempKey = 'TEMP_KEY',
-    MinThreshold_priceCache = 'PRICE_CACHE_COUNT',
-    KakaoChatbotVersion = 'KAKAO_CHATBOT_VERSION',
-    KakaoChatbotID = 'KAKAO_CHATBOT_ID',
+  PORT = 'PORT',
 
-    // pm2
-    Pm2_name = 'PM2_NAME',
-    PM2_listen_timeout = 'listen_timeout',
+  // .env
+  MARKET_API_TIMEOUT = 'MARKET_API_TIMEOUT',
+  TEMP_KEY = 'TEMP_KEY',
+  MinThreshold_priceCache = 'PRICE_CACHE_COUNT',
+  KAKAO_CHATBOT_VERSION = 'KAKAO_CHATBOT_VERSION',
+  KAKAO_CHATBOT_ID = 'KAKAO_CHATBOT_ID',
+  PG_HOST = 'PG_HOST',
+  PG_USERNAME = 'PG_USERNAME',
+  PG_PASSWORD = 'PG_PASSWORD',
+  PG_DATABASE = 'PG_DATABASE',
 
-    // docker
-    Docker_marketApiBaseUrl = 'MARKET_API_BASE_URL',
-    Docker_redisUrl = 'REDIS_URL',
+  // pm2
+  PM2_NAME = 'PM2_NAME',
+  PM2_LISTEN_TIMEOUT = 'listen_timeout',
+
+  // docker
+  DOCKER_MARKET_API_BASE_URL = 'MARKET_API_BASE_URL',
+  DOCKER_REDIS_URL = 'REDIS_URL',
+  DOCKER_ENV = 'RACK_ENV',
 }

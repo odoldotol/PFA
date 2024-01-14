@@ -1,6 +1,6 @@
-import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+// import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 
-@Entity()
+// @Entity()
 export class Asset { // 유가 쓰거나 수정,삭제할 수 없는 테이블
 /*
     @PrimaryGeneratedColumn()

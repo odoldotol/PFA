@@ -1,20 +1,25 @@
 import { EnvKey } from "../enum/envKey.emun";
 
 export interface EnvironmentVariables {
-    [EnvKey.Port]: number;
+    [EnvKey.PORT]: number;
 
     // .env
-    [EnvKey.MarketApiTimeout]: number;
-    [EnvKey.TempKey]: string;
+    [EnvKey.MARKET_API_TIMEOUT]: number;
+    [EnvKey.TEMP_KEY]: string;
     [EnvKey.MinThreshold_priceCache]: number;
-    [EnvKey.KakaoChatbotVersion]: string;
-    [EnvKey.KakaoChatbotID]: string;
+    [EnvKey.KAKAO_CHATBOT_VERSION]: string;
+    [EnvKey.KAKAO_CHATBOT_ID]: string;
+    [EnvKey.PG_HOST]: string;
+    [EnvKey.PG_USERNAME]: string;
+    [EnvKey.PG_PASSWORD]: string;
+    [EnvKey.PG_DATABASE]: string;
 
     // pm2
-    [EnvKey.Pm2_name]: string;
-    [EnvKey.PM2_listen_timeout]: number;
+    [EnvKey.PM2_NAME]: string;
+    [EnvKey.PM2_LISTEN_TIMEOUT]: number;
 
     // docker
-    [EnvKey.Docker_marketApiBaseUrl]: string;
-    [EnvKey.Docker_redisUrl]: string;
+    [EnvKey.DOCKER_MARKET_API_BASE_URL]: string;
+    [EnvKey.DOCKER_REDIS_URL]: string;
+    [EnvKey.DOCKER_ENV]: string;
 }

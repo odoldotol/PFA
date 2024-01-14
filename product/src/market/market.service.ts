@@ -1,133 +1,225 @@
-import { Injectable, Logger, OnApplicationBootstrap, OnModuleInit } from '@nestjs/common';
+// Todo: Refac
+
+import {
+  Injectable,
+  Logger,
+  OnApplicationBootstrap,
+  OnModuleInit
+} from '@nestjs/common';
 import { DatabaseService } from 'src/database/database.service';
 import { Pm2Service } from 'src/pm2/pm2.service';
 import { MarketApiService } from './market-api/market-api.service';
 import { MarketDate } from 'src/common/class/marketDate.class';
-import { append, apply, compact, compactObject, concurrent, curry, delay, drop, each, entries, filter, flat, fromEntries, head, isNil, isObject, isString, isUndefined, join, last, map, not, nth, partition, peek, pick, pipe, reduce, reject, tap, toArray, toAsync } from '@fxts/core';
-import { CachedPrice } from 'src/common/class/cachedPrice.class'; //
+import * as F from '@fxts/core';
 
 @Injectable()
-export class MarketService implements OnModuleInit, OnApplicationBootstrap {
+export class MarketService
+  implements OnModuleInit, OnApplicationBootstrap
+{
+  private readonly logger = new Logger(MarketService.name);
 
-    private readonly logger = new Logger(MarketService.name);
+  constructor(
+    private readonly dbSrv: DatabaseService,
+    private readonly pm2Service: Pm2Service,
+    private readonly marketApiSrv: MarketApiService
+  ) {}
 
-    constructor(
-        private readonly dbSrv: DatabaseService,
-        private readonly pm2Service: Pm2Service,
-        private readonly marketApiSrv: MarketApiService
-    ) {}
+  async onModuleInit() {
+    this.logger.warn("Initiator Run!!!");
+    this.dbSrv.isInMemoryStore_AppMemory() ? // 필요 없지 않나?
+      await this.restoreCache() :
+      await this.selectiveCacheUpdate();
+  }
 
-    onModuleInit = async () => {
-        this.logger.warn("Initiator Run!!!");
-        this.dbSrv.isInMemoryStore_AppMemory() ?
-            await this.restoreCache() :
-            await this.selectiveCacheUpdate();};
+  // 필요 없지 않나?
+  onApplicationBootstrap() {
+    this.dbSrv.isInMemoryStore_AppMemory() &&
+    this.pm2Service.IS_RUN_BY_PM2 &&
+      this.pm2Service.listenOldProcessCacheRecovery(this.restoreCache.bind(this));
+    this.logger.warn("Initiator End!!!");
+  };
 
-    onApplicationBootstrap = () => {
-        this.dbSrv.isInMemoryStore_AppMemory() && this.pm2Service.IS_RUN_BY_PM2 &&
-            this.pm2Service.cacheRecoveryListener(this.restoreCache);
-        this.logger.warn("Initiator End!!!");};
+  private async restoreCache() {
+    await this.dbSrv.cacheRecovery()
+    .then(this.selectiveCacheUpdate.bind(this))
+    .catch(this.cacheHardInit.bind(this));
+  }
 
-    private restoreCache = () => this.dbSrv.cacheRecovery()
-        .then(this.selectiveCacheUpdate)
-        .catch(this.cacheHardInit);
+  private async selectiveCacheUpdate() {
+    await F.pipe(
+      this.spAsyncIter(),
+      F.reject(this.isSpLatest.bind(this)),
+      F.map(this.withPriceSetArr.bind(this)),
+      F.each(this.dbSrv.updatePriceBySpPSets.bind(this.dbSrv))
+    ).then(() =>
+      this.logger.verbose(`SelectiveUpdate Success`)
+    ).catch(e => {
+      this.logger.verbose(`SelectiveUpdate Failed`);
+      this.logger.error(e);
+      throw e
+    });
+  }
 
-    private selectiveCacheUpdate = () => pipe(
-        this.spAsyncIter(),
-        reject(this.isSpLatest),
-        map(this.withPriceSetArr),
-        each(this.dbSrv.updatePriceBySpPSets)
-    ).then(() => this.logger.verbose(`SelectiveUpdate Success`))
-    .catch(e => {this.logger.error(e), this.logger.error(`SelectiveUpdate Failed`); throw e});
+  private async cacheHardInit() {
+    await F.pipe(
+      this.spAsyncIter(),
+      F.map(this.withPriceSetArr.bind(this)),
+      F.each(this.dbSrv.cacheHardInit.bind(this.dbSrv))
+    ).then(() =>
+      this.logger.verbose(`CacheHardInit Success`)
+    ).catch(error => {
+      this.logger.verbose(`CacheHardInit Failed`);
+      this.logger.error(error);
+    });
+  }
 
-    private cacheHardInit = () => pipe(
-        this.spAsyncIter(),
-        map(this.withPriceSetArr),
-        each(this.dbSrv.cacheHardInit)
-    ).then(() => this.logger.verbose(`CacheHardInit Success`))
-    .catch(error => (this.logger.error(error), this.logger.error(`CacheHardInit Failed`)));
+  private spAsyncIter() {
+    return F.pipe(
+      this.marketApiSrv.fetchAllSpDoc(), F.toAsync,
+      F.map(this.spDocToSp)
+    );
+  }
 
-    private spAsyncIter = () => pipe(
-        this.marketApiSrv.fetchAllSpDoc(), toAsync,
-        map(this.spDocToSp));
+  private spDocToSp(spDoc: StatusPrice) {
+    return [spDoc.isoCode, MarketDate.fromSpDoc(spDoc)] as Sp;
+  }
 
-    private spDocToSp = (spDoc: StatusPrice) => [ spDoc.isoCode, MarketDate.fromSpDoc(spDoc) ] as Sp;
+  private async isSpLatest(sp: Sp) {
+    return MarketDate.areEqual(
+      F.last(sp),
+      await this.dbSrv.readCcStatusPrice(F.head(sp))
+    );
+  }
 
-    private isSpLatest = async (sp: Sp) => MarketDate.areEqual(last(sp), await this.dbSrv.readCcStatusPrice(head(sp)));
+  private async withPriceSetArr(sp: Sp) {
+    return [
+      sp,
+      await this.marketApiSrv.fetchPriceByISOcode(F.head(sp))
+    ] as [Sp, PSet[]];
+  }
 
-    private withPriceSetArr = async (sp: Sp) => [ sp, await this.marketApiSrv.fetchPriceByISOcode(head(sp)) ] as [Sp, PSet[]];
+  public updatePriceByExchange(ISO_Code: string, body: UpdatePriceByExchangeBodyI) {
+    return this.dbSrv.updatePriceBySpPSets([
+      [ISO_Code, new MarketDate(body.marketDate)],
+      body.priceArrs
+    ]);
+  }
 
-    updatePriceByExchange = (ISO_Code: string, body: UpdatePriceByExchangeBodyI) => 
-        this.dbSrv.updatePriceBySpPSets([[ ISO_Code, new MarketDate(body.marketDate) ], body.priceArrs]); // 그냥 spDoc 이랑 priceArrs 을 받으면 깔끔한데, 마켓서버도 괜히 구조분해해서 쓰지말고 spDoc이 통째로 흘러가면서 작업하는게 좋지 않을까?
+  public getPrice(ticker: string, id: string = "") {
+    return F.pipe(
+      [ticker, []] as GPSet,
+      F.apply(this.readCache.bind(this)),
+      F.apply(this.ifNoCache_setNew.bind(this)),
+      F.apply(this.ifOutdated_updateIt.bind(this)),
+      F.tap(this.Logger_GetPriceByTicker.bind(this, id)),
+      this.takeLastFromSet,
+    );
+  }
 
-    getPrice = async (ticker: string, id: string = "") => pipe(
-        [ ticker, [] ] as GPSet,
-        apply(this.readCache),
-        apply(this.ifNoCache_setNew),
-        apply(this.ifOutdated_updateIt),
-        tap(this.Logger_GetPriceByTicker(id)),
-        this.takeLastFromSet);
+  private async readCache(...[ticker, stack]: GPSet) {
+    return [
+      ticker,
+      F.toArray(F.append(
+        await this.dbSrv.readCcPriceCounting(ticker),
+        stack
+      ))
+    ] as GPSet;
+  }
 
-    private readCache = async (...[ ticker, stack ]: GPSet) =>
-        [ ticker, toArray(append(
-            await this.dbSrv.readCcPriceCounting(ticker), stack)) ] as GPSet;
+  private async ifNoCache_setNew(...[ticker, stack]: GPSet) {
+    return [
+      ticker,
+      F.toArray(F.append(
+        F.isNil(F.head(stack)) &&
+        await this.createPriceWithFetching(ticker),
+        stack
+      ))
+    ] as GPSet;
+  }
 
-    private ifNoCache_setNew = async (...[ ticker, stack ]: GPSet) =>
-        [ ticker, toArray(append(
-            isNil(head(stack)) &&
-            await this.createPriceWithFetching(ticker), stack as CachedPrice[])) ] as GPSet; // TODO - Refac
-    
-    private ifOutdated_updateIt = async (...[ ticker, stack ]: GPSet) =>
-        [ ticker, toArray(append(
-            isObject(head(stack)) &&
-            not(await this.isPriceUpToDate(head(stack) as CachedPriceI)) &&
-            await this.updateWithFetching(ticker), stack)) ] as GPSet;
+  private async ifOutdated_updateIt(...[ticker, stack]: GPSet) {
+    return [
+      ticker,
+      F.toArray(F.append(
+        F.isObject(F.head(stack)) &&
+        F.not(await this.isPriceUpToDate(F.head(stack) as CachedPriceI)) &&
+        await this.updateWithFetching(ticker),
+        stack
+      ))
+    ] as GPSet;
+  }
 
-    private Logger_GetPriceByTicker = curry(
-        (id: string, [ ticker, stack ]: GPSet) => pipe(stack,
-            map(a => a ? 1 : 0),
-            toArray,
-            join(""),
-            tap(code => this.logger.verbose(`${ticker} : ${code}${id && " "+id}`))));
+  private Logger_GetPriceByTicker(id: string, [ticker, stack]: GPSet) {
+    return F.pipe(
+      stack,
+      F.map(a => a ? 1 : 0),
+      F.toArray,
+      F.join(""),
+      F.tap(code => this.logger.verbose(`${ticker} : ${code}${id && " " + id}`))
+    );
+  }
 
-    private takeLastFromSet = (set: GPSet) => pipe(last(set),
-        filter(a => a),
-        last);
+  private takeLastFromSet(set: GPSet) {
+    return F.pipe(
+      F.last(set),
+      F.filter(a => a),
+      F.last
+    );
+  }
 
-    private createPriceWithFetching = (ticker: string) => pipe(ticker,
-        this.fetchPriceSet,
-        this.dbSrv.createCcPrice.bind(this.dbSrv));
+  private createPriceWithFetching(ticker: string) {
+    return F.pipe(
+      ticker,
+      this.fetchPriceSet.bind(this),
+      this.dbSrv.createCcPrice.bind(this.dbSrv)
+    );
+  }
 
-    private isPriceUpToDate = async (price: CachedPriceI) =>
-        MarketDate.areEqual(price.marketDate, await this.dbSrv.readCcStatusPrice(price.ISO_Code));
+  private async isPriceUpToDate(price: CachedPriceI) {
+    return MarketDate.areEqual(
+      price.marketDate,
+      await this.dbSrv.readCcStatusPrice(price.ISO_Code)
+    );
+  }
 
-    private updateWithFetching = (ticker: string) => pipe(ticker,
-        this.fetchPriceUpdateSet,
-        this.dbSrv.updateCcPrice.bind(this.dbSrv));
+  private updateWithFetching(ticker: string) {
+    return F.pipe(
+      ticker,
+      this.fetchPriceUpdateSet.bind(this),
+      this.dbSrv.updateCcPrice.bind(this.dbSrv)
+    );
+  }
 
-    // TODO - Refac
-    private fetchPriceSet = (ticker: string) => pipe(ticker,
-        this.marketApiSrv.fetchPriceByTicker,
-        tap(this.dbSrv.createCcPriceStatusWithRP),
-        async (rP) => [
-            ticker,
-            Object.assign(rP, {
-                marketDate: await this.dbSrv.readCcStatusPrice(rP.ISO_Code),
-                count: 1})
-        ] as CacheSet<CachedPriceI>);
+  private fetchPriceSet(ticker: string) {
+    return F.pipe(
+      ticker,
+      this.marketApiSrv.fetchPriceByTicker.bind(this.marketApiSrv),
+      F.tap(this.dbSrv.createCcPriceStatusWithRP.bind(this.dbSrv)),
+      async (rP) => [
+        ticker,
+        Object.assign(rP, {
+          marketDate: await this.dbSrv.readCcStatusPrice(rP.ISO_Code),
+          count: 1
+        })
+      ] as CacheSet<CachedPriceI>
+    );
+  }
 
-    // TODO - Refac
-    private fetchPriceUpdateSet = (ticker: string) => pipe(ticker,
-        this.marketApiSrv.fetchPriceByTicker,
-        async (rP) => [ ticker, pick(
-            ["price", "marketDate"],
-            Object.assign(rP, { marketDate: await this.dbSrv.readCcStatusPrice(rP.ISO_Code) }))
-        ] as CacheUpdateSet<CachedPriceI>);
+  private fetchPriceUpdateSet(ticker: string) {
+    return F.pipe(
+      ticker,
+      this.marketApiSrv.fetchPriceByTicker.bind(this.marketApiSrv),
+      async (rP) => [ticker, F.pick(
+        ["price", "marketDate"],
+        Object.assign(rP, { marketDate: await this.dbSrv.readCcStatusPrice(rP.ISO_Code) }))
+      ] as CacheUpdateSet<CachedPriceI>
+    );
+  }
 
-    getAllStatusPrice = async () => pipe(
-        this.marketApiSrv.fetchAllSpDoc(), toAsync,
-        map(sp => sp.isoCode),
-        map(async c => [c, await this.dbSrv.readCcStatusPrice(c)] as Sp),
-        fromEntries);
+  // getAllStatusPrice = async () => F.pipe(
+  //   this.marketApiSrv.fetchAllSpDoc(), F.toAsync,
+  //   F.map(sp => sp.isoCode),
+  //   F.map(async c => [c, await this.dbSrv.readCcStatusPrice(c)] as Sp),
+  //   F.fromEntries);
 
 }

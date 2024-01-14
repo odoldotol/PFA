@@ -1,19 +1,36 @@
+// 필요 없어진거아님?
+
 import { Inject, Injectable } from "@nestjs/common";
-import { INMEMORY_STORE_SERVICE, INMEMORY_STORE_BACKUP_SERVICE } from "./const/injectionToken.const";
+import {
+  INMEMORY_STORE_SERVICE_TOKEN,
+  INMEMORY_STORE_BACKUP_SERVICE_TOKEN
+} from "./const/injectionToken.const";
+import {
+  InMemoryBackupService,
+  InMemoryStoreService
+} from "./interface";
 
 @Injectable()
 export class InMemoryService {
 
-    constructor(
-        @Inject(INMEMORY_STORE_SERVICE) private readonly storeSrv: InMemoryStoreServiceI,
-        @Inject(INMEMORY_STORE_BACKUP_SERVICE) private readonly backupSrv: InMemoryStoreBackupServiceI
-    ) {}
+  constructor(
+    @Inject(INMEMORY_STORE_SERVICE_TOKEN) private readonly storeSrv: InMemoryStoreService,
+    @Inject(INMEMORY_STORE_BACKUP_SERVICE_TOKEN) private readonly backupSrv: InMemoryBackupService
+  ) {}
 
-    // [DEV]
-    getAllKeys = this.storeSrv.getAllKeys;
+  // [DEV]
+  public getAllKeys() {
+    return this.storeSrv.getAllKeys();
+  }
 
-    localFileCacheRecovery = this.backupSrv.localFileCacheRecovery;
+  // 필요 없어진거아님?
+  public localFileCacheRecovery() {
+    return this.backupSrv.localFileCacheRecovery();
+  }
 
-    isUseingAppMemory = () => Object.getPrototypeOf(this.storeSrv).constructor.name as string === "AppMemoryService";
+  // 필요 없어진거아님?
+  public isUseingAppMemory() {
+    return Object.getPrototypeOf(this.storeSrv).constructor.name === "AppMemoryService";
+  }
 
 }

@@ -1,42 +1,41 @@
+// Todo: dedup(market, product)
+
 import { Logger } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { ConfigService } from '@nestjs/config';
 import { AppModule } from './app/app.module';
-import { SwaggerModule } from '@nestjs/swagger';
 import { EnvironmentVariables } from 'src/common/interface/environmentVariables.interface';
 import { EnvKey } from 'src/common/enum/envKey.emun';
-import { versioningOptions } from './versioningOptions.const';
-import { AppTerminator } from './app/app.terminator';
-import { config } from './openApiConfig.const';
+import { versioningOptions } from 'src/config/const';
+import setupSwagger from './setupSwagger';
+import addTerminator from './addTerminator';
 
 const bootstrap = async () => {
-  const logger = new Logger("NestApplication");
   const app = await NestFactory.create(AppModule);
-  const configService = app.get(ConfigService<EnvironmentVariables>);
-
+  
   app.enableVersioning(versioningOptions);
+  
+  setupSwagger(app);
+    
+  const configService = app.get(ConfigService<EnvironmentVariables>);
+  const port = configService.get(EnvKey.PORT, 7001, { infer: true });
+  
+  await app.listen(port);
 
-  SwaggerModule.setup(
-    'docs',
-    app,
-    SwaggerModule.createDocument(app, config)
-  );
+  // Todo: pm2Module 안으로 옮기고 꺼내서 쓰기 --------------------
+  const logger = new Logger("PM2Messenger")
   
-  await app.listen(configService.get(EnvKey.Port, 7001, { infer: true }));
-  logger.log('App listen');
-  
-  configService.get(EnvKey.Pm2_name, { infer: true })
-  && process.send
-  && process.send(
+  configService.get(EnvKey.PM2_NAME, { infer: true }) &&
+  process.send &&
+  process.send(
     'ready',
     logger.log("Send Ready to Parent Process"),
     { swallowErrors: true },
     err => err && logger.error(err)
   );
+  // --------------------------------------------------------
 
-  process.on('SIGINT', () => {
-    app.get(AppTerminator).terminate(app);
-  });
+  addTerminator(app);
 };
 
 bootstrap();

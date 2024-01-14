@@ -1,6 +1,6 @@
 import { ConfigModule } from "@nestjs/config";
 import { Test, TestingModule } from "@nestjs/testing";
-import { ConnectService } from "./connect.service";
+import { ConnectionService } from "./connect.service";
 import { RedisService } from "./redis.service";
 import * as F from '@fxts/core'
 
@@ -10,15 +10,15 @@ describe("RedisService", () => {
 
     let module: TestingModule;
     let service: RedisService;
-    let client: ConnectService["client"];
+    let client: ConnectionService["client"];
 
     beforeAll(async ()  => {
         module = await Test.createTestingModule({
             imports: [ConfigModule],
-            providers: [ConnectService, RedisService]
+            providers: [ConnectionService, RedisService]
         }).compile();
         service = module.get<RedisService>(RedisService);
-        client = module.get<ConnectService>(ConnectService).client;
+        client = module.get(ConnectionService).client;
         await module.init();});
 
     afterAll(async () => {
@@ -57,7 +57,7 @@ describe("RedisService", () => {
         it("모든 키를 배열로 반환.", async () => {
             const allKeys = await service.getAllKeys();
             allKeys.forEach((key) => {
-                if (key.slice(0, TEST_KEY_PREFIX.length) === TEST_KEY_PREFIX) testKeyValueMap.delete(RedisService.getKeyBody(key));
+                if (key.slice(0, TEST_KEY_PREFIX.length) === TEST_KEY_PREFIX) testKeyValueMap.delete(key.slice(TEST_KEY_PREFIX.length));
             });
             expect(testKeyValueMap.size).toBe(0);
         });
