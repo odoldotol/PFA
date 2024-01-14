@@ -145,7 +145,7 @@ The following is a sequence diagram showing the initialization to the listen pha
 
 ![market-init-dia](https://storage.googleapis.com/odoldotol-image-store/market-init-dia.png)
 
-...
+...more
 
 
 <br>
@@ -225,3 +225,14 @@ $ sh scripts/pfa:start:prod
 <br>
 <br>
 
+
+## Market
+
+### Modules
+
+![market-module-dia](https://storage.googleapis.com/odoldotol-image-store/market-module-dia.png)
+
+
+### Instances
+
+![market-instance-dia](https://storage.googleapis.com/odoldotol-image-store/market-instance-dia.png)
