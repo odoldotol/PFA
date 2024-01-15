@@ -116,7 +116,7 @@ export class Pm2Service implements OnModuleInit {
   private oldCheck() {
     return F.pipe(
       this.getPm2List(),
-      F.find(this.isPm2IdEqualMine),
+      F.find(this.isPm2IdEqualMine.bind(this)),
       this.isProcessIdEqualMine,
       F.not
     );
