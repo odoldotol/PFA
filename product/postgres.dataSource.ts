@@ -2,7 +2,7 @@ import { config } from 'dotenv';
 import { readFileSync } from 'fs';
 import { DataSource, DataSourceOptions } from 'typeorm';
 
-config();
+config({ path: ".env.product" });
 
 const tls = {
   ssl: {
@@ -18,7 +18,7 @@ const tls = {
 const dataSourceOptions: DataSourceOptions = {
   type: 'postgres',
   host: process.env['PG_HOST'] || '127.0.0.1',
-  port:  process.env['DOCKER_ENV'] === undefined ? 5433 : 5432,
+  port:  process.env['RACK_ENV'] === undefined ? 5433 : 5432,
   username: process.env['PG_USERNAME'] || 'test',
   password: process.env['PG_PASSWORD'] || 'test',
   database: process.env['PG_DATABASE'] || 'test',

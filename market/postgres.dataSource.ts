@@ -2,7 +2,7 @@ import { config } from 'dotenv';
 import { readFileSync } from 'fs';
 import { DataSource, DataSourceOptions } from 'typeorm';
 
-config();
+config({ path: ".env.market" });
 
 const tls = {
   ssl: {
