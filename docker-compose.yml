@@ -70,6 +70,8 @@ services:
       - product
     ports:
       - "7001:7001"
+    environment:
+      - RACK_ENV=development
     depends_on:
       product-redis:
         condition: service_started
@@ -88,6 +90,20 @@ services:
     networks:
       - product
     restart: always
+    profiles:
+      - pfa
+      - product
+
+  product-postgres:
+    container_name: pfa-product-postgres
+    image: postgres:latest
+    networks:
+      - product
+    restart: always
+    environment:
+      POSTGRES_USER: test
+      POSTGRES_PASSWORD: test
+      POSTGRES_DB: test
     profiles:
       - pfa
       - product

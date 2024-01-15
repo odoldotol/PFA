@@ -1,28 +1,58 @@
-// TODO
-export interface SkillPayload {
-  bot?: { id: string, name: string }
-  intent?: { id: string, name: string, extra?: any }
-  action: {
-    id: string,
-    name: string,
-    params: { ticker: string },
-    detailParams: { ticker?: any }
-    clientExtra: any,
+export type SkillPayload = {
+  bot: Bot
+  intent: Intent
+  action: Action
+  userRequest: UserRequest,
+  contexts?: any[] //
+};
+
+type Intent = {
+  id: string,
+  name: string,
+  extra?: any //
+};
+
+type UserRequest = {
+  timezone: string,
+  block: Block,
+  utterance: string,
+  lang: string,
+  user: User,
+  params?: any //
+};
+
+type Bot = {
+  id: string,
+  name: string,
+};
+
+type Action = {
+  id: string,
+  name: string,
+  params: { [k: string]: string },
+  detailParams: { [k: string]: DetailParams },
+  clientExtra: { [k: string]: any },
+};
+
+type Block = {
+  id: string,
+  name: string,
+};
+
+type User = {
+  id: string,
+  type: string,
+  properties: {
+    plusfriendUserKey: string,
+    plusfriend_user_key?: string,
+    appUserId: string,
+    isFriend: boolean,
+    botUserKey?: string,
+    bot_user_key?: string,
   }
-  userRequest?: {
-    block: { id: string, name: string },
-    user: {
-      id: string,
-      type: string,
-      properties: any
-    }
-    utterance: string,
-    params: { ignoreMe: string, surface?: string },
-    lang: any,
-    timezone: string,
-  },
-  contexts?: any
-}
+};
+
+type DetailParams = any; //
 
 /*
 Skill Payload SkillPayloadDto {

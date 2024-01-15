@@ -11,3 +11,20 @@ services:
     restart: always
     profiles:
       - test
+
+  postgres:
+    container_name: pfa-product-test-postgres
+    image: postgres:15.3-alpine3.18
+    networks:
+      - default
+    ports:
+      - "5433:5432"
+    expose:
+      - "5432"
+    restart: always
+    environment:
+      POSTGRES_USER: test
+      POSTGRES_PASSWORD: test
+      POSTGRES_DB: test
+    profiles:
+      - test

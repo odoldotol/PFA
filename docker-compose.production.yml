@@ -33,6 +33,8 @@ services:
     networks:
       - default
       - product
+    environment:
+      - RACK_ENV=production
     depends_on:
       product-redis:
         condition: service_started
