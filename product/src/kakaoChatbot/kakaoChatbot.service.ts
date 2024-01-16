@@ -3,6 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import { MarketService } from '../market/market.service';
 import { UserService } from 'src/database/user/user.service';
 import { AssetSubscriptionService } from 'src/database/assetSubscription/assetSubscription.service';
+import { User } from 'src/database/user/user.entity';
 import { EnvironmentVariables } from 'src/common/interface/environmentVariables.interface';
 import { EnvKey } from 'src/common/enum/envKey.emun';
 import { SkillPayload } from './interface/skillPayload.interface';
@@ -49,7 +50,7 @@ export class KakaoChatbotService {
     const userId = await this.getUserId(botUserKey);
 
     const ticker = body.action.params['ticker']!.toUpperCase(); //
-    const price = await this.marketService.getPrice(ticker, userId);
+    const price = await this.marketService.getPrice(ticker, userId.toString());
     if (!price) { // Asset 찾을 수 없음
       return {
         version: this.KAKAO_CHATBOT_VERSION,
@@ -98,7 +99,7 @@ export class KakaoChatbotService {
     }
 
     try {
-      await this.assetSubscriptionSrv.create(userId, ticker);
+      await this.assetSubscriptionSrv.createOne(userId, ticker);
       return {
         version: this.KAKAO_CHATBOT_VERSION,
         template: {
@@ -114,9 +115,8 @@ export class KakaoChatbotService {
       };
     } catch (err: any) {
       this.logger.error(
-        'assetSubscriptionSrv.create() failed',
-        `userId: ${userId}, ticker: ${ticker}`,
-        err.stack,
+        `assetSubscriptionSrv.createOne() failed \nuserId: ${userId}, ticker: ${ticker}`,
+        err.stack as string,
       );
       return {
         version: this.KAKAO_CHATBOT_VERSION,
@@ -176,7 +176,7 @@ export class KakaoChatbotService {
     }
 
     try {
-      await this.assetSubscriptionSrv.delete(userId, ticker);
+      await this.assetSubscriptionSrv.deleteOne(userId, ticker);
       return {
         version: this.KAKAO_CHATBOT_VERSION,
         template: {
@@ -235,8 +235,8 @@ export class KakaoChatbotService {
     }
     const userId = await this.getUserId(botUserKey);
     // 구독 조회하기
-    const subscriptions = await this.assetSubscriptionSrv.readByUserId(userId);
-    if (subscriptions.length === 0) {
+    const subscriptionTickerArr = await this.assetSubscriptionSrv.readTickersByUserId(userId);
+    if (subscriptionTickerArr.length === 0) {
       return {
         version: this.KAKAO_CHATBOT_VERSION,
         template: {
@@ -252,10 +252,9 @@ export class KakaoChatbotService {
     }
 
     const assets = await F.pipe(
-      subscriptions, F.toAsync,
-      F.map(async (subscription) => {
-        const ticker = subscription.ticker;
-        const price = await this.marketService.getPrice(subscription.ticker, userId);
+      subscriptionTickerArr, F.toAsync,
+      F.map(async (ticker) => {
+        const price = await this.marketService.getPrice(ticker, userId.toString());
         return price && Object.assign(price, {ticker});
       }),
       F.filter((price) => price !== undefined) as <T>(arr: AsyncIterableIterator<undefined | T>) => AsyncIterableIterator<T>,
@@ -281,12 +280,12 @@ export class KakaoChatbotService {
     };
   }
 
-  private async getUserId(botUserKey: string): Promise<string> {
-    const user = await this.userSrv.readByBotUserKey(botUserKey);
-    if (user) {
-      return user.id;
+  private async getUserId(botUserKey: string): Promise<User['id']> {
+    const userId = await this.userSrv.readOneIdByBotUserKey(botUserKey);
+    if (userId !== null) {
+      return userId;
     } else {
-      return (await this.userSrv.createByBotUserKey(botUserKey)).id;
+      return (await this.userSrv.createOneByBotUserKey(botUserKey)).id;
     }
   }
 

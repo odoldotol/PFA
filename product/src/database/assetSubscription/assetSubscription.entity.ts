@@ -4,28 +4,31 @@ import {
   Index,
   JoinColumn,
   ManyToOne,
-  PrimaryGeneratedColumn
+  PrimaryGeneratedColumn,
 } from "typeorm";
 import { User } from "../user/user.entity";
 
 
 @Entity({ name: 'asset_subscriptions' })
-@Index(['user', 'ticker'], { unique: true })
+@Index('IDX_asset_subscriptions_user_id-ticker', ['user_id', 'ticker'], { unique: true })
+@Index('IDX_asset_subscriptions_user_id-id-ticker', ['user_id', 'id', 'ticker'], { unique: true })
 export class AssetSubscription {
-  @PrimaryGeneratedColumn('increment', { name: 'id' })
+  @PrimaryGeneratedColumn('identity', {
+    name: 'id',
+    type: 'bigint',
+    generatedIdentity: 'ALWAYS'
+  })
   id!: number;
 
   @ManyToOne(() => User, { nullable: false })
-  @JoinColumn({ name: 'user', referencedColumnName: 'id', foreignKeyConstraintName: 'asset_subscriptions_user_fkey' })
-  user!: User['id'];
+  @JoinColumn({
+    name: 'user_id',
+    referencedColumnName: 'id',
+    foreignKeyConstraintName: 'asset_subscriptions_user_fkey'
+  })
+  user_id!: User['id'];
 
-  @Column({ type: 'varchar', length: 15, name: 'ticker' })
+  @Column({ type: 'varchar', length: 15, name: 'ticker', nullable: false })
   ticker!: string;
 
 }
-
-export type RawAssetSubscription = {
-  id: number;
-  user: User['id'];
-  ticker: string;
-};

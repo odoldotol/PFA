@@ -83,7 +83,7 @@ export class Database_FinancialAssetService {
   public async readSymbolsByExchange(
     exchange?: ExchangeIsoCode
   ): Promise<Ticker[]> {
-    return (await this.dataSource.query<{ symbol: string }[]>(`
+    return (await this.dataSource.query<Pick<FinancialAsset, 'symbol'>[]>(`
       SELECT symbol FROM ${this.tableName}
         WHERE exchange ${exchange ? `= '${exchange}'` : `is NULL`}
     `)).map(({ symbol }) => symbol);

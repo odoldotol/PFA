@@ -4,7 +4,7 @@ import { DataSource, DataSourceOptions } from 'typeorm';
 
 config({ path: ".env.product" });
 
-const tls = {
+const getTlsOptions = () => ({
   ssl: {
     ca: readFileSync("aws-rds.pem")
   },
@@ -13,7 +13,7 @@ const tls = {
       rejectUnauthorized: false,
     },
   }
-};
+});
 
 const dataSourceOptions: DataSourceOptions = {
   type: 'postgres',
@@ -28,6 +28,6 @@ const dataSourceOptions: DataSourceOptions = {
   migrationsTableName: 'migrations',
 };
 
-if (process.env['RACK_ENV'] === 'production') Object.assign(dataSourceOptions, tls);
+if (process.env['RACK_ENV'] === 'production') Object.assign(dataSourceOptions, getTlsOptions());
 
 export default new DataSource(dataSourceOptions);

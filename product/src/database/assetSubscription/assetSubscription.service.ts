@@ -1,52 +1,66 @@
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { Repository } from "typeorm";
-import { AssetSubscription, RawAssetSubscription } from "./assetSubscription.entity";
+import { DataSource, Repository } from "typeorm";
+import { AssetSubscription } from "./assetSubscription.entity";
 
 @Injectable()
 export class AssetSubscriptionService {
 
+  private readonly tableName = this.assetSubscriptionRepo.metadata.tableName;
+
   constructor(
     @InjectRepository(AssetSubscription)
     private readonly assetSubscriptionRepo: Repository<AssetSubscription>,
+    private readonly dataSource: DataSource,
   ) {}
 
-  public exists(userId: string, ticker: string): Promise<boolean> {
-    return this.assetSubscriptionRepo.exists({
-      where: {
-        user: userId,
-        ticker,
-      }
-    });
+  public exists(userId: number, ticker: string): Promise<boolean> {
+    return this.dataSource.query<AssetSubscription[]>(`
+      SELECT user_id, ticker
+        FROM ${this.tableName}
+        WHERE user_id = ${userId} AND ticker = '${ticker}'
+        LIMIT 1
+    `).then(res => res.length == 1);
   }
 
-  public create(
-    userId: string,
+  /**
+   * 중복시 에러 발생
+   */
+  public createOne(
+    userId: number,
     ticker: string
-  ): Promise<RawAssetSubscription> {
-    return this.assetSubscriptionRepo.insert({
-      user: userId,
-      ticker,
-    }).then(res => res.raw[0] as RawAssetSubscription);
+  ): Promise<AssetSubscription | null> {
+    return this.dataSource.query<AssetSubscription[]>(`
+      INSERT INTO ${this.tableName}
+        (id, user_id, ticker)
+        VALUES (DEFAULT, ${userId}, '${ticker}')
+        RETURNING *
+    `).then(res => res[0]!);
   }
 
-  // Todo: Refac
-  public delete(
-    userId: string,
+  public deleteOne(
+    userId: number,
     ticker: string
-  ) {
-    return this.assetSubscriptionRepo.delete({
-      user: userId,
-      ticker,
-    });
+  ): Promise<boolean> {
+    return this.dataSource.query<AssetSubscription[]>(`
+      DELETE FROM ${this.tableName}
+        WHERE user_id = ${userId} AND ticker = '${ticker}'
+        RETURNING *
+    `).then(res => res.length == 1);
   }
 
-  public readByUserId(userId: string): Promise<AssetSubscription[]> {
-    return this.assetSubscriptionRepo.find({
-      where: {
-        user: userId,
-      },
-    });
+  /**
+   * id DESC LIMIT 100
+   * @todo Bitmap Scan vs Index Scan Backward vs Index Only Scan ??
+   */
+  public readTickersByUserId(userId: number): Promise<AssetSubscription['ticker'][]> {
+    return this.dataSource.query<Pick<AssetSubscription, 'ticker'>[]>(`
+      SELECT ticker
+        FROM ${this.tableName}
+        WHERE user_id = ${userId}
+        ORDER BY id DESC
+        LIMIT 100
+    `).then(res => res.map(r => r.ticker));
   }
 
 }
