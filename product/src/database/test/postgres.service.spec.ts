@@ -21,7 +21,7 @@ import {
   generateMockTicker
 } from "src/mock";
 
-jest.setTimeout(10000);
+jest.setTimeout(5000);
 
 describe('UserService', () => {
   let userSrv: UserService;
@@ -80,10 +80,16 @@ describe('AssetSubscriptionService', () => {
   let assetSubscriptionSrv: AssetSubscriptionService;
   let dataSource: DataSource;
 
-  let mockUserId: number;
-  let mockUser2Id: number;
+  it('should be defined', async () => {
+    ({ assetSubscriptionSrv, dataSource } = await getTestingInstances());
+    expect(assetSubscriptionSrv).toBeDefined();
+    await dataSource.destroy();
+  });
 
-  describe('', () => {
+  describe('Create, Update, Delete', () => {
+    let mockUserId: number;
+    let mockUser2Id: number;
+
     beforeEach(async () => {
       ({ userSrv, assetSubscriptionSrv, dataSource } = await getTestingInstances());
       await userSrv.createOneByBotUserKey(mockBotUserKey);
@@ -98,10 +104,6 @@ describe('AssetSubscriptionService', () => {
       await dataSource.destroy();
     });
 
-    it('should be defined', () => {
-      expect(assetSubscriptionSrv).toBeDefined();
-    });
-
     describe('createOne', () => {
       it('should create a record in asset_subscriptions table', async () => {
         await expect(dataSource.query(`SELECT * FROM ${assetSubscriptionTableName}`))
@@ -111,6 +113,7 @@ describe('AssetSubscriptionService', () => {
         expect(result).toHaveLength(1);
         expect(result[0]).toHaveProperty('user_id', mockUserId);
         expect(result[0]).toHaveProperty('ticker', mockAppleTicker);
+        expect(result[0]).toHaveProperty('activate', true);
       });
 
       it('should return the created record', async () => {
@@ -133,86 +136,156 @@ describe('AssetSubscriptionService', () => {
       });
     });
 
-    describe('exists', () => {
-      it('should return boolean whether the record exists or not', async () => {
-        await expect(assetSubscriptionSrv.exists(mockUserId, mockAppleTicker))
-        .resolves.toBe(false);
-        await assetSubscriptionSrv.createOne(mockUserId, mockAppleTicker);
-        await expect(assetSubscriptionSrv.exists(mockUserId, mockAppleTicker))
-        .resolves.toBe(true);
-      });
-    });
+    describe('updateOneActivate', () => {
+      const getRecord = () => dataSource.query<AssetSubscription[]>(`
+        SELECT * FROM ${assetSubscriptionTableName}
+          WHERE user_id = ${mockUserId} AND ticker = '${mockAppleTicker}'
+      `).then(res => res[0]);
 
-    describe('deleteOne', () => {
-      it('should delete the record', async () => {
+      it('should update the activate of the record', async () => {
         await assetSubscriptionSrv.createOne(mockUserId, mockAppleTicker);
-        await expect(dataSource.query(`SELECT * FROM ${assetSubscriptionTableName}`))
-        .resolves.toHaveLength(1);
-        await assetSubscriptionSrv.deleteOne(mockUserId, mockAppleTicker);
-        await expect(dataSource.query(`SELECT * FROM ${assetSubscriptionTableName}`))
-        .resolves.toHaveLength(0);
+        await expect(getRecord()).resolves.toHaveProperty('activate', true);
+        await assetSubscriptionSrv.updateOneActivate(mockUserId, mockAppleTicker, false);
+        await expect(getRecord()).resolves.toHaveProperty('activate', false);
+        await assetSubscriptionSrv.updateOneActivate(mockUserId, mockAppleTicker, true);
+        await expect(getRecord()).resolves.toHaveProperty('activate', true);
       });
 
-      it('should return boolean whether the record is deleted or dose not exist', async () => {
-        await expect(assetSubscriptionSrv.deleteOne(mockUserId, mockAppleTicker))
-        .resolves.toBe(false);
+      it('should return the updated record', async () => {
         await assetSubscriptionSrv.createOne(mockUserId, mockAppleTicker);
-        await expect(assetSubscriptionSrv.deleteOne(mockUserId, mockAppleTicker))
-        .resolves.toBe(true);
-        await expect(assetSubscriptionSrv.deleteOne(mockUserId, mockAppleTicker))
-        .resolves.toBe(false);
+        const result = await assetSubscriptionSrv.updateOneActivate(mockUserId, mockAppleTicker, false);
+        expect(result).toHaveProperty('activate', false);
+      });
+
+      it('should return null when the record does not exist', async () => {
+        await expect(assetSubscriptionSrv.updateOneActivate(mockUserId, mockAppleTicker, false))
+        .resolves.toBeNull();
+        await expect(getRecord()).resolves.toBeUndefined();
       });
     });
   });
 
-  describe('', () => {
-    describe('readTickersByUserId', () => {
-      const numberOfUsers = 100;
-      const numberOfTickers = 101;
-      const mockBotUserKeyArr = Array.from(generateMockBotUserKey(numberOfUsers));
-      const mockTickerArr = Array.from(generateMockTicker(numberOfTickers));
+  describe('Read', () => {
+    const numberOfMockBotUserKey = 1000;
+    const numberOfMockTicker = 500;
 
-      beforeAll(async () => {
-        ({ userSrv, assetSubscriptionSrv, dataSource } = await getTestingInstances());
-        
-        await dataSource.query(`
-          INSERT INTO ${userTableName}
-            (kakao_chatbot_user_key)
-            VALUES
-              ${mockBotUserKeyArr.map(key => `('${key}')`).join(',')}
-        `);
-        await dataSource.query(`
-          INSERT INTO ${assetSubscriptionTableName}
-            (id, user_id, ticker)
-            VALUES
-              ${Array.from({ length: numberOfUsers }, (_, i) => i + 1)
-              .map(userId => mockTickerArr.map(ticker => `(DEFAULT, ${userId}, '${ticker}')`).join(','))
-              .join(',')}
-        `);
-        await expect(dataSource.query(`SELECT COUNT(*) FROM ${userTableName}`))
-        .resolves.toEqual([{ count: numberOfUsers.toString() }]);
-        await expect(dataSource.query(`SELECT COUNT(*) FROM ${assetSubscriptionTableName}`))
-        .resolves.toEqual([{ count: (numberOfUsers * numberOfTickers).toString() }]);
+    const numberOfSeedUser = 10;
+    const numberOfSeedAssetSubscription = 101;
+
+    expect(numberOfMockBotUserKey).toBeGreaterThan(numberOfSeedUser);
+    expect(numberOfMockTicker).toBeGreaterThan(numberOfSeedAssetSubscription);
+
+    const mockBotUserKeyArr = Array.from(generateMockBotUserKey(numberOfMockBotUserKey));
+    const mockTickerArr = Array.from(generateMockTicker(numberOfMockTicker));
+
+    const seedBotUserKeyArr = mockBotUserKeyArr.slice(0, numberOfSeedUser);
+    const seedTickerArr = mockTickerArr.slice(0, numberOfSeedAssetSubscription);
+
+    beforeAll(async () => {
+      ({ userSrv, assetSubscriptionSrv, dataSource } = await getTestingInstances());
+      
+      await dataSource.query(`
+        INSERT INTO ${userTableName}
+          (kakao_chatbot_user_key)
+          VALUES
+            ${seedBotUserKeyArr.map(key => `('${key}')`).join(',')}
+      `);
+
+      const insertOneAssetSubscription = (
+        user_id: number,
+        ticker: string
+      ) => dataSource.query(`
+        INSERT INTO ${assetSubscriptionTableName}
+          (id, user_id, ticker)
+          VALUES
+            (DEFAULT, ${user_id}, '${ticker}')
+      `);
+
+      const insertOneAssetSubscriptionParamsArr
+      = seedTickerArr.flatMap(ticker => seedBotUserKeyArr.map((_, i): [number, string] => [i+1, ticker]));
+
+      await insertOneAssetSubscriptionParamsArr.reduce(async (prev, params) => {
+        await prev;
+        return insertOneAssetSubscription(...params);
+      }, Promise.resolve());
+
+      // 전부 같은 타임스탬프로 빨리 인서트하기 (실행계획 테스트)
+      // await dataSource.query(`
+      //   INSERT INTO ${assetSubscriptionTableName}
+      //     (id, user_id, ticker)
+      //     VALUES
+      //       ${Array.from({ length: numberOfSeedUser }, (_, i) => i + 1)
+      //       .map(userId => seedTickerArr.map(ticker => `(DEFAULT, ${userId}, '${ticker}')`).join(','))
+      //       .join(',')}
+      // `);
+
+      await expect(dataSource.query(`SELECT COUNT(*) FROM ${userTableName}`))
+      .resolves.toEqual([{ count: numberOfSeedUser.toString() }]);
+      await expect(dataSource.query(`SELECT COUNT(*) FROM ${assetSubscriptionTableName}`))
+      .resolves.toEqual([{ count: (numberOfSeedUser * numberOfSeedAssetSubscription).toString() }]);
+    });
+
+    describe('readOneAcivate', () => {
+      it('should return activate of a record that matches the user_id and ticker', async () => {
+        const mockUserId = (await userSrv.readOneIdByBotUserKey(mockBotUserKeyArr[0]!))!;
+        const result = await assetSubscriptionSrv.readOneAcivate(
+          mockUserId,
+          mockTickerArr[numberOfSeedAssetSubscription-1]!
+        );
+        expect(result).toHaveProperty('activate');
       });
 
+      it('should return null when the record does not exist', async () => {
+        const mockUserId = (await userSrv.readOneIdByBotUserKey(mockBotUserKeyArr[0]!))!;
+        const result = await assetSubscriptionSrv.readOneAcivate(
+          mockUserId,
+          mockTickerArr[numberOfMockTicker-1]!
+        );
+        expect(result).toBeNull();
+      });
+    });
+
+    describe('readActivatedTickersByUserId', () => {
       it('should return the 100 tickers in reverse order of creation', async () => {
-        const result = await assetSubscriptionSrv.readTickersByUserId(1);
+        const mockUserId = (await userSrv.readOneIdByBotUserKey(mockBotUserKeyArr[0]!))!;
+        const result = await assetSubscriptionSrv.readActivatedTickersByUserId(mockUserId);
+
+        // 실행계획 테스트
         // console.log(await dataSource.query(`
         //   EXPLAIN ANALYZE
         //   SELECT ticker
         //     FROM ${assetSubscriptionTableName}
-        //     WHERE user_id = 1
-        //     ORDER BY id DESC
+        //     WHERE user_id = 1 AND activate = true
+        //     ORDER BY updated_at DESC
         //     LIMIT 100
         // `));
-        expect(result).toHaveLength(100);
-        expect(result).toEqual(mockTickerArr.slice(1).reverse());
+
+        expect(result).toHaveLength(Math.min(100, numberOfSeedAssetSubscription));
+        expect(result).toEqual(
+          seedTickerArr
+          .slice(numberOfSeedAssetSubscription - 100)
+          .reverse()
+        );
       });
 
-      afterAll(async () => {
-        await dataSource.dropDatabase();
-        await dataSource.destroy();
+      it('should return only activated', async () => {
+        const mockUserId = (await userSrv.readOneIdByBotUserKey(mockBotUserKeyArr[0]!))!;
+        const deActivatedTickerIndex = Math.floor(numberOfSeedAssetSubscription / 2);
+        const deActivatedTicker = seedTickerArr[deActivatedTickerIndex]!;
+        await dataSource.query(`
+          UPDATE ${assetSubscriptionTableName}
+            SET activate = false
+            WHERE user_id = ${mockUserId} AND ticker = '${deActivatedTicker}'
+        `);
+        const result = await assetSubscriptionSrv.readActivatedTickersByUserId(mockUserId);
+        expect(result).toHaveLength(Math.min(100, numberOfSeedAssetSubscription - 1));
+        expect(result).not.toContain(deActivatedTicker);
       });
+    });
+
+    afterAll(async () => {
+      await dataSource.dropDatabase();
+      await dataSource.destroy();
     });
   });
 });

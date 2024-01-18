@@ -31,7 +31,7 @@ export class KakaoChatbotController {
   addAssetSubscription(
     @Body() body: SkillPayloadDto
   ): Promise<SkillResponse> {
-    return this.kakaoChatbotSrv.addAssetSubscription(body);
+    return this.kakaoChatbotSrv.subscribeAsset(body);
   }
 
   @Post('asset-subscription/cancel')

@@ -1,20 +1,22 @@
 import {
   Column,
+  CreateDateColumn,
   Entity,
   Generated,
   Index,
   PrimaryGeneratedColumn,
+  UpdateDateColumn,
 } from "typeorm";
 
 export const tableName = 'users';
-
 @Entity({ name: tableName })
 @Index('IDX_users_kakao_chatbot_user_key-id', ['kakao_chatbot_user_key', 'id'], { unique: true })
 export class User {
   @PrimaryGeneratedColumn('identity', {
     name: 'id',
     type: 'integer',
-    generatedIdentity: 'ALWAYS'
+    generatedIdentity: 'ALWAYS',
+    primaryKeyConstraintName: 'users_id_pkey',
   })
   id!: number;
 
@@ -34,5 +36,11 @@ export class User {
     nullable: true,
   })
   kakao_chatbot_user_key!: string | null;
+
+  @CreateDateColumn({ name: 'created_at' })
+  created_at!: Date;
+
+  @UpdateDateColumn({ name: 'updated_at' })
+  updated_at!: Date;
 
 }
