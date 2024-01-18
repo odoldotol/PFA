@@ -1,4 +1,4 @@
-import { Test, TestingModule } from '@nestjs/testing';
+import { Test } from '@nestjs/testing';
 import { HttpStatus, INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
 import { DataSource } from 'typeorm';
@@ -28,13 +28,6 @@ const mockFinancialAssetArr = [
   mockSamsungElec,
   mockUsaTreasuryYield10y
 ];
-
-const createModule = (): Promise<TestingModule> => Test.createTestingModule({
-  imports: [AppModule],
-}).compile();
-
-const createApp = async (): Promise<INestApplication> =>
-(await createModule()).createNestApplication();
 
 describe('Market E2E', () => {
   let app: INestApplication;
@@ -329,5 +322,11 @@ describe('Market E2E', () => {
     await dataSource.dropDatabase();
     await app.close();
   });
+});
 
+const createApp = async (): Promise<INestApplication> =>
+(await moduleBuilder.compile()).createNestApplication();
+
+const moduleBuilder = Test.createTestingModule({
+  imports: [AppModule],
 });

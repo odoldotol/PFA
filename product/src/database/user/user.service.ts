@@ -14,9 +14,6 @@ export class UserService {
     private readonly dataSource: DataSource,
   ) {}
 
-  /**
-   * 중복시 에러 발생
-   */
   public createOneByBotUserKey(
     botUserKey: string
   ): Promise<User> {

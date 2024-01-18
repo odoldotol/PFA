@@ -8,8 +8,9 @@ import {
 } from "typeorm";
 import { User } from "../user/user.entity";
 
+export const tableName = 'asset_subscriptions';
 
-@Entity({ name: 'asset_subscriptions' })
+@Entity({ name: tableName })
 @Index('IDX_asset_subscriptions_user_id-ticker', ['user_id', 'ticker'], { unique: true })
 @Index('IDX_asset_subscriptions_user_id-id-ticker', ['user_id', 'id', 'ticker'], { unique: true })
 export class AssetSubscription {

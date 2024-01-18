@@ -21,7 +21,7 @@
     "test:docker:stop": "docker compose -p pfa-product-test --profile test -f test/docker-compose.yml stop",
     "test:docker:down": "docker compose -p pfa-product-test --profile test -f test/docker-compose.yml down",
     "test": "npm run test:docker:up && jest",
-    "test:watch": "jest --watch",
+    "test:watch": "npm run test:docker:up && jest --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "npm run test:docker:up && jest --config ./test/jest-e2e.json",

@@ -6,7 +6,9 @@ import {
   PrimaryGeneratedColumn,
 } from "typeorm";
 
-@Entity({ name: 'users' })
+export const tableName = 'users';
+
+@Entity({ name: tableName })
 @Index('IDX_users_kakao_chatbot_user_key-id', ['kakao_chatbot_user_key', 'id'], { unique: true })
 export class User {
   @PrimaryGeneratedColumn('identity', {

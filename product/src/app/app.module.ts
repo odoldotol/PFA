@@ -5,7 +5,7 @@ import {
 } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { Pm2Module } from 'src/pm2/pm2.module';
-import { PostgresModule } from 'src/database/postgre/postgre.module';
+import { PostgresModule } from 'src/database/postgres/postgres.module';
 import { KakaoChatbotModule } from 'src/kakaoChatbot/kakaoChatbot.module';
 import { DevModule } from 'src/dev/dev.module';
 import { AppController } from './app.controller';

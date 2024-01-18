@@ -27,7 +27,7 @@
     "test:e2e:docker:stop": "docker compose -p pfa-market-test --profile e2e -f test/docker-compose.yml stop",
     "test:e2e:docker:down": "docker compose -p pfa-market-test --profile e2e -f test/docker-compose.yml down",
     "test": "npm run test:docker:up && jest",
-    "test:watch": "jest --watch",
+    "test:watch": "npm run test:docker:up && jest --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "export MONGO_ENV=test && npm run test:e2e:docker:up && jest --config ./test/jest-e2e.json",
