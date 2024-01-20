@@ -6,8 +6,8 @@ import {
 import {
   Database_FinancialAssetService
 } from "src/database/financialAsset/financialAsset.service";
-import { FinancialAsset } from "src/database/financialAsset/financialAsset.entity";
 import {
+  FinancialAssetCore,
   FulfilledYfInfo,
   Ticker,
   YfInfo
@@ -95,13 +95,13 @@ export class SubscriberService {
   // Todo: 여기 맞아?
   private getFinancialAssetFromFuilfilledYfInfo(
     fulfilledYfInfo: FulfilledYfInfo
-  ): FinancialAsset {
+  ): FinancialAssetCore {
     return {
       symbol: fulfilledYfInfo.symbol,
       quoteType: fulfilledYfInfo.quoteType,
-      shortName: fulfilledYfInfo.shortName,
-      longName: fulfilledYfInfo.longName,
-      exchange: fulfilledYfInfo.marketExchange?.isoCode,
+      shortName: fulfilledYfInfo.shortName || null,
+      longName: fulfilledYfInfo.longName || null,
+      exchange: fulfilledYfInfo.marketExchange?.isoCode || null,
       currency: fulfilledYfInfo.currency,
       regularMarketLastClose: fulfilledYfInfo.regularMarketLastClose,
     };

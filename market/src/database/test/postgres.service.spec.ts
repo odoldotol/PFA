@@ -1,12 +1,13 @@
 import { ConfigModule, ConfigService } from "@nestjs/config";
 import { Test } from "@nestjs/testing";
 import { TypeOrmModule } from "@nestjs/typeorm";
-import { Exchange } from "../exchange/exchange.entity";
-import { FinancialAsset } from "../financialAsset/financialAsset.entity";
+import { ExchangeEntity } from "../exchange/exchange.entity";
+import { FinancialAssetEntity } from "../financialAsset/financialAsset.entity";
 import { TypeOrmConfigService } from "../postgres/typeormConfig.service";
 import { Database_ExchangeService } from "../exchange/exchange.service";
 import { Database_FinancialAssetService } from "../financialAsset/financialAsset.service";
 import { DataSource } from "typeorm";
+import { FinancialAsset } from "src/common/class/financialAsset";
 import { 
   mockKoreaExchange,
   mockNewYorkStockExchange,
@@ -99,7 +100,7 @@ describe('ExchangeService', () => {
       expect(result[0]).toEqual({
         iso_code: mockKoreaExchange.isoCode,
         iso_timezonename: mockKoreaExchange.isoTimezoneName,
-        marketdate: mockKoreaExchange.marketDate,
+        market_date: mockKoreaExchange.marketDate,
       });
     });
 
@@ -111,10 +112,10 @@ describe('ExchangeService', () => {
 
   describe('exist', () => {
     it('should return boolean if exist or not', async () => {
-      expect(await exchangeSrv.exist({ isoCode: mockKoreaExchange.isoCode }))
+      expect(await exchangeSrv.exist({ iso_code: mockKoreaExchange.isoCode }))
       .toBe(false);
       await exchangeSrv.createOne(mockKoreaExchange);
-      expect(await exchangeSrv.exist({ isoCode: mockKoreaExchange.isoCode }))
+      expect(await exchangeSrv.exist({ iso_code: mockKoreaExchange.isoCode }))
       .toBe(true);
     });
   });
@@ -143,7 +144,13 @@ describe('ExchangeService', () => {
       const marketDate = '2023-07-04';
       await exchangeSrv.updateMarketDateByPk(mockKoreaExchange.isoCode, marketDate);
       const result = await exchangeSrv.readOneByPk(mockKoreaExchange.isoCode);
-      expect(result).toEqual(Object.assign(mockKoreaExchange, { marketDate }));
+      expect(result).toEqual(Object.assign(
+        mockKoreaExchange,
+        {
+          market_date: marketDate,
+          marketDate: marketDate
+        }
+      ));
     });
   });
 });
@@ -178,26 +185,30 @@ describe('FinancialAssetsService', () => {
     });
 
     it('should create if nullable property is undefined', async () => {
-      const values = [{
+      const values: FinancialAsset[] = [{
         symbol: mockApple.symbol,
         quoteType: mockApple.quoteType,
+        quote_type: mockApple.quoteType,
         shortName: mockApple.shortName,
-        longName: undefined,
-        exchange: undefined,
+        short_name: mockApple.shortName,
+        longName: null,
+        long_name: null,
+        exchange: null,
         currency: mockApple.currency,
-        regularMarketLastClose: mockApple.regularMarketLastClose
+        regularMarketLastClose: mockApple.regularMarketLastClose,
+        regular_market_last_close: mockApple.regularMarketLastClose
       }];
       const result = await financialAssetSrv.createMany(values);
       const queryResult = await dataSource.query('SELECT * FROM financial_assets');
       expect(result).toEqual(values);
       expect(queryResult[0]).toEqual({
         symbol: mockApple.symbol,
-        quotetype: mockApple.quoteType,
-        shortname: mockApple.shortName,
-        longname: null,
+        quote_type: mockApple.quoteType,
+        short_name: mockApple.shortName,
+        long_name: null,
         exchange: null,
         currency: mockApple.currency,
-        regularmarketlastclose: mockApple.regularMarketLastClose
+        regular_market_last_close: mockApple.regularMarketLastClose
       });
     });
 
@@ -212,21 +223,6 @@ describe('FinancialAssetsService', () => {
       expect(await financialAssetSrv.existByPk(mockApple.symbol)).toBe(false);
       await financialAssetSrv.createMany([mockApple]);
       expect(await financialAssetSrv.existByPk(mockApple.symbol)).toBe(true);
-    });
-  });
-
-  describe('readManyByEqualComparison', () => {
-    it('should return records matched by equal comparison', async () => {
-      await financialAssetSrv.createMany([
-        mockApple,
-        mockSamsungElec,
-        mockUsaTreasuryYield10y
-      ]);
-      const result = await financialAssetSrv.readManyByEqualComparison({
-        exchange: mockApple.exchange,
-        currency: mockApple.currency
-      });
-      expect(result).toEqual([mockApple, mockUsaTreasuryYield10y]);
     });
   });
 
@@ -292,16 +288,21 @@ describe('FinancialAssetsService', () => {
           regularMarketLastClose: 77777
         },
       ]);
-      const result = await financialAssetSrv.readManyByEqualComparison({ quoteType: "EQUITY" });
+      const result = await dataSource.query<FinancialAssetEntity[]>(`
+        SELECT * FROM financial_assets
+      `).then(res => res.map(entity => new FinancialAsset(entity)));
       expect(result).toEqual([
+        mockUsaTreasuryYield10y,
         {
           ...mockApple,
-          regularMarketLastClose: 777
+          regularMarketLastClose: 777,
+          regular_market_last_close: 777
         },
         {
           ...mockSamsungElec,
-          regularMarketLastClose: 77777
-        }
+          regularMarketLastClose: 77777,
+          regular_market_last_close: 77777
+        },
       ]);
     });
     
@@ -332,8 +333,8 @@ const moduleBuilder = Test.createTestingModule({
       useClass: TypeOrmConfigService,
       inject: [ConfigService]
     }),
-    TypeOrmModule.forFeature([FinancialAsset]),
-    TypeOrmModule.forFeature([Exchange])
+    TypeOrmModule.forFeature([FinancialAssetEntity]),
+    TypeOrmModule.forFeature([ExchangeEntity])
   ],
   providers: [
     Database_ExchangeService,

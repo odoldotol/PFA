@@ -1,4 +1,4 @@
-import { CoreExchange } from "./exchange.interface";
+import { ExchangeCore } from "./exchange.interface";
 
 /**
  * ### Yahoo Finance Ticker
@@ -74,5 +74,5 @@ export type FulfilledYfInfo
 = YfInfo
 & FulfilledYfPrice
 & Readonly<{
-  marketExchange: CoreExchange | null;
+  marketExchange: ExchangeCore | null;
 }>;

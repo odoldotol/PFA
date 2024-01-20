@@ -3,7 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import { HttpService } from 'src/http/http.service';
 import {
   EnvironmentVariables,
-  CoreExchange,
+  ExchangeCore,
   FulfilledYfPrice,
   Ticker,
   MarketDate
@@ -29,7 +29,7 @@ export class ProductApiService {
   ) {}
 
   public async updatePriceByExchange(
-    exchange: CoreExchange,
+    exchange: ExchangeCore,
     updateResult: Either<any, FulfilledYfPrice>[]
   ) {
     const isoCode = exchange.isoCode;

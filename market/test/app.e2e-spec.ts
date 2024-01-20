@@ -8,12 +8,13 @@ import { Database_FinancialAssetService } from 'src/database/financialAsset/fina
 import { UpdaterService } from 'src/updater/updater.service';
 import { ProductApiService } from 'src/productApi/productApi.service';
 import { Market_ExchangeService } from 'src/market/exchange/exchange.service';
+import { ExchangeEntity } from 'src/database/exchange/exchange.entity';
+import { FinancialAssetEntity } from 'src/database/financialAsset/financialAsset.entity';
 import {
   Market_Exchange,
   Market_ExchangeSession
 } from 'src/market/exchange/class';
-import { RawExchange } from 'src/database/exchange/exchange.entity';
-import { FinancialAsset, RawFinancialAsset } from 'src/database/financialAsset/financialAsset.entity';
+import { FinancialAsset } from 'src/common/class/financialAsset';
 import {
   mockApple,
   mockKoreaExchange,
@@ -45,8 +46,8 @@ describe('Market E2E', () => {
   describe('Application Initializing', () => {
     let marketExchangeSrv: Market_ExchangeService;
 
-    let seedExchangeArr: RawExchange[];
-    let seedFinancialAssetArr: RawFinancialAsset[];
+    let seedExchangeArr: ExchangeEntity[];
+    let seedFinancialAssetArr: FinancialAssetEntity[];
 
     jest.setTimeout(30000);
 
@@ -89,10 +90,10 @@ describe('Market E2E', () => {
       await exchangeSrv.createOne(mockKoreaExchange);
       await exchangeSrv.createOne(mockNewYorkStockExchange);
       await financialAssetSrv.createMany(mockFinancialAssetArr);
-      seedExchangeArr = await dataSource.query<RawExchange[]>(
+      seedExchangeArr = await dataSource.query<ExchangeEntity[]>(
         `SELECT * FROM exchanges`
       );
-      seedFinancialAssetArr = await dataSource.query<RawFinancialAsset[]>(
+      seedFinancialAssetArr = await dataSource.query<FinancialAssetEntity[]>(
         `SELECT * FROM financial_assets`
       );
 
@@ -102,7 +103,7 @@ describe('Market E2E', () => {
       seedExchangeArr.forEach(seedExchange => {
         const marketExchange = marketExchangeSrv.getOne(seedExchange.iso_code)
         expect(marketExchange).toBeDefined();
-        expect(seedExchange.marketdate).not.toBe(marketExchange.marketDate);
+        expect(seedExchange.market_date).not.toBe(marketExchange.marketDate);
       });
     });
 
@@ -113,15 +114,15 @@ describe('Market E2E', () => {
 
     describe('Database 를 Market 과 동기화 & 최신화 해야함', () => {
       let marketExchangeArr: Market_Exchange[];
-      let databaseExchangeArr: RawExchange[];
-      let financialAssetArr: RawFinancialAsset[];
+      let databaseExchangeArr: ExchangeEntity[];
+      let financialAssetArr: FinancialAssetEntity[];
 
       beforeAll(async () => {
         marketExchangeArr = marketExchangeSrv.getAll();
-        databaseExchangeArr = await dataSource.query<RawExchange[]>(
+        databaseExchangeArr = await dataSource.query<ExchangeEntity[]>(
           `SELECT * FROM exchanges`
         );
-        financialAssetArr = await dataSource.query<RawFinancialAsset[]>(
+        financialAssetArr = await dataSource.query<FinancialAssetEntity[]>(
           `SELECT * FROM financial_assets`
         );
       });
@@ -138,15 +139,15 @@ describe('Market E2E', () => {
         'Database 의 모든 exchange 와 financailAsset 은 Market 을 따라 최신화 되어야 함.',
         async () => {
           databaseExchangeArr.forEach(databaseExchange => {
-            expect(databaseExchange.marketdate)
+            expect(databaseExchange.market_date)
             .toBe(marketExchangeSrv.getOne(databaseExchange.iso_code).marketDate);
           });
 
           financialAssetArr.forEach(financialAsset => {
             const seedFinancialAsset = seedFinancialAssetArr
             .find(seedFinancialAsset => seedFinancialAsset.symbol === financialAsset.symbol);
-            expect(financialAsset.regularmarketlastclose)
-            .not.toBe(seedFinancialAsset!.regularmarketlastclose);
+            expect(financialAsset.regular_market_last_close)
+            .not.toBe(seedFinancialAsset!.regular_market_last_close);
           });
         }
       );
@@ -236,10 +237,11 @@ describe('Market E2E', () => {
   // Todo: 재귀적으로 생성되는 타이머가 있다면 이를 한 틱씩 계속해서 진행시키는 방법이 있을까?
   
   describe('Asset', () => {
+    const NOT_FOUND_TICKER = 'notFoundTicker';
     let financialAssetAfterInitializingArr: FinancialAsset[];
 
     beforeAll(async () => {
-      const rawFinancialAssetArr = await dataSource.query<RawFinancialAsset[]>(
+      const rawFinancialAssetArr = await dataSource.query<FinancialAssetEntity[]>(
         `SELECT * FROM financial_assets`
       );
 
@@ -248,9 +250,10 @@ describe('Market E2E', () => {
           const rawFinancialAsset = rawFinancialAssetArr.find(
             rawFinancialAsset => rawFinancialAsset.symbol === mockFinancialAsset.symbol
           );
-          mockFinancialAsset.regularMarketLastClose
-          = rawFinancialAsset!.regularmarketlastclose;
-          return mockFinancialAsset;
+          return Object.assign(mockFinancialAsset, {
+            regularMarketLastClose: rawFinancialAsset!.regular_market_last_close,
+            regular_market_last_close: rawFinancialAsset!.regular_market_last_close,
+          });
         }
       );
     });
@@ -302,17 +305,50 @@ describe('Market E2E', () => {
         .post(`/asset/price/ticker/tsla`)
         .expect(HttpStatus.CREATED)
         .expect(async ({ body }) => {
-          const rawTesla = await dataSource.query<RawFinancialAsset[]>(
+          const rawTesla = await dataSource.query<FinancialAssetEntity[]>(
             `SELECT * FROM financial_assets WHERE symbol = 'TSLA'`
           );
           expect(rawTesla).toHaveLength(1);
-          expect(body).toHaveProperty('price', rawTesla[0]!.regularmarketlastclose);
+          expect(body).toHaveProperty('price', rawTesla[0]!.regular_market_last_close);
         });
       });
 
       it('DB 에 없는 Ticker, Not Found 추가 실패 (404)', () => {
         return request(app.getHttpServer())
-        .post(`/asset/price/ticker/notFoundTicker`)
+        .post(`/asset/price/ticker/${NOT_FOUND_TICKER}`)
+        .expect(HttpStatus.NOT_FOUND);
+      });
+    });
+
+    describe('POST /api/v1/asset/inquire', () => {
+      it('Ticker 로 Asset 찾아서 응답 (200)', () => {
+        return request(app.getHttpServer())
+        .post(`/asset/inquire/${mockApple.symbol}`)
+        .expect(HttpStatus.OK)
+        .expect(({ body }) => {
+          const mockResponse = financialAssetAfterInitializingArr.find(
+            financialAsset => financialAsset.symbol === mockApple.symbol
+          )!
+          expect(body).toEqual(mockResponse);
+        });
+      });
+
+      it('DB 에 없는 Ticker 는 추가하고 반환 (201)', () => {
+        return request(app.getHttpServer())
+        .post(`/asset/inquire/amzn`)
+        .expect(HttpStatus.CREATED)
+        .expect(async ({ body }) => {
+          const rawAmazon = await dataSource.query<FinancialAssetEntity[]>(
+            `SELECT * FROM financial_assets WHERE symbol = 'AMZN'`
+          );
+          expect(rawAmazon).toHaveLength(1);
+          expect(body).toHaveProperty('symbol', rawAmazon[0]!.symbol);
+        });
+      });
+
+      it('DB 에 없는 Ticker, Not Found 추가 실패 (404)', () => {
+        return request(app.getHttpServer())
+        .post(`/asset/inquire/${NOT_FOUND_TICKER}`)
         .expect(HttpStatus.NOT_FOUND);
       });
     });

@@ -4,7 +4,7 @@ import { Database_FinancialAssetService } from "../financialAsset/financialAsset
 import { Database_ExchangeService } from "../exchange/exchange.service";
 import { LogPriceUpdateService } from "../log_priceUpdate/log_priceUpdate.service";
 import { Log_priceUpdate } from "../log_priceUpdate/log_priceUpdate.schema";
-import { CoreExchange, FulfilledYfPrice } from "src/common/interface";
+import { ExchangeCore, FulfilledYfPrice } from "src/common/interface";
 import { Launcher } from "src/common/enum";
 import Either, * as E from "src/common/class/either";
 
@@ -23,7 +23,7 @@ export class Database_UpdaterService {
   // Todo: Refac
   public async update(
     updateEitherArr: readonly Either<any, FulfilledYfPrice>[],
-    exchange: CoreExchange,
+    exchange: ExchangeCore,
   ): Promise<Either<any, FulfilledYfPrice>[]> {
     const updateRes = this.updateTx(
       E.getRightArray(updateEitherArr),
@@ -54,7 +54,7 @@ export class Database_UpdaterService {
    */
   private async updateTx(
     fulfilledYfPriceArr: readonly FulfilledYfPrice[],
-    exchange: CoreExchange,
+    exchange: ExchangeCore,
   ): Promise<FulfilledYfPrice[]> {
     let updateRes: Promise<FulfilledYfPrice[]>;
     const queryRunner = this.dataSource.createQueryRunner();

@@ -47,12 +47,12 @@ describe('AccessorService', () => {
     });
 
     it('database_financialAssetSrv 에서 가져올 수 있음', async () => {
-      const res = await service.getPrice(mockApple.symbol);
+      const res = await service.getFinancialAsset(mockApple.symbol);
       expect(res).toEqual(mockApple);
     });
 
     it('database_financialAssetSrv 에서 가져올 수 없음', async () => {
-      const res = await service.getPrice(mockSamsungElec.symbol);
+      const res = await service.getFinancialAsset(mockSamsungElec.symbol);
       expect(res).toEqual(null);
     });
   });
@@ -77,13 +77,13 @@ describe('AccessorService', () => {
     });
 
     it('정상적으로 Asset 추가됨', async () => {
-      const res = await service.subscribeAssetAndGetPrice(mockSamsungElec.symbol);
+      const res = await service.subscribeAssetAndGet(mockSamsungElec.symbol);
       expect(res).toEqual(mockSamsungElec);
     });
 
     it('Asset 을 추가할 수 없음. Not Found.', async () => {
       const notFoundTicker = "notFoundTicker";
-      expect(service.subscribeAssetAndGetPrice(notFoundTicker)).rejects
+      expect(service.subscribeAssetAndGet(notFoundTicker)).rejects
       .toThrow(new NotFoundException(`Could not find Ticker: ${notFoundTicker}`));
     });
   });

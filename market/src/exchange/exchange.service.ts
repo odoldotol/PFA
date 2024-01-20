@@ -2,8 +2,7 @@ import { Injectable, Logger } from "@nestjs/common";
 import { Database_ExchangeService } from "src/database/exchange/exchange.service";
 import { Market_ExchangeService } from "src/market/exchange/exchange.service";
 import { Market_Exchange } from "src/market/exchange/class";
-import { Exchange } from 'src/database/exchange/exchange.entity';
-import { UpdateEventListener } from "src/common/interface";
+import { ExchangeCore, UpdateEventListener } from "src/common/interface";
 import { MarketEvent } from "src/common/enum";
 import * as F from "@fxts/core";
 
@@ -62,10 +61,10 @@ export class ExchangeService {
   }
 
   private async isNewExchange(exchange: Market_Exchange): Promise<boolean> {
-    return F.not((await this.database_exchangeSrv.exist({ isoCode: exchange.isoCode })));
+    return F.not((await this.database_exchangeSrv.exist({ iso_code: exchange.isoCode })));
   }
 
-  private createExchange(exchange: Market_Exchange): Promise<Exchange> {
+  private createExchange(exchange: Market_Exchange): Promise<ExchangeCore> {
     return this.database_exchangeSrv.createOne(exchange);
   }
 
@@ -73,7 +72,7 @@ export class ExchangeService {
     this.logger.verbose(`New Exchange Created: ${exchange.isoCode}`);
   }
 
-  private isOutofdateExchange(exchange: Exchange): boolean {
+  private isOutofdateExchange(exchange: ExchangeCore): boolean {
     const marketExchange = this.market_exchangeSrv.getOne(exchange.isoCode);
     const result = exchange.marketDate != marketExchange.marketDate;
     

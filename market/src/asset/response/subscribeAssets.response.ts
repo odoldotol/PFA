@@ -1,12 +1,12 @@
 import { ApiProperty } from "@nestjs/swagger";
 import Either from "src/common/class/either";
-import { FinancialAsset } from "src/database/financialAsset/financialAsset.entity";
 import { Yf_info } from "src/database/yf_info/yf_info.schema";
+import { FinancialAssetCore } from "src/common/interface";
 
 export class SubscribeAssetsResponse {
 
   @ApiProperty({ description: '정상적으로 구독된 Assets' })
-  readonly assets: FinancialAsset[] = [];
+  readonly assets: FinancialAssetCore[] = [];
 
   @ApiProperty()
   readonly failure: {
@@ -20,7 +20,7 @@ export class SubscribeAssetsResponse {
   constructor(
     generalFailures: any[],
     yfInfoCreationRes: Either<any, Yf_info[]>,
-    finAssetCreationRes: Either<any, FinancialAsset[]>
+    finAssetCreationRes: Either<any, FinancialAssetCore[]>
   ) {
     this.failure = {
       general: generalFailures,

@@ -13,7 +13,7 @@ export interface ExchangeIso {
   readonly isoTimezoneName: IsoTimezoneName;
 }
 
-export interface CoreExchange
+export interface ExchangeCore
   extends ExchangeIso
 {
   readonly marketDate: MarketDate;

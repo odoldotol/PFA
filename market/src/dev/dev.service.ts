@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import { LogPriceUpdateService } from 'src/database/log_priceUpdate/log_priceUpdate.service';
-import { YfinanceInfoService } from "src/database/yf_info/yf_info.service";
 import { Market_ExchangeService } from 'src/market/exchange/exchange.service';
 import { ExchangeIsoCode } from 'src/common/interface';
 import * as F from "@fxts/core";
@@ -11,12 +10,7 @@ export class DevService {
   constructor(
     private readonly logPriceUpdateSrv: LogPriceUpdateService,
     private readonly market_exchangeSrv: Market_ExchangeService,
-    private readonly yfinanceInfoSrv: YfinanceInfoService
   ) {}
-
-  public getAllAssetsInfo() {
-    return this.yfinanceInfoSrv.findAll();
-  }
 
   public getAllExchangesFromMarket() {
     return this.market_exchangeSrv.getAll().map(

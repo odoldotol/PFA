@@ -5,12 +5,11 @@ import {
   QueryRunner,
   Repository
 } from "typeorm";
-import {
-  FinancialAsset,
-  RawFinancialAsset
-} from "./financialAsset.entity";
+import { FinancialAssetEntity } from "./financialAsset.entity";
+import { FinancialAsset } from "src/common/class/financialAsset";
 import {
   ExchangeIsoCode,
+  FinancialAssetCore,
   FulfilledYfPrice,
   Ticker
 } from "src/common/interface";
@@ -22,16 +21,16 @@ export class Database_FinancialAssetService {
   private readonly tableName = this.finAssetsRepo.metadata.tableName;
 
   constructor(
-    @InjectRepository(FinancialAsset)
-    private readonly finAssetsRepo: Repository<FinancialAsset>,
+    @InjectRepository(FinancialAssetEntity)
+    private readonly finAssetsRepo: Repository<FinancialAssetEntity>,
     private readonly dataSource: DataSource
   ) {}
 
-  public async createMany(
-    values: readonly FinancialAsset[]
+  public createMany(
+    values: readonly FinancialAssetCore[]
   ): Promise<FinancialAsset[]> {
     if (values.length === 0) return Promise.resolve([]);
-    return (await this.dataSource.query<RawFinancialAsset[]>(`
+    return this.dataSource.query<FinancialAssetEntity[]>(`
     INSERT INTO ${this.tableName}
       VALUES
         ${values.map(v => `(
@@ -44,7 +43,7 @@ export class Database_FinancialAssetService {
           ${v.exchange ? `'${v.exchange}'` : `NULL`}
         )`).join(',')}
       RETURNING *
-    `)).map(this.rawToEntity.bind(this));
+    `).then(this.extendFinancialAsset);
   }
 
   public existByPk(
@@ -53,35 +52,17 @@ export class Database_FinancialAssetService {
     return this.finAssetsRepo.exist({ where: { symbol: pk } });
   }
 
-  /**
-   * Development Temporary Method
-   * @description Returns LIMIT 100
-   */
-  public async readManyByEqualComparison(
-    filter: Partial<FinancialAsset>
-  ): Promise<FinancialAsset[]> {
-    return (await this.dataSource.query<RawFinancialAsset[]>(`
-      SELECT * FROM ${this.tableName}
-        WHERE ${Object.entries(filter)
-          .map(([k, v]) => `${this.entityPropNameToDbColumnName(k as keyof FinancialAsset)} = '${v}'`)
-          .join(' AND ')}
-        LIMIT 100
-    `)).map(this.rawToEntity.bind(this));
-  }
-
   public async readOneByPk(pk: Ticker): Promise<FinancialAsset | null> {
-    const raw = (await this.dataSource.query<RawFinancialAsset[]>(`
+    const res = (await this.dataSource.query<FinancialAssetEntity[]>(`
     SELECT * FROM ${this.tableName}
       WHERE symbol = '${pk}'
     `))[0];
 
-    if (raw) return this.rawToEntity(raw);
-    else return null;
+    return res ? this.extendFinancialAsset(res) : null;
   }
 
-  // Todo: undefined 대신 null 을 인자로 받아라
   public async readSymbolsByExchange(
-    exchange?: ExchangeIsoCode
+    exchange: ExchangeIsoCode | null
   ): Promise<Ticker[]> {
     return (await this.dataSource.query<Pick<FinancialAsset, 'symbol'>[]>(`
       SELECT symbol FROM ${this.tableName}
@@ -89,14 +70,13 @@ export class Database_FinancialAssetService {
     `)).map(({ symbol }) => symbol);
   }
 
-  // Todo: undefined 대신 null 을 인자로 받아라
-  public async readManyByExchange(
-    exchange?: ExchangeIsoCode
+  public readManyByExchange(
+    exchange: ExchangeIsoCode | null
   ): Promise<FinancialAsset[]> {
-    return (await this.dataSource.query<RawFinancialAsset[]>(`
+    return this.dataSource.query<FinancialAssetEntity[]>(`
       SELECT * FROM ${this.tableName}
         WHERE exchange ${exchange ? `= '${exchange}'` : `is NULL`}
-    `)).map(this.rawToEntity.bind(this));
+    `).then(this.extendFinancialAsset);
   }
 
   /**
@@ -107,56 +87,38 @@ export class Database_FinancialAssetService {
     queryRunner?: QueryRunner
   ): Promise<FulfilledYfPrice[]> {
     if (updateArr.length === 0) return Promise.resolve([]);
-    const updateColumn = this.entityPropNameToDbColumnName('regularMarketLastClose');
-    return this.dataSource.query<[FulfilledYfPrice[], number]>(
+    return this.dataSource.query<[Pick<FinancialAssetEntity, 'symbol' | 'regular_market_last_close'>[], number]>(
       `
         UPDATE ${this.tableName} AS t
           SET
-            ${updateColumn} = u.${updateColumn}
+          regular_market_last_close = u.regular_market_last_close
           FROM (VALUES
             ${updateArr.map(u => `('${u.symbol}', ${u.regularMarketLastClose})`).join(',')}
-          ) AS u(symbol, ${updateColumn})
+          ) AS u(symbol, regular_market_last_close)
           WHERE t.symbol = u.symbol
-          RETURNING t.symbol, t.${updateColumn}
+          RETURNING t.symbol, t.regular_market_last_close
       `,
       undefined,
       queryRunner
     ).then(res => {
-      res[1] === updateArr.length ||
-      this.logger.warn(`updatePriceMany Warn! | Attempt: ${updateArr.length} | Success: ${res[1]}`); // Todo: 여기서 실패된 케이스도 전달하도록
-      return res[0].map(this.rawToEntity.bind(this)) as FulfilledYfPrice[]; //
+      res[1] === updateArr.length || this.logger.warn(
+        `updatePriceMany Warn! | Attempt: ${updateArr.length} | Success: ${res[1]}`
+      ); // Todo: 여기서 실패된 케이스도 전달하도록
+      return res[0].map(pick => Object.assign(
+        pick,
+        { regularMarketLastClose: pick.regular_market_last_close }
+      ));
     });
   }
 
-  // Todo: Refac - 다른 엔티티 서비스와도 공유할 수 있도록?
-  private entityPropNameToDbColumnName(
-    propertyName: keyof FinancialAsset
-  ) {
-    return this.finAssetsRepo.metadata.columns.find(
-      col => col.propertyName === propertyName
-    )!.databaseName;
-  }
-
-  // Todo: Refac - 다른 엔티티와 공유하는 범용적인 메소드로
-  private rawToEntity<T extends Raw>(
-    raw: T
-  ): T extends RawFinancialAsset ?
-    FinancialAsset :
-    Partial<FinancialAsset>
-  {
-    const finAsset = this.finAssetsRepo.create();
-    this.finAssetsRepo.metadata.columns.forEach(col => {
-      const v = raw[col.databaseName as keyof RawFinancialAsset];
-      if (v === null || v === undefined) {
-        return;
-      } else {
-        // @ts-ignore
-        finAsset[col.propertyName as keyof FinancialAsset] = v;
-      }
-    });
-    return finAsset;
+  private extendFinancialAsset(financialAssetEntity: FinancialAssetEntity): FinancialAsset;
+  private extendFinancialAsset(financialAssetEntityArr: FinancialAssetEntity[]): FinancialAsset[];
+  private extendFinancialAsset(arg: FinancialAssetEntity | FinancialAssetEntity[]): FinancialAsset | FinancialAsset[] {
+    if (Array.isArray(arg)) {
+      return arg.map(entity => new FinancialAsset(entity));
+    } else {
+      return new FinancialAsset(arg);
+    }
   }
 
 }
-
-type Raw = RawFinancialAsset | Partial<RawFinancialAsset>;

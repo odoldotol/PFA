@@ -1,6 +1,6 @@
 import { Market_Exchange } from "./class/exchange";
 import {
-  CoreExchange,
+  ExchangeCore,
   ExchangeIsoCode,
   YfInfo
 } from "src/common/interface";
@@ -19,8 +19,8 @@ export class Market_ExchangeService {
   }
 
   public getOne(isoCode: ExchangeIsoCode): Market_Exchange;
-  public getOne(coreExchange: CoreExchange): Market_Exchange;
-  public getOne(arg: ExchangeIsoCode | CoreExchange): Market_Exchange {
+  public getOne(coreExchange: ExchangeCore): Market_Exchange;
+  public getOne(arg: ExchangeIsoCode | ExchangeCore): Market_Exchange {
     const isoCode = typeof arg === "string" ? arg : arg.isoCode;
     return this.exchangeMap.get(isoCode)!;
   }

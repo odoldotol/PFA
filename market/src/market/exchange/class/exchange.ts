@@ -3,7 +3,7 @@ import { EventEmitter } from "stream";
 import { Market_ExchangeConfig } from "./exchangeConfig";
 import { Market_ExchangeSession } from "./exchangeSession";
 import {
-  CoreExchange,
+  ExchangeCore,
   ExchangeIsoCode,
   IsoTimezoneName,
   MarketDate
@@ -21,7 +21,7 @@ import {
 
 export class Market_Exchange
   extends EventEmitter
-  implements OnApplicationBootstrap, CoreExchange
+  implements OnApplicationBootstrap, ExchangeCore
 {
   private readonly logger = new Logger(
     buildLoggerContext(Market_Exchange, this.isoCode)

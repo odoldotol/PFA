@@ -11,9 +11,9 @@ import {
   Database_FinancialAssetService
 } from "src/database/financialAsset/financialAsset.service";
 import { SubscriberService } from "./subscriber.service";
-import { FinancialAsset } from "src/database/financialAsset/financialAsset.entity";
 import {
   ExchangeIsoCode,
+  FinancialAssetCore,
   FulfilledYfPrice,
   Ticker
 } from "src/common/interface";
@@ -28,15 +28,15 @@ export class AccessorService {
     private readonly subscriberSrv: SubscriberService,
   ) {}
 
-  public getPrice(
+  public getFinancialAsset(
     ticker: Ticker
-  ): Promise<FinancialAsset | null> {
+  ): Promise<FinancialAssetCore | null> {
     return this.database_financialAssetSrv.readOneByPk(ticker);
   }
 
-  public async subscribeAssetAndGetPrice(
+  public async subscribeAssetAndGet(
     ticker: Ticker
-  ): Promise<FinancialAsset> {
+  ): Promise<FinancialAssetCore> {
     const subscribeAssetsRes = await this.subscriberSrv.subscribeAssetsFromFilteredTickers([
       Either.right(ticker)
     ]);

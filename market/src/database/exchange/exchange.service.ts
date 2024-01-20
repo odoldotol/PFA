@@ -6,11 +6,10 @@ import {
   FindOptionsWhere,
   QueryRunner
 } from 'typeorm';
+import { ExchangeEntity } from "./exchange.entity";
+import { Exchange } from "src/common/class";
 import {
-  Exchange,
-  RawExchange
-} from "./exchange.entity";
-import {
+  ExchangeCore,
   ExchangeIsoCode,
   MarketDate
 } from "src/common/interface";
@@ -19,53 +18,50 @@ import {
 export class Database_ExchangeService {
   
   private readonly logger = new Logger(Database_ExchangeService.name);
+  private readonly tableName = this.exchangesRepo.metadata.tableName;
 
   constructor(
-    @InjectRepository(Exchange)
-    private readonly exchangesRepo: Repository<Exchange>,
+    @InjectRepository(ExchangeEntity)
+    private readonly exchangesRepo: Repository<ExchangeEntity>,
     private readonly dataSource: DataSource
   ) {}
 
-  public async createOne(value: Exchange): Promise<Exchange> {
-    return this.rawToEntity(
-      (await this.dataSource.query<RawExchange[]>(`
-        INSERT INTO exchanges
-          VALUES
-            ('${value.isoCode}', '${value.isoTimezoneName}', '${value.marketDate}')
-          RETURNING *
-      `))[0]!
-    );
+  public async createOne(value: ExchangeCore): Promise<Exchange> {
+    return (await this.dataSource.query<ExchangeEntity[]>(`
+      INSERT INTO ${this.tableName}
+        VALUES
+          ('${value.isoCode}', '${value.isoTimezoneName}', '${value.marketDate}')
+        RETURNING *
+    `).then(this.extendExchange))[0]!;
   }
 
   public exist(
-    condition: FindOptionsWhere<Exchange> | FindOptionsWhere<Exchange>[]
+    condition: FindOptionsWhere<ExchangeEntity> | FindOptionsWhere<ExchangeEntity>[]
   ): Promise<boolean> {
     return this.exchangesRepo.exist({ where: condition });
   }
 
   public readAll(): Promise<Exchange[]> {
-    return this.exchangesRepo.find();
+    return this.exchangesRepo.find().then(this.extendExchange);
   }
 
   public async readOneByPk(pk: ExchangeIsoCode): Promise<Exchange> {
-    return this.rawToEntity(
-      (await this.dataSource.query<RawExchange[]>(`
-        SELECT * FROM exchanges
-          WHERE iso_code = '${pk}'
-      `))[0]!
-    );
+    return (await this.dataSource.query<ExchangeEntity[]>(`
+      SELECT * FROM ${this.tableName}
+        WHERE iso_code = '${pk}'
+    `).then(this.extendExchange))[0]!;
   }
 
-  // Todo: warn case
+  // Todo: warn case - 에러를 던지게 하는게 옳은듯?
   public async updateMarketDateByPk(
     pk: ExchangeIsoCode,
     update: MarketDate,
     queryRunner?: QueryRunner
-  ) {
+  ): Promise<void> {
     await this.dataSource.query(
       `
-        UPDATE exchanges
-          SET marketdate = '${update}'
+        UPDATE ${this.tableName}
+          SET market_date = '${update}'
           WHERE iso_code = '${pk}'
       `,
       undefined,
@@ -75,18 +71,14 @@ export class Database_ExchangeService {
     });
   }
 
-  // Todo: Refac - 다른 엔티티와 공유하는 범용적인 메소드로
-  private rawToEntity(raw: RawExchange): Exchange {
-    const exchange = this.exchangesRepo.create();
-    this.exchangesRepo.metadata.columns.forEach(col => {
-      const v = raw[col.databaseName as keyof RawExchange];
-      if (v === null) {
-        return;
-      } else {
-        exchange[col.propertyName as keyof Exchange] = v as any; //
-      }
-    });
-    return exchange;
+  private extendExchange(exchangeEntity: ExchangeEntity): Exchange;
+  private extendExchange(exchangeEntityArr: ExchangeEntity[]): Exchange[];
+  private extendExchange(arg: ExchangeEntity | ExchangeEntity[]): Exchange | Exchange[] {
+    if (Array.isArray(arg)) {
+      return arg.map(entity => new Exchange(entity));
+    } else {
+      return new Exchange(arg);
+    }
   }
 
 }

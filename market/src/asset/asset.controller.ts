@@ -6,14 +6,14 @@ import {
   Param,
   ParseArrayPipe,
   Post,
-  Res
+  Res,
+  Version
 } from "@nestjs/common";
 import { Response } from 'express';
 import { ApiTags } from "@nestjs/swagger";
 import { AccessorService } from "./service/accessor.service";
 import { SubscriberService } from "./service/subscriber.service";
 import {
-  SubscribeAssetsResponse,
   GetPriceByExchangeResponse,
   GetPriceByTickerResponse
 } from "./response";
@@ -34,6 +34,53 @@ export class AssetController {
     private readonly subscribeerSrv: SubscriberService,
   ) {}
 
+  @Version('1.1')
+  @Post('price/get/:ISO_Code')
+  @HttpCode(HttpStatus.OK)
+  getPrice(
+    @Param('ISO_Code', UpperCasePipe) isoCode: ExchangeIsoCode
+  ): Promise<GetPriceByExchangeResponse> {
+    return this.getPriceByExchange(isoCode);
+  }
+
+  @Version('1.1')
+  @Post('price/inquire/:ticker')
+  inquirePrice(
+    @Param('ticker', UpperCasePipe) ticker: Ticker,
+    @Res() response: Response
+  ): Promise<void> {
+    return this.getPriceByTicker(ticker, response);
+  }
+
+  @Post('inquire/:ticker')
+  async inquire(
+    @Param('ticker', UpperCasePipe) ticker: Ticker,
+    @Res() response: Response
+  ): Promise<void> {
+    let body = await this.accessorSrv.getFinancialAsset(ticker);
+    if (body) {
+      response.status(HttpStatus.OK);
+    } else {
+      body = await this.accessorSrv.subscribeAssetAndGet(ticker);
+      response.status(HttpStatus.CREATED);
+    }
+    response.send(body);
+  }
+
+
+  @Post('subscribe')
+  @Api_subscribeAssets()
+  async subscribeAssets(
+    @Body(UpperCasePipe, new ParseArrayPipe({ items: String })) tickerArr: Ticker[],
+    @Res() response: Response
+  ): Promise<void> {
+    const body = await this.subscribeerSrv.subscribeAssets(tickerArr);
+    if (body.assets.length === 0) {
+      response.status(HttpStatus.OK)
+    }
+    response.send(body);
+  }
+
   @Post('price/exchange/:ISO_Code')
   @HttpCode(HttpStatus.OK)
   @Api_getPriceByExchange()
@@ -45,34 +92,22 @@ export class AssetController {
 
   @Post('price/ticker/:ticker')
   @Api_getPriceByTicker()
-  async getPrice(
+  async getPriceByTicker(
     @Param('ticker', UpperCasePipe) ticker: Ticker,
     @Res() response: Response
   ): Promise<void> {
     let body: GetPriceByTickerResponse;
-    let status: HttpStatus;
-    const asset = await this.accessorSrv.getPrice(ticker);
+    const asset = await this.accessorSrv.getFinancialAsset(ticker);
     if (asset) {
       body = new GetPriceByTickerResponse(asset);
-      status = HttpStatus.OK;
+      response.status(HttpStatus.OK);
     } else {
       body = new GetPriceByTickerResponse(
-        await this.accessorSrv.subscribeAssetAndGetPrice(ticker)
+        await this.accessorSrv.subscribeAssetAndGet(ticker)
       );
-      status = HttpStatus.CREATED;
+      response.status(HttpStatus.CREATED);
     }
-    response
-    .status(status)
-    .send(body)
-  }
-
-  @Post('subscribe')
-  @HttpCode(HttpStatus.OK)
-  @Api_subscribeAssets()
-  subscribeAssets(
-    @Body(UpperCasePipe, new ParseArrayPipe({ items: String })) tickerArr: Ticker[]
-  ): Promise<SubscribeAssetsResponse> {
-    return this.subscribeerSrv.subscribeAssets(tickerArr);
+    response.send(body)
   }
 
 }
