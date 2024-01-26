@@ -207,21 +207,22 @@ $ sh scripts/pfa:start:prod
 ```
 #### Migrations (Only If necessary)
 ```shell
-# Enter the container with the command below
+# Enter the container with the command below.
 $ docker exec -it pfa-market /bin/sh
-# Or
+# Or,
 $ docker exec -it pfa-product /bin/sh
 
-# Then, you can use these commands below
-$ npm run migtation:run
-$ npm run migtation:revert
-$ npm run migtation:create
-$ npm run migtation:generate
+# Now, belows are available.
+$ npm run migration:run
+$ npm run migration:revert
+$ npm run migration:create
+$ npm run migration:generate
 
 # migration files are in 'migrations/'
 # ex) migrations/postgres/1706286072769-Migration.ts
 
-# You can alse use devMigrations files as below
+# If they're synchronized,
+$ mkdir -p migrations/postgres
 $ cp -r devMigrations/postgres/. migrations/postgres/.
 ```
 
