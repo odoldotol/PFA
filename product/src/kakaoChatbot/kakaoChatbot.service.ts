@@ -1,11 +1,10 @@
-import { Injectable, Logger } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
+import { Injectable, InternalServerErrorException, Logger } from '@nestjs/common';
 import { MarketService } from '../market/market.service';
 import { UserService } from 'src/database/user/user.service';
 import { AssetSubscriptionService } from 'src/database/assetSubscription/assetSubscription.service';
+import { SkillResponseService } from './skillResponse.service';
 import { User } from 'src/database/user/user.entity';
-import { EnvironmentVariables } from 'src/common/interface/environmentVariables.interface';
-import { EnvKey } from 'src/common/enum/envKey.emun';
+import { FinancialAssetCore } from 'src/common/interface';
 import { SkillPayload } from './interface/skillPayload.interface';
 import { SkillResponse } from './response/skill.response';
 import * as F from '@fxts/core';
@@ -15,259 +14,93 @@ export class KakaoChatbotService {
 
   private readonly logger = new Logger(KakaoChatbotService.name);
 
-  private readonly KAKAO_CHATBOT_VERSION
-  = this.configService.get(EnvKey.KAKAO_CHATBOT_VERSION, '2.0', { infer: true });
-
   constructor(
-    private readonly configService: ConfigService<EnvironmentVariables>,
     private readonly marketService: MarketService,
     private readonly userSrv: UserService,
     private readonly assetSubscriptionSrv: AssetSubscriptionService,
+    private readonly skillResponseSrv: SkillResponseService,
   ) {}
 
-  public async subscribeAsset(
-    body: SkillPayload
+  public async inquireAsset(
+    skillPayload: SkillPayload
   ): Promise<SkillResponse> {
-    const botUserKey = body.userRequest.user.properties.botUserKey;
-    if (!botUserKey) { // 봇 유저 식별 불가능
-      this.logger.error(
-        'userRequest?.user.properties.botUserKey is not exist in SkillPayload',
-        `SkillPayload: ${JSON.stringify(body)}`,
-      );
-      return {
-        version: this.KAKAO_CHATBOT_VERSION,
-        template: {
-          outputs: [
-            {
-              simpleText: {
-                text: "죄송해요. 당신이 누구인지 확인하지 못했어요. \n이 문제는 제가 확인했으니 곧 고쳐질 거예요!"
-              },
-            },
-          ],
-        },
-      };
-    }
-    const userId = await this.getUserId(botUserKey);
+    const ticker = this.getTickerFromActionIn(skillPayload);
 
-    const ticker = body.action.params['ticker']!.toUpperCase(); //
-    const price = await this.marketService.getPrice(ticker, userId.toString());
-    if (!price) { // Asset 찾을 수 없음
-      return {
-        version: this.KAKAO_CHATBOT_VERSION,
-        template: {
-          outputs: [
-            {
-              textCard: {
-                title: "죄송해요. 구독하지 못했어요.",
-                description: `${ticker} 를 찾을 수 없었어요. \n혹시 잘못 입력하셨으면 다시 시도해 보세요. \n만약 올바르게 입력하여도 제가 찾지 못한 거라면, 아래 신고하기 버튼을 통해 제게 알려주세요!`,
-                buttons: [
-                  {
-                    label: "신고하기",
-                    action: "block",
-                    blockId: "5f6f6c0a4b738c0001e4e7e1", //
-                    extra: {
-                      ticker,
-                    },
-                  },
-                ],
-              },
-            },
-          ],
-        },
-      };
+    // Todo: failedTicker 재시도시 응답.
+
+    let asset: FinancialAssetCore; // Todo: exchange 이름도 포함되는것이 좋겠다. marketExchange 를 exchagne 에 넣어주는건 어떨지 확인해봐라.
+    try {
+      // Todo: Price 만이 아니라 Asset 을 Redis 에 캐싱해야함. 그리고 직전 마감과 이전 마감사이의 변화량도 계산할 수 있어야 함.
+      asset = await this.marketService.fetchFinancialAsset(ticker);
+    } catch (err) {
+      return this.skillResponseSrv.failedAssetInquiry(ticker, err);
     }
 
-    /* 찾은 Asset 을 유저가 한번 확인하고 구독을 컴펌받는게 아마 더 좋은 UX 임.
-    Asset 정보를 마켓서버에서 가져올 수 있도록 하자
-    더 나아가서는, 티커가 아닌 이름이나 이름의 일부분으로도 Asset 을 찾아와서 컨펌받아야 함 */
+    const userId = await this.getUserId(this.getBotUserKey(skillPayload));
+    const isSubscribed = await this.assetSubscriptionSrv.readOneAcivate(
+      userId,
+      ticker
+    ).then(r => r !== null && r.activate);
 
-    // Todo: 조건문에 따른 3가지 쿼리 호출 제거하고 하나의 쿼리에서 처리해보고 뭐가 더 나은지 비교하기
-    const record = await this.assetSubscriptionSrv.readOneAcivate(userId, ticker);
-    if (record !== null && record.activate === true) {
-      const text = "이미 구독하고 있어요!";
-      return {
-        version: this.KAKAO_CHATBOT_VERSION,
-        template: {
-          outputs: [
-            {
-              simpleText: {
-                text,
-              },
-            },
-          ],
-        },
-        data: { ...price, text },
-      };
+    return this.skillResponseSrv.assetInquiry(asset, isSubscribed);
+  }
+
+  /**
+   * 일반적으로 구독중이 아닌 경우에만 진입한다고 가정
+   */
+  public async subscribeAsset(
+    skillPayload: SkillPayload
+  ): Promise<SkillResponse> {
+    const ticker = this.getTickerFromExtraAndContextIn(skillPayload);
+
+    // Todo: 조건에 따른 두번의 쿼리를 한번의 쿼리로 합치고 비교해보기
+    const userId = await this.getUserId(this.getBotUserKey(skillPayload));
+    const updatedRecord = await this.assetSubscriptionSrv.updateOneActivate(
+      userId,
+      ticker,
+      true
+    );
+    if (updatedRecord === null) {
+      await this.assetSubscriptionSrv.createOne(userId, ticker);
     }
     
-    try {
-      if (record !== null && record.activate === false) {
-        await this.assetSubscriptionSrv.updateOneActivate(userId, ticker, true);
-      } else {
-        await this.assetSubscriptionSrv.createOne(userId, ticker);
-      }
-      const text = `${ticker} 구독 성공!`;
-      return {
-        version: this.KAKAO_CHATBOT_VERSION,
-        template: {
-          outputs: [
-            {
-              simpleText: {
-                text,
-              },
-            },
-          ],
-        },
-        data: { ...price, text },
-      };
-    } catch (err: any) {
-      this.logger.error(
-        `assetSubscriptionSrv.createOne() || .updateOneActivate() failed \nuserId: ${userId}, ticker: ${ticker}`,
-        err.stack as string,
-      );
-      const text = "죄송해요. 구독하지 못했어요. \n제가 확인했으니 이 문제는 곧 고쳐질 거예요!";
-      return {
-        version: this.KAKAO_CHATBOT_VERSION,
-        template: {
-          outputs: [
-            {
-              simpleText: {
-                text,
-              },
-            },
-          ],
-        },
-        data: { ...price, text },
-      };
-    }
+    return this.skillResponseSrv.assetSubscribed(ticker);
   }
 
+  /**
+   * 일반적으로 구독중인 경우에만 진입한다고 가정
+   */
   public async cancelAssetSubscription(
-    body: SkillPayload
+    skillPayload: SkillPayload
   ): Promise<SkillResponse> {
-    const botUserKey = body.userRequest.user.properties.botUserKey;
-    if (!botUserKey) { // 봇 유저 식별 불가능
-      this.logger.error(
-        'userRequest?.user.properties.botUserKey is not exist in SkillPayload',
-        `SkillPayload: ${JSON.stringify(body)}`,
-      );
-      const text = "죄송해요. 당신이 누구인지 확인하지 못했어요. \n제가 확인했으니 이 문제는 곧 고쳐질 거예요!";
-      return {
-        version: this.KAKAO_CHATBOT_VERSION,
-        template: {
-          outputs: [
-            {
-              simpleText: {
-                text,
-              },
-            },
-          ],
-        },
-        data: { text },
-      };
-    }
-    const userId = await this.getUserId(botUserKey);
-    const ticker = body.action.params['ticker']!.toUpperCase(); //
-    try {
-      const record = await this.assetSubscriptionSrv.updateOneActivate(userId, ticker, false);
-      if (record !== null) {
-        const text = `${ticker} 구독 취소 성공!`;
-        return {
-          version: this.KAKAO_CHATBOT_VERSION,
-          template: {
-            outputs: [
-              {
-                simpleText: {
-                  text,
-                },
-              },
-            ],
-          },
-          data: { ticker, text },
-        };
-      } else { // 구독중이지 않음
-        const text = "구독중이 아니에요!";
-        return {
-          version: this.KAKAO_CHATBOT_VERSION,
-          template: {
-            outputs: [
-              {
-                simpleText: {
-                  text,
-                },
-              },
-            ],
-          },
-          data: { ticker, text },
-        };
-      }
-    } catch (err: any) {
-      this.logger.error(
-        'assetSubscriptionSrv.updateOneActivate() failed',
-        `userId: ${userId}, ticker: ${ticker}`,
-        err.stack,
-      );
-      const text = "죄송해요. 구독을 취소하지 못했어요. \n제가 확인했으니 이 문제는 곧 고쳐질 거예요!";
-      return {
-        version: this.KAKAO_CHATBOT_VERSION,
-        template: {
-          outputs: [
-            {
-              simpleText: {
-                text,
-              },
-            },
-          ],
-        },
-        data: { ticker, text },
-      };
+    const ticker = this.getTickerFromExtraAndContextIn(skillPayload);
+
+    const userId = await this.getUserId(this.getBotUserKey(skillPayload));
+    const updatedRecord = await this.assetSubscriptionSrv.updateOneActivate(
+      userId,
+      ticker,
+      false
+    );
+
+    if (updatedRecord !== null) {
+      return this.skillResponseSrv.assetUnsubscribed(ticker);
+    } else { // 일반적으로 진입하지 않을거라 예상
+      return this.skillResponseSrv.notSubscribedAsset(ticker);
     }
   }
 
-  public async getAssetSubscriptions(
-    body: SkillPayload
+  public async inquireSubscribedAsset(
+    skillPayload: SkillPayload
   ): Promise<SkillResponse> {
-    const botUserKey = body.userRequest.user.properties.botUserKey;
-    if (!botUserKey) { // 봇 유저 식별 불가능
-      this.logger.error(
-        'userRequest?.user.properties.botUserKey is not exist in SkillPayload',
-        `SkillPayload: ${JSON.stringify(body)}`,
-      );
-      const text = "죄송해요. 당신이 누구인지 확인하지 못했어요. \n제가 확인했으니 이 문제는 곧 고쳐질 거예요!";
-      return {
-        version: this.KAKAO_CHATBOT_VERSION,
-        template: {
-          outputs: [
-            {
-              simpleText: {
-                text,
-              },
-            },
-          ],
-        },
-        data: { text },
-      };
-    }
-    const userId = await this.getUserId(botUserKey);
-    // 구독 조회하기
-    const subscriptionTickerArr = await this.assetSubscriptionSrv.readActivatedTickersByUserId(userId);
+    const userId = await this.getUserId(this.getBotUserKey(skillPayload));
+    const subscriptionTickerArr
+    = await this.assetSubscriptionSrv.readActivatedTickersByUserId(userId);
+
     if (subscriptionTickerArr.length === 0) {
-      const text = "구독중인것이 없네요.";
-      return {
-        version: this.KAKAO_CHATBOT_VERSION,
-        template: {
-          outputs: [
-            {
-              simpleText: {
-                text,
-              },
-            },
-          ],
-        },
-        data: { text },
-      };
+      return this.skillResponseSrv.noSubscribedAsset();
     }
 
+    // Todo: asset 을 redis 에 캐싱한 후 리팩
     const assets = await F.pipe(
       subscriptionTickerArr, F.toAsync,
       F.map(async (ticker) => {
@@ -278,23 +111,36 @@ export class KakaoChatbotService {
       F.toArray,
     );
 
-    const text = assets.map((asset) => {
-      return `${asset.ticker} ${asset.price}${this.getCurrencySign(asset.currency)} (${asset.marketDate})`;
-    }).join('\n');
+    return this.skillResponseSrv.subscribedAssetInquiry(assets);
+  }
 
-    return {
-      version: this.KAKAO_CHATBOT_VERSION,
-      template: {
-        outputs: [
-          {
-            simpleText: {
-              text,
-            },
-          },
-        ],
-      },
-      data: { assets, text },
-    };
+  public async report(
+    skillPayload: SkillPayload
+  ): Promise<SkillResponse> {
+    const ticker = this.getTickerFromExtraAndContextIn(skillPayload);
+
+    const userId = await this.getUserId(this.getBotUserKey(skillPayload));
+    const reason = this.getReasonFromExtraIn(skillPayload);
+
+    this.logger.warn(
+      `Report: ${ticker}\nuserId: ${userId}\nreason: ${reason.message}\n${reason.stack}`
+    );
+
+    return this.skillResponseSrv.reported();
+  }
+
+  private getBotUserKey(skillPayload: SkillPayload): string {
+    let botUserKey: string | undefined;
+    if (typeof (botUserKey = skillPayload.userRequest.user.properties.botUserKey) === "string") {
+      return botUserKey;
+    } else if (
+      skillPayload.userRequest.user.type === "botUserKey" &&
+      typeof (botUserKey = skillPayload.userRequest.user.id) === "string"
+    ) {
+      return botUserKey;
+    } else {
+      throw new InternalServerErrorException(`Could not find botUserKey in UserRequest.`);
+    }
   }
 
   private async getUserId(botUserKey: string): Promise<User['id']> {
@@ -306,49 +152,53 @@ export class KakaoChatbotService {
     }
   }
 
-  // Todo: Refac
-  public async inquire(body: SkillPayload): Promise<SkillResponse> {
-    let kakaoText: string = '';
-    const ticker = body.action.params['ticker']!.toUpperCase();
-    const price = await this.marketService.getPrice(
-      ticker,
-      body.userRequest?.user.id
-    ).then(p => p && (kakaoText = `${(p.price + Number.EPSILON).toFixed(2)}${this.getCurrencySign(p.currency)} (${p.marketDate})`, Object.assign(p, {ticker}))
-    ).catch((err): undefined => (kakaoText = err.message, undefined));
-
-    return {
-      version: this.KAKAO_CHATBOT_VERSION,
-      template: {
-        outputs: [
-          {
-            simpleText: {
-              text: kakaoText
-            },
-          },
-        ],
-      },
-      data: { ...price, kakaoText },
-    };
+  private getTickerFromActionIn(skillPayload: SkillPayload): string {
+    const ticker = skillPayload.action.params['ticker'];
+    if (typeof ticker === "string") {
+      return ticker.toUpperCase();
+    } else {
+      throw new InternalServerErrorException(`Could not find ticker in Action.`);
+    }
   }
 
-  // Todo: Currency Enum 만들어서 쓰기
-  // Todo: 메서드 추출하기
-  private getCurrencySign(currency: string, signDefault = "") {
-    switch (currency) {
-      case 'USD':
-        return ' $';
-      case 'EUR':
-        return ' €';
-      case 'JPY':
-        return ' ¥';
-      case 'GBP':
-        return ' £';
-      case 'CNY':
-        return ' ¥';
-      case 'KRW':
-        return ' ₩';
-      default:
-        return signDefault;
+  private getTickerFromExtraAndContextIn(skillPayload: SkillPayload): string {
+    let ticker: string | undefined;
+    try {
+      ticker = this.getTickerFromExtraIn(skillPayload);
+    } catch (err) {
+      try {
+        ticker = this.getTickerFromContextIn(skillPayload);
+      } catch (err) {
+        throw new InternalServerErrorException(`Could not find ticker in ClientExtra and Contexts.`);
+      }
+    }
+    return ticker;
+  }
+
+  private getTickerFromExtraIn(skillPayload: SkillPayload): string {
+    const ticker = skillPayload.action.clientExtra['ticker'];
+    if (typeof ticker === "string") {
+      return ticker.toUpperCase();
+    } else {
+      throw new InternalServerErrorException(`Could not find ticker in ClientExtra.`);
+    }
+  }
+
+  private getTickerFromContextIn(skillPayload: SkillPayload): string {
+    const ticker = skillPayload.contexts[0]?.['params']?.['ticker']?.value;
+    if (typeof ticker === "string") {
+      return ticker.toUpperCase();
+    } else {
+      throw new InternalServerErrorException(`Could not find ticker in Contexts.`);
+    }
+  }
+
+  private getReasonFromExtraIn(skillPayload: SkillPayload): any {
+    const reason = skillPayload.action.clientExtra['reason'];
+    if (reason !== undefined) {
+      return reason;
+    } else {
+      throw new InternalServerErrorException(`Could not find reason in ClientExtra.`);
     }
   }
 

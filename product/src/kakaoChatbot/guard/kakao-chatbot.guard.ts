@@ -6,17 +6,42 @@ import { EnvKey } from 'src/common/enum/envKey.emun';
 @Injectable()
 export class KakaoChatbotGuard implements CanActivate {
 
-  private readonly KAKAO_CHATBOT_ID
-  = this.configService.get(EnvKey.KAKAO_CHATBOT_ID, 'FAKE1234', { infer: true });
+  private readonly KAKAO_CHATBOT_ID = this.configService.get(
+    EnvKey.KAKAO_CHATBOT_ID,
+    { infer: true }
+  );
 
   constructor(
     private readonly configService: ConfigService<EnvironmentVariables>
-  ) {}
+  ) {
+    const isProduction = this.configService.get(
+      EnvKey.DOCKER_ENV,
+      { infer: true }
+    ) === 'production';
+    
+    if (
+      isProduction &&
+      this.KAKAO_CHATBOT_ID === undefined
+    ) {
+      throw new Error('KAKAO_CHATBOT_ID is not defined!');
+    }
+  }
 
   canActivate(context: ExecutionContext) {
-    return context.switchToHttp().getRequest().body.bot?.id === this.KAKAO_CHATBOT_ID ?
-    true :
-    false;
+    const botIdFromSkillPayload = context
+    .switchToHttp()
+    .getRequest()
+    .body.bot?.id;
+
+    if (botIdFromSkillPayload === undefined) {
+      return false;
+    } else {
+      return botIdFromSkillPayload === this.getKakaoChatbotId();
+    }
+  }
+
+  private getKakaoChatbotId(): string | undefined {
+    return this.KAKAO_CHATBOT_ID;
   }
   
 }
