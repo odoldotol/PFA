@@ -8,9 +8,11 @@ import { HttpService } from '@nestjs/axios';
 import { catchError, firstValueFrom, map } from 'rxjs';
 import {
   ALLEXCHANGES_URN,
+  ASSET_INQIRE_URN,
   PRICEASSETS_BY_EXCHANGE_URN,
   PRICEASSET_BY_TICKER_URN
 } from './const';
+import { FinancialAssetCore } from 'src/common/interface';
 
 @Injectable()
 export class MarketApiService {
@@ -28,6 +30,12 @@ export class MarketApiService {
   public fetchPriceByISOcode(ISO_Code: string) {
     return firstValueFrom(this.httpService.post(PRICEASSETS_BY_EXCHANGE_URN + ISO_Code).pipe(
       map(res => res.data as PSet[])
+    ));
+  }
+
+  public fetchFinancialAsset(ticker: string): Promise<FinancialAssetCore> {
+    return firstValueFrom(this.httpService.get(ASSET_INQIRE_URN + ticker).pipe(
+      map(res => res.data as FinancialAssetCore)
     ));
   }
 

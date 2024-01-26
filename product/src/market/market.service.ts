@@ -116,6 +116,10 @@ export class MarketService
     );
   }
 
+  public fetchFinancialAsset(ticker: string) {
+    return this.marketApiSrv.fetchFinancialAsset(ticker);
+  }
+
   private async readCache(...[ticker, stack]: GPSet) {
     return [
       ticker,
