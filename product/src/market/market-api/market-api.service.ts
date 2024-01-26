@@ -34,7 +34,7 @@ export class MarketApiService {
   }
 
   public fetchFinancialAsset(ticker: string): Promise<FinancialAssetCore> {
-    return firstValueFrom(this.httpService.get(ASSET_INQIRE_URN + ticker).pipe(
+    return firstValueFrom(this.httpService.post(ASSET_INQIRE_URN + ticker).pipe(
       map(res => res.data as FinancialAssetCore)
     ));
   }
