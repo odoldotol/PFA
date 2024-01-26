@@ -24,7 +24,7 @@ export const ENTITY_NAME = 'financial_assets';
 export class FinancialAssetEntity {
   @PrimaryColumn({
     type: 'varchar',
-    length: 15,
+    length: 20,
     name: 'symbol',
     primaryKeyConstraintName: 'financial_assets_symbol_pkey'
   })
@@ -32,7 +32,7 @@ export class FinancialAssetEntity {
 
   @Column({
     type: 'varchar',
-    length: 10,
+    length: 30,
     name: 'quote_type'
   })
   quote_type!: QuoteType;
