@@ -8,6 +8,8 @@ import {
   ENTITY_NAME as assetSubscriptionTableName
 } from "../assetSubscription/assetSubscription.entity";
 import { User, ENTITY_NAME as userTableName } from "../user/user.entity";
+import { migrationRun } from "devMigrations/migration";
+import { MigrationUpdatedAtTriggers } from "devMigrations/postgres/updatedAtTriggers-Migration";
 import { AssetSubscriptionService } from "../assetSubscription/assetSubscription.service";
 import { UserService } from "../user/user.service";
 import { 
@@ -29,6 +31,8 @@ describe('UserService', () => {
 
   beforeEach(async () => {
     ({ userSrv, dataSource } = await getTestingInstances());
+
+    await migrationRun(MigrationUpdatedAtTriggers, dataSource);
   });
 
   afterEach(async () => {
@@ -92,6 +96,9 @@ describe('AssetSubscriptionService', () => {
 
     beforeEach(async () => {
       ({ userSrv, assetSubscriptionSrv, dataSource } = await getTestingInstances());
+
+      await migrationRun(MigrationUpdatedAtTriggers, dataSource);
+
       await userSrv.createOneByBotUserKey(mockBotUserKey);
       await userSrv.createOneByBotUserKey(mockBotUserKey2);
 
@@ -183,7 +190,9 @@ describe('AssetSubscriptionService', () => {
 
     beforeAll(async () => {
       ({ userSrv, assetSubscriptionSrv, dataSource } = await getTestingInstances());
-      
+
+      await migrationRun(MigrationUpdatedAtTriggers, dataSource);
+
       await dataSource.query(`
         INSERT INTO ${userTableName}
           (kakao_chatbot_user_key)
@@ -248,7 +257,7 @@ describe('AssetSubscriptionService', () => {
     describe('readActivatedTickersByUserId', () => {
       it('should return the 100 tickers in reverse order of creation', async () => {
         const mockUserId = (await userSrv.readOneIdByBotUserKey(mockBotUserKeyArr[0]!))!;
-        const result = await assetSubscriptionSrv.readActivatedTickersByUserId(mockUserId);
+        let result = await assetSubscriptionSrv.readActivatedTickersByUserId(mockUserId);
 
         // 실행계획 테스트
         // console.log(await dataSource.query(`
@@ -266,6 +275,31 @@ describe('AssetSubscriptionService', () => {
           .slice(numberOfSeedAssetSubscription - 100)
           .reverse()
         );
+
+        const updatedTickerIndex = Math.floor(numberOfSeedAssetSubscription / 2);
+        const updatedTicker = seedTickerArr[updatedTickerIndex]!;
+        
+        await dataSource.query(`
+          UPDATE ${assetSubscriptionTableName}
+            SET activate = false
+            WHERE user_id = ${mockUserId} AND ticker = '${updatedTicker}'
+        `);
+        await dataSource.query(`
+          UPDATE ${assetSubscriptionTableName}
+            SET activate = true
+            WHERE user_id = ${mockUserId} AND ticker = '${updatedTicker}'
+        `);
+
+        result = await assetSubscriptionSrv.readActivatedTickersByUserId(mockUserId);
+
+        expect(result).toHaveLength(Math.min(100, numberOfSeedAssetSubscription));
+        
+        const expected = seedTickerArr
+        .slice(numberOfSeedAssetSubscription - 100)
+        .reverse();
+        expected.splice(updatedTickerIndex, 1);
+        expected.unshift(updatedTicker);
+        expect(result).toEqual(expected);
       });
 
       it('should return only activated', async () => {

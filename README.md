@@ -5,6 +5,20 @@
 
 # Level 1
 
+### Product
+- [KakaoTalk Chatbot Channel Link](http://pf.kakao.com/_jxbgxmxj)
+
+<br>
+
+### APIs
+- Product https://product.lapiki-invest.com/docs
+- Market https://market.lapiki-invest.com/docs
+- Market-Child https://child.lapiki-invest.com/docs
+
+---
+---
+
+<br>
 <br>
 
 ## Stack
@@ -172,16 +186,17 @@ $ sh scripts/pfa:down:all
 ---
 
 <br>
+<br>
 
-## Deploy
+# Deploy
 ![deploy-dia](https://storage.googleapis.com/odoldotol-image-store/deploy-dia.png)
 
-#### RDS Certificate
+### RDS Certificate
 ```
 cert/aws-rds.pem
 ```
 
-#### Compose .env files
+### Compose .env files
 ```
 env/.env.market.guide.production
 env/.env.product.guide.production
@@ -190,34 +205,27 @@ env/.env.product.guide.production
 ```shell
 $ sh scripts/pfa:start:prod
 ```
+#### Migrations (Only If necessary)
+```shell
+# Enter the container with the command below
+$ docker exec -it pfa-market /bin/sh
+# Or
+$ docker exec -it pfa-product /bin/sh
+
+# Then, you can use these commands below
+$ npm run migtation:run
+$ npm run migtation:revert
+$ npm run migtation:create
+$ npm run migtation:generate
+
+# migration files are in 'migrations/'
+# ex) migrations/postgres/1706286072769-Migration.ts
+
+# You can alse use devMigrations files as below
+$ cp -r devMigrations/postgres/. migrations/postgres/.
+```
 
 <br>
-
----
----
-
-<br>
-
-## [KakaoTalk Chatbot Channel](http://pf.kakao.com/_jxbgxmxj)
-
-<br>
-
-![kakao-chatbot](https://storage.googleapis.com/odoldotol-image-store/ezgif.com-gif-maker.gif)
-
----
-
-<br>
-
-## API
-
-### [getPrice Api](https://product.lapiki-invest.com/docs#/Development/DevController_getPrice)
-
-![product-api](https://storage.googleapis.com/odoldotol-image-store/ezgif.com-video-to-gif.gif)
-
-## APIs
-- ### Product https://product.lapiki-invest.com/docs
-- ### Market https://market.lapiki-invest.com/docs
-- ### Market-Child https://child.lapiki-invest.com/docs
 
 ---
 ---

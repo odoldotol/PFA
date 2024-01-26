@@ -3,6 +3,8 @@ import { INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
 import { DataSource } from 'typeorm';
 import { AppModule } from 'src/app/app.module';
+import { migrationRun } from 'src/../devMigrations/migration';
+import { MigrationUpdatedAtTriggers } from 'src/../devMigrations/postgres/updatedAtTriggers-Migration';
 import { PriceService } from 'src/database/inMemory/price.service';
 import { MarketApiService } from 'src/market/market-api/market-api.service';
 import { ConnectionService } from 'src/market/market-api/connection.service';
@@ -59,6 +61,7 @@ describe('Product E2E', () => {
 
     it("initialize", async () => {
       const initializedApp = await app.init();
+      await migrationRun(MigrationUpdatedAtTriggers, dataSource);
       expect(initializedApp).toBeDefined();
     });
 
