@@ -6,15 +6,17 @@ import {
   JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
+  Unique,
   UpdateDateColumn,
 } from "typeorm";
 import { User } from "../user/user.entity";
 
-export const tableName = 'asset_subscriptions';
+export const ENTITY_NAME = 'asset_subscriptions';
 
-@Entity({ name: tableName })
-@Index('IDX_asset_subscriptions_user_id-ticker-activate', ['user_id', 'ticker', 'activate'], { unique: true })
-@Index('IDX_asset_subscriptions_user_id-updated_at-ticker-activate', ['user_id', 'updated_at', 'ticker', 'activate'], { unique: true })
+@Entity({ name: ENTITY_NAME })
+@Unique('UQ_asset_subscriptions_user_id-ticker', ['user_id', 'ticker'])
+@Index('IDX_asset_subscriptions_user_id-ticker-activate', ['user_id', 'ticker', 'activate'])
+@Index('IDX_asset_subscriptions_user_id-updated_at-ticker-activate', ['user_id', 'updated_at', 'ticker', 'activate'])
 export class AssetSubscription {
   @PrimaryGeneratedColumn('identity', {
     name: 'id',

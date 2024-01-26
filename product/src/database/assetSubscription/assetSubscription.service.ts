@@ -42,8 +42,8 @@ export class AssetSubscriptionService {
   public readOneAcivate(
     userId: number,
     ticker: string
-  ): Promise<AssetSubscription | null> {
-    return this.dataSource.query<AssetSubscription[]>(`
+  ): Promise<Pick<AssetSubscription, 'activate'> | null> {
+    return this.dataSource.query<Pick<AssetSubscription, 'activate'>[]>(`
       SELECT activate
         FROM ${this.tableName}
         WHERE user_id = ${userId} AND ticker = '${ticker}'

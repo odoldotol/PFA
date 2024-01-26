@@ -5,9 +5,9 @@ import { DataSource } from "typeorm";
 import { TypeOrmConfigService } from "../postgres/typeormConfig.service";
 import {
   AssetSubscription,
-  tableName as assetSubscriptionTableName
+  ENTITY_NAME as assetSubscriptionTableName
 } from "../assetSubscription/assetSubscription.entity";
-import { User, tableName as userTableName } from "../user/user.entity";
+import { User, ENTITY_NAME as userTableName } from "../user/user.entity";
 import { AssetSubscriptionService } from "../assetSubscription/assetSubscription.service";
 import { UserService } from "../user/user.service";
 import { 

@@ -8,9 +8,10 @@ import {
   UpdateDateColumn,
 } from "typeorm";
 
-export const tableName = 'users';
-@Entity({ name: tableName })
-@Index('IDX_users_kakao_chatbot_user_key-id', ['kakao_chatbot_user_key', 'id'], { unique: true })
+export const ENTITY_NAME = 'users';
+
+@Entity({ name: ENTITY_NAME })
+@Index('IDX_users_kakao_chatbot_user_key-id', ['kakao_chatbot_user_key', 'id'])
 export class User {
   @PrimaryGeneratedColumn('identity', {
     name: 'id',

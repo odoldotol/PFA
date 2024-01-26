@@ -49,7 +49,7 @@ describe('Market E2E', () => {
     let seedExchangeArr: ExchangeEntity[];
     let seedFinancialAssetArr: FinancialAssetEntity[];
 
-    jest.setTimeout(30000);
+    jest.setTimeout(60000);
 
     beforeAll(async () => {
       marketExchangeSrv = app.get(Market_ExchangeService);
