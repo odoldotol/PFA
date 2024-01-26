@@ -61,6 +61,8 @@ export type YfInfo
   exchangeName: ExchangeName;
   exchangeTimezoneName: IsoTimezoneName;
   timezone: TimezoneShortName;
+  beta?: number;
+  marketCap?: number;
   [key: string]: any;
 }>;
 

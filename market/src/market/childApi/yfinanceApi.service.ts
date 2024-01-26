@@ -40,8 +40,9 @@ export class YfinanceApiService {
   }
 
   // Todo: Refac - 겹치는 키에 다른 데이터가 있음. assign 순서에 의존하는 방식은 맘에 들지 않음.
-  private getYfInfo(childYfInfo: ChildResponseYfInfo) {
+  private getYfInfo(childYfInfo: ChildResponseYfInfo): YfInfo {
     return Object.assign(
+      {},
       childYfInfo.info,
       childYfInfo.fastinfo,
       childYfInfo.metadata,
@@ -49,7 +50,7 @@ export class YfinanceApiService {
     );
   }
 
-  private getYfPrice(ticker: Ticker, childYfPrice: ChildResponseYfPrice) {
+  private getYfPrice(ticker: Ticker, childYfPrice: ChildResponseYfPrice): YfPrice {
     return Object.assign(
       childYfPrice,
       { symbol: ticker }

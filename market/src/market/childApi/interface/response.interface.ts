@@ -15,8 +15,8 @@ export type ChildResponseEcSession = Readonly<{
 }>;
 
 export type ChildResponseYfInfo = Readonly<{
-  info: YfinanceInfo;
-  fastinfo: YfinanceFastInfo;
+  info: YfinanceInfo | null;
+  fastinfo: YfinanceFastInfo | null;
   price: ChildResponseYfPrice | null;
   metadata: YfinanceMetadata;
 }>;
@@ -28,6 +28,17 @@ export type ChildResponseYfPrice = Readonly<{
 
 // Todo
 type YfinanceInfo = Readonly<{
+  regularMarketPreviousClose: number;
+  beta?: number;
+  marketCap?: number;
+  currency: Currency; // ex) "USD"
+  exchange: ExchangeName; // ex) "NMS"
+  quoteType: QuoteType; // ex) "EQUITY"
+  symbol: Ticker;
+  shortName: string;
+  longName?: string;
+  timeZoneFullName: IsoTimezoneName; // ex) "America/New_York"
+  timeZoneShortName: TimezoneShortName; // ex) "EST"
   [key: string]: any; //
 }>;
 
@@ -39,6 +50,7 @@ type YfinanceMetadata = Readonly<{
   instrumentType: string; // ex) "EQUITY"
   timezone: TimezoneShortName; // ex) "EST"
   exchangeTimezoneName: IsoTimezoneName; // ex) "America/New_York"
+  regularMarketPrice: number;
   [key: string]: any; //
 }>;
 
