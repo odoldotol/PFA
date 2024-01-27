@@ -1,9 +1,13 @@
 import { Injectable } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
-import { EnvironmentVariables, FinancialAssetCore, Ticker } from "src/common/interface";
+import {
+  EnvironmentVariables,
+  FinancialAssetCore,
+  Ticker
+} from "src/common/interface";
 import { EnvKey } from "src/common/enum/envKey.emun";
 import { Button, SkillResponse } from "./response/skill.response";
-import { getCurrencySign } from "src/common/util";
+import { currencyToSign, to2Decimal } from "src/common/util";
 
 @Injectable()
 export class SkillResponseService {
@@ -149,12 +153,14 @@ export class SkillResponseService {
     return this.simpleText(this.noSubscribedAssetText());
   }
 
-  public subscribedAssetInquiry(assets: (CachedPriceI & { ticker: string; })[]): SkillResponse {
-    const text = assets.map((asset) => {
-      return `${asset.ticker} ${asset.price} ${getCurrencySign(asset.currency)} (${asset.marketDate})`;
-    }).join('\n');
-
-    return this.simpleText(text, { assets });
+  // Todo: asset 을 redis 에 캐깅한 후 Refac
+  public subscribedAssetInquiry(
+    assets: (CachedPriceI & { ticker: string; })[]
+  ): SkillResponse {
+    return this.simpleText(
+      this.subscribedAssetInquiryText(assets),
+      { assets }
+    );
   }
 
   public reported(): SkillResponse {
@@ -228,7 +234,7 @@ export class SkillResponseService {
     asset: FinancialAssetCore
   ): [string, string] {
     const name = asset.longName || asset.shortName || '';
-    const price = `${(asset.regularMarketLastClose + Number.EPSILON).toFixed(2)} ${getCurrencySign(asset.currency)}`;
+    const price = `${to2Decimal(asset.regularMarketLastClose)} ${currencyToSign(asset.currency)}`;
     return [
       asset.symbol,
       `${name}\n${price}`, // marketDate 보여줘야함. marketExchange 받아오는것 검토해보기.
@@ -249,6 +255,13 @@ export class SkillResponseService {
 
   private noSubscribedAssetText(): string {
     return "구독중인것이 없네요...";
+  }
+
+  // Todo: asset 을 redis 에 캐깅한 후 Refac
+  private subscribedAssetInquiryText(assets: (CachedPriceI & { ticker: string; })[]): string {
+    return assets.map((asset) => {
+      return `${asset.ticker} ${to2Decimal(asset.price)} ${currencyToSign(asset.currency)} (${asset.marketDate})`;
+    }).join('\n');
   }
 
   private reportedText(): string {
