@@ -27,7 +27,7 @@ class R_Info(BaseModel):
   info: Union[dict, None] = None
   metadata: dict
   fastinfo: Union[dict, None] = None
-  price: Union[Price, None] = None
+  price: Price
 
 class R_Session(BaseModel):
   previous_open: str
@@ -76,10 +76,10 @@ def get_info_by_ticker(ticker: str) -> Union[R_Info, R_Error]:
         if isNaN(v): # nan 조치
           v = None
         result["fastinfo"][i] = v
-      result["price"] = getPrice(Ticker)
 
     metadata = Ticker.get_history_metadata()
     result["metadata"] = metadata
+    result["price"] = getPrice(Ticker)
     return result
 
   except Exception as e:

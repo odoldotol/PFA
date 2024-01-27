@@ -17,7 +17,7 @@ export type ChildResponseEcSession = Readonly<{
 export type ChildResponseYfInfo = Readonly<{
   info: YfinanceInfo | null;
   fastinfo: YfinanceFastInfo | null;
-  price: ChildResponseYfPrice | null;
+  price: ChildResponseYfPrice;
   metadata: YfinanceMetadata;
 }>;
 
