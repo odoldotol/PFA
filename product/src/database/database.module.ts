@@ -1,4 +1,4 @@
-// Todo: remove
+// Todo: 제거
 
 import { Module } from "@nestjs/common";
 import { DatabaseService } from "./database.service";

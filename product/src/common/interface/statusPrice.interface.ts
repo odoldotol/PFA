@@ -1,4 +1,5 @@
-// 마켓서버에서 오는
+// Todo: 제거
+
 interface StatusPrice {
     readonly isoCode: string
     readonly marketDate: string

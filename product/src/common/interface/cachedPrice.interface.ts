@@ -1,3 +1,4 @@
+// Todo: 제거
 interface CachedPriceI {
     readonly price: number;
     readonly ISO_Code: ISO_Code;

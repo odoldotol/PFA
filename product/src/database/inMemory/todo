@@ -1,0 +1,4 @@
+app memory 를 이용하던 방식은 전혀 사용할 일 없음 고려하지 말것.
+inMemory 모듈 제거.
+redis, financialAsset, exchange 모듈로 구성.
+스키마, 레포지토리패턴 적용.

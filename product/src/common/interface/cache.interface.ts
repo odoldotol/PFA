@@ -1,3 +1,5 @@
+// Todo: 제거
+
 type CacheKey = ISO_Code_priceStatus | TickerSymbol
 
 type CacheValue = MarketDateI | CachedPriceI

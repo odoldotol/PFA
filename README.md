@@ -205,6 +205,8 @@ env/.env.product.guide.production
 ```shell
 $ sh scripts/pfa:start:prod
 ```
+<br>
+
 #### Migrations (Only If necessary)
 ```shell
 # Enter the container with the command below.

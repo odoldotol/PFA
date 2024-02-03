@@ -1,4 +1,4 @@
-// Todo: remove
+// Todo: 제거
 
 import { Injectable, Logger } from "@nestjs/common";
 import { InMemoryService } from "./inMemory/inMemory.service";

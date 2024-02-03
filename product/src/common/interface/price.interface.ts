@@ -1,3 +1,5 @@
+// Todo: 제거
+
 type Sp = [ISO_Code, MarketDateI]
 
 type PSet = [TickerSymbol, number, Currency?]
