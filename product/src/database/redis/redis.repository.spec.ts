@@ -1,10 +1,10 @@
 import { Test, TestingModule } from "@nestjs/testing";
 import { RedisService } from "./redis.service";
-import { RedisRepository } from "./redis.repository";
-import { InMemorySchema } from "../class/schema.class";
-import { InMemoryRepository } from "../interface";
+import { Repository } from "./redis.repository";
+import { SchemaService } from "./schema.service";
+import { joinColon } from "src/common/util";
 
-const TEST_KEY_PREFIX = "test:";
+const TEST_KEY_PREFIX = "test";
 const TEST_TTL = 60;
 class TestObjEntityClass {
     readonly prop: any;
@@ -15,8 +15,7 @@ class TestObjEntityClass {
     }
 }
 class TestStrEntityClass extends String {}
-const testSchema = new InMemorySchema(TEST_KEY_PREFIX, TEST_TTL, TestObjEntityClass);
-const testStringSchema = new InMemorySchema(TEST_KEY_PREFIX, TEST_TTL, TestStrEntityClass);
+
 const setOneReturn = {prop: Math.random()};
 const getOneReturn = {prop: Math.random()};
 const deleteOneReturn = {prop: Math.random()};
@@ -29,34 +28,48 @@ class MockRedisService {
 describe("RedisRepository", () => {
 
     let module: TestingModule;
-    let repository_obj: InMemoryRepository<TestObjEntityClass>;
-    let repository_str: InMemoryRepository<TestStrEntityClass>;
+    let repository_obj: Repository<TestObjEntityClass>;
+    let repository_str: Repository<TestStrEntityClass>;
     let service: RedisService;
 
     beforeAll(async () => {
         module = await Test.createTestingModule({
             providers: [
-                { provide: TestObjEntityClass, useValue: testSchema },
-                { provide: TestStrEntityClass, useValue: testStringSchema },
+                {
+                    provide: "TEST_OBJECT_SCHEMA_SERVICE",
+                    useValue: {
+                        KEY_PREFIX: TEST_KEY_PREFIX,
+                        TTL: TEST_TTL,
+                        constructorClass: TestObjEntityClass
+                    }
+                },
+                {
+                    provide: "TEST_STRING_SCHEMA_SERVICE",
+                    useValue: {
+                        KEY_PREFIX: TEST_KEY_PREFIX,
+                        TTL: TEST_TTL,
+                        constructorClass: TestStrEntityClass
+                    }
+                },
                 {
                     provide: "TEST_OBJECT_REPO",
-                    useFactory(redisSrv: RedisService, schema: InMemorySchema) {
-                        return new RedisRepository(redisSrv, schema);
+                    useFactory(redisSrv: RedisService, schemaSrv: SchemaService) {
+                        return new Repository(redisSrv, schemaSrv);
                     },
-                    inject: [RedisService, TestObjEntityClass],
+                    inject: [RedisService, "TEST_OBJECT_SCHEMA_SERVICE"],
                 },
                 {
                     provide: "TEST_STRING_REPO",
-                    useFactory(redisSrv: RedisService, schema: InMemorySchema) {
-                        return new RedisRepository(redisSrv, schema);
+                    useFactory(redisSrv: RedisService, schemaSrv: SchemaService) {
+                        return new Repository(redisSrv, schemaSrv);
                     },
-                    inject: [RedisService, TestStrEntityClass],
+                    inject: [RedisService, "TEST_STRING_SCHEMA_SERVICE"],
                 },
                 { provide: RedisService, useClass: MockRedisService },
             ],
         }).compile();
-        repository_obj = module.get<RedisRepository<TestObjEntityClass>>("TEST_OBJECT_REPO");
-        repository_str = module.get<RedisRepository<TestStrEntityClass>>("TEST_STRING_REPO");
+        repository_obj = module.get("TEST_OBJECT_REPO");
+        repository_str = module.get<Repository<TestStrEntityClass>>("TEST_STRING_REPO");
         service = module.get<RedisService>(RedisService);
     });
 
@@ -76,7 +89,7 @@ describe("RedisRepository", () => {
             const testReturn = await repository_obj.createOne("newKey", newValue);
             expect(service.setOne).toBeCalledTimes(1);
             expect(service.setOne).toBeCalledWith(
-                [TEST_KEY_PREFIX+"newKey", newValue],
+                [joinColon(TEST_KEY_PREFIX, "newKey"), newValue],
                 { expireSec: TEST_TTL, ifNotExist: true });
             expect(testReturn!.prop).toBe(setOneReturn.prop);
         });
@@ -93,7 +106,7 @@ describe("RedisRepository", () => {
         it("service.getOne 실행.", async () => {
             const testReturn = await repository_obj.findOne("alreadyKey");
             expect(service.getOne).toBeCalledTimes(1);
-            expect(service.getOne).toBeCalledWith(TEST_KEY_PREFIX+"alreadyKey");
+            expect(service.getOne).toBeCalledWith(joinColon(TEST_KEY_PREFIX, "alreadyKey"));
             expect(testReturn!.prop).toBe(getOneReturn.prop);
         });
 
@@ -118,7 +131,7 @@ describe("RedisRepository", () => {
             await repository_obj.updateOne("alreadyKey", updateValue);
             expect(service.setOne).toBeCalledTimes(1);
             expect(service.setOne).toBeCalledWith(
-                [TEST_KEY_PREFIX+"alreadyKey", updatedValue],
+                [joinColon(TEST_KEY_PREFIX, "alreadyKey"), updatedValue],
                 { expireSec: TEST_TTL, ifExist: true });
         });
 
@@ -131,7 +144,7 @@ describe("RedisRepository", () => {
             const testReturn = await repository_str.updateOne("alreadyKey", new TestStrEntityClass("updateValue"));
             expect(service.setOne).toBeCalledTimes(1);
             expect(service.setOne).toBeCalledWith(
-                [TEST_KEY_PREFIX+"alreadyKey", new TestStrEntityClass("updateValue")],
+                [joinColon(TEST_KEY_PREFIX, "alreadyKey"), new TestStrEntityClass("updateValue")],
                 { expireSec: TEST_TTL, ifExist: true });
             expect(testReturn).toBeInstanceOf(TestStrEntityClass);
         });
@@ -143,7 +156,7 @@ describe("RedisRepository", () => {
         it("service.deleteOne 실행.", async () => {
             await repository_obj.deleteOne("alreadyKey");
             expect(service.deleteOne).toBeCalledTimes(1);
-            expect(service.deleteOne).toBeCalledWith(TEST_KEY_PREFIX+"alreadyKey");
+            expect(service.deleteOne).toBeCalledWith(joinColon(TEST_KEY_PREFIX, "alreadyKey"));
         });
 
         it("(임시) 반환하는 value 는 생성 클래스의 인스턴스이어야 함", async () => {

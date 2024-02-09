@@ -1,17 +1,9 @@
 import { Module } from "@nestjs/common";
-import {
-  ConfigurableModuleClass,
-  MODULE_OPTIONS_TOKEN
-} from "./taskQueue.module-definition";
+import { ConfigurableModuleClass } from "./taskQueue.module-definition";
 import { TaskQueueService } from "./taskQueue.service";
-import { TaskQueueModuleOptions } from "./interface";
 
 @Module({
-  providers: [{
-    provide: TaskQueueService,
-    useFactory: (options: TaskQueueModuleOptions) => new TaskQueueService(options),
-    inject: [MODULE_OPTIONS_TOKEN],
-  }],
+  providers: [TaskQueueService],
   exports: [TaskQueueService]
 })
 export class TaskQueueModule extends ConfigurableModuleClass {

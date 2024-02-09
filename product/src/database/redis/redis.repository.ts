@@ -1,25 +1,21 @@
-import { Injectable } from "@nestjs/common";
 import { RedisService } from "./redis.service";
-import { InMemorySchema } from "../class/schema.class";
-import { InMemoryRepository } from "../interface";
+import { SchemaService } from "./schema.service";
+import { joinColon } from "src/common/util";
 import * as F from "@fxts/core";
 
-@Injectable()
-export class RedisRepository<T> implements InMemoryRepository<T> {
-
-  private readonly KEY_PREFIX = this.schema.keyPrefix;
-  private readonly TTL = this.schema.ttl;
-
+// Todo: Refac
+export class Repository<T = any> {
   constructor(
     private readonly redisSrv: RedisService,
-    private readonly schema: InMemorySchema,
+    private readonly schemaSrv: SchemaService,
   ) {}
 
+  // Todo: null 반환 하지 말고 에러 던져야함
   public createOne(keyBody: string, value: T) {
     return F.pipe(
       this.redisSrv.setOne(
         [this.makeKey(keyBody), value],
-        { expireSec: this.TTL, ifNotExist: true }
+        { expireSec: this.schemaSrv.TTL, ifNotExist: true }
       ),
       this.valueFactory.bind(this)
     );
@@ -32,6 +28,7 @@ export class RedisRepository<T> implements InMemoryRepository<T> {
     );
   }
 
+  // Todo: null 반환 하지 말고 에러 던져야함
   // Todo: 함수 추출하기, 조건문 없에기
   public updateOne(keyBody: string, update: Partial<T>) {
     return F.pipe(
@@ -42,7 +39,7 @@ export class RedisRepository<T> implements InMemoryRepository<T> {
           else return update as T;
         } else return null;
       },
-      v => v && this.redisSrv.setOne([this.makeKey(keyBody), v], { expireSec: this.TTL, ifExist: true }),
+      v => v && this.redisSrv.setOne([this.makeKey(keyBody), v], { expireSec: this.schemaSrv.TTL, ifExist: true }),
       this.valueFactory.bind(this)
     );
   }
@@ -60,7 +57,7 @@ export class RedisRepository<T> implements InMemoryRepository<T> {
    */
   public async getAllKeyValueMap() {
     return new Map(await F.pipe(
-      this.redisSrv.getAllKeys(this.KEY_PREFIX),
+      this.redisSrv.getAllKeys(this.schemaSrv.KEY_PREFIX),
       F.map(this.getKeyBody), F.toAsync,
       F.map(this.getKeyValueSet.bind(this)), F.toArray
     ));
@@ -71,12 +68,12 @@ export class RedisRepository<T> implements InMemoryRepository<T> {
   }
 
   private valueFactory(v: T | null) {
-    return v && new this.schema.constructorClass(v) as T;
+    return v && new this.schemaSrv.constructorClass(v);
   }
 
   // Todo: 키 타입(프리픽스s+키바디), 키 프리픽스 타입(string+";"), 키 바디 타입(':' 있으면 안됨) 만들기
   private makeKey(keyBody: string) {
-    return this.KEY_PREFIX + keyBody;
+    return joinColon(this.schemaSrv.KEY_PREFIX, keyBody);
   }
 
   /**

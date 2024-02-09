@@ -1,6 +1,7 @@
-import { ConfigModule } from "@nestjs/config";
 import { Test, TestingModule } from "@nestjs/testing";
-import { ConnectionService } from "./connect.service";
+import { MODULE_OPTIONS_TOKEN } from "./redis.module-definition";
+import { REDIS_CLIENT_TOKEN } from "src/common/const/injectionToken.const";
+import { ConnectionService } from "./connection.service";
 import { RedisService } from "./redis.service";
 import * as F from '@fxts/core'
 
@@ -10,18 +11,34 @@ describe("RedisService", () => {
 
     let module: TestingModule;
     let service: RedisService;
-    let client: ConnectionService["client"];
+    let client: Awaited<ReturnType<ConnectionService["connect"]>>;
 
     beforeAll(async ()  => {
         module = await Test.createTestingModule({
-            imports: [ConfigModule],
-            providers: [ConnectionService, RedisService]
+            providers: [
+                {
+                    provide: MODULE_OPTIONS_TOKEN,
+                    useValue: {
+                        url: "redis://localhost:6379"
+                    }
+                },
+                {
+                    provide: REDIS_CLIENT_TOKEN,
+                    useFactory: (connectService: ConnectionService) => {
+                      return connectService.connect();
+                    },
+                    inject: [ConnectionService]
+                },
+                ConnectionService,
+                RedisService
+            ]
         }).compile();
         service = module.get<RedisService>(RedisService);
-        client = module.get(ConnectionService).client;
+        client = module.get(REDIS_CLIENT_TOKEN);
         await module.init();});
 
     afterAll(async () => {
+        await client.disconnect();
         await module.close();});
 
     const TEST_KEY_PREFIX = "pfa:unittest:";

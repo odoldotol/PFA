@@ -1,13 +1,14 @@
 import { Injectable } from "@nestjs/common";
-import { InjectRepository } from "./decorator/injectRepository.decorator";
+import { InjectRedisRepository } from "../decorator";
 import { ConfigService } from "@nestjs/config";
-import { CachedPrice } from "src/common/class/cachedPrice.class";
-import { InMemoryRepository } from "./interface";
-import { EnvironmentVariables } from "src/common/interface/environmentVariables.interface";
+import { CachedPrice } from "./price.schema";
+import { EnvironmentVariables } from "src/common/interface";
 import { EnvKey } from "src/common/enum/envKey.emun";
+import { Repository } from "../redis/redis.repository";
 import * as F from "@fxts/core";
 
 @Injectable()
+// Todo: Refac
 export class PriceService {
 
   private readonly minThreshold
@@ -20,8 +21,8 @@ export class PriceService {
   constructor(
     private readonly configService: ConfigService<EnvironmentVariables>,
     // Todo1: 제너릭타입 CachedPriceI 말고 CachedPrice 쓸수 있도록 하기.
-    @InjectRepository(CachedPrice.name)
-    private readonly priceRepo: InMemoryRepository<CachedPriceI>,
+    @InjectRedisRepository(CachedPrice)
+    private readonly priceRepo: Repository<CachedPriceI>,
   ) {}
 
   // 배열 받지말도록

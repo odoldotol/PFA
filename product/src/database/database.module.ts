@@ -1,12 +1,14 @@
 // Todo: 제거
 
 import { Module } from "@nestjs/common";
+import { MarketDateModule } from "./marketDate/marketDate.module";
+import { PriceModule } from "./price/price.module";
 import { DatabaseService } from "./database.service";
-import { InMemoryModule } from "./inMemory/inMemory.module";
 
 @Module({
   imports: [
-    InMemoryModule
+    MarketDateModule,
+    PriceModule
   ],
   providers: [DatabaseService],
   exports: [DatabaseService]

@@ -1,11 +1,13 @@
 import { Test } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
+import { RedisClientType } from 'redis';
+import { REDIS_CLIENT_TOKEN } from 'src/common/const/injectionToken.const';
 import { DataSource } from 'typeorm';
 import { AppModule } from 'src/app/app.module';
 import { migrationRun } from 'src/../devMigrations/migration';
 import { MigrationUpdatedAtTriggers } from 'src/../devMigrations/postgres/updatedAtTriggers-Migration';
-import { PriceService } from 'src/database/inMemory/price.service';
+import { PriceService } from 'src/database/price/price.service';
 import { MarketApiService } from 'src/market/market-api/market-api.service';
 import { ConnectionService } from 'src/market/market-api/connection.service';
 import { MarketDate } from 'src/common/class/marketDate.class';
@@ -33,6 +35,7 @@ const MOCK_FETCHED_ASSETS_BY_ISO_CODE: PSet[] = [[
 
 describe('Product E2E', () => {
   let app: INestApplication;
+  let redisClient: RedisClientType;
   let dataSource: DataSource;
 
   let marketApiService: MarketApiService;
@@ -40,6 +43,7 @@ describe('Product E2E', () => {
 
   beforeAll(async () => {
     app = await createApp();
+    redisClient = app.get<RedisClientType>(REDIS_CLIENT_TOKEN);
     dataSource = app.get<DataSource>(DataSource);
   });
 
@@ -187,6 +191,7 @@ describe('Product E2E', () => {
   });
 
   afterAll(async () => {
+    await redisClient.disconnect();
     await dataSource.dropDatabase();
     await app.close();
   });

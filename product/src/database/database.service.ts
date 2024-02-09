@@ -1,10 +1,10 @@
 // Todo: 제거
 
 import { Injectable, Logger } from "@nestjs/common";
-import { InMemoryService } from "./inMemory/inMemory.service";
-import { MarketDateService } from "./inMemory/marketDate.service";
-import { PriceService } from "./inMemory/price.service";
 import { MarketDate } from "src/common/class/marketDate.class";
+import { RedisService } from "./redis/redis.service";
+import { MarketDateService } from "./marketDate/marketDate.service";
+import { PriceService } from "./price/price.service";
 import * as F from "@fxts/core";
 
 @Injectable()
@@ -13,7 +13,7 @@ export class DatabaseService {
   private readonly logger = new Logger(DatabaseService.name);
 
   constructor(
-    private readonly inMemorySrv: InMemoryService,
+    private readonly redisSrv: RedisService, //
     private readonly marketDateSrv: MarketDateService,
     private readonly priceSrv: PriceService
   ) {}
@@ -42,12 +42,12 @@ export class DatabaseService {
     return this.priceSrv.update(arg);
   }
 
-  public cacheRecovery() {
-    return this.inMemorySrv.localFileCacheRecovery();
+  public async cacheRecovery() {
+    // return this.inMemorySrv.localFileCacheRecovery();
   }
 
   public getAllCcKeys() {
-    return this.inMemorySrv.getAllKeys();
+    return this.redisSrv.getAllKeys();
   }
 
   public getAllMarketDateAsMap() {
@@ -114,7 +114,8 @@ export class DatabaseService {
   }
 
   public isInMemoryStore_AppMemory() {
-    return this.inMemorySrv.isUseingAppMemory();
+    return false;
+    // return this.inMemorySrv.isUseingAppMemory();
   }
 
 }

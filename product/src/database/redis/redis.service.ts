@@ -1,17 +1,14 @@
-import { Injectable } from "@nestjs/common";
-import { ConnectionService } from "./connect.service";
-import { InMemoryStoreService } from "../interface";
-import { RedisServiceI, SetOptions } from "./interface";
+import { Inject, Injectable } from "@nestjs/common";
+import { RedisClientType } from "redis";
+import { REDIS_CLIENT_TOKEN } from "src/common/const/injectionToken.const";
 
 @Injectable()
-export class RedisService
-  implements InMemoryStoreService, RedisServiceI
-{
-  // 비동기 프로바이더로 connection 에서 연결완료하고 생성자 파라미터로 ConnectionService 대신 client 받을까?
-  private readonly client = this.connectionSrv.client;
+// Todo: Refac
+export class RedisService {
 
   constructor(
-    private readonly connectionSrv: ConnectionService
+    @Inject(REDIS_CLIENT_TOKEN)
+    private readonly client: RedisClientType
   ) {}
 
   /**
@@ -37,6 +34,7 @@ export class RedisService
   /**
    * 리턴타입을 T 로 추론하고 있지만, JSON 변환에 의해 object 내부 함수가 사라지는 등의 차이가 있음에 주의.
    * ### Todo: Refac
+   * - 실패시 에러던지도록
    * - 더 작은 함수로 나누기
    * - 조건문 제거하기
    */
@@ -74,3 +72,18 @@ export class RedisService
   }
 
 }
+
+type MaximumOneOf<T, K extends keyof T = keyof T> = K extends keyof T ? {
+  [P in K]?: T[K];
+} & Partial<Record<Exclude<keyof T, K>, never>> : never;
+
+type SetTTL = {
+  expireSec?: number | null;
+};
+
+type SetIf = MaximumOneOf<{
+  ifNotExist: true;
+  ifExist: true;
+}>;
+
+type SetOptions = SetTTL & SetIf;

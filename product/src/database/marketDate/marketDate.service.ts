@@ -1,14 +1,15 @@
 import { Injectable } from "@nestjs/common";
-import { InjectRepository } from "./decorator/injectRepository.decorator";
-import { MarketDate } from "src/common/class/marketDate.class";
-import { InMemoryRepository } from "./interface";
+import { InjectRedisRepository } from "../decorator";
+import { MarketDate } from "./marketDate.schema";
+import { Repository } from "../redis/redis.repository";
 
 @Injectable()
+// Todo: Refac
 export class MarketDateService {
 
   constructor(
-    @InjectRepository(MarketDate.name)
-    private readonly marketDateRepo: InMemoryRepository<MarketDate>,
+    @InjectRedisRepository(MarketDate)
+    private readonly marketDateRepo: Repository<MarketDate>,
   ) {}
 
   // 배열 받지마
