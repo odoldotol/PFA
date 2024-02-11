@@ -1,9 +1,14 @@
 import { CachedPrice } from "src/common/class/cachedPrice.class";
 import { applyDecorators } from "@nestjs/common";
-import { ApiOkResponse, ApiOperation, ApiParam, ApiQuery } from "@nestjs/swagger";
+import {
+  ApiOkResponse,
+  ApiOperation,
+  ApiParam,
+  ApiQuery
+} from "@nestjs/swagger";
 
-export const Api_getPrice = () => applyDecorators(
-  ApiOperation({ summary: 'Get Price By Ticker', description: 'ticker 로 항목의 price를 검색합니다.' }),
+export const Api_inquirePrice = () => applyDecorators(
+  ApiOperation({ summary: 'Inquire Price By Ticker', description: 'ticker 로 항목의 price를 검색합니다.' }),
   ApiParam({
     name: 'ticker', description: '검색 할 ticker를 입력하세요.', examples: {
       '1': { summary: "AAPL", description: "ticker는 짧은 문자열로 이루어진 코드입니다.", value: 'AAPL' },

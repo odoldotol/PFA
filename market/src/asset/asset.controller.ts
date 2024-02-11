@@ -107,7 +107,7 @@ export class AssetController {
       );
       response.status(HttpStatus.CREATED);
     }
-    response.send(body)
+    response.send(body);
   }
 
 }

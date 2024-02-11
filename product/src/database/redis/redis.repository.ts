@@ -68,7 +68,7 @@ export class Repository<T = any> {
   }
 
   private valueFactory(v: T | null) {
-    return v && new this.schemaSrv.constructorClass(v);
+    return v && new this.schemaSrv.constructorClass(v) as T; // 임시
   }
 
   // Todo: 키 타입(프리픽스s+키바디), 키 프리픽스 타입(string+";"), 키 바디 타입(':' 있으면 안됨) 만들기

@@ -1,10 +1,13 @@
 import { Inject, Injectable } from "@nestjs/common";
 import { RedisClientType } from "redis";
 import { REDIS_CLIENT_TOKEN } from "src/common/const/injectionToken.const";
+import { RedisModel } from "../interface";
 
 @Injectable()
 // Todo: Refac
 export class RedisService {
+
+  private readonly modelMap: Map<string, RedisModel> = new Map();
 
   constructor(
     @Inject(REDIS_CLIENT_TOKEN)
@@ -69,6 +72,16 @@ export class RedisService {
     return JSON.parse(await this.client.sendCommand([
       "GET", key
     ]));
+  }
+
+  public addModel(
+    schemaName: string,
+    model: RedisModel
+  ): void {
+    if (this.modelMap.has(schemaName)) {
+      throw new Error(`Duplicate Schema name: ${schemaName}`);
+    }
+    this.modelMap.set(schemaName, model);
   }
 
 }

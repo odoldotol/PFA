@@ -1,13 +1,12 @@
 import { Module } from '@nestjs/common';
+import { MarketDateModule } from 'src/database/marketDate/marketDate.module';
 import { DevController } from './dev.controller';
 import { DevService } from './dev.service';
-import { DBModule } from 'src/database/database.module';
-import { MarketModule } from 'src/market/market.module';
 
 @Module({
   imports: [
-    DBModule,
-    MarketModule,],
+    MarketDateModule,
+  ],
   controllers: [DevController],
   providers: [DevService]
 })

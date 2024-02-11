@@ -1,5 +1,5 @@
 import { Module } from "@nestjs/common";
-import { MarketModule } from "../market/market.module";
+import { AssetModule } from "src/asset/asset.module";
 import { UserModule } from "src/database/user/user.module";
 import { AssetSubscriptionModule } from "src/database/assetSubscription/assetSubscription.module";
 import { KakaoChatbotController } from "./kakaoChatbot.controller";
@@ -9,7 +9,7 @@ import { UnexpectedExceptionsFilter } from "./filter/UnexpectedExceptions.filter
 
 @Module({
   imports: [
-    MarketModule,
+    AssetModule,
     UserModule,
     AssetSubscriptionModule
   ],

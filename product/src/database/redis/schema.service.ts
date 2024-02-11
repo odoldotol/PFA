@@ -1,31 +1,26 @@
-import { OnApplicationBootstrap, OnModuleInit } from "@nestjs/common";
+import { OnModuleInit } from "@nestjs/common";
 import { RedisService } from "./redis.service";
 import { RedisModel } from "../interface";
 
 // Todo: Refac
 export class SchemaService
-  implements OnModuleInit, OnApplicationBootstrap
+  implements OnModuleInit
 {
-  public readonly KEY_PREFIX: string;
+  private readonly schemaName: string;
 
   constructor(
     private readonly redisSrv: RedisService,
     private readonly redisModel: RedisModel,
   ) {
-    this.KEY_PREFIX = redisModel.schema.name.toLowerCase();
+    this.schemaName = redisModel.schema.name.toLowerCase();
   }
 
-  // onModuleInit, onApplicationBootstrap 두개의 라이프사이클 훅으로 중복 체크
-  async onModuleInit() {
-    if ((await this.redisSrv.getOne(this.KEY_PREFIX)) === 1) {
-      throw new Error(`Duplicate Schema Key: ${this.KEY_PREFIX}`);
-    } else {
-      await this.redisSrv.setOne([this.KEY_PREFIX, 1]);
-    }
+  onModuleInit() {
+    this.redisSrv.addModel(this.schemaName, this.redisModel);
   }
 
-  async onApplicationBootstrap() {
-    await this.redisSrv.setOne([this.KEY_PREFIX, 0]);
+  get KEY_PREFIX(): string {
+    return this.schemaName;
   }
 
   get TTL(): number | null {

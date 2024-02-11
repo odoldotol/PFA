@@ -13,4 +13,4 @@ import { DatabaseService } from "./database.service";
   providers: [DatabaseService],
   exports: [DatabaseService]
 })
-export class DBModule {}
+export class TempModule {}

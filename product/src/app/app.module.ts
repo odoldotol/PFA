@@ -7,6 +7,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { Pm2Module } from 'src/pm2/pm2.module';
 import { RedisModule } from 'src/database/redis/redis.module';
 import { PostgresModule } from 'src/database/postgres/postgres.module';
+import { UpdaterModule } from 'src/updater/updater.module';
 import { KakaoChatbotModule } from 'src/kakaoChatbot/kakaoChatbot.module';
 import { DevModule } from 'src/dev/dev.module';
 import { AppController } from './app.controller';
@@ -41,6 +42,7 @@ import { EnvironmentVariables } from 'src/common/interface';
       inject: [ConfigService],
     }),
     PostgresModule,
+    UpdaterModule,
     KakaoChatbotModule,
     DevModule
   ],

@@ -1,26 +1,22 @@
 import { Injectable } from '@nestjs/common';
-import { DatabaseService } from 'src/database/database.service';
-import { MarketService } from 'src/market/market.service';
+import { MarketDateService } from 'src/database/marketDate/marketDate.service';
+import { RedisService } from 'src/database/redis/redis.service';
 
 @Injectable()
 export class DevService {
 
   constructor(
-    private readonly dbSrv: DatabaseService,
-    private readonly marketService: MarketService,
+    private readonly redisSrv: RedisService,
+    private readonly marketDateSrv: MarketDateService,
   ) {}
 
-  public getPrice(...args: Parameters<MarketService['getPrice']>) {
-    return this.marketService.getPrice(...args);
-  }
-
   public async getAllMarketDate() {
-    const map = await this.dbSrv.getAllMarketDateAsMap();
+    const map = await this.marketDateSrv.getAllAsMap();
     return Object.fromEntries(map);
   };
 
-  public getAllCacheKey(...args: Parameters<DatabaseService['getAllCcKeys']>) {
-    return this.dbSrv.getAllCcKeys(...args);
+  public getAllCacheKey() {
+    return this.redisSrv.getAllKeys();
   }
 
 }
