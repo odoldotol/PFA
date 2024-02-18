@@ -12,6 +12,7 @@ import { TempKeyGuard } from "src/common/guard/key.guard";
 import { UpperCasePipe } from "src/common/pipe/upperCasePipe";
 import { Api_updatePriceByExchange } from "./decorator/api-updatePriceByExchange.decorator";
 import { UpdatePriceByExchangeBodyDto } from "./dto/updatePriceByExchangeBody.dto";
+import { MarketDateParser } from "./pipe/marketDateParser";
 import { UpdaterService } from "./updater.service";
 
 @Controller('updater')
@@ -27,8 +28,10 @@ export class UpdaterController {
   @UseGuards(TempKeyGuard)
   @Api_updatePriceByExchange()
   updatePriceByExchange(
-    @Param('ISO_Code') ISO_Code: string,
-    @Body(UpperCasePipe) body: UpdatePriceByExchangeBodyDto
+    @Param('ISO_Code')
+    ISO_Code: string,
+    @Body(UpperCasePipe, MarketDateParser)
+    body: UpdatePriceByExchangeBodyDto
   ) {
     return this.updaterStv.updatePriceByExchange(ISO_Code, body);
   }

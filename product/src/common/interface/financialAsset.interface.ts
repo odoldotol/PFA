@@ -1,3 +1,5 @@
+import { Currency } from "./yahooFinance.interface";
+
 export interface FinancialAssetCore {
   readonly symbol: string;
   readonly quoteType: string;

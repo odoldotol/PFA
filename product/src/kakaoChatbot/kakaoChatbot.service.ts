@@ -1,4 +1,5 @@
 import { Injectable, InternalServerErrorException, Logger } from '@nestjs/common';
+import { MarketApiService } from 'src/marketApi/marketApi.service';
 import { AssetService } from 'src/asset/asset.service';
 import { UserService } from 'src/database/user/user.service';
 import { AssetSubscriptionService } from 'src/database/assetSubscription/assetSubscription.service';
@@ -15,6 +16,7 @@ export class KakaoChatbotService {
   private readonly logger = new Logger(KakaoChatbotService.name);
 
   constructor(
+    private readonly marketApiSrv: MarketApiService, //
     private readonly assetSrv: AssetService,
     private readonly userSrv: UserService,
     private readonly assetSubscriptionSrv: AssetSubscriptionService,
@@ -30,8 +32,8 @@ export class KakaoChatbotService {
 
     let asset: FinancialAssetCore; // Todo: exchange 이름도 포함되는것이 좋겠다. marketExchange 를 exchagne 에 넣어주는건 어떨지 확인해봐라.
     try {
-      // Todo: Price 만이 아니라 Asset 을 Redis 에 캐싱해야함. 그리고 직전 마감과 이전 마감사이의 변화량도 계산할 수 있어야 함.
-      asset = await this.assetSrv.fetchFinancialAsset(ticker);
+      // Todo: Price 만이 아니라 Asset 을 Redis 에 캐싱해야함? 그리고 직전 마감과 이전 마감사이의 변화량도 계산할 수 있어야 함.
+      asset = await this.marketApiSrv.fetchFinancialAsset(ticker);
     } catch (err) {
       return this.skillResponseSrv.failedAssetInquiry(ticker, err);
     }

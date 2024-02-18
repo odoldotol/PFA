@@ -1,5 +1,5 @@
 import { Test } from '@nestjs/testing';
-import { INestApplication } from '@nestjs/common';
+import { HttpStatus, INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
 import { RedisClientType } from 'redis';
 import { REDIS_CLIENT_TOKEN } from 'src/common/const/injectionToken.const';
@@ -11,23 +11,29 @@ import { PriceService } from 'src/database/price/price.service';
 import { MarketApiService } from 'src/marketApi/marketApi.service';
 import { ConnectionService } from 'src/marketApi/connection.service';
 import { MarketDate } from 'src/common/class/marketDate.class';
+import { CachedPrice } from 'src/common/class/cachedPrice.class';
+import { FinancialAssetCore, PriceTuple } from 'src/common/interface';
 
 const SYMBOL = 'AAPL';
 const CURRENCY = 'USD';
 const PRICE = 185.27000427246094;
 const ISO_CODE = 'XNYS';
 
-const MOCK_FETCHED_ASSET = {
-  "price": PRICE,
-  "ISO_Code": ISO_CODE,
+const MOCK_FETCHED_ASSET: FinancialAssetCore = {
+  "symbol": SYMBOL,
+  "quoteType": "EQUITY",
+  "shortName": "Apple Inc.",
+  "longName": "Apple Inc.",
+  "exchange": ISO_CODE,
   "currency": CURRENCY,
+  "regularMarketLastClose": PRICE,
 };
 const MOCK_FETCHED_SPDOCS = [{
   "isoCode": ISO_CODE,
   "marketDate": "2023-06-26T20:00:00.000Z",
   "isoTimezoneName": "America/New_York",
 }];
-const MOCK_FETCHED_ASSETS_BY_ISO_CODE: PSet[] = [[
+const MOCK_FETCHED_ASSETS_BY_ISO_CODE: PriceTuple[] = [[
   SYMBOL,
   PRICE,
   CURRENCY
@@ -72,34 +78,34 @@ describe('Product E2E', () => {
     it.todo('앱 초기화시 최신화 되지 않은 Market 의 선택적 업데이트');
   });
 
-  describe(`Price 조회 로직. POST /dev/price/{ticker}`, () => {
+  describe(`Price 조회 로직. POST /asset/price/inquire/{ticker}`, () => {
 
     beforeAll(async () => {
       await priceService.delete(SYMBOL);
     });
   
     beforeEach(() => {
-      jest.spyOn(marketApiService, 'fetchPriceByTicker').mockResolvedValueOnce(MOCK_FETCHED_ASSET)
-      jest.spyOn(priceService, 'read_with_counting');
+      jest.spyOn(marketApiService, 'fetchFinancialAsset').mockResolvedValueOnce(MOCK_FETCHED_ASSET)
+      jest.spyOn(priceService, 'readWithCounting');
     });
   
     afterEach(() => {
       jest.clearAllMocks();
     });
   
-    let asset: CachedPriceI;
+    let asset: CachedPrice;
   
     it('인메모리에 없는경우 (010) => market api 로 가져와서 create, count = 1', () => {
       jest.spyOn(priceService, 'create');
       return request(app.getHttpServer())
-        .post(`/dev/price/${SYMBOL}`)
-        .expect(200)
+        .post(`/asset/price/inquire/${SYMBOL}`)
+        .expect(HttpStatus.CREATED)
         .expect(res => {
           const body = res.body;
           asset = res.body;
-          expect(marketApiService.fetchPriceByTicker).toBeCalledWith(SYMBOL);
-          expect(marketApiService.fetchPriceByTicker).toBeCalledTimes(1);
-          expect(priceService.read_with_counting).toBeCalledTimes(1);
+          expect(marketApiService.fetchFinancialAsset).toBeCalledWith(SYMBOL);
+          expect(marketApiService.fetchFinancialAsset).toBeCalledTimes(1);
+          expect(priceService.readWithCounting).toBeCalledTimes(1);
           expect(priceService.create).toBeCalledTimes(1);
           expect(body).toHaveProperty('price');
           expect(body).toHaveProperty('ISO_Code');
@@ -111,12 +117,12 @@ describe('Product E2E', () => {
   
     it('인메모리에 있고 최신인 경우 (100) => 단순 조회, count++', () => {
       return request(app.getHttpServer())
-        .post(`/dev/price/${SYMBOL}`)
-        .expect(200)
+        .post(`/asset/price/inquire/${SYMBOL}`)
+        .expect(HttpStatus.OK)
         .expect(res => {
           const body = res.body;
-          expect(marketApiService.fetchPriceByTicker).toBeCalledTimes(0);
-          expect(priceService.read_with_counting).toBeCalledTimes(1);
+          expect(marketApiService.fetchFinancialAsset).toBeCalledTimes(0);
+          expect(priceService.readWithCounting).toBeCalledTimes(1);
           expect(body).toHaveProperty('price', PRICE);
           expect(body).toHaveProperty('ISO_Code', ISO_CODE);
           expect(body).toHaveProperty('currency', CURRENCY);
@@ -126,19 +132,22 @@ describe('Product E2E', () => {
     });
   
     it('인메모리에 있지만 최신 아닌 경우 (101) => market api 로 가져와서 update, count++', async () => {
-      await priceService.update([SYMBOL, {
-        price: 1,
-        marketDate: new MarketDate('1990-03-25')
-      }]);
+      await priceService.update(
+        SYMBOL,
+        {
+          price: 1,
+          marketDate: new MarketDate('1990-03-25')
+        }
+      );
       jest.spyOn(priceService, 'update');
       return request(app.getHttpServer())
-        .post(`/dev/price/${SYMBOL}`)
-        .expect(200)
+        .post(`/asset/price/inquire/${SYMBOL}`)
+        .expect(HttpStatus.OK)
         .expect(res => {
           const body = res.body;
-          expect(marketApiService.fetchPriceByTicker).toBeCalledWith(SYMBOL);
-          expect(marketApiService.fetchPriceByTicker).toBeCalledTimes(1);
-          expect(priceService.read_with_counting).toBeCalledTimes(1);
+          expect(marketApiService.fetchFinancialAsset).toBeCalledWith(SYMBOL);
+          expect(marketApiService.fetchFinancialAsset).toBeCalledTimes(1);
+          expect(priceService.readWithCounting).toBeCalledTimes(1);
           expect(priceService.update).toBeCalledTimes(1);
           expect(body).toHaveProperty('price', PRICE);
           expect(body).toHaveProperty('ISO_Code', ISO_CODE);

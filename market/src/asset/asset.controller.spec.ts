@@ -3,7 +3,6 @@ import { HttpStatus, NotFoundException } from '@nestjs/common';
 import { Response } from 'express';
 import { AssetController } from './asset.controller';
 import { AccessorService, SubscriberService } from './service';
-import { GetPriceByTickerResponse } from './response';
 import { Ticker } from 'src/common/interface';
 import { mockApple, mockSamsungElec } from "src/mock";
 
@@ -51,7 +50,7 @@ describe('AssetController', () => {
     subscribeAssetAndGetSpy = jest.spyOn(accessorService, 'subscribeAssetAndGet');
   });
 
-  describe('getPriceByTicker', () => {
+  describe('inquire', () => {
     let responseStatusSpy: jest.SpyInstance;
     let responseSendSpy: jest.SpyInstance;
 
@@ -65,7 +64,7 @@ describe('AssetController', () => {
     });
 
     it('should return 200 and asset', async () => {
-      await assetController.getPriceByTicker(
+      await assetController.inquire(
         mockApple.symbol,
         mockResponse
       );
@@ -76,11 +75,11 @@ describe('AssetController', () => {
       expect(responseStatusSpy).toHaveBeenCalledWith(HttpStatus.OK);
       expect(responseSendSpy).toHaveBeenCalledTimes(1);
       expect(responseSendSpy)
-      .toHaveBeenCalledWith(new GetPriceByTickerResponse(mockApple));
+      .toHaveBeenCalledWith(mockApple);
     });
 
     it('should return 201 and asset', async () => {
-      await assetController.getPriceByTicker(
+      await assetController.inquire(
         mockSamsungElec.symbol,
         mockResponse
       );
@@ -92,12 +91,12 @@ describe('AssetController', () => {
       expect(responseStatusSpy).toHaveBeenCalledWith(HttpStatus.CREATED);
       expect(responseSendSpy).toHaveBeenCalledTimes(1);
       expect(responseSendSpy)
-      .toHaveBeenCalledWith(new GetPriceByTickerResponse(mockSamsungElec));
+      .toHaveBeenCalledWith(mockSamsungElec);
     });
 
     it('should throw NotFoundException', async () => {
       const notFoundTicker = "notFoundTicker";
-      await expect(assetController.getPriceByTicker(
+      await expect(assetController.inquire(
         notFoundTicker,
         mockResponse
       )).rejects.toThrow(new NotFoundException(

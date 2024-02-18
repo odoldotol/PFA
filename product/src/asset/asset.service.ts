@@ -1,9 +1,12 @@
+// Todo: Entity 의 변경에 따라 완전히 리팩터링 될것
+
 import { Injectable, Logger } from "@nestjs/common";
 import { MarketDate } from "src/common/class/marketDate.class";
 import { MarketDateService } from "src/database/marketDate/marketDate.service";
 import { PriceService } from "src/database/price/price.service";
 import { MarketApiService } from "src/marketApi/marketApi.service";
-import * as F from '@fxts/core';
+import { CachedPrice } from "src/common/class/cachedPrice.class";
+import { FinancialAssetCore } from "src/common/interface";
 
 @Injectable()
 export class AssetService {
@@ -16,67 +19,70 @@ export class AssetService {
     private readonly marketApiSrv: MarketApiService
   ) {}
 
-  // temp
-  public fetchFinancialAsset(ticker: string) {
-    return this.marketApiSrv.fetchFinancialAsset(ticker);
-  }
-
   // null 반한할꺼면 에러던져야함.
   public async inquirePrice(ticker: string, id: string = "") {
 
-    let data: CachedPriceI | null;
+    let data: CachedPrice | null;
     let updated: boolean = false;
     let created: boolean = false;
 
-    const price = await this.priceSrv.read_with_counting(ticker);
+    const price = await this.priceSrv.readWithCounting(ticker);
 
     if (price !== null) { // 있으면
-      // 최신 검사
-      // this.dbSrv.readCcStatusPrice
-      const isUptodate = MarketDate.areEqual(
-        price.marketDate,
-        await this.marketDateSrv.read(price.ISO_Code)
-      );
 
-      if (isUptodate) {
+      if (await this.isUptodate(price)) { // 최신이면
         data = price;
-        this.logger.verbose(`${ticker} : read | ${id}`);
       } else { // 최신아니면
-        const rp = await this.marketApiSrv.fetchPriceByTicker(ticker);
-        // this.dbSrv.readCcStatusPrice
-        const cachedPrice = F.pick(
-          ["price", "marketDate"],
-          Object.assign(rp, { marketDate: await this.marketDateSrv.read(rp.ISO_Code) })
-        ) as CachedPriceI;
-        // this.dbSrv.updateCcPrice
-        data = await this.priceSrv.update([ticker, cachedPrice]);
+        const asset = await this.marketApiSrv.fetchFinancialAsset(ticker);
+        data = await this.updateFromAsset(asset);
         updated = true;
-        this.logger.verbose(`${ticker} : updated | ${id}`);
       }
+
     } else { // 없으면
-      const rp = await this.marketApiSrv.fetchPriceByTicker(ticker);
-      // this.dbSrv.createCcPriceStatusWithRP
-      await (() => rp.newExchange &&
-      this.marketDateSrv.create([
-        rp.newExchange.isoCode,
-        MarketDate.fromSpDoc(rp.newExchange)
-      ]))();
-      // this.dbSrv.readCcStatusPrice
-      const cachedPrice = Object.assign(rp, {
-        marketDate: await this.marketDateSrv.read(rp.ISO_Code),
-        count: 1
-      }) as CachedPriceI;
-      // dbSrv.createCcPrice
-      data = await this.priceSrv.create([ticker, cachedPrice]);
+      const asset = await this.marketApiSrv.fetchFinancialAsset(ticker);
+      data = await this.createFromAsset(asset);
       created = true;
-      this.logger.verbose(`${ticker} : created | ${id}`);
     }
+    
+    this.logger.verbose(
+      `${ticker} : ${updated ? 'updated' : created ? 'created' : 'read'} | ${id}`
+    );
 
     return {
       data,
       updated,
       created
     };
+  }
+
+  private async isUptodate(cachedPrice: CachedPrice) {
+    return MarketDate.areEqual(
+      cachedPrice.marketDate,
+      await this.marketDateSrv.read(cachedPrice.ISO_Code)
+    );
+  }
+
+  private async updateFromAsset(asset: FinancialAssetCore) {
+    return this.priceSrv.update(
+      asset.symbol,
+      {
+        price: asset.regularMarketLastClose,
+        marketDate: (await this.marketDateSrv.read(asset.exchange!))!
+      }
+    );
+  }
+
+  private async createFromAsset(asset: FinancialAssetCore) {
+    return this.priceSrv.create(
+      asset.symbol,
+      {
+        price: asset.regularMarketLastClose,
+        ISO_Code: asset.exchange!,
+        currency: asset.currency,
+        marketDate: (await this.marketDateSrv.read(asset.exchange!))!,
+        count: 1
+      } as CachedPrice
+    );
   }
 
 }

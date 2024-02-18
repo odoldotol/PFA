@@ -1,3 +1,5 @@
+// todo: npm
+
 /**
  * ### Yahoo Finance Ticker
  * - Capital letters. AAPL, BTC-USD...

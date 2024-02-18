@@ -1,13 +1,15 @@
 import { Module } from "@nestjs/common";
 import { MarketApiModule } from "src/marketApi/marketApi.module";
-import { TempModule } from "src/database/database.module";
 import { UpdaterController } from "./updater.controller";
 import { UpdaterService } from "./updater.service";
+import { MarketDateModule } from "src/database/marketDate/marketDate.module";
+import { PriceModule } from "src/database/price/price.module";
 
 @Module({
   imports: [
     MarketApiModule,
-    TempModule
+    MarketDateModule,
+    PriceModule,
   ],
   controllers: [UpdaterController],
   providers: [UpdaterService]

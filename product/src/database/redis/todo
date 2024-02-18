@@ -1,2 +1,5 @@
+Entity 변경에 따른 완전한 리팩터링 필요
+
 스키마(decorator, validation, metadata)
-레디스 이용 + 테스트, 전체적으로 이상하거나 미흡한 부분
+
+redisService 와 redisRepository 로 이어지는 주요 로직에 대한 리팩터링 필요

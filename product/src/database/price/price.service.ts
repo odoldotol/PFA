@@ -1,14 +1,21 @@
+// Todo: Entity 변경에 따른 완전한 리팩터링 필요
+
 import { Injectable } from "@nestjs/common";
 import { InjectRedisRepository } from "../decorator";
 import { ConfigService } from "@nestjs/config";
 import { CachedPrice } from "./price.schema";
-import { EnvironmentVariables } from "src/common/interface";
+import { MarketDate } from "../marketDate/marketDate.schema";
+import {
+  EnvironmentVariables,
+  ExchangeIsoCode,
+  PriceTuple,
+  Ticker
+} from "src/common/interface";
 import { EnvKey } from "src/common/enum/envKey.emun";
 import { Repository } from "../redis/redis.repository";
 import * as F from "@fxts/core";
 
 @Injectable()
-// Todo: Refac
 export class PriceService {
 
   private readonly minThreshold
@@ -20,13 +27,37 @@ export class PriceService {
 
   constructor(
     private readonly configService: ConfigService<EnvironmentVariables>,
-    // Todo1: 제너릭타입 CachedPriceI 말고 CachedPrice 쓸수 있도록 하기.
     @InjectRedisRepository(CachedPrice)
-    private readonly priceRepo: Repository<CachedPriceI>,
+    private readonly priceRepo: Repository<CachedPrice>,
   ) {}
 
-  // 배열 받지말도록
-  public create([symbol, price]: CacheSet<CachedPriceI>) {
+  // Todo: 결과 리턴
+  public async updateOrDelete(
+    isoCode: ExchangeIsoCode,
+    marketDate: MarketDate,
+    priceTupleArr: PriceTuple[]
+  ) {
+    await Promise.all(priceTupleArr.map(async tuple => {
+      // check count
+      await this.isGteMinCount(tuple[0]) ?
+        // update || delete Price
+        await this.update(
+          tuple[0],
+          F.compactObject({
+            price: tuple[1],
+            ISO_Code: isoCode,
+            currency: tuple[2],
+            marketDate,
+            count: 0
+          })
+        ) :
+        await this.delete(tuple[0]);
+    }));
+  }
+
+  public create(
+    symbol: Ticker,
+    price: CachedPrice) {
     return this.priceRepo.createOne(symbol, price);
   }
 
@@ -35,7 +66,7 @@ export class PriceService {
    * Todo: count 는 따로 키로 빼두고 카운팅 하는게 더 좋은 구조다.
    * Todo: findOne -> count -> updateOne
    */
-  public read_with_counting(symbol: TickerSymbol) {
+  public readWithCounting(symbol: Ticker) {
     return F.pipe(
       this.priceRepo.findOne(symbol),
       v => v && v.incr_count!(),
@@ -43,19 +74,19 @@ export class PriceService {
     );
   }
 
-  // 배열 받지말도록
-  public update([symbol, update]: CacheUpdateSet<CachedPriceI>) {
+  public update(
+    symbol: Ticker,
+    update: Partial<CachedPrice>) {
     return this.priceRepo.updateOne(symbol, update);
   }
 
-  public delete(symbol: TickerSymbol) {
+  public delete(symbol: Ticker) {
     return this.priceRepo.deleteOne(symbol);
   }
 
-  // 배열 받지말도록
-  public isGteMinCount(set: PSet) {
+  public isGteMinCount(symbol: Ticker) {
     return F.pipe(
-      this.priceRepo.findOne(F.head(set)),
+      this.priceRepo.findOne(symbol),
       v => v && this.minThreshold <= v.count
     );
   }

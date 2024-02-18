@@ -1,4 +1,5 @@
 import { Module } from "@nestjs/common";
+import { MarketApiModule } from "src/marketApi/marketApi.module";
 import { AssetModule } from "src/asset/asset.module";
 import { UserModule } from "src/database/user/user.module";
 import { AssetSubscriptionModule } from "src/database/assetSubscription/assetSubscription.module";
@@ -9,6 +10,7 @@ import { UnexpectedExceptionsFilter } from "./filter/UnexpectedExceptions.filter
 
 @Module({
   imports: [
+    MarketApiModule, //
     AssetModule,
     UserModule,
     AssetSubscriptionModule

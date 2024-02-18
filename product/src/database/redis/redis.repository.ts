@@ -21,6 +21,8 @@ export class Repository<T = any> {
     );
   }
 
+  // Todo: createOrUpdateOne
+
   public findOne(keyBody: string) {
     return F.pipe(
       this.redisSrv.getOne(this.makeKey(keyBody)),

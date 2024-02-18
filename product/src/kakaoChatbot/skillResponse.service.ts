@@ -7,6 +7,7 @@ import {
 } from "src/common/interface";
 import { EnvKey } from "src/common/enum/envKey.emun";
 import { Button, SkillResponse } from "./response/skill.response";
+import { CachedPrice } from "src/common/class/cachedPrice.class";
 import { currencyToSign, to2Decimal } from "src/common/util";
 
 @Injectable()
@@ -155,7 +156,7 @@ export class SkillResponseService {
 
   // Todo: asset 을 redis 에 캐깅한 후 Refac
   public subscribedAssetInquiry(
-    assets: (CachedPriceI & { ticker: string; })[]
+    assets: (CachedPrice & { ticker: string; })[]
   ): SkillResponse {
     return this.simpleText(
       this.subscribedAssetInquiryText(assets),
@@ -258,7 +259,7 @@ export class SkillResponseService {
   }
 
   // Todo: asset 을 redis 에 캐깅한 후 Refac
-  private subscribedAssetInquiryText(assets: (CachedPriceI & { ticker: string; })[]): string {
+  private subscribedAssetInquiryText(assets: (CachedPrice & { ticker: string; })[]): string {
     return assets.map((asset) => {
       return `${asset.ticker} ${to2Decimal(asset.price)} ${currencyToSign(asset.currency)} (${asset.marketDate})`;
     }).join('\n');

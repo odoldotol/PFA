@@ -22,7 +22,7 @@ import {
   mockSamsungElec,
   mockUsaTreasuryYield10y
 } from 'src/mock';
-import { GetPriceByExchangeResponse, GetPriceByTickerResponse } from 'src/asset/response';
+import { GetPriceByExchangeResponse } from 'src/asset/response';
 
 const mockFinancialAssetArr = [
   mockApple,
@@ -258,10 +258,10 @@ describe('Market E2E', () => {
       );
     });
 
-    describe('POST /api/v1/asset/price/exchange/:ISO_Code', () => {
+    describe('POST /api/v1/asset/price/get/:ISO_Code', () => {
       it('Exchange 에 속하는 Assets 을 응답 (200)', () => {
         return request(app.getHttpServer())
-        .post(`/asset/price/exchange/${mockNewYorkStockExchange.isoCode}`)
+        .post(`/asset/price/get/${mockNewYorkStockExchange.isoCode}`)
         .expect(HttpStatus.OK)
         .expect(({ body }) => {
           const mockResponse = new GetPriceByExchangeResponse(
@@ -277,7 +277,7 @@ describe('Market E2E', () => {
 
       it('Code 가 잘못되거나, 해당하는 Assets 을 찾을 수 없으면 빈배열을 응답 (200)', () => {
         return request(app.getHttpServer())
-        .post('/asset/price/exchange/krx')
+        .post('/asset/price/get/krx')
         .expect(HttpStatus.OK)
         .expect(({ body }) => {
           expect(body).toEqual([]);
@@ -285,38 +285,40 @@ describe('Market E2E', () => {
       });
     });
 
-    describe('POST /api/v1/asset/price/ticker/:ticker', () => {
+    describe('POST /api/v1/asset/inquire/:ticker', () => {
       it('Ticker 로 Asset 찾아서 응답 (200)', () => {
         return request(app.getHttpServer())
-        .post(`/asset/price/ticker/${mockApple.symbol}`)
+        .post(`/asset/inquire/${mockApple.symbol}`)
         .expect(HttpStatus.OK)
         .expect(({ body }) => {
-          const mockResponse = new GetPriceByTickerResponse(
-            financialAssetAfterInitializingArr.find(
-              financialAsset => financialAsset.symbol === mockApple.symbol
-            )!
+          const mockResponse = financialAssetAfterInitializingArr.find(
+            financialAsset => financialAsset.symbol === mockApple.symbol
           );
+          expect(mockResponse).toBeDefined();
           expect(body).toEqual(mockResponse);
         });
       });
 
       it('DB 에 없는 Ticker 는 추가하고 반환 (201)', () => {
         return request(app.getHttpServer())
-        .post(`/asset/price/ticker/tsla`)
+        .post(`/asset/inquire/tsla`)
         .expect(HttpStatus.CREATED)
         .expect(async ({ body }) => {
           const rawTesla = await dataSource.query<FinancialAssetEntity[]>(
             `SELECT * FROM financial_assets WHERE symbol = 'TSLA'`
           );
           expect(rawTesla).toHaveLength(1);
-          expect(body).toHaveProperty('price', rawTesla[0]!.regular_market_last_close);
+          expect(body).toHaveProperty('regularMarketLastClose', rawTesla[0]!.regular_market_last_close);
         });
       });
 
       it('DB 에 없는 Ticker, Not Found 추가 실패 (404)', () => {
         return request(app.getHttpServer())
-        .post(`/asset/price/ticker/${NOT_FOUND_TICKER}`)
-        .expect(HttpStatus.NOT_FOUND);
+        .post(`/asset/inquire/${NOT_FOUND_TICKER}`)
+        .expect(HttpStatus.NOT_FOUND)
+        .expect(({ body }) => {
+          expect(body).toHaveProperty('message', `Could not find Ticker: ${NOT_FOUND_TICKER.toUpperCase()}`); //
+        });
       });
     });
 
