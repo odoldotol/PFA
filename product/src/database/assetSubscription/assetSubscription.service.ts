@@ -18,12 +18,14 @@ export class AssetSubscriptionService {
     userId: number,
     ticker: string
   ): Promise<AssetSubscription | null> {
-    return this.dataSource.query<AssetSubscription[]>(`
-      INSERT INTO ${this.tableName}
-        (id, user_id, ticker)
-        VALUES (DEFAULT, ${userId}, '${ticker}')
-        RETURNING *
-    `).then(res => res[0]!);
+    return this.dataSource.query<AssetSubscription[]>(
+`
+INSERT INTO ${this.tableName}
+  (id, user_id, ticker)
+  VALUES (DEFAULT, ${userId}, '${ticker}')
+  RETURNING *
+`
+    ).then(res => res[0]!);
   }
 
   public updateOneActivate(
@@ -31,24 +33,28 @@ export class AssetSubscriptionService {
     ticker: string,
     activate: boolean
   ): Promise<AssetSubscription | null> {
-    return this.dataSource.query<[AssetSubscription[], number]>(`
-      UPDATE ${this.tableName}
-        SET activate = ${activate}
-        WHERE user_id = ${userId} AND ticker = '${ticker}'
-        RETURNING *
-    `).then(res => res[1] == 0 ? null : res[0][0]!);
+    return this.dataSource.query<[AssetSubscription[], number]>(
+`
+UPDATE ${this.tableName}
+  SET activate = ${activate}
+  WHERE user_id = ${userId} AND ticker = '${ticker}'
+  RETURNING *
+`
+    ).then(res => res[1] == 0 ? null : res[0][0]!);
   }
 
   public readOneAcivate(
     userId: number,
     ticker: string
   ): Promise<Pick<AssetSubscription, 'activate'> | null> {
-    return this.dataSource.query<Pick<AssetSubscription, 'activate'>[]>(`
-      SELECT activate
-        FROM ${this.tableName}
-        WHERE user_id = ${userId} AND ticker = '${ticker}'
-        LIMIT 1
-    `).then(res => res[0] || null);
+    return this.dataSource.query<Pick<AssetSubscription, 'activate'>[]>(
+`
+SELECT activate
+  FROM ${this.tableName}
+  WHERE user_id = ${userId} AND ticker = '${ticker}'
+  LIMIT 1
+`
+    ).then(res => res[0] || null);
   }
 
   /**
@@ -57,13 +63,15 @@ export class AssetSubscriptionService {
    * @todo Bitmap Scan 을 이용할때 user_id-ticker 인덱스를 쓰는것이 user_id-id-ticker 인덱스를 쓰는것 보다 빠르다. user_id-id-ticker 인덱스를 먼저 선언하면 이걸 이용해서 더 느려진다.
    */
   public readActivatedTickersByUserId(userId: number): Promise<AssetSubscription['ticker'][]> {
-    return this.dataSource.query<Pick<AssetSubscription, 'ticker'>[]>(`
-      SELECT ticker
-        FROM ${this.tableName}
-        WHERE user_id = ${userId} AND activate = true
-        ORDER BY updated_at DESC
-        LIMIT 100
-    `).then(res => res.map(r => r.ticker));
+    return this.dataSource.query<Pick<AssetSubscription, 'ticker'>[]>(
+`
+SELECT ticker
+  FROM ${this.tableName}
+  WHERE user_id = ${userId} AND activate = true
+  ORDER BY updated_at DESC
+  LIMIT 100
+`
+    ).then(res => res.map(r => r.ticker));
   }
 
 }

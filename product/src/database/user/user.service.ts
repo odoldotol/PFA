@@ -17,23 +17,27 @@ export class UserService {
   public createOneByBotUserKey(
     botUserKey: string
   ): Promise<User> {
-    return this.dataSource.query<User[]>(`
-      INSERT INTO ${this.tableName}
-        (kakao_chatbot_user_key)
-        VALUES ('${botUserKey}')
-        RETURNING *
-    `).then(res => res[0]!);
+    return this.dataSource.query<User[]>(
+`
+INSERT INTO ${this.tableName}
+  (kakao_chatbot_user_key)
+  VALUES ('${botUserKey}')
+  RETURNING *
+`
+    ).then(res => res[0]!);
   }
 
   public readOneIdByBotUserKey(
     botUserKey: string
   ): Promise<User['id'] | null> {
-    return this.dataSource.query<Pick<User, 'id'>[]>(`
-      SELECT id
-        FROM ${this.tableName}
-        WHERE kakao_chatbot_user_key = '${botUserKey}'
-        LIMIT 1
-    `).then(res => res[0] ? res[0].id : null);
+    return this.dataSource.query<Pick<User, 'id'>[]>(
+`
+SELECT id
+  FROM ${this.tableName}
+  WHERE kakao_chatbot_user_key = '${botUserKey}'
+  LIMIT 1
+`
+    ).then(res => res[0] ? res[0].id : null);
   }
 
 }

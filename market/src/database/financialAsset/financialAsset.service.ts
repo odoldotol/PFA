@@ -30,20 +30,22 @@ export class Database_FinancialAssetService {
     values: readonly FinancialAssetCore[]
   ): Promise<FinancialAsset[]> {
     if (values.length === 0) return Promise.resolve([]);
-    return this.dataSource.query<FinancialAssetEntity[]>(`
-    INSERT INTO ${this.tableName}
-      VALUES
-        ${values.map(v => `(
-          '${v.symbol}',
-          '${v.quoteType}',
-          ${v.shortName ? `'${v.shortName}'` : `NULL`},
-          ${v.longName ? `'${v.longName}'` : `NULL`},
-          '${v.currency}',
-          ${v.regularMarketLastClose},
-          ${v.exchange ? `'${v.exchange}'` : `NULL`}
-        )`).join(',')}
-      RETURNING *
-    `).then(this.extendFinancialAsset);
+    return this.dataSource.query<FinancialAssetEntity[]>(
+`
+INSERT INTO ${this.tableName}
+  VALUES
+    ${values.map(v => `(
+      '${v.symbol}',
+      '${v.quoteType}',
+      ${v.shortName ? `'${v.shortName}'` : `NULL`},
+      ${v.longName ? `'${v.longName}'` : `NULL`},
+      '${v.currency}',
+      ${v.regularMarketLastClose},
+      ${v.exchange ? `'${v.exchange}'` : `NULL`}
+    )`).join(',')}
+  RETURNING *
+`
+    ).then(this.extendFinancialAsset);
   }
 
   public existByPk(
@@ -53,10 +55,13 @@ export class Database_FinancialAssetService {
   }
 
   public async readOneByPk(pk: Ticker): Promise<FinancialAsset | null> {
-    const res = (await this.dataSource.query<FinancialAssetEntity[]>(`
-    SELECT * FROM ${this.tableName}
-      WHERE symbol = '${pk}'
-    `))[0];
+    const res = (await this.dataSource.query<FinancialAssetEntity[]>(
+`
+SELECT *
+  FROM ${this.tableName}
+  WHERE symbol = '${pk}'
+`
+    ))[0];
 
     return res ? this.extendFinancialAsset(res) : null;
   }
@@ -64,19 +69,25 @@ export class Database_FinancialAssetService {
   public async readSymbolsByExchange(
     exchange: ExchangeIsoCode | null
   ): Promise<Ticker[]> {
-    return (await this.dataSource.query<Pick<FinancialAsset, 'symbol'>[]>(`
-      SELECT symbol FROM ${this.tableName}
-        WHERE exchange ${exchange ? `= '${exchange}'` : `is NULL`}
-    `)).map(({ symbol }) => symbol);
+    return (await this.dataSource.query<Pick<FinancialAsset, 'symbol'>[]>(
+`
+SELECT symbol
+  FROM ${this.tableName}
+  WHERE exchange ${exchange ? `= '${exchange}'` : `is NULL`}
+`
+    )).map(({ symbol }) => symbol);
   }
 
   public readManyByExchange(
     exchange: ExchangeIsoCode | null
   ): Promise<FinancialAsset[]> {
-    return this.dataSource.query<FinancialAssetEntity[]>(`
-      SELECT * FROM ${this.tableName}
-        WHERE exchange ${exchange ? `= '${exchange}'` : `is NULL`}
-    `).then(this.extendFinancialAsset);
+    return this.dataSource.query<FinancialAssetEntity[]>(
+`
+SELECT *
+  FROM ${this.tableName}
+  WHERE exchange ${exchange ? `= '${exchange}'` : `is NULL`}
+`
+    ).then(this.extendFinancialAsset);
   }
 
   /**
@@ -88,16 +99,17 @@ export class Database_FinancialAssetService {
   ): Promise<FulfilledYfPrice[]> {
     if (updateArr.length === 0) return Promise.resolve([]);
     return this.dataSource.query<[Pick<FinancialAssetEntity, 'symbol' | 'regular_market_last_close'>[], number]>(
-      `
-        UPDATE ${this.tableName} AS t
-          SET
-          regular_market_last_close = u.regular_market_last_close
-          FROM (VALUES
-            ${updateArr.map(u => `('${u.symbol}', ${u.regularMarketLastClose})`).join(',')}
-          ) AS u(symbol, regular_market_last_close)
-          WHERE t.symbol = u.symbol
-          RETURNING t.symbol, t.regular_market_last_close
-      `,
+`
+UPDATE ${this.tableName} AS t
+  SET
+    regular_market_last_close = u.regular_market_last_close
+  FROM (VALUES
+    ${updateArr.map(u => `('${u.symbol}', ${u.regularMarketLastClose})`).join(`,
+    `)}
+  ) AS u(symbol, regular_market_last_close)
+  WHERE t.symbol = u.symbol
+  RETURNING t.symbol, t.regular_market_last_close
+`,
       undefined,
       queryRunner
     ).then(res => {

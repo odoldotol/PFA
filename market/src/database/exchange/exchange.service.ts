@@ -27,12 +27,14 @@ export class Database_ExchangeService {
   ) {}
 
   public async createOne(value: ExchangeCore): Promise<Exchange> {
-    return (await this.dataSource.query<ExchangeEntity[]>(`
-      INSERT INTO ${this.tableName}
-        VALUES
-          ('${value.isoCode}', '${value.isoTimezoneName}', '${value.marketDate}')
-        RETURNING *
-    `).then(this.extendExchange))[0]!;
+    return (await this.dataSource.query<ExchangeEntity[]>(
+`
+INSERT INTO ${this.tableName}
+  VALUES
+    ('${value.isoCode}', '${value.isoTimezoneName}', '${value.marketDate}')
+  RETURNING *
+`
+    ).then(this.extendExchange))[0]!;
   }
 
   public exist(
@@ -46,10 +48,13 @@ export class Database_ExchangeService {
   }
 
   public async readOneByPk(pk: ExchangeIsoCode): Promise<Exchange> {
-    return (await this.dataSource.query<ExchangeEntity[]>(`
-      SELECT * FROM ${this.tableName}
-        WHERE iso_code = '${pk}'
-    `).then(this.extendExchange))[0]!;
+    return (await this.dataSource.query<ExchangeEntity[]>(
+`
+SELECT *
+  FROM ${this.tableName}
+  WHERE iso_code = '${pk}'
+`
+    ).then(this.extendExchange))[0]!;
   }
 
   // Todo: warn case - 에러를 던지게 하는게 옳은듯?
@@ -59,11 +64,11 @@ export class Database_ExchangeService {
     queryRunner?: QueryRunner
   ): Promise<void> {
     await this.dataSource.query(
-      `
-        UPDATE ${this.tableName}
-          SET market_date = '${update}'
-          WHERE iso_code = '${pk}'
-      `,
+`
+UPDATE ${this.tableName}
+  SET market_date = '${update}'
+  WHERE iso_code = '${pk}'
+`,
       undefined,
       queryRunner
     ).then(res => {
