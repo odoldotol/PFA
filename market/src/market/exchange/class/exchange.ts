@@ -197,7 +197,10 @@ export class Market_Exchange
   }
 
   private calculateMarketDate(): MarketDate {
-    return this.marketDateYmdStr = getISOYmdStr(this.session.previousClose);
+    return this.marketDateYmdStr = getISOYmdStr(
+      this.session.previousClose,
+      this.isoTimezoneName
+    );
   }
 
   private calculateMarketOpen(): boolean {
