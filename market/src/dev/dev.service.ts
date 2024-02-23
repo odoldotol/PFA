@@ -14,7 +14,12 @@ export class DevService {
 
   public getAllExchangesFromMarket() {
     return this.market_exchangeSrv.getAll().map(
-      exchange => F.omit(["_events", "logger", "config", "session"] as any, exchange)
+      exchange => F.omit([
+        "_events",
+        "logger",
+        // "config",
+        "session"
+      ] as any, exchange)
     );
   }
 

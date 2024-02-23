@@ -12,8 +12,8 @@ export class ConnectionService implements OnModuleInit {
   ) {}
 
   async onModuleInit() {
-    this.logger.log("Waiting for Connection...");
     await this.healthSrv.resolveWhenHealthy();
+    this.logger.log("Healthy");
   }
 
 }
