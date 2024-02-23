@@ -9,6 +9,7 @@ import { EnvKey } from "src/common/enum/envKey.emun";
 import { Button, SkillResponse } from "./response/skill.response";
 import { CachedPrice } from "src/common/class/cachedPrice.class";
 import { currencyToSign, to2Decimal } from "src/common/util";
+import { MarketDate } from "src/common/class/marketDate.class";
 
 @Injectable()
 export class SkillResponseService {
@@ -261,12 +262,16 @@ export class SkillResponseService {
   // Todo: asset 을 redis 에 캐깅한 후 Refac
   private subscribedAssetInquiryText(assets: (CachedPrice & { ticker: string; })[]): string {
     return assets.map((asset) => {
-      return `${asset.ticker} ${to2Decimal(asset.price)} ${currencyToSign(asset.currency)} (${asset.marketDate})`;
+      return `${asset.ticker} ${to2Decimal(asset.price)} ${currencyToSign(asset.currency)} (${this.getMonthSlashDayStr(asset.marketDate)})`;
     }).join('\n');
   }
 
   private reportedText(): string {
     return "신고해주셔서 감사해요!";
+  }
+
+  private getMonthSlashDayStr(marketDate: MarketDate): string {
+    return marketDate.split('-').slice(1).join('/');
   }
 
 }
