@@ -36,11 +36,8 @@ export class Market_ExchangeSession
     return this.session.previousClose;
   }
 
-  public async updateSession(): Promise<void> {
-    await this.fetchExchangeSession(this.isoCode)
-    .then(either => {
-      this.session = either.right; //
-    });
+  public async updateSession(): Promise<ExchangeSession> {
+    return this.session = (await this.fetchExchangeSession(this.isoCode)).right;
   }
 
   private fetchExchangeSession(
@@ -60,7 +57,7 @@ export class Market_ExchangeSession
    */
   private getMidnightUTCSession(): ExchangeSession {
     const previousMidnight = new Date(getISOYmdStr(new Date()));
-    const nextMidnight = previousMidnight;
+    const nextMidnight = new Date(previousMidnight);
     nextMidnight.setUTCDate(nextMidnight.getUTCDate() + 1);
     return {
       previousOpen: previousMidnight,
