@@ -6,7 +6,6 @@ import { AssetSubscriptionModule } from "src/database/assetSubscription/assetSub
 import { KakaoChatbotController } from "./kakaoChatbot.controller";
 import { KakaoChatbotService } from "./kakaoChatbot.service";
 import { SkillResponseService } from "./skillResponse.service";
-import { UnexpectedExceptionsFilter } from "./filter/UnexpectedExceptions.filter";
 
 @Module({
   imports: [
@@ -19,7 +18,6 @@ import { UnexpectedExceptionsFilter } from "./filter/UnexpectedExceptions.filter
   providers: [
     KakaoChatbotService,
     SkillResponseService,
-    UnexpectedExceptionsFilter,
   ]
 })
 export class KakaoChatbotModule {}

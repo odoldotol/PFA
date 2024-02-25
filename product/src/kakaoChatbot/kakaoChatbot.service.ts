@@ -27,6 +27,7 @@ export class KakaoChatbotService {
     skillPayload: SkillPayload
   ): Promise<SkillResponse> {
     const ticker = this.getTickerFromActionIn(skillPayload);
+    const userId = await this.getUserId(this.getBotUserKey(skillPayload));
 
     // Todo: failedTicker 재시도시 응답.
 
@@ -38,7 +39,6 @@ export class KakaoChatbotService {
       return this.skillResponseSrv.failedAssetInquiry(ticker, err);
     }
 
-    const userId = await this.getUserId(this.getBotUserKey(skillPayload));
     const isSubscribed = await this.assetSubscriptionSrv.readOneAcivate(
       userId,
       ticker

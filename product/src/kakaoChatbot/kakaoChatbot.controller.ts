@@ -1,15 +1,28 @@
-import { Body, Controller, Post, UseFilters, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Post,
+  UseFilters,
+  UseGuards,
+  UseInterceptors
+} from '@nestjs/common';
 import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { KakaoChatbotService } from './kakaoChatbot.service';
 import { KakaoChatbotGuard } from './guard/kakao-chatbot.guard';
-import { UnexpectedExceptionsFilter } from './filter/UnexpectedExceptions.filter';
+import { TimeoutInterceptor } from './interceptor/timeout.interceptor';
+import { TimeoutExceptionFilter } from './filter/timeoutException.filter';
+import { UnexpectedExceptionFilter } from './filter/UnexpectedException.filter';
 import { SkillPayloadDto } from './dto/SkillPayload.dto';
 import { SkillResponse } from './response/skill.response';
 import { ApiCommonResponse } from 'src/common/decorator/apiCommonResponse.decorator';
 
 @Controller('kakao-chatbot')
 @UseGuards(KakaoChatbotGuard)
-@UseFilters(UnexpectedExceptionsFilter)
+@UseInterceptors(TimeoutInterceptor)
+@UseFilters(
+  UnexpectedExceptionFilter, // 순서 주의 - 순서에 따라 달라질 수 있는거 나쁜 구성일까?
+  TimeoutExceptionFilter,
+)
 @ApiTags('Kakao Chatbot')
 @ApiCommonResponse()
 export class KakaoChatbotController {

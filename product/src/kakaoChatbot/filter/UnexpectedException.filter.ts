@@ -9,10 +9,10 @@ import { Request, Response } from 'express';
 import { BaseExceptionFilter } from "@nestjs/core";
 
 @Catch()
-export class UnexpectedExceptionsFilter
+export class UnexpectedExceptionFilter
   extends BaseExceptionFilter
 {
-  private readonly logger = new Logger(UnexpectedExceptionsFilter.name);
+  private readonly logger = new Logger(UnexpectedExceptionFilter.name);
 
   constructor(
     private readonly skillResponseSrv: SkillResponseService,
@@ -21,14 +21,14 @@ export class UnexpectedExceptionsFilter
   }
 
   override catch(exception: any, host: ArgumentsHost) {
+    const { status } = exception;
     if (
-      exception.status === undefined ||
-      exception.status === HttpStatus.INTERNAL_SERVER_ERROR
+      status === undefined ||
+      status === HttpStatus.INTERNAL_SERVER_ERROR
     ) {
       const ctx = host.switchToHttp();
       const response = ctx.getResponse<Response>();
       const request = ctx.getRequest<Request>();
-      const status = exception.status;
 
       this.logger.error(
         exception.message,

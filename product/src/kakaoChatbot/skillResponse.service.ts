@@ -63,6 +63,10 @@ export class SkillResponseService {
     return this.simpleText(this.unexpectedErrorText());
   }
 
+  public timeoutError(): SkillResponse {
+    return this.simpleText(this.timeoutErrorText());
+  }
+
   public failedAssetInquiry(
     ticker: Ticker,
     reason: any,
@@ -221,6 +225,10 @@ export class SkillResponseService {
 
   private unexpectedErrorText(): string {
     return "죄송해요. 제가 예상치 못한 문제가 발생한 것 같아요.\n하지만 제가 지금 확인했으니 곧 고쳐질 거예요!";
+  }
+
+  private timeoutErrorText(): string {
+    return "죄송해요. 제가 작업을 처리하는 데에 너무 오랜 시간이 필요했어요.\n다시 시도해 주세요.";
   }
 
   private failedAssetInquiryText(
