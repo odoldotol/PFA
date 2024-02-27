@@ -10,10 +10,7 @@ import { ProductApiService } from 'src/productApi/productApi.service';
 import { Market_ExchangeService } from 'src/market/exchange/exchange.service';
 import { ExchangeEntity } from 'src/database/exchange/exchange.entity';
 import { FinancialAssetEntity } from 'src/database/financialAsset/financialAsset.entity';
-import {
-  Market_Exchange,
-  Market_ExchangeSession
-} from 'src/market/exchange/class';
+import { Market_Exchange } from 'src/market/exchange/class';
 import { FinancialAsset } from 'src/common/class/financialAsset';
 import {
   mockApple,
@@ -206,7 +203,7 @@ describe('Market E2E', () => {
           jest.runOnlyPendingTimers 호출시 즉시 실행되지 못하고 테스트 코드 이후에 실행되버림.
           그 부분을 noop. */
           jest.spyOn(
-            Market_ExchangeSession.prototype,
+            Market_Exchange.prototype as any,
             'updateSession'
           ).mockImplementation();
 

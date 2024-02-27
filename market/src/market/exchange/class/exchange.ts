@@ -18,6 +18,7 @@ import {
   getLogStyleStr,
   getISOYmdStr
 } from "src/common/util/date";
+import * as F from '@fxts/core';
 
 export class Market_Exchange
   extends EventEmitter
@@ -26,6 +27,13 @@ export class Market_Exchange
   private readonly logger = new Logger(
     buildLoggerContext(Market_Exchange, this.isoCode)
   );
+
+  /**
+   * ### Child 서버에 Session 이 반영되기까지의 시간 마진
+   * @todo env?
+   */
+  private readonly sessionEventMarginMs = 60000;
+  private readonly sessionEventMarginTickMs = 500;
 
   private marketDateYmdStr!: MarketDate;
   private marketOpen!: boolean;
@@ -78,9 +86,7 @@ export class Market_Exchange
       this.subscribeNextEventWhenMarketOpen();
     } else {
       this.subscribeNextEventWhenMarketClose();
-      let nextUpdateDate;
-      (nextUpdateDate = this.isInMarginGap()) &&
-        this.subscribeNextUpdate(nextUpdateDate);
+      this.subscribeNextUpdateIfInMarginGap();
     }
   }
 
@@ -95,11 +101,22 @@ export class Market_Exchange
     return { nextOpenDate: this.subscribeNextOpen() };
   }
 
+  private subscribeNextUpdateIfInMarginGap() {
+    const previousCloseAddYfUpdateMargin
+    = this.addYfUpdateMargin(this.session.previousClose);
+
+    new Date() < previousCloseAddYfUpdateMargin &&
+    this.subscribeNextUpdate(previousCloseAddYfUpdateMargin);
+  }
+
   private subscribeNextOpen(): Date {
     const nextOpenDate = this.session.nextOpen;
     setTimeout(
       this.marketOpenHandler.bind(this),
-      this.calculateRemainingTimeInMs(nextOpenDate)
+      this.calculateRemainingTimeInMs(
+        nextOpenDate,
+        this.sessionEventMarginMs + this.sessionEventMarginTickMs
+      )
     );
     this.logger.verbose(`NextOpen at ${getLogStyleStr(nextOpenDate)}`);
     return nextOpenDate;
@@ -109,14 +126,21 @@ export class Market_Exchange
     const nextCloseDate = this.session.nextClose;
     setTimeout(
       this.marketCloseHandler.bind(this),
-      this.calculateRemainingTimeInMs(nextCloseDate)
+      this.calculateRemainingTimeInMs(
+        nextCloseDate,
+        this.sessionEventMarginMs + this.sessionEventMarginTickMs
+      )
     );
     this.logger.verbose(`NextClose at ${getLogStyleStr(nextCloseDate)}`);
     return nextCloseDate;
   }
 
+  /**
+   * @param nextUpdateDate default: nextClose + yahooFinanceUpdateMargin
+   */
   private subscribeNextUpdate(nextUpdateDate?: Date): Date {
-    nextUpdateDate || (nextUpdateDate = this.getNextUpdateDate());
+    nextUpdateDate ||
+    (nextUpdateDate = this.addYfUpdateMargin(this.session.nextClose));
     setTimeout(
       this.marketUpdateHandler.bind(this),
       this.calculateRemainingTimeInMs(nextUpdateDate)
@@ -127,8 +151,8 @@ export class Market_Exchange
 
   private async marketOpenHandler() {
     try {
-      await this.session.updateSession();
-      this.openMarket();
+      await this.updateSession(() => this.calculateMarketOpen() === true);
+      this.logger.verbose(`Open`);
       this.emit(MarketEvent.OPEN, this.subscribeNextEventWhenMarketOpen());
     } catch (e) {
       this.emit("error", e);
@@ -139,9 +163,9 @@ export class Market_Exchange
 
   private async marketCloseHandler() {
     try {
-      await this.session.updateSession();
+      await this.updateSession(() => this.calculateMarketOpen() === false);
       this.calculateMarketDate();
-      this.closeMarket();
+      this.logger.verbose(`Close`);
       this.emit(MarketEvent.CLOSE, this.subscribeNextEventWhenMarketClose());
     } catch (e) {
       this.emit("error", e);
@@ -150,50 +174,42 @@ export class Market_Exchange
     }
   }
 
+  private async updateSession(
+    check: () => boolean,
+    retry = 0
+  ) {
+    await this.session.updateSession();
+    if (check()) {
+      0 < retry && this.logger.warn(`updateSession retry: ${retry}`);
+      return;
+    } else {
+      await F.delay(this.sessionEventMarginTickMs);
+      await this.updateSession(check, retry + 1);
+    }
+  }
+
   private marketUpdateHandler() {
     this.logger.verbose(`Update`);
     this.emit(MarketEvent.UPDATE, this);
   }
 
-  private openMarket(): void {
-    this.marketOpen = true;
-    this.logger.verbose(`Open`);
-  }
-
-  private closeMarket(): void {
-    this.marketOpen = false;
-    this.logger.verbose(`Close`);
-  }
-
-  private calculateRemainingTimeInMs(date: Date) {
-    return date.getTime() - new Date().getTime();
-  }
-
   /**
-   * ### 다음 정규장의 업데이트 Date 를 반환한다.
-   * - 주의: 현재 세션이 YF_margin_gap 내부에 있어도 건넌뛰고 다음 정규장을 반환함
+   * 
+   * @param add ms
    */
-  private getNextUpdateDate(): Date {
-    const nextUpdateDate = new Date(this.session.nextClose);
-    nextUpdateDate.setMilliseconds(
-      nextUpdateDate.getMilliseconds() + this.config.yahooFinanceUpdateMargin
-    );
-    return nextUpdateDate;
+  private calculateRemainingTimeInMs(
+    date: Date,
+    add: number = 0
+  ): number {
+    return date.getTime() - new Date().getTime() + add;
   }
 
-  /**
-   * ### 현재 세션이 YF_margin_gap 내부에 있는지 판단
-   * 아니면 false 반환하지만 내부에 있다면 다음 nextUpdateDate 를 반환한다.
-   */
-  private isInMarginGap() {
-    const now = new Date();
-    const previousCloseDate = this.session.previousClose;
-    const previousCloseAddeMarginDate = new Date(previousCloseDate);
-    previousCloseAddeMarginDate.setMilliseconds(
-      previousCloseAddeMarginDate.getMilliseconds() + this.config.yahooFinanceUpdateMargin
+  private addYfUpdateMargin(date: Date): Date {
+    const result = new Date(date);
+    result.setMilliseconds(
+      result.getMilliseconds() + this.config.yahooFinanceUpdateMargin
     );
-    return previousCloseDate < now && now < previousCloseAddeMarginDate &&
-    previousCloseAddeMarginDate;
+    return result;
   }
 
   private calculateMarketDate(): MarketDate {
