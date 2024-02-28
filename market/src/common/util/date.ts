@@ -15,3 +15,19 @@ export const getISOYmdStr = (
   .reverse()
   .join('-');
 };
+
+/**
+ * @returns 0 or Positive integer
+ */
+export const calculateRemainingMs = (date: Date): number => {
+  const result = date.getTime() - new Date().getTime();
+  return 0 < result ? result : 0;
+}
+
+/**
+ * @returns 0 or Positive integer
+ */
+export const calculateElapsedMs = (date: Date): number => {
+  const result = new Date().getTime() - date.getTime();
+  return 0 < result ? result : 0;
+}

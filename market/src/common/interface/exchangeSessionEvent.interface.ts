@@ -1,12 +1,12 @@
 import { Market_Exchange } from "src/market/exchange/class";
 
 export type OpenEventArg = Readonly<{
-  nextCloseDate: Date,
-  nextUpdateDate: Date
+  closeDate: Date;
 }>;
 
 export type CloseEventArg = Readonly<{
-  nextOpenDate: Date
+  updateDate: Date | null;
+  nextOpenDate: Date;
 }>;
 
 export type UpdateEventArg = Market_Exchange

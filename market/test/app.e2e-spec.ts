@@ -10,7 +10,10 @@ import { ProductApiService } from 'src/productApi/productApi.service';
 import { Market_ExchangeService } from 'src/market/exchange/exchange.service';
 import { ExchangeEntity } from 'src/database/exchange/exchange.entity';
 import { FinancialAssetEntity } from 'src/database/financialAsset/financialAsset.entity';
-import { Market_Exchange } from 'src/market/exchange/class';
+import {
+  Market_Exchange,
+  Market_ExchangeSession
+} from 'src/market/exchange/class';
 import { FinancialAsset } from 'src/common/class/financialAsset';
 import {
   mockApple,
@@ -46,7 +49,7 @@ describe('Market E2E', () => {
     let seedExchangeArr: ExchangeEntity[];
     let seedFinancialAssetArr: FinancialAssetEntity[];
 
-    jest.setTimeout(60000);
+    jest.setTimeout(120000);
 
     beforeAll(async () => {
       marketExchangeSrv = app.get(Market_ExchangeService);
@@ -55,13 +58,13 @@ describe('Market E2E', () => {
         Market_Exchange.prototype as any,
         'subscribeNextOpen'
       );
-      subscribeNextCloseSpy = jest.spyOn(
+      subscribeCloseSpy = jest.spyOn(
         Market_Exchange.prototype as any,
-        'subscribeNextClose'
+        'subscribeClose'
       );
-      subscribeNextUpdateSpy = jest.spyOn(
+      subscribeUpdateSpy = jest.spyOn(
         Market_Exchange.prototype as any,
-        'subscribeNextUpdate'
+        'subscribeUpdate'
       );
       
       /* 이벤트 리스너가 실행되는 시점이 아니라 달리는 시점을 고려해야함.
@@ -151,8 +154,8 @@ describe('Market E2E', () => {
     });
 
     let subscribeNextOpenSpy: jest.SpyInstance<Date>;
-    let subscribeNextCloseSpy: jest.SpyInstance<Date>;
-    let subscribeNextUpdateSpy: jest.SpyInstance<Date>;
+    let subscribeCloseSpy: jest.SpyInstance<Date>;
+    let subscribeUpdateSpy: jest.SpyInstance<Date>;
     let listenerOfUpdateEventSpy: jest.SpyInstance<void>;
 
     // 지나치게 모듈 내부에 의존하고 있는 테스트.
@@ -161,38 +164,36 @@ describe('Market E2E', () => {
     // 호출 갯수만 확인하는 것으로 간소화 하고있음.
     // 곧, Market_Exchange 모듈 내부에서 유닛 테스트를 작성해봐야겠음.
     describe('각각의 Exchange 의 업데이트 스케줄에 따라 계속해서 업데이트 실행해야함.', () => {
-      let openedExchangeArr: Market_Exchange[];
-      let closedExchangeArr: Market_Exchange[];
 
-      // MarginGap 부분, 통과를 위해 작성된 테스트일 뿐. 의미가 없음.
-      // 내부의 프로토타입에서 isMarginGap 함수를 가져와서 확인하면서 테스트를 진행하는게 좋을까?
-      let numberOfMarketInMarginGap: number;
+      it.todo('initialize 시점이 Open, Close, 세션마진구간 어디에서든 모두 문제없음을 테스트해야함.');
+
+      let exchangeArr: Market_Exchange[];
+
+      let openSpyCallLength: number;
+      let closeSpyCallLength: number;
+      let updateSpyCallLength: number;
 
       beforeAll(async () => {
-        openedExchangeArr = marketExchangeSrv.getAll()
-        .filter(exchange => exchange.isMarketOpen());
-        closedExchangeArr = marketExchangeSrv.getAll()
-        .filter(exchange => !exchange.isMarketOpen());
-
-        numberOfMarketInMarginGap = subscribeNextUpdateSpy.mock.calls.length - openedExchangeArr.length;
+        exchangeArr = marketExchangeSrv.getAll();
       });
 
       describe('Initialize 에서', () => {
-        it('openedExchange 는 곧 시장이 닫히면 Close 이벤트와 Update 이벤트를 방출해야함.', () => {
-          expect(subscribeNextCloseSpy)
-          .toHaveBeenCalledTimes(openedExchangeArr.length);
-          expect(subscribeNextUpdateSpy)
-          .toHaveBeenCalledTimes(openedExchangeArr.length + numberOfMarketInMarginGap);
+        it('Close 이벤트 예약과 Open 이벤트 예약의 합은 Exchange 갯수와 같아야함', () => {
+          closeSpyCallLength = subscribeCloseSpy.mock.calls.length;
+          openSpyCallLength = subscribeNextOpenSpy.mock.calls.length;
+          expect(closeSpyCallLength + openSpyCallLength)
+          .toBe(exchangeArr.length);
         });
 
-        it('closedExchange 는 다음 개장 때 Open 이벤트를 방출해야함.', () => {
-          expect(subscribeNextOpenSpy)
-          .toHaveBeenCalledTimes(closedExchangeArr.length);
+        it('Update 이벤트 예약은 Open 이벤트 예약과 같아야함', () => {
+          updateSpyCallLength = subscribeUpdateSpy.mock.calls.length;
+          expect(updateSpyCallLength)
+          .toBe(openSpyCallLength);
         });
 
         afterAll(() => {
-          subscribeNextCloseSpy.mockClear();
-          subscribeNextUpdateSpy.mockClear();
+          subscribeCloseSpy.mockClear();
+          subscribeUpdateSpy.mockClear();
           subscribeNextOpenSpy.mockClear();
         });
       });
@@ -203,7 +204,7 @@ describe('Market E2E', () => {
           jest.runOnlyPendingTimers 호출시 즉시 실행되지 못하고 테스트 코드 이후에 실행되버림.
           그 부분을 noop. */
           jest.spyOn(
-            Market_Exchange.prototype as any,
+            Market_ExchangeSession.prototype,
             'updateSession'
           ).mockImplementation();
 
@@ -213,19 +214,14 @@ describe('Market E2E', () => {
 
         it('Update Event -> Update EventListener', () => {
           expect(listenerOfUpdateEventSpy)
-          .toHaveBeenCalledTimes(openedExchangeArr.length + numberOfMarketInMarginGap);
+          .toHaveBeenCalledTimes(updateSpyCallLength);
         });
 
-        it('Market 이 닫히면 다음 개장떄 Open 이벤트 방출해야함.', () => {
-          expect(subscribeNextOpenSpy)
-          .toHaveBeenCalledTimes(openedExchangeArr.length);
-        });
-
-        it('Market 이 열리면 이번 장이 닫힐때 Close 이벤트와 곧이어 Update 이벤트를 각 거래소에 맞게 방출해야함.', () => {
-          expect(subscribeNextUpdateSpy)
-          .toHaveBeenCalledTimes(closedExchangeArr.length);
-          expect(subscribeNextCloseSpy)
-          .toHaveBeenCalledTimes(closedExchangeArr.length);
+        it('Close 이벤트 예약과 Open 이벤트 예약의 합은 Exchange 갯수와 같아야함', () => {
+          closeSpyCallLength = subscribeCloseSpy.mock.calls.length;
+          openSpyCallLength = subscribeNextOpenSpy.mock.calls.length;
+          expect(closeSpyCallLength + openSpyCallLength)
+          .toBe(exchangeArr.length);
         });
       });
     });

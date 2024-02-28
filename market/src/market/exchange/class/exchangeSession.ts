@@ -1,15 +1,34 @@
-import { OnModuleInit } from "@nestjs/common";
+import { Logger, OnModuleInit } from "@nestjs/common";
 import { ExchangeSessionApiService } from "src/market/childApi/exchangeSessionApi.service";
 import { ExchangeIsoCode } from "src/common/interface";
 import { ExchangeSession } from "src/market/interface";
 import { YAHOO_FINANCE_CCC_EXCHANGE_ISO_CODE } from "src/config/const";
-import { getISOYmdStr } from "src/common/util";
-import Either from "src/common/class/either";
+import {
+  EVENT_MARGIN_DEFAULT,
+  EVENT_TICK,
+  UPDATE_RETRY_LIMIT
+} from "../const/sessionConfig"; // Temporary
+import {
+  buildLoggerContext,
+  calculateElapsedMs,
+  getISOYmdStr
+} from "src/common/util";
+import * as F from '@fxts/core';
 
 export class Market_ExchangeSession
   implements OnModuleInit, ExchangeSession
 {
+  private readonly logger = new Logger(
+    buildLoggerContext(Market_ExchangeSession, this.isoCode)
+  );
+
   private session!: ExchangeSession;
+
+  /**
+   * 세션의 최신화 상태와 업데이트동안 마진구간에서 지난 시간을 표현
+   * @todo refac
+   */
+  private elapsedMsSinceNext!: number
 
   constructor(
     private readonly isoCode: ExchangeIsoCode,
@@ -17,6 +36,7 @@ export class Market_ExchangeSession
   ) {}
 
   async onModuleInit() {
+    await this.fetchAndSetSession();
     await this.updateSession();
   }
 
@@ -36,24 +56,76 @@ export class Market_ExchangeSession
     return this.session.previousClose;
   }
 
-  public async updateSession(): Promise<ExchangeSession> {
-    return this.session = (await this.fetchExchangeSession(this.isoCode)).right;
+  /**
+   * 세션 최신화
+   * @param retry number (-1: 최초 호출, 0: 정상 시도, 1 이상: 재시도)
+   * 
+   * @todo refac
+   */
+  public async updateSession(
+    retry = -1
+  ): Promise<ExchangeSession> {
+    /**
+     * elapsedMsSinceNext === 0 이면 세션은 최신화된 것으로, 업데이트할 필요가 없음.
+     * 최초 시도에서 elapsedMsSinceNext < 마진기본값 이면 마진기본값을 기다린 다음 업데이트해야함. 아니면 바로 업데이트.
+     * 이후 시도부터는 마진틱 만큼 기다리고 업데이트 시도.
+     */
+
+    // 세션이 최신상태.
+    if (this.calculateElapsedMsSinceNext() === 0) {
+      retry === -1 && this.logger.verbose(`Session is already up-to-date`);
+      0 < retry && this.logger.verbose(`UpdateSession retry: ${retry}`);
+      return this.session;
+    }
+    
+    // retry limit exceeded
+    if (UPDATE_RETRY_LIMIT <= retry) {
+      // 여기 진입하면 1 영업일간 MarketDate 에 문제생길 수 있음.
+      // 오픈, 클로즈, 업데이트 이벤트 일정에는 문제 없을것임.
+      this.logger.error(
+        `UpdateSession retry limit exceeded | retry: ${retry} | elapsedMsSinceNext: ${this.elapsedMsSinceNext}`
+      );
+      return this.session;
+    }
+
+    // delay
+    if (retry === -1) {
+      const remainingMsUntilMarginDefault
+      = EVENT_MARGIN_DEFAULT - this.elapsedMsSinceNext;
+      0 < remainingMsUntilMarginDefault &&
+      await F.delay(remainingMsUntilMarginDefault);
+    } else {
+      await F.delay(EVENT_TICK);
+    }
+
+    await this.fetchAndSetSession();
+    return this.updateSession(retry + 1);
   }
 
-  private fetchExchangeSession(
-    isoCode: ExchangeIsoCode
-  ): Promise<Either<any/* */, ExchangeSession>> {
-    if (isoCode === YAHOO_FINANCE_CCC_EXCHANGE_ISO_CODE) {
-      return Promise.resolve(Either.right(this.getMidnightUTCSession()));
+  private async fetchAndSetSession(): Promise<ExchangeSession> {
+    if (this.isoCode === YAHOO_FINANCE_CCC_EXCHANGE_ISO_CODE) {
+      this.session = this.getMidnightUTCSession();
     } else {
-      return this.exchangeSessionApiSrv.fetchEcSession(isoCode);
+      this.session
+      = (await this.exchangeSessionApiSrv.fetchEcSession(this.isoCode)).right;
     }
+    this.calculateElapsedMsSinceNext();
+    return this.session;
   };
 
   /**
+   * @todo refac
+   */
+  private calculateElapsedMsSinceNext(): number {
+    // nextOpen 과 nextClose 가 모두 현재보다 미래라면, 세션은 최신화된 것임. elapsedMsSinceNext === 0
+    return this.elapsedMsSinceNext
+    = calculateElapsedMs(this.session.nextOpen) ||
+    calculateElapsedMs(this.session.nextClose);
+  }
+
+  /**
    * ### [Temporary Method]
-   * #### UTC 기준 당일 자정과 익일 자정기준으로 마켓세션 생성해서 반환
-   * @todo 세션 구성을 설정파일에서 관리하도록 하자.
+   * @todo Crypto currency 는 다른 API 를 사용하는게 맞다.
    */
   private getMidnightUTCSession(): ExchangeSession {
     const previousMidnight = new Date(getISOYmdStr(new Date()));
