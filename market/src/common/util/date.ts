@@ -25,9 +25,14 @@ export const calculateRemainingMs = (date: Date): number => {
 }
 
 /**
- * @returns 0 or Positive integer
+ * @returns 1 or Positive integer
+ * 
+ * it cannot be elapsed 0 ms.
+ * if calculated 0ms, return 1.
  */
 export const calculateElapsedMs = (date: Date): number => {
   const result = new Date().getTime() - date.getTime();
-  return 0 < result ? result : 0;
+  return 0 < result ? result :
+  result === 0 ? 1 :
+  0;
 }

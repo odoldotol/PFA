@@ -79,8 +79,8 @@ export class Market_Exchange
       this.calculateMarketOpen() &&
       this.session.nextClose < this.session.nextOpen // 다음 오픈이 다음 클로즈보다 같거나 먼저라면, 마켓은 오픈이자만 이벤트 사이클상에서는 지금이 닫힌상태라고 봐야한다. (항상 오픈인 시장이 이에 해당함.)
     ) ?
-      this.subscribeEventWhenMarketOpen() :
-      this.subscribeEventWhenMarketClose();
+    this.subscribeEventWhenMarketOpen() :
+    this.subscribeEventWhenMarketClose();
   }
 
   private subscribeEventWhenMarketOpen(): OpenEventArg {
