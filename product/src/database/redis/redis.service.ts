@@ -1,6 +1,7 @@
 import { Inject, Injectable } from "@nestjs/common";
 import { RedisClientType } from "redis";
 import { REDIS_CLIENT_TOKEN } from "src/common/const/injectionToken.const";
+import { MaximumOneOf } from "src/common/interface";
 import { RedisModel } from "../interface";
 
 @Injectable()
@@ -85,10 +86,6 @@ export class RedisService {
   }
 
 }
-
-type MaximumOneOf<T, K extends keyof T = keyof T> = K extends keyof T ? {
-  [P in K]?: T[K];
-} & Partial<Record<Exclude<keyof T, K>, never>> : never;
 
 type SetTTL = {
   expireSec?: number | null;

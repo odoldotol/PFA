@@ -1,25 +1,26 @@
 import { Injectable } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import {
+  ButtonAction,
+  Data,
+  SimpleTextFactory,
+  SkillResponse,
+  SkillResponseFactory,
+  TextCardFactory
+} from "./skillResponse/v2";
+import {
   EnvironmentVariables,
   FinancialAssetCore,
   Ticker
 } from "src/common/interface";
 import { EnvKey } from "src/common/enum/envKey.emun";
-import { Button, SkillResponse } from "./response/skill.response";
 import { CachedPrice } from "src/common/class/cachedPrice.class";
-import { currencyToSign, to2Decimal } from "src/common/util";
 import { MarketDate } from "src/common/class/marketDate.class";
+import { currencyToSign, to2Decimal } from "src/common/util";
 
 @Injectable()
 export class SkillResponseService {
 
-  private readonly KAKAO_CHATBOT_VERSION
-  = this.configService.get(
-    EnvKey.KAKAO_CHATBOT_VERSION,
-    '2.0',
-    { infer: true }
-  );
   private readonly KAKAO_CHATBOT_BLOCK_ID_INQUIRE_ASSET
   = this.configService.get(
     EnvKey.KAKAO_CHATBOT_BLOCK_ID_INQUIRE_ASSET,
@@ -42,6 +43,7 @@ export class SkillResponseService {
   );
 
   constructor(
+    // Todo: ConfigModule
     private readonly configService: ConfigService<EnvironmentVariables>,
   ) {
     const isProduction = this.configService.get(
@@ -56,171 +58,217 @@ export class SkillResponseService {
       this.KAKAO_CHATBOT_BLOCK_ID_CANCEL_ASSET_SUBSCRIPTION === undefined
     )) {
       throw new Error('KAKAO_CHATBOT_BLOCK_ID is not defined!');
+    } else { // Todo: Block ID 들 기본값을 테스트용으로 줘서 undefined 막기
+      this.KAKAO_CHATBOT_BLOCK_ID_INQUIRE_ASSET ||
+      (this.KAKAO_CHATBOT_BLOCK_ID_INQUIRE_ASSET
+      = 'KAKAO_CHATBOT_BLOCK_ID_INQUIRE_ASSET');
+
+      this.KAKAO_CHATBOT_BLOCK_ID_REPORT ||
+      (this.KAKAO_CHATBOT_BLOCK_ID_REPORT
+      = 'KAKAO_CHATBOT_BLOCK_ID_REPORT');
+
+      this.KAKAO_CHATBOT_BLOCK_ID_SUBSCRIBE_ASSET ||
+      (this.KAKAO_CHATBOT_BLOCK_ID_SUBSCRIBE_ASSET
+      = 'KAKAO_CHATBOT_BLOCK_ID_SUBSCRIBE_ASSET');
+
+      this.KAKAO_CHATBOT_BLOCK_ID_CANCEL_ASSET_SUBSCRIPTION ||
+      (this.KAKAO_CHATBOT_BLOCK_ID_CANCEL_ASSET_SUBSCRIPTION
+      = 'KAKAO_CHATBOT_BLOCK_ID_CANCEL_ASSET_SUBSCRIPTION');
     }
   }
 
-  public unexpectedError(): SkillResponse {
-    return this.simpleText(this.unexpectedErrorText());
+  public unexpectedError(
+    exception: any,
+    dataExtra?: Data
+  ): SkillResponse<'simpleText'> {
+    return this.singleSimpleText(this.unexpectedErrorText(), {
+      exception,
+      ...dataExtra,
+    });
   }
 
-  public timeoutError(): SkillResponse {
-    return this.simpleText(this.timeoutErrorText());
+  public timeoutError(
+    exception: any,
+    dataExtra?: Data
+  ): SkillResponse<'simpleText'> {
+    return this.singleSimpleText(this.timeoutErrorText(), {
+      exception,
+      ...dataExtra
+    });
   }
 
-  public failedAssetInquiry(
+  /**
+   * @todo textCard 로 신고하기 버튼, 티커 도움말 버튼?
+   */
+  public invalidTickerError(
+    exception: any,
+    dataExtra?: Data
+  ): SkillResponse<'simpleText'> {
+    return this.singleSimpleText(this.invalidTickerErrorText(), {
+      exception,
+      ...dataExtra
+    });
+  }
+
+  /**
+   * @todo refac
+   */
+  public notFoundTickerAssetInquiry(
     ticker: Ticker,
     reason: any,
-  ): SkillResponse {
-    const buttons: Button[] = [
-      {
-        label: "다시 찾기",
-        action: "block",
-        blockId: this.KAKAO_CHATBOT_BLOCK_ID_INQUIRE_ASSET,
-        extra: {
-          failedTicker: ticker,
-          reason,
-        },
-      },
-      {
-        label: "신고하기",
-        action: "block",
-        blockId: this.KAKAO_CHATBOT_BLOCK_ID_REPORT,
-        extra: {
-          ticker,
-          reason,
-        },
-      },
-    ];
-    const dataExtra = {
-      ticker,
-      reason,
-    };
+  ): SkillResponse<'textCard'> {
+    const textOptions = this.notFoundTickerAssetInquiryText(ticker);
 
-    return this.textCard(
-      ...this.failedAssetInquiryText(ticker),
-      buttons,
-      dataExtra
-    );
+    return SkillResponseFactory.create({
+      components: [[
+        'textCard',
+        TextCardFactory.create(
+          textOptions,
+          [[
+            "다시 찾기",
+            ButtonAction.BLOCK,
+            this.KAKAO_CHATBOT_BLOCK_ID_INQUIRE_ASSET!,
+            {
+              failedTicker: ticker,
+              reason,
+            }
+          ], [
+            "신고하기",
+            ButtonAction.BLOCK,
+            this.KAKAO_CHATBOT_BLOCK_ID_REPORT!,
+            {
+              ticker,
+              reason,
+            }
+          ]]
+        )
+      ]],
+      data: {
+        title: textOptions.title,
+        description: textOptions.description,
+        ticker,
+        reason,
+      },
+    });
   }
 
+  /**
+   * @todo refac
+   */
   public assetInquiry(
     asset: FinancialAssetCore,
     isSubscribed: boolean,
-  ): SkillResponse {;
-    const buttons: Button[] = [
-      {
-        label: isSubscribed ? "구독 취소하기" : "구독하기",
-        action: "block",
-        blockId: isSubscribed ?
-          this.KAKAO_CHATBOT_BLOCK_ID_CANCEL_ASSET_SUBSCRIPTION :
-          this.KAKAO_CHATBOT_BLOCK_ID_SUBSCRIBE_ASSET,
-        extra: {
-          ticker: asset.symbol,
-        },
-      },
-      {
-        label: "다른 찾기",
-        action: "block",
-        blockId: this.KAKAO_CHATBOT_BLOCK_ID_INQUIRE_ASSET,
-      },
-    ];
-    const dataExtra = {
-      asset,
-      isSubscribed,
-    };
+  ): SkillResponse<'textCard'> {
 
-    return this.textCard(
-      ...this.assetInquiryText(asset),
-      buttons,
-      dataExtra
+    const textOptions = this.assetInquiryText(asset);
+
+    return SkillResponseFactory.create({
+      components: [[
+        'textCard',
+        TextCardFactory.create(
+          textOptions,
+          [[
+            isSubscribed ? "구독 취소하기" : "구독하기",
+            ButtonAction.BLOCK,
+            isSubscribed ?
+              this.KAKAO_CHATBOT_BLOCK_ID_CANCEL_ASSET_SUBSCRIPTION! :
+              this.KAKAO_CHATBOT_BLOCK_ID_SUBSCRIBE_ASSET!,
+            {
+              ticker: asset.symbol,
+            }
+          ], [
+            "다른 찾기",
+            ButtonAction.BLOCK,
+            this.KAKAO_CHATBOT_BLOCK_ID_INQUIRE_ASSET!,
+          ]]
+        )
+      ]],
+      data: {
+        title: textOptions.title,
+        description: textOptions.description,
+        asset,
+        isSubscribed,
+      },
+    });
+  }
+
+  /**
+   * Deprecated
+   */
+  public alreadySubscribedAsset(
+    ticker: Ticker
+  ): SkillResponse<'simpleText'> {
+    return this.singleSimpleText(
+      this.assetSubscribedText(ticker),
+      { ticker }
+    );
+  }
+
+  public assetSubscribed(
+    ticker: Ticker
+  ): SkillResponse<'simpleText'> {
+    return this.singleSimpleText(
+      this.assetSubscribedText(ticker),
+      { ticker }
+    );
+  }
+
+  public assetUnsubscribed(
+    ticker: Ticker
+  ): SkillResponse<'simpleText'> {
+    return this.singleSimpleText(
+      this.assetUnsubscribedText(ticker),
+      { ticker }
     );
   }
 
   /**
    * Deprecated
    */
-  public alreadySubscribedAsset(ticker: Ticker): SkillResponse {
-    return this.simpleText(this.assetSubscribedText(ticker), { ticker });
+  public notSubscribedAsset(
+    ticker: Ticker
+  ): SkillResponse<'simpleText'> {
+    return this.singleSimpleText(
+      this.notSubscribedAssetText(ticker),
+      { ticker }
+    );
   }
 
-  public assetSubscribed(ticker: Ticker): SkillResponse {
-    return this.simpleText(this.assetSubscribedText(ticker), { ticker });
-  }
-
-  public assetUnsubscribed(ticker: Ticker): SkillResponse {
-    return this.simpleText(this.assetUnsubscribedText(ticker), { ticker });
-  }
-
-  public notSubscribedAsset(ticker: Ticker): SkillResponse {
-    return this.simpleText(this.notSubscribedAssetText(ticker), { ticker });
-  }
-
-  public noSubscribedAsset(): SkillResponse {
-    return this.simpleText(this.noSubscribedAssetText());
+  public noSubscribedAsset()
+  : SkillResponse<'simpleText'>
+  {
+    return this.singleSimpleText(this.noSubscribedAssetText());
   }
 
   // Todo: asset 을 redis 에 캐깅한 후 Refac
   public subscribedAssetInquiry(
     assets: (CachedPrice & { ticker: string; })[]
   ): SkillResponse {
-    return this.simpleText(
+    return this.singleSimpleText(
       this.subscribedAssetInquiryText(assets),
       { assets }
     );
   }
 
-  public reported(): SkillResponse {
-    return this.simpleText(this.reportedText());
+  public tickerReported()
+  : SkillResponse<'simpleText'>
+  {
+    return this.singleSimpleText(this.reportedText());
   }
 
-  private simpleText(
+  private singleSimpleText(
     text: string,
-    dataExtra?: { [k: string]: any },
-  ): SkillResponse {
-    return {
-      version: this.KAKAO_CHATBOT_VERSION,
-      template: {
-        outputs: [
-          {
-            simpleText: {
-              text,
-            },
-          },
-        ],
-      },
+    dataExtra?: Data
+  ): SkillResponse<'simpleText'> {
+    return SkillResponseFactory.create({
+      components: [[
+        'simpleText', SimpleTextFactory.create(text)
+      ]],
       data: {
         text,
         ...dataExtra,
       },
-    };
-  }
-
-  private textCard(
-    title: string,
-    description: string,
-    buttons: Button[],
-    dataExtra?: { [k: string]: any },
-  ): SkillResponse {
-    return {
-      version: this.KAKAO_CHATBOT_VERSION,
-      template: {
-        outputs: [
-          {
-            textCard: {
-              title,
-              description,
-              buttons,
-            },
-          },
-        ],
-      },
-      data: {
-        title,
-        description,
-        buttons,
-        ...dataExtra,
-      },
-    };
+    });
   }
 
   private unexpectedErrorText(): string {
@@ -231,24 +279,34 @@ export class SkillResponseService {
     return "죄송해요. 제가 작업을 처리하는 데에 너무 오랜 시간이 필요했어요.\n다시 시도해 주세요.";
   }
 
-  private failedAssetInquiryText(
-    ticker: Ticker
-  ): [string, string]  {
-    return [
-      `${ticker} 에 대한 정보를 찾을 수 없었어요.`,
-      `혹시 잘못 입력하셨으면 아래 다시 찾기 버튼으로 다시 시도해 보세요.\n만약 올바르게 입력하셨어도 제가 찾지 못한 거라면, 아래 신고하기 버튼으로 제게 알려주세요!`,
-    ];
+  private invalidTickerErrorText(): string {
+    return "올바르지 않은 티커 같아요.\n다시 확인해 주세요.";
   }
 
+  /**
+   * @todo refac
+   */
+  private notFoundTickerAssetInquiryText(
+    ticker: Ticker
+  ): Parameters<typeof TextCardFactory.create>[0] {
+    return {
+      title: `${ticker} 에 대한 정보를 찾을 수 없었어요.`,
+      description: `혹시 잘못 입력하셨으면 아래 다시 찾기 버튼으로 다시 시도해 보세요.\n만약 올바르게 입력하셨어도 제가 찾지 못한 거라면, 아래 신고하기 버튼으로 제게 알려주세요!`,
+    };
+  }
+
+  /**
+   * @todo refac
+   */
   private assetInquiryText(
     asset: FinancialAssetCore
-  ): [string, string] {
+  ): Parameters<typeof TextCardFactory.create>[0] {
     const name = asset.longName || asset.shortName || '';
     const price = `${to2Decimal(asset.regularMarketLastClose)} ${currencyToSign(asset.currency)}`;
-    return [
-      asset.symbol,
-      `${name}\n${price}`, // marketDate 보여줘야함. marketExchange 받아오는것 검토해보기.
-    ];
+    return {
+      title: asset.symbol,
+      description: `${name}\n${price}`, // marketDate 보여줘야함. marketExchange 받아오는것 검토해보기.
+    };
   }
 
   private assetSubscribedText(ticker: Ticker): string {

@@ -30,6 +30,8 @@ const mockFinancialAssetArr = [
   mockUsaTreasuryYield10y
 ];
 
+// Todo: MarketChild 서버와 통합 테스트처럼 진행하지 말도록. 통합테스트는 따로 진행할 것.
+
 describe('Market E2E', () => {
   let app: INestApplication;
   let dataSource: DataSource;

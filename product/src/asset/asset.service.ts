@@ -19,8 +19,11 @@ export class AssetService {
     private readonly marketApiSrv: MarketApiService
   ) {}
 
-  // null 반한할꺼면 에러던져야함.
-  public async inquirePrice(ticker: string, id: string = "") {
+  // Todo: refac - null 반한할꺼면 에러던져야함.
+  public async inquirePrice(
+    ticker: string,
+    id: string = ""
+  ) {
 
     let data: CachedPrice | null;
     let updated: boolean = false;

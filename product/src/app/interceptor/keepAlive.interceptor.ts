@@ -4,7 +4,7 @@ import { Response } from 'express';
 @Injectable()
 export class KeepAliveInterceptor implements NestInterceptor {
 
-  private keepAlive: boolean = true;
+  private keepAlive = true;
   private readonly logger = new Logger("KeepAliveInterceptor");
 
   intercept(context: ExecutionContext, next: CallHandler) {

@@ -1,46 +1,34 @@
 import {
   ArgumentsHost,
   Catch,
-  HttpStatus,
   Logger
 } from "@nestjs/common";
 import { SkillResponseService } from "../skillResponse.service";
-import { Request, Response } from 'express';
-import { BaseExceptionFilter } from "@nestjs/core";
+import { Request } from 'express';
+import { SkillExceptionFilter } from "./skillException.filter";
 
 @Catch()
 export class UnexpectedExceptionFilter
-  extends BaseExceptionFilter
+  extends SkillExceptionFilter
 {
   private readonly logger = new Logger(UnexpectedExceptionFilter.name);
 
   constructor(
-    private readonly skillResponseSrv: SkillResponseService,
+    skillResponseSrv: SkillResponseService,
   ) {
-    super();
+    super(skillResponseSrv);
   }
 
-  override catch(exception: any, host: ArgumentsHost) {
-    const { status } = exception;
-    if (
-      status === undefined ||
-      status === HttpStatus.INTERNAL_SERVER_ERROR
-    ) {
-      const ctx = host.switchToHttp();
-      const response = ctx.getResponse<Response>();
-      const request = ctx.getRequest<Request>();
+  override catch(
+    exception: any,
+    host: ArgumentsHost
+  ) {
+    this.logger.error(
+      exception.message,
+      exception.stack,
+      `SkillPayload: ${JSON.stringify(host.switchToHttp().getRequest<Request>().body)}\nExceptionStatus: ${exception["status"]}`
+    );
 
-      this.logger.error(
-        exception.message,
-        exception.stack,
-        `SkillPayload: ${JSON.stringify(request.body)}\nExceptionStatus: ${status}`
-      );
-        
-      response
-      .status(HttpStatus.OK)
-      .json(this.skillResponseSrv.unexpectedError());
-    } else {
-      super.catch(exception, host);
-    }
+    super.catch(exception, host);
   }
 }

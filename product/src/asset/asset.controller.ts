@@ -26,7 +26,7 @@ export class AssetController {
     @Res() response: Response,
     @Param('ticker', UpperCasePipe) ticker: string,
     @Query('id') id?: string,
-  ) {
+  ): Promise<void> {
     const inquirePriceResult = await this.assetSrv.inquirePrice(ticker, id);
     
     if (inquirePriceResult.created) {

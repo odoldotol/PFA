@@ -1,43 +1,50 @@
 import { Test } from '@nestjs/testing';
-import { HttpStatus, INestApplication } from '@nestjs/common';
+import {
+  HttpStatus,
+  INestApplication,
+  NotFoundException
+} from '@nestjs/common';
 import * as request from 'supertest';
 import { RedisClientType } from 'redis';
 import { REDIS_CLIENT_TOKEN } from 'src/common/const/injectionToken.const';
 import { DataSource } from 'typeorm';
 import { AppModule } from 'src/app/app.module';
 import { migrationRun } from 'src/../devMigrations/migration';
-import { MigrationUpdatedAtTriggers } from 'src/../devMigrations/postgres/updatedAtTriggers-Migration';
+import {
+  MigrationUpdatedAtTriggers
+} from 'src/../devMigrations/postgres/updatedAtTriggers-Migration';
 import { PriceService } from 'src/database/price/price.service';
 import { MarketApiService } from 'src/marketApi/marketApi.service';
 import { ConnectionService } from 'src/marketApi/connection.service';
 import { MarketDate } from 'src/common/class/marketDate.class';
 import { CachedPrice } from 'src/common/class/cachedPrice.class';
-import { FinancialAssetCore, PriceTuple } from 'src/common/interface';
-
-const SYMBOL = 'AAPL';
-const CURRENCY = 'USD';
-const PRICE = 185.27000427246094;
-const ISO_CODE = 'XNYS';
-
-const MOCK_FETCHED_ASSET: FinancialAssetCore = {
-  "symbol": SYMBOL,
-  "quoteType": "EQUITY",
-  "shortName": "Apple Inc.",
-  "longName": "Apple Inc.",
-  "exchange": ISO_CODE,
-  "currency": CURRENCY,
-  "regularMarketLastClose": PRICE,
-};
-const MOCK_FETCHED_SPDOCS = [{
-  "isoCode": ISO_CODE,
-  "marketDate": "2023-06-26T20:00:00.000Z",
-  "isoTimezoneName": "America/New_York",
-}];
-const MOCK_FETCHED_ASSETS_BY_ISO_CODE: PriceTuple[] = [[
-  SYMBOL,
-  PRICE,
-  CURRENCY
-]];
+import { KakaoChatbotGuard } from 'src/kakaoChatbot/guard/kakaoChatbot.guard';
+import { SkillPayloadDto } from 'src/kakaoChatbot/dto';
+import {
+  URL_PREFIX as KAKAO_CHATBOT_URL_PREFIX,
+  URL_API as KAKAO_CHATBOT_URL_API,
+} from 'src/kakaoChatbot/const';
+import {
+  ApiName as KakaoChatbotApiName
+} from 'src/kakaoChatbot/kakaoChatbot.controller';
+import { SkillResponseService } from 'src/kakaoChatbot/skillResponse.service';
+import {
+  ExchangeIsoCode,
+  Ticker
+} from 'src/common/interface';
+import {
+  mockAppleTicker,
+  mockNotExistsTicker
+} from 'src/mock';
+import {
+  mockApplePrice,
+  mockAssetsFromMarketMap,
+  mockExchangesFromMarket,
+  mockNewYorkStockExchangeIsoCode,
+  mockPriceTuplesFromMarketMap,
+  mockUsdCurrency
+} from './mock';
+import * as F from '@fxts/core';
 
 describe('Product E2E', () => {
   let app: INestApplication;
@@ -47,10 +54,40 @@ describe('Product E2E', () => {
   let marketApiService: MarketApiService;
   let priceService: PriceService;
 
+  let fetchFinancialAssetSpy: jest.SpyInstance;
+
   beforeAll(async () => {
     app = await createApp();
     redisClient = app.get<RedisClientType>(REDIS_CLIENT_TOKEN);
     dataSource = app.get<DataSource>(DataSource);
+
+    marketApiService = app.get(MarketApiService);
+
+    // Todo: SpDoc -> exchange
+    jest.spyOn(marketApiService, 'fetchAllSpDoc')
+    .mockResolvedValue(mockExchangesFromMarket);
+
+    jest.spyOn(marketApiService, 'fetchPriceByISOcode')
+    .mockImplementation(async (isoCode: ExchangeIsoCode) => {
+      const result = mockPriceTuplesFromMarketMap.get(isoCode);
+      if (result) {
+        return result;
+      } else {
+        throw new Error('wrong isoCode');
+      }
+    });
+
+    fetchFinancialAssetSpy = jest.spyOn(
+      marketApiService,
+      'fetchFinancialAsset'
+    ).mockImplementation(async (ticker: Ticker) => {
+      const result = mockAssetsFromMarketMap.get(ticker);
+      if (result) {
+        return result;
+      } else {
+        throw new NotFoundException({data:{ ticker }});
+      }
+    });
   });
 
   it('should be defined', () => {
@@ -59,14 +96,12 @@ describe('Product E2E', () => {
 
   describe('Application Initializing', () => {
 
-    beforeAll(async () => {
+    beforeAll(() => {
       priceService = app.get(PriceService);
-      marketApiService = app.get(MarketApiService);
       const marketApiConnectionService = app.get(ConnectionService);
-      
-      jest.spyOn(marketApiConnectionService, 'onModuleInit').mockReturnValue(Promise.resolve());
-      jest.spyOn(marketApiService, 'fetchAllSpDoc').mockResolvedValue(MOCK_FETCHED_SPDOCS);
-      jest.spyOn(marketApiService, 'fetchPriceByISOcode').mockResolvedValue(MOCK_FETCHED_ASSETS_BY_ISO_CODE);
+
+      jest.spyOn(marketApiConnectionService, 'onModuleInit')
+      .mockReturnValue(Promise.resolve());
     });
 
     it("initialize", async () => {
@@ -79,18 +114,17 @@ describe('Product E2E', () => {
   });
 
   describe(`Price 조회 로직. POST /asset/price/inquire/{ticker}`, () => {
+    let readWithCountingSpy: jest.SpyInstance;
 
     beforeAll(async () => {
-      await priceService.delete(SYMBOL);
-    });
-  
-    beforeEach(() => {
-      jest.spyOn(marketApiService, 'fetchFinancialAsset').mockResolvedValueOnce(MOCK_FETCHED_ASSET)
-      jest.spyOn(priceService, 'readWithCounting');
+      readWithCountingSpy = jest.spyOn(priceService, 'readWithCounting');
+
+      await priceService.delete(mockAppleTicker);
     });
   
     afterEach(() => {
-      jest.clearAllMocks();
+      readWithCountingSpy.mockClear();
+      fetchFinancialAssetSpy.mockClear();
     });
   
     let asset: CachedPrice;
@@ -98,15 +132,15 @@ describe('Product E2E', () => {
     it('인메모리에 없는경우 (010) => market api 로 가져와서 create, count = 1', () => {
       jest.spyOn(priceService, 'create');
       return request(app.getHttpServer())
-        .post(`/asset/price/inquire/${SYMBOL}`)
+        .post(`/asset/price/inquire/${mockAppleTicker}`)
         .expect(HttpStatus.CREATED)
         .expect(res => {
           const body = res.body;
           asset = res.body;
-          expect(marketApiService.fetchFinancialAsset).toBeCalledWith(SYMBOL);
-          expect(marketApiService.fetchFinancialAsset).toBeCalledTimes(1);
-          expect(priceService.readWithCounting).toBeCalledTimes(1);
-          expect(priceService.create).toBeCalledTimes(1);
+          expect(fetchFinancialAssetSpy).toBeCalledWith(mockAppleTicker);
+          expect(fetchFinancialAssetSpy).toBeCalledTimes(1);
+          expect(readWithCountingSpy).toBeCalledTimes(1);
+          expect(priceService.create).toBeCalledTimes(1); //
           expect(body).toHaveProperty('price');
           expect(body).toHaveProperty('ISO_Code');
           expect(body).toHaveProperty('currency');
@@ -117,15 +151,15 @@ describe('Product E2E', () => {
   
     it('인메모리에 있고 최신인 경우 (100) => 단순 조회, count++', () => {
       return request(app.getHttpServer())
-        .post(`/asset/price/inquire/${SYMBOL}`)
+        .post(`/asset/price/inquire/${mockAppleTicker}`)
         .expect(HttpStatus.OK)
         .expect(res => {
           const body = res.body;
-          expect(marketApiService.fetchFinancialAsset).toBeCalledTimes(0);
-          expect(priceService.readWithCounting).toBeCalledTimes(1);
-          expect(body).toHaveProperty('price', PRICE);
-          expect(body).toHaveProperty('ISO_Code', ISO_CODE);
-          expect(body).toHaveProperty('currency', CURRENCY);
+          expect(fetchFinancialAssetSpy).toBeCalledTimes(0);
+          expect(readWithCountingSpy).toBeCalledTimes(1);
+          expect(body).toHaveProperty('price', mockApplePrice);
+          expect(body).toHaveProperty('ISO_Code', mockNewYorkStockExchangeIsoCode);
+          expect(body).toHaveProperty('currency', mockUsdCurrency);
           expect(body).toHaveProperty('marketDate', asset.marketDate);
           expect(body).toHaveProperty('count', 2);
         });
@@ -133,7 +167,7 @@ describe('Product E2E', () => {
   
     it('인메모리에 있지만 최신 아닌 경우 (101) => market api 로 가져와서 update, count++', async () => {
       await priceService.update(
-        SYMBOL,
+        mockAppleTicker,
         {
           price: 1,
           marketDate: new MarketDate('1990-03-25')
@@ -141,17 +175,17 @@ describe('Product E2E', () => {
       );
       jest.spyOn(priceService, 'update');
       return request(app.getHttpServer())
-        .post(`/asset/price/inquire/${SYMBOL}`)
+        .post(`/asset/price/inquire/${mockAppleTicker}`)
         .expect(HttpStatus.OK)
         .expect(res => {
           const body = res.body;
-          expect(marketApiService.fetchFinancialAsset).toBeCalledWith(SYMBOL);
-          expect(marketApiService.fetchFinancialAsset).toBeCalledTimes(1);
-          expect(priceService.readWithCounting).toBeCalledTimes(1);
-          expect(priceService.update).toBeCalledTimes(1);
-          expect(body).toHaveProperty('price', PRICE);
-          expect(body).toHaveProperty('ISO_Code', ISO_CODE);
-          expect(body).toHaveProperty('currency', CURRENCY);
+          expect(fetchFinancialAssetSpy).toBeCalledWith(mockAppleTicker);
+          expect(fetchFinancialAssetSpy).toBeCalledTimes(1);
+          expect(readWithCountingSpy).toBeCalledTimes(1);
+          expect(priceService.update).toBeCalledTimes(1); //
+          expect(body).toHaveProperty('price', mockApplePrice);
+          expect(body).toHaveProperty('ISO_Code', mockNewYorkStockExchangeIsoCode);
+          expect(body).toHaveProperty('currency', mockUsdCurrency);
           expect(body).toHaveProperty('marketDate', asset.marketDate);
           expect(body).toHaveProperty('count', 3);
         });
@@ -168,35 +202,344 @@ describe('Product E2E', () => {
     it.todo('MarketDate 의 업데이트, 생성');
   });
 
+  /* Todo:
+  request.Test 객체란? return 이 필요. 재사용이 어려운 request.Test.
+  하나의 요청은 하나의 테스트케이스가 되도록 테스트를 작성하는것이 기본.
+  jest 와 supertest 가 express 에서 돌아가는 부분을 공부해보기.
+  */
+
   describe('KakaoChatbot', () => {
-    // 공통
-    it.todo('forbidden');
-    it.todo('unexpected error');
+    let skillResponseSrv: SkillResponseService;
 
-    describe('asset/inquire', () => {
-      it.todo('구독 activated inquire');
-      it.todo('구독 deactivated inquire');
-      it.todo('구독 없음 inquire');
+    beforeAll(() => {
+      skillResponseSrv = app.get(SkillResponseService);
     });
 
-    describe('asset-subscription/add', () => {
-      it.todo('구독 없음 add');
-      it.todo('구독 deactivated add');
+    describe('forbidden error: 200 OK, data has 403 exception', () => {
+      for (let api in KAKAO_CHATBOT_URL_API) {
+        it(api, () => {
+          return request(app.getHttpServer())
+          .post(KAKAO_CHATBOT_URL_PREFIX + KAKAO_CHATBOT_URL_API[api as KakaoChatbotApiName].path)
+          .send(mockSkillPayload(mockBotUserKey1))
+          .expect(HttpStatus.OK)
+          .expect(({body}) => {
+            expect(body.template).toEqual(unexpectedErrorTemplate());
+            expect(body.data.exception.status).toBe(403);
+          });
+        });
+      }
+
+      afterAll(() => {
+        // Disable Guard
+        jest.spyOn(app.get(KakaoChatbotGuard), 'canActivate')
+        .mockReturnValue(true);
+      });
     });
 
-    describe('asset-subscription/cancel', () => {
-      it.todo('구독 activated cancel');
+    describe('KakaoChatbot skill has 5 seconds timeout: 200 OK, data has 408 exception', () => {
+       // Todo: 5초씩 걸리면서 테스트하는건 별론데? 방법 찾기.
+       it.todo('timeout error');
     });
 
-    describe('asset/subscriptions/inquire', () => {
-      it.todo('구독 없음 inquire');
-      it.todo('구독 있음 inquire');
+    describe('unexpected error: 200 OK, data has an exception', () => {
+      it.todo('unexpected error');
     });
 
-    describe('report', () => {
-      it.todo('not found report');
-      it.todo('etc');
+    describe('bad request error: 200 OK, data has 400 exception', () => {
+      it.todo('botUserKey');
     });
+
+    describe(KAKAO_CHATBOT_URL_API.inquireAsset.path, () => {
+      const url = KAKAO_CHATBOT_URL_PREFIX +
+      KAKAO_CHATBOT_URL_API.inquireAsset.path;
+
+      describe('bad request', () => {
+        it('if ticker is not available: 200 OK, data has 400 exception', () => {
+          return request(app.getHttpServer())
+          .post(url)
+          .send(mockSkillPayload(mockBotUserKey1))
+          .expect(HttpStatus.OK)
+          .expect(({body}) => {
+            expect(body.template).toEqual(unexpectedErrorTemplate());
+            expect(body.data.exception.status).toBe(400);
+          });
+        });
+
+        it('Invalid Ticker: 200 OK, data has 400 exception', () => {
+          return request(app.getHttpServer())
+          .post(url)
+          .send(F.pipe(
+            mockSkillPayload(mockBotUserKey1),
+            putTickerInParams('한글티커')
+          ))
+          .expect(HttpStatus.OK)
+          .expect(({body}) => {
+            expect(body.template)
+            .toEqual(skillResponseSrv.invalidTickerError(null).template);
+            expect(body.data.exception.status).toBe(400);
+          });
+        });
+      });
+
+      describe('not found', () => {
+        it('could not find ticker: 200 OK, data has 404 exception as reason', () => {
+          return request(app.getHttpServer())
+          .post(url)
+          .send(F.pipe(
+            mockSkillPayload(mockBotUserKey1),
+            putTickerInParams(mockNotExistsTicker)
+          ))
+          .expect(HttpStatus.OK)
+          .expect(({body}) => {
+            // template
+            expect(body.data.reason.status).toBe(404);
+          });
+        });
+      });
+
+      it('found asset: 200 OK', () => {
+        return request(app.getHttpServer())
+        .post(url)
+        .send(F.pipe(
+          mockSkillPayload(mockBotUserKey1),
+          putTickerInParams(mockAppleTicker)
+        ))
+        .expect(HttpStatus.OK)
+        .expect(({body}) => {
+          expect(body.template)
+          .toEqual(skillResponseSrv.assetInquiry(
+            mockAssetsFromMarketMap.get(mockAppleTicker)!,
+            false
+          ).template);
+        });
+      });
+    });
+
+    describe(KAKAO_CHATBOT_URL_API.addAssetSubscription.path, () => {
+      const url = KAKAO_CHATBOT_URL_PREFIX +
+      KAKAO_CHATBOT_URL_API.addAssetSubscription.path;
+
+      it('bad request if ticker is not available: 200 OK, data has 400 exception', () => {
+        return request(app.getHttpServer())
+        .post(url)
+        .send(mockSkillPayload(mockBotUserKey1))
+        .expect(HttpStatus.OK)
+        .expect(({body}) => {
+          expect(body.template).toEqual(unexpectedErrorTemplate());
+          expect(body.data.exception.status).toBe(400);
+        });
+      });
+
+      // 서버를 통해 검증된 티커가 전달되기 때문에 잘못된 티커가 들어올 가능성은 없어야 하지만,
+      it.todo('wrong ticker');
+
+      it('AssetSubscription created: 201 CREATED', () => {
+        return request(app.getHttpServer())
+        .post(url)
+        .send(F.pipe(
+          mockSkillPayload(mockBotUserKey1),
+          putTickerInClientExtra(mockAppleTicker)
+        ))
+        .expect(HttpStatus.CREATED)
+        .expect(({body}) => {
+          expect(body.template)
+          .toEqual(skillResponseSrv.assetSubscribed(mockAppleTicker).template);
+        });
+      });
+
+      it('even if already subscribed: 200 OK', () => {
+        return request(app.getHttpServer())
+        .post(url)
+        .send(F.pipe(
+          mockSkillPayload(mockBotUserKey1),
+          putTickerInClientExtra(mockAppleTicker)
+        ))
+        .expect(HttpStatus.OK)
+        .expect(({body}) => {
+          expect(body.template)
+          .toEqual(skillResponseSrv.assetSubscribed(mockAppleTicker).template);
+        });
+      });
+    });
+
+    describe(KAKAO_CHATBOT_URL_API.cancelAssetSubscription.path, () => {
+      const url = KAKAO_CHATBOT_URL_PREFIX +
+      KAKAO_CHATBOT_URL_API.cancelAssetSubscription.path;
+
+      it('bad request if ticker is not available: 200 OK, data has 400 exception', () => {
+        return request(app.getHttpServer())
+        .post(url)
+        .send(mockSkillPayload(mockBotUserKey1))
+        .expect(HttpStatus.OK)
+        .expect(({body}) => {
+          expect(body.template).toEqual(unexpectedErrorTemplate());
+          expect(body.data.exception.status).toBe(400);
+        });
+      });
+
+      it('AssetSubscription deactivated: 200 OK', () => {
+        return request(app.getHttpServer())
+        .post(url)
+        .send(F.pipe(
+          mockSkillPayload(mockBotUserKey1),
+          putTickerInClientExtra(mockAppleTicker)
+        ))
+        .expect(HttpStatus.OK)
+        .expect(({body}) => {
+          expect(body.template)
+          .toEqual(skillResponseSrv.assetUnsubscribed(mockAppleTicker).template);
+        });
+      });
+
+      it('even if not already subscribed: 200 OK', () => {
+        return request(app.getHttpServer())
+        .post(url)
+        .send(F.pipe(
+          mockSkillPayload(mockBotUserKey1),
+          putTickerInClientExtra(mockAppleTicker)
+        ))
+        .expect(HttpStatus.OK)
+        .expect(({body}) => {
+          expect(body.template)
+          .toEqual(skillResponseSrv.assetUnsubscribed(mockAppleTicker).template);
+        });
+      });
+    });
+
+    describe(KAKAO_CHATBOT_URL_API.inquireSubscribedAsset.path, () => {
+      const url = KAKAO_CHATBOT_URL_PREFIX +
+      KAKAO_CHATBOT_URL_API.inquireSubscribedAsset.path;
+
+      it('200 OK', () => {
+        return request(app.getHttpServer())
+        .post(url)
+        .send(mockSkillPayload(mockBotUserKey1))
+        .expect(HttpStatus.OK);
+        // todo
+      });
+    });
+
+    describe(KAKAO_CHATBOT_URL_API.reportTicker.path, () => {
+      const url = KAKAO_CHATBOT_URL_PREFIX +
+      KAKAO_CHATBOT_URL_API.reportTicker.path;
+
+      describe('bad request', () => {
+        it('if ticker is not available: 200 OK, data has 400 exception', () => {
+          return request(app.getHttpServer())
+          .post(url)
+          .send(mockSkillPayload(mockBotUserKey1))
+          .expect(HttpStatus.OK)
+          .expect(({body}) => {
+            expect(body.template).toEqual(unexpectedErrorTemplate());
+            expect(body.data.exception.status).toBe(400);
+          });
+        });
+
+        it('if reason is not available: 200 OK, data has 400 exception', () => {
+          return request(app.getHttpServer())
+          .post(url)
+          .send(F.pipe(
+            mockSkillPayload(mockBotUserKey1),
+            putTickerInClientExtra(mockAppleTicker)
+          ))
+          .expect(HttpStatus.OK)
+          .expect(({body}) => {
+            expect(body.template).toEqual(unexpectedErrorTemplate());
+            expect(body.data.exception.status).toBe(400);
+          });
+        });
+      });
+
+      it('200 OK', () => {
+        return request(app.getHttpServer())
+        .post(url)
+        .send(F.pipe(
+          mockSkillPayload(mockBotUserKey1),
+          putTickerInClientExtra(mockAppleTicker),
+          putReasonInClientExtra({})
+        ))
+        .expect(HttpStatus.OK)
+        .expect(({body}) => {
+          expect(body.template)
+          .toEqual(skillResponseSrv.tickerReported().template);
+        });
+      });
+    });
+
+    /* Todo: 시나리오 테스트
+    inquireAsset 은 구독 상태에 따라 응답이 다름
+    inquireSubscribedAsset 은 최근 구독한것을 맨 위에 보여줌
+    */
+
+    const mockSkillPayload = (
+      botUserKey: string
+    ): SkillPayloadDto => ({
+      intent: {
+        id: 'MOCK',
+        name: 'MOCK',
+      },
+      userRequest: {
+        timezone: 'Asia/Seoul',
+        block: {
+          id: 'MOCK',
+          name: 'MOCK',
+        },
+        utterance: 'MOCK',
+        lang: 'ko',
+        user: {
+          id: botUserKey,
+          type: 'botUserKey',
+          properties: {
+            plusfriendUserKey: 'MOCK',
+            appUserId: 'MOCK',
+            isFriend: true,
+            botUserKey,
+          }
+        },
+      },
+      bot: {
+        id: 'MOCK',
+        name: 'MOCK',
+      },
+      action: {
+        id: 'MOCK',
+        name: 'MOCK',
+        params: {},
+        detailParams: {},
+        clientExtra: {}
+      },
+      contexts: [],
+    });
+
+    const putTickerInClientExtra = F.curry((
+      ticker: string,
+      data: SkillPayloadDto,
+    ): SkillPayloadDto => {
+      data.action.clientExtra['ticker'] = ticker;
+      return data;
+    });
+
+    const putTickerInParams = F.curry((
+      ticker: string,
+      data: SkillPayloadDto,
+    ): SkillPayloadDto => {
+      data.action.params['ticker'] = ticker;
+      return data;
+    });
+
+    const putReasonInClientExtra = F.curry((
+      reason: any,
+      data: SkillPayloadDto,
+    ): SkillPayloadDto => {
+      data.action.clientExtra['reason'] = reason;
+      return data;
+    });
+
+    const unexpectedErrorTemplate = () =>
+    skillResponseSrv.unexpectedError(null).template;
+
+    const mockBotUserKey1 = 'MOCK_BOT_USER_KEY_1';
+    // const mockBotUserKey2 = 'MOCK_BOT_USER_KEY_2';
   });
 
   afterAll(async () => {

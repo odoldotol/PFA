@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  HttpStatus,
   Injectable,
   InternalServerErrorException,
   NotFoundException
@@ -24,6 +25,9 @@ export class MarketApiService {
     private httpService: HttpService
   ) {}
 
+  /**
+   * @todo refac (SpDoc -> exchange)
+   */
   public fetchAllSpDoc() {
     return firstValueFrom(this.httpService.get(GET_ALL_EXCHANGES_URN).pipe(
       map(res => res.data as ExchangeCore[])
@@ -36,11 +40,14 @@ export class MarketApiService {
     ));
   }
 
+  /**
+   * @todo refac error handling <- marketChild 서버 에러던지도록 리팩터링 후
+   */
   public fetchFinancialAsset(ticker: string): Promise<FinancialAssetCore> {
     return firstValueFrom(this.httpService.post(INQUIRE_ASSET_URN + ticker).pipe(
       catchError(error => {
-        if (error.response?.data.error === "Bad Request") throw new BadRequestException(error.response.data);
-        else if (error.response?.data.error === "Not Found") throw new NotFoundException(error.response.data);
+        if (error.response?.status === HttpStatus.BAD_REQUEST) throw new BadRequestException(error.response.data);
+        else if (error.response?.status === HttpStatus.NOT_FOUND) throw new NotFoundException(error.response.data);
         else if (error.response) throw new InternalServerErrorException(error.response.data);
         else throw new InternalServerErrorException(error);
       }),

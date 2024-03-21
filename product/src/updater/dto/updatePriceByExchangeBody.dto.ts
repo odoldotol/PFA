@@ -7,7 +7,7 @@ import {
   IsString
 } from "class-validator";
 import { MarketDate } from "src/common/class/marketDate.class";
-import { Currency, Ticker } from "src/common/interface";
+import { PriceTuple } from "src/common/interface";
 
 export class UpdatePriceByExchangeBodyDto {
 
@@ -28,6 +28,6 @@ export class UpdatePriceByExchangeBodyDto {
   @IsArray({ each: true })
   @IsArray()
   @ApiProperty({ type: Array, required: true, description: '[ticker, Price] 의 배열', example: [['AAPL', 160], ['MSFT', 280]] })
-  readonly priceArrs!: [Ticker, number, Currency?][];
+  readonly priceArrs!: PriceTuple[];
 
 }

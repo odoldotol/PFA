@@ -1,27 +1,52 @@
 import {
   Body,
   Controller,
+  HttpCode,
+  HttpStatus,
   Post,
+  Res,
   UseFilters,
   UseGuards,
-  UseInterceptors
+  UseInterceptors,
+  UsePipes,
+  ValidationPipe
 } from '@nestjs/common';
-import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { Response } from "express";
+import {
+  ApiOkResponse,
+  ApiOperation,
+  ApiTags
+} from '@nestjs/swagger';
 import { KakaoChatbotService } from './kakaoChatbot.service';
-import { KakaoChatbotGuard } from './guard/kakao-chatbot.guard';
-import { TimeoutInterceptor } from './interceptor/timeout.interceptor';
-import { TimeoutExceptionFilter } from './filter/timeoutException.filter';
-import { UnexpectedExceptionFilter } from './filter/UnexpectedException.filter';
-import { SkillPayloadDto } from './dto/SkillPayload.dto';
-import { SkillResponse } from './response/skill.response';
+import { KakaoChatbotGuard } from './guard/kakaoChatbot.guard';
+import { TimeoutInterceptor } from './interceptor';
+import {
+  UnexpectedExceptionFilter,
+  TimeoutExceptionFilter,
+  BadRequestExceptionFilter,
+  InvalidTickerExceptionFilter,
+  NotFoundExceptionFilter,
+  ForbiddenExceptionFilter,
+} from './filter';
+import {
+  AssetSubscriptionDto,
+  InquireAssetDto,
+  ReportTickerDto,
+  SkillPayloadDto,
+} from './dto';
+import { SkillResponse } from './skillResponse/v2';
+import { InvalidTickerException } from 'src/common/exception';
 import { ApiCommonResponse } from 'src/common/decorator/apiCommonResponse.decorator';
+import { URL_API, URL_PREFIX } from './const';
 
-@Controller('kakao-chatbot')
+@Controller(URL_PREFIX)
 @UseGuards(KakaoChatbotGuard)
 @UseInterceptors(TimeoutInterceptor)
 @UseFilters(
   UnexpectedExceptionFilter, // 순서 주의 - 순서에 따라 달라질 수 있는거 나쁜 구성일까?
   TimeoutExceptionFilter,
+  BadRequestExceptionFilter,
+  ForbiddenExceptionFilter,
 )
 @ApiTags('Kakao Chatbot')
 @ApiCommonResponse()
@@ -31,49 +56,74 @@ export class KakaoChatbotController {
     private readonly kakaoChatbotSrv: KakaoChatbotService,
   ) {}
 
-  @Post('asset/inquire')
+  @Post(URL_API.inquireAsset.path)
+  @HttpCode(HttpStatus.OK)
+  @UseFilters(
+    NotFoundExceptionFilter,
+    InvalidTickerExceptionFilter,
+  )
+  @UsePipes(new ValidationPipe({
+    transform: true,
+    groups: ['ticker'],
+    exceptionFactory: () => new InvalidTickerException()
+  }))
   @ApiOperation({ summary: '카카오챗봇스킬: asset/inquire' })
   @ApiOkResponse({ description: '카카오챗봇스킬 응답', type: SkillResponse })
-  inquire(
-    @Body() body: SkillPayloadDto
+  inquireAsset(
+    @Body() body: InquireAssetDto
   ): Promise<SkillResponse> {
     return this.kakaoChatbotSrv.inquireAsset(body);
   }
 
-  @Post('asset-subscription/add')
+  @Post(URL_API.addAssetSubscription.path)
   @ApiOperation({ summary: '카카오챗봇스킬: asset-subscription/add' })
   @ApiOkResponse({ description: '카카오챗봇스킬 응답', type: SkillResponse })
-  addAssetSubscription(
-    @Body() body: SkillPayloadDto
-  ): Promise<SkillResponse> {
-    return this.kakaoChatbotSrv.subscribeAsset(body);
+  async addAssetSubscription(
+    @Res() response: Response,
+    @Body() body: AssetSubscriptionDto
+  ): Promise<void> {
+    const addAssetSubscriptionResult
+    = await this.kakaoChatbotSrv.addAssetSubscription(body);
+
+    if (addAssetSubscriptionResult.created) {
+      response.status(HttpStatus.CREATED);
+    } else {
+      response.status(HttpStatus.OK);
+    }
+
+    response.json(addAssetSubscriptionResult.data);
   }
 
-  @Post('asset-subscription/cancel')
+  @Post(URL_API.cancelAssetSubscription.path)
+  @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: '카카오챗봇스킬: asset-subscription/cancel' })
   @ApiOkResponse({ description: '카카오챗봇스킬 응답', type: SkillResponse })
   cancelAssetSubscription(
-    @Body() body: SkillPayloadDto
+    @Body() body: AssetSubscriptionDto
   ): Promise<SkillResponse> {
     return this.kakaoChatbotSrv.cancelAssetSubscription(body);
   }
 
-  @Post('asset/subscriptions/inquire')
+  @Post(URL_API.inquireSubscribedAsset.path)
+  @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: '카카오챗봇스킬: asset/subscriptions/inquire' })
   @ApiOkResponse({ description: '카카오챗봇스킬 응답', type: SkillResponse })
-  getAssetSubscriptions(
+  inquireSubscribedAsset(
     @Body() body: SkillPayloadDto
   ): Promise<SkillResponse> {
     return this.kakaoChatbotSrv.inquireSubscribedAsset(body);
   }
 
-  @Post('report')
-  @ApiOperation({ summary: '카카오챗봇스킬: report' })
+  @Post(URL_API.reportTicker.path)
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: '카카오챗봇스킬: report/ticker' })
   @ApiOkResponse({ description: '카카오챗봇스킬 응답', type: SkillResponse })
-  report(
-    @Body() body: SkillPayloadDto
+  reportTicker(
+    @Body() body: ReportTickerDto
   ): Promise<SkillResponse> {
-    return this.kakaoChatbotSrv.report(body);
+    return this.kakaoChatbotSrv.reportTicker(body);
   }
 
 }
+
+export type ApiName = keyof KakaoChatbotController;

@@ -14,7 +14,6 @@ export interface EnvironmentVariables {
 
     [EnvKey.MinThreshold_priceCache]: number;
 
-    [EnvKey.KAKAO_CHATBOT_VERSION]: string;
     [EnvKey.KAKAO_CHATBOT_ID]: string;
 
     [EnvKey.KAKAO_CHATBOT_BLOCK_ID_INQUIRE_ASSET]: string;

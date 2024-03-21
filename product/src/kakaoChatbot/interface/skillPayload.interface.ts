@@ -1,71 +1,121 @@
+/**
+ * ### Kakao chatbot skill payload
+ * https://kakaobusiness.gitbook.io/main/tool/chatbot/skill_guide/answer_json_format#skillpayload
+ */
 export type SkillPayload = {
-  bot: Bot
-  intent: Intent
-  action: Action
-  userRequest: UserRequest,
-  contexts: Context[],
+  intent: Intent;
+  userRequest: UserRequest;
+  bot: Bot;
+  action: Action;
+  contexts: Context[];
 };
 
-type Intent = {
-  id: string,
-  name: string,
-  extra?: any //
+/**
+ * ### Intent in SkillPayload
+ * https://kakaobusiness.gitbook.io/main/tool/chatbot/skill_guide/answer_json_format#intent
+ */
+export type Intent = {
+  id: string;
+  name: string;
+  extra?: any; //
 };
 
-type UserRequest = {
-  timezone: string,
-  block: Block,
-  utterance: string,
-  lang: string,
-  user: User,
-  params?: any //
+/**
+ * ### UserRequest in SkillPayload
+ * https://kakaobusiness.gitbook.io/main/tool/chatbot/skill_guide/answer_json_format#userrequest
+ */
+export type UserRequest = {
+  timezone: string;
+  block: Block;
+  utterance: string;
+  lang: string;
+  user: User;
+  params?: any; //
 };
 
-type Bot = {
-  id: string,
-  name: string,
+export type Block = {
+  id: string;
+  name: string;
 };
 
-type Action = {
-  id: string,
-  name: string,
-  params: { [k: string]: string },
-  detailParams: { [k: string]: DetailParams },
-  clientExtra: { [k: string]: any },
+/**
+ * https://kakaobusiness.gitbook.io/main/tool/chatbot/skill_guide/answer_json_format#user
+ */
+export type User = {
+  id: string;
+  type: string;
+  properties: Properties;
 };
 
-type Context = {
-  name: string,
-  lifespan: number,
-  ttl: number,
-  params: {
-    [k: string]: {
-      value: any,
-      resolvedValue: any
-    }
-  },
+/**
+ * https://kakaobusiness.gitbook.io/main/tool/chatbot/skill_guide/answer_json_format#user.properties
+ */
+export type Properties = {
+  plusfriendUserKey: string;
+  plusfriend_user_key?: string;
+  appUserId: string;
+  isFriend: boolean;
+  botUserKey?: string;
+  bot_user_key?: string;
 };
 
-type Block = {
-  id: string,
-  name: string,
+/**
+ * ### Bot in SkillPayload
+ * https://kakaobusiness.gitbook.io/main/tool/chatbot/skill_guide/answer_json_format#bot
+ */
+export type Bot = {
+  id: string;
+  name: string;
 };
 
-type User = {
-  id: string,
-  type: string,
-  properties: {
-    plusfriendUserKey: string,
-    plusfriend_user_key?: string,
-    appUserId: string,
-    isFriend: boolean,
-    botUserKey?: string,
-    bot_user_key?: string,
-  }
+/**
+ * ### Action in SkillPayload
+ * https://kakaobusiness.gitbook.io/main/tool/chatbot/skill_guide/answer_json_format#action
+ */
+export type Action = {
+  id: string;
+  name: string;
+  params: ActionParams;
+  detailParams: DetailParams;
+  clientExtra: ClientExtra;
 };
 
-type DetailParams = {
-  groupName: string,
-  origin: any,
-  value: any,
+export type ActionParams = {
+  [k: string]: string;
+};
+
+export type DetailParams = {
+  [k: string]: DetailParam;
+};
+
+/**
+ * https://kakaobusiness.gitbook.io/main/tool/chatbot/skill_guide/answer_json_format#detailparams
+ */
+type DetailParam = {
+  groupName: string;
+  origin: any;
+  value: any;
+};
+
+export type ClientExtra = {
+  [k: string]: any;
+};
+
+/**
+ * ### Context in SkillPayload
+ */
+export type Context = {
+  name: string;
+  lifespan: number;
+  ttl: number;
+  params: ContextParams;
+};
+
+type ContextParams = {
+  [k: string]: ContextParam;
+};
+
+type ContextParam = {
+  value: any;
+  resolvedValue: any;
 };

@@ -34,6 +34,9 @@ export class AccessorService {
     return this.database_financialAssetSrv.readOneByPk(ticker);
   }
 
+  /**
+   * @todo refac Error handling
+   */
   public async subscribeAssetAndGet(
     ticker: Ticker
   ): Promise<FinancialAssetCore> {
@@ -41,9 +44,11 @@ export class AccessorService {
       Either.right(ticker)
     ]);
     if (subscribeAssetsRes.assets[0] === undefined) {
-      if (subscribeAssetsRes.failure.general[0]?.doc === "Mapping key not found.") {
+      const failure = subscribeAssetsRes.failure.general[0];
+      if (failure?.doc === "Mapping key not found.") {
         throw new NotFoundException(
-          `Could not find Ticker: ${subscribeAssetsRes.failure.general[0].ticker}`
+          failure,
+          `Could not find Ticker: ${failure.ticker}`
         );
       } else {
         throw new InternalServerErrorException(subscribeAssetsRes);
