@@ -1,4 +1,5 @@
 import {
+  HttpStatus,
   Injectable,
   InternalServerErrorException,
   NotFoundException
@@ -40,12 +41,13 @@ export class AccessorService {
   public async subscribeAssetAndGet(
     ticker: Ticker
   ): Promise<FinancialAssetCore> {
-    const subscribeAssetsRes = await this.subscriberSrv.subscribeAssetsFromFilteredTickers([
+    const subscribeAssetsRes
+    = await this.subscriberSrv.subscribeAssetsFromFilteredTickers([
       Either.right(ticker)
     ]);
     if (subscribeAssetsRes.assets[0] === undefined) {
       const failure = subscribeAssetsRes.failure.general[0];
-      if (failure?.doc === "Mapping key not found.") {
+      if (failure.statusCode === HttpStatus.NOT_FOUND) {
         throw new NotFoundException(
           failure,
           `Could not find Ticker: ${failure.ticker}`

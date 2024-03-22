@@ -69,7 +69,7 @@ describe('AccessorService', () => {
           );
         } else {
           return new SubscribeAssetsResponse([{
-            doc: "Mapping key not found.",
+            statusCode: 404,
             ticker: eitherTickerArr[0]!.right
           }], Either.right([]), Either.right([]));
         }
@@ -83,8 +83,8 @@ describe('AccessorService', () => {
 
     it('Asset 을 추가할 수 없음. Not Found.', async () => {
       const notFoundTicker = "notFoundTicker";
-      expect(service.subscribeAssetAndGet(notFoundTicker)).rejects
-      .toThrow(new NotFoundException(`Could not find Ticker: ${notFoundTicker}`));
+      expect(service.subscribeAssetAndGet(notFoundTicker))
+      .rejects.toThrowError(NotFoundException);
     });
   });
 });

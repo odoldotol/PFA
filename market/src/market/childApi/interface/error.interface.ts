@@ -1,6 +1,8 @@
 export type ChildError = Readonly<{
-  doc: string
+  statusCode: number
+  error?: string
+  message?: string
+  detail?: any
   ticker?: string
-  ISO_Code?: string
-  args?: any
+  iso_code?: string
 }>;

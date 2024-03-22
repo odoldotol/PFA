@@ -1,10 +1,11 @@
 import logging
 from typing import Union
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.exceptions import ResponseValidationError
 from fastapi.responses import JSONResponse
+from pandas import DataFrame
 from pydantic import BaseModel
-import os
+# import os
 import yfinance as yf
 import exchange_calendars as xcals
 from datetime import datetime
@@ -23,20 +24,17 @@ class Price(BaseModel):
   regularMarketPrice: float
   regularMarketPreviousClose: float
 
-class R_Info(BaseModel):
+class Info(BaseModel):
   info: Union[dict, None] = None
   metadata: dict
   fastinfo: Union[dict, None] = None
   price: Price
 
-class R_Session(BaseModel):
+class Session(BaseModel):
   previous_open: str
   previous_close: str
   next_open: str
   next_close: str
-
-class R_Error(BaseModel): # Refac: 그냥 에러를 던지도록 하기?
-  error: dict
 
 app = FastAPI(
   title="Market Child API",
@@ -44,93 +42,110 @@ app = FastAPI(
 )
 
 @app.exception_handler(ResponseValidationError)
-async def response_validation_exception_handler(request, exc):
+async def response_validation_exception_handler(_, exc):
   return JSONResponse(
     status_code=500,
     content = {
-      "message": "ResponseValidationError",
+      "error": "ResponseValidationError",
       "detail": str(exc)
     },
   )
 
-@app.get("/health", tags=["Health Check"], description="Health Check")
+@app.exception_handler(HTTPException)
+async def http_exception_handler(_, exc: HTTPException):
+  return JSONResponse(
+    status_code=exc.status_code,
+    content = exc.detail,
+  )
+
+@app.exception_handler(Exception)
+async def unexpected_exception_handler(request: Request, exc: Exception):
+  return JSONResponse(
+    status_code=500,
+    content = {
+    "error": "InternalServerError",
+    "message": exc.__doc__,
+    "detail": str(exc),
+    "ticker": request.path_params['ticker'] if 'ticker' in request.path_params else None,
+    "iso_code": request.path_params['ISO_Code'] if 'ISO_Code' in request.path_params else None,
+    }
+  )
+
+@app.get("/health", description="Health Check")
 def health_check():
   return {"status": "ok"}
 
-@app.post("/yf/info/{ticker}", tags=["Asset Info"], description="Yahoo Finance API Info", response_model=Union[R_Info, R_Error])
-def get_info_by_ticker(ticker: str) -> Union[R_Info, R_Error]:
-  print(ticker, os.getpid())
+@app.post("/yf/info/{ticker}", tags=["Asset"], description="Yahoo Finance API Info", response_model=Info)
+def get_info_by_ticker(ticker: str) -> Info:
+  # print(ticker, os.getpid())
   result = {}
+  
+  yf_ticker = get_yf_ticker(ticker)
+  
+  result["price"] = get_price_if_exist(yf_ticker)
+
+  # Todo: refac
+  fast_info = yf_ticker.fast_info
+  fast_info.currency # 이게 없으면 metadata.tradingPeriods 생기고 이를 Pydantic 에서 Serialization 못하면서 PydanticSerializationError 발생해서 최종적으로 Exception in ASGI application 으로 500 응답해버리는것 같음. 추후 이를 해결하기.
+
+  # info 에 접근할 수 없는 경우가 종종 생기는데 이는 최대한 빠르게 고쳐야함. 그동안은 임시로 fast_info 사용함.
   try:
-    Ticker = yf.Ticker(ticker)
-    fast_info = Ticker.fast_info
-    fast_info.currency # 잘못된 티커 빠르게 에러던지기 위한
+    result["info"] = yf_ticker.info
+  except:
+    result["fastinfo"] = {}
+    for i in fast_info: # lazy loading ResponseValidationError 조치
+      v = fast_info[i]
+      if is_nan(v): # nan 조치
+        v = None
+      result["fastinfo"][i] = v
 
-    try:
-      info = Ticker.info
-      result["info"] = info
-    except:
-      result["fastinfo"] = {}
-      for i in fast_info: # lazy loading ResponseValidationError 조치
-        v = fast_info[i]
-        if isNaN(v): # nan 조치
-          v = None
-        result["fastinfo"][i] = v
+  result["metadata"] = yf_ticker.history_metadata
 
-    metadata = Ticker.get_history_metadata()
-    result["metadata"] = metadata
-    result["price"] = getPrice(Ticker)
-    return result
+  return result
 
-  except Exception as e:
-    return {
-      'error': {
-        'doc': e.__doc__,
-        "ticker": ticker,
-        'args':e.args
-      }
-    }
+@app.post("/yf/price/{ticker}", tags=["Asset"], description="Yahoo Finance API Price", response_model=Price)
+def get_price_by_ticker(ticker) -> Price:
+  # print(ticker, os.getpid())
 
-@app.post("/yf/price/{ticker}", tags=["Price"], description="Yahoo Finance API Price", response_model=Union[Price, R_Error])
-def get_price_by_ticker(ticker) -> Union[Price, R_Error]:
-  print(ticker, os.getpid())
-  try:
-    price = getPrice(yf.Ticker(ticker))
-    return price
-  except Exception as e:
-    return {
-      'error': {
-        'doc': e.__doc__,
-        "ticker": ticker,
-        'args':e.args
-      }
-    }
+  return get_price_if_exist(get_yf_ticker(ticker))
 
-@app.post("/ec/session/{ISO_Code}", tags=["Exchange Session"], description="Exchange Calendar API", response_model=Union[R_Session, R_Error])
-def get_session_by_ISOcode(ISO_Code) -> Union[R_Session, R_Error]:
-  print(ISO_Code, os.getpid())
-  try:
-    cd = xcals.get_calendar(ISO_Code)
-    return {
-      "previous_open": cd.previous_open(datetime.utcnow()).isoformat(),
-      "previous_close": cd.previous_close(datetime.utcnow()).isoformat(),
-      "next_open": cd.next_open(datetime.utcnow()).isoformat(),
-      "next_close": cd.next_close(datetime.utcnow()).isoformat(),
-    }
-  except Exception as e:
-    return {
-      'error': {
-        'doc': e.__doc__,
-        "ISO_Code": ISO_Code,
-      }
-    }
+@app.post("/ec/session/{ISO_Code}", tags=["Exchange Session"], description="Exchange Calendar API", response_model=Session)
+def get_session_by_ISOcode(ISO_Code) -> Session:
+  # print(ISO_Code, os.getpid())
 
-def getPrice(Ticker: yf.Ticker) -> Price:
-  priceChart = Ticker.history(period="7d")
+  cd = xcals.get_calendar(ISO_Code)
   return {
-    "regularMarketPrice": priceChart['Close'][-1],
-    "regularMarketPreviousClose": priceChart['Close'][-2]
+    "previous_open": cd.previous_open(datetime.utcnow()).isoformat(),
+    "previous_close": cd.previous_close(datetime.utcnow()).isoformat(),
+    "next_open": cd.next_open(datetime.utcnow()).isoformat(),
+    "next_close": cd.next_close(datetime.utcnow()).isoformat(),
   }
 
-def isNaN(num: any) -> bool:
+def get_price_if_exist(yf_ticker: yf.Ticker) -> Price:
+  """
+  ### 존재하지 않는 ticker 404 던짐
+
+  최근 7일간의 기록이 없다면 존재하지 않는 ticker 로 판단
+  """
+  price_chart = yf_ticker.history(period="7d")
+
+  if not is_exist_ticker(price_chart):
+    raise HTTPException(404, {
+      "error": "NotFoundError",
+      "message": "Ticker not found",
+      "ticker": yf_ticker.ticker,
+    })
+
+  return {
+    "regularMarketPrice": price_chart['Close'][-1],
+    "regularMarketPreviousClose": price_chart['Close'][-2]
+  }
+
+def get_yf_ticker(ticker: str) -> yf.Ticker:
+  return yf.Ticker(ticker)
+
+def is_exist_ticker(price_chart: DataFrame) -> bool:
+  return not price_chart.empty
+
+def is_nan(num: any) -> bool:
   return type(num) == float and num != num

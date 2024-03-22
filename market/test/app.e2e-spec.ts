@@ -312,7 +312,7 @@ describe('Market E2E', () => {
         .post(`/asset/inquire/${NOT_FOUND_TICKER}`)
         .expect(HttpStatus.NOT_FOUND)
         .expect(({ body }) => {
-          expect(body).toHaveProperty('message', `Could not find Ticker: ${NOT_FOUND_TICKER.toUpperCase()}`); //
+          expect(body).toHaveProperty('ticker', NOT_FOUND_TICKER.toUpperCase()); //
         });
       });
     });
