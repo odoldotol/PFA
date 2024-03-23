@@ -24,6 +24,7 @@ import * as F from "@fxts/core";
 
 @Module({})
 export class Market_ExchangeRootModule {
+  // Todo: src/config/ExchangeConfigService 이용하기
   public static register(
     CONFIG_EXCHANGES: ConfigExchanges
   ): DynamicModule {

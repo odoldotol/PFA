@@ -3,7 +3,7 @@ import {
   Module,
   NestModule,
 } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule } from 'src/config/config.module';
 import { Pm2Module } from 'src/pm2/pm2.module';
 import { MongodbModule } from 'src/database/mongodb/mongodb.module';
 import { PostgresModule } from 'src/database/postgres/postgres.module';
@@ -12,7 +12,6 @@ import { UpdaterModule } from 'src/updater/updater.module';
 import { AppController } from './app.controller';
 import { HttpLoggerMiddleware } from './middleware/httpLogger.middleware';
 import { KeepAliveInterceptor } from './interceptor';
-import mongoUriConfig from 'src/config/mongoUri.config';
 import {
   GlobalValidationPipeProvider,
   GlobalKeepAliveInterceptorProvider
@@ -20,13 +19,7 @@ import {
 
 @Module({
   imports: [
-    ConfigModule.forRoot({
-      isGlobal: true,
-      envFilePath: ".env.market",
-      load: [
-        mongoUriConfig,
-      ]
-    }),
+    ConfigModule,
     Pm2Module,
     MongodbModule,
     PostgresModule,

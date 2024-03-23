@@ -1,33 +1,20 @@
 import { Module } from '@nestjs/common';
-import { ConfigModule, ConfigService } from '@nestjs/config';
+import { ProductApiConfigService } from 'src/config';
 import { HttpModule } from 'src/http/http.module';
 import { ProductApiService } from './productApi.service';
-import { EnvironmentVariables } from 'src/common/interface';
-import { EnvKey } from 'src/common/enum';
 
 @Module({
   imports: [
     HttpModule.registerAsync({
-      imports: [ConfigModule],
-      useFactory: async (
-        configService: ConfigService<EnvironmentVariables>
+      useFactory: ( // Todo: useClass 로 변경
+        productApiConfigSrv: ProductApiConfigService
       ) => ({
-        baseURL: configService.get(
-          EnvKey.DOCKER_PRODUCT_API_BASE_URL,
-          'http://localhost:7001',
-          { infer: true }
-        )!,
-        timeout: configService.get(
-          EnvKey.PRODUCT_API_TIMEOUT,
-          10000,
-          { infer: true }
-        )!,
+        baseURL: productApiConfigSrv.getBaseUrl(),
+        timeout: productApiConfigSrv.getTimeout(),
       }),
-      inject: [ConfigService]
+      inject: [ProductApiConfigService]
     })],
-  providers: [
-    ProductApiService
-  ],
+  providers: [ProductApiService],
   exports: [ProductApiService]
 })
 export class ProductApiModule {}

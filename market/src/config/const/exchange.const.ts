@@ -1,12 +1,7 @@
 import { ConfigExchanges } from "src/common/interface";
 import { YAHOO_FINANCE_CCC_EXCHANGE_ISO_CODE } from "./yahooFinance.const";
 
-/*
-- CONFIG_EXCHANGES2 의 Key 에서 ExchangeIsoCode 타입을 얻음.
-- ExchangeIsoCode 를 사용하여 ConfigExchanges 타입을 만듦.
-- 타입의 직간접적 참조를 피하면서 ConfigExchanges 로 CONFIG_EXCHANGES2 의 타입검사를 하기위해
-  새로운 상수 CONFIG_EXCHANGES 를 선언하고 ConfigExchanges 타입으로 CONFIG_EXCHANGES2 를 할당함.
-*/
+// Todo: src/config/ExchangeConfigService 에서 처리하기
 
 /**
  * #### Description:

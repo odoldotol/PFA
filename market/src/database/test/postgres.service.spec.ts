@@ -1,13 +1,19 @@
-import { ConfigModule, ConfigService } from "@nestjs/config";
+import { ConfigModule as NestConfigModule } from "@nestjs/config";
 import { Test } from "@nestjs/testing";
 import { TypeOrmModule } from "@nestjs/typeorm";
+import { ConfigModule } from "src/config/config.module";
 import { ExchangeEntity } from "../exchange/exchange.entity";
 import { FinancialAssetEntity } from "../financialAsset/financialAsset.entity";
-import { TypeOrmConfigService } from "../postgres/typeormConfig.service";
+import {
+  AppConfigService,
+  PostgresConfigService
+} from "src/config";
 import { Database_ExchangeService } from "../exchange/exchange.service";
 import { Database_FinancialAssetService } from "../financialAsset/financialAsset.service";
+import { TypeOrmOptionsService } from "../postgres/typeormOptions.service";
 import { DataSource } from "typeorm";
 import { FinancialAsset } from "src/common/class/financialAsset";
+import options from "src/config/const/moduleOptions.const";
 import { 
   mockKoreaExchange,
   mockNewYorkStockExchange,
@@ -328,10 +334,14 @@ const moduleBuilder = Test.createTestingModule({
   imports: [
     TypeOrmModule.forRootAsync({
       imports: [
-        ConfigModule.forRoot()
+        ConfigModule,
+        NestConfigModule.forRoot(options),
       ],
-      useClass: TypeOrmConfigService,
-      inject: [ConfigService]
+      useClass: TypeOrmOptionsService,
+      inject: [
+        AppConfigService,
+        PostgresConfigService,
+      ]
     }),
     TypeOrmModule.forFeature([FinancialAssetEntity]),
     TypeOrmModule.forFeature([ExchangeEntity])

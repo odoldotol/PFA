@@ -1,14 +1,15 @@
-import { Injectable, Logger } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
+import {
+  Injectable,
+  Logger
+} from '@nestjs/common';
+import { TempConfigService } from 'src/config';
 import { HttpService } from 'src/http/http.service';
 import {
-  EnvironmentVariables,
   ExchangeCore,
   FulfilledYfPrice,
   Ticker,
   MarketDate
 } from 'src/common/interface';
-import { EnvKey } from 'src/common/enum';
 import { UPDATE_PRICE_BY_EXCHANGE_URN } from './const';
 import { firstValueFrom } from 'rxjs';
 import Either, * as E from 'src/common/class/either';
@@ -17,14 +18,10 @@ import Either, * as E from 'src/common/class/either';
 export class ProductApiService {
 
   private readonly logger = new Logger(ProductApiService.name);
-  private readonly TEMP_KEY = this.configService.get(
-    EnvKey.TEMP_KEY,
-    'TEMP_KEY',
-    { infer: true }
-  );
+  private readonly TEMP_KEY = this.tempConfigSrv.getKey();
 
   constructor(
-    private readonly configService: ConfigService<EnvironmentVariables>,
+    private readonly tempConfigSrv: TempConfigService,
     private readonly httpService: HttpService,
   ) {}
 
