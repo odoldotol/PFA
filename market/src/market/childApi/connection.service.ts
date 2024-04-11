@@ -1,5 +1,5 @@
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
-import { HealthService } from 'src/http/health.service';
+import { HealthService } from 'src/http';
 import { buildLoggerContext } from 'src/common/util';
 
 @Injectable()

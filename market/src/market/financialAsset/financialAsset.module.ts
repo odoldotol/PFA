@@ -1,6 +1,6 @@
 import { Module } from "@nestjs/common";
-import { ChildApiModule } from "../childApi/childApi.module";
-import { Market_ExchangeModule } from "../exchange/exchange.module";
+import { ChildApiModule } from "../childApi";
+import { Market_ExchangeModule } from "../exchange";
 import { Market_FinancialAssetService } from "./financialAsset.service";
 
 @Module({

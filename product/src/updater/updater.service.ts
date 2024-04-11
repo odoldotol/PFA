@@ -3,11 +3,13 @@ import {
   Logger,
   OnModuleInit
 } from "@nestjs/common";
-import { MarketApiService } from "src/marketApi/marketApi.service";
+import { MarketApiService } from "src/marketApi";
 import { MarketDate } from "src/common/class/marketDate.class";
 import { UpdatePriceByExchangeBodyDto } from "./dto/updatePriceByExchangeBody.dto";
-import { MarketDateService } from "src/database/marketDate/marketDate.service";
-import { PriceService } from "src/database/price/price.service";
+import {
+  MarketDateService,
+  PriceService
+} from "src/database";
 import * as F from '@fxts/core';
 
 @Injectable()

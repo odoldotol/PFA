@@ -10,8 +10,10 @@ import {
 } from "@nestjs/common";
 import { Response } from 'express';
 import { ApiTags } from "@nestjs/swagger";
-import { AccessorService } from "./service/accessor.service";
-import { SubscriberService } from "./service/subscriber.service";
+import {
+  AccessorService,
+  SubscriberService
+} from "./service";
 import {
   GetPriceByExchangeResponse,
 } from "./response";
@@ -21,7 +23,7 @@ import {
   Api_inquireAsset,
   Api_subscribeAssets,
 } from "./decorator";
-import { UpperCasePipe } from "src/common/pipe/upperCasePipe";
+import { UpperCasePipe } from "src/common/pipe";
 
 @Controller('asset')
 @ApiTags('Asset')

@@ -1,7 +1,9 @@
 import { Module } from "@nestjs/common";
-import { PriceModule } from "src/database/price/price.module";
-import { MarketDateModule } from "src/database/marketDate/marketDate.module";
-import { MarketApiModule } from "src/marketApi/marketApi.module";
+import {
+  PriceModule,
+  MarketDateModule
+} from "src/database";
+import { MarketApiModule } from "src/marketApi";
 import { AssetController } from "./asset.controller";
 import { AssetService } from "./asset.service";
 

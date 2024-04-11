@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { LogPriceUpdateService } from 'src/database/log_priceUpdate/log_priceUpdate.service';
-import { Market_ExchangeService } from 'src/market/exchange/exchange.service';
+import { LogPriceUpdateService } from 'src/database';
+import { Market_ExchangeService } from 'src/market';
 import { ExchangeIsoCode } from 'src/common/interface';
 import * as F from "@fxts/core";
 

@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { MarketDateService } from 'src/database/marketDate/marketDate.service';
+import { MarketDateService } from 'src/database';
 import { RedisService } from 'src/database/redis/redis.service';
 
 @Injectable()

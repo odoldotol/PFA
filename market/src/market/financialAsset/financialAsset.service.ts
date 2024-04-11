@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { YfinanceApiService } from '../childApi/yfinanceApi.service';
-import { Market_ExchangeService } from '../exchange/exchange.service';
+import { YfinanceApiService } from '../childApi';
+import { Market_ExchangeService } from '../exchange';
 import { Market_Exchange } from '../exchange/class';
 import {
   ExchangeIsoCode,

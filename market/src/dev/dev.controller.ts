@@ -2,7 +2,7 @@ import { Controller, Get, Query, Version } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { DevService } from './dev.service';
 import { ExchangeIsoCode } from 'src/common/interface';
-import { UpperCasePipe } from 'src/common/pipe/upperCasePipe';
+import { UpperCasePipe } from 'src/common/pipe';
 import { ApiCommonResponse } from 'src/common/decorator/apiCommonResponse.decorator';
 import {
   Api_getAllExchangesFromMarket,

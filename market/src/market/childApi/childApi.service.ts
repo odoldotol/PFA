@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { HttpService } from 'src/http/http.service';
-import { TaskQueueService } from 'src/taskQueue/taskQueue.service';
+import { HttpService } from 'src/http';
+import { TaskQueueService } from 'src/taskQueue';
 import { ChildError } from './interface';
 import {
   catchError,

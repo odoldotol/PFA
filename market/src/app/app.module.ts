@@ -3,14 +3,16 @@ import {
   Module,
   NestModule,
 } from '@nestjs/common';
-import { ConfigModule } from 'src/config/config.module';
+import { ConfigModule } from 'src/config';
 import { Pm2Module } from 'src/pm2/pm2.module';
-import { MongodbModule } from 'src/database/mongodb/mongodb.module';
-import { PostgresModule } from 'src/database/postgres/postgres.module';
-import { DevModule } from 'src/dev/dev.module';
-import { UpdaterModule } from 'src/updater/updater.module';
+import {
+  MongodbModule,
+  PostgresModule
+} from 'src/database';
+import { DevModule } from 'src/dev';
+import { UpdaterModule } from 'src/updater';
 import { AppController } from './app.controller';
-import { HttpLoggerMiddleware } from './middleware/httpLogger.middleware';
+import { HttpLoggerMiddleware } from './middleware';
 import { KeepAliveInterceptor } from './interceptor';
 import {
   GlobalValidationPipeProvider,

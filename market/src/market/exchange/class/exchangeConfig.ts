@@ -4,7 +4,7 @@ import {
   ExchangeIso,
   IsoTimezoneName
 } from "src/common/interface";
-import { YAHOO_FINANCE_UPDATE_MARGIN_DEFAULT } from "src/config/const";
+import { YAHOO_FINANCE_UPDATE_MARGIN_DEFAULT } from "src/config";
 
 export class Market_ExchangeConfig
   implements ExchangeIso

@@ -3,7 +3,7 @@ import {
   Logger
 } from '@nestjs/common';
 import { TempConfigService } from 'src/config';
-import { HttpService } from 'src/http/http.service';
+import { HttpService } from 'src/http';
 import {
   ExchangeCore,
   FulfilledYfPrice,

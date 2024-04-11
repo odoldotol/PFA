@@ -1,5 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
+import { DEFAULT_PRODUCT_API_TIMEOUT } from "../const";
 import { ProductApiEnvKey } from "../enum";
 import { ProductApiEnvironmentVariables } from "../interface";
 
@@ -7,7 +8,6 @@ import { ProductApiEnvironmentVariables } from "../interface";
 export class ProductApiConfigService {
 
   private readonly LOCAL_BASE_URL = 'http://localhost:7001';
-  private readonly DEFAULT_TIMEOUT = 10000;
 
   constructor(
     private readonly configSrv: ConfigService<ProductApiEnvironmentVariables>,
@@ -24,7 +24,7 @@ export class ProductApiConfigService {
   public getTimeout(): number {
     return this.configSrv.get(
       ProductApiEnvKey.TIMEOUT,
-      this.DEFAULT_TIMEOUT,
+      DEFAULT_PRODUCT_API_TIMEOUT,
       { infer: true }
     );
   }

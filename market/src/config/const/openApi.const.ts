@@ -7,6 +7,5 @@ export const openApiConfig = new DocumentBuilder()
   .setContact('Lygorithm', 'https://github.com/odoldotol', 'lygorithm@gmail.com')
   .addTag('Exchange')
   .addTag('Asset')
-  .addTag('Updater')
   .addTag('Development')
   .build();

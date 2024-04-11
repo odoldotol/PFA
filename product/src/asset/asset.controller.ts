@@ -9,7 +9,7 @@ import {
 import { ApiTags } from "@nestjs/swagger";
 import { Api_inquirePrice } from "./decorator/api-inquirePrice.decorator";
 import { Response } from "express";
-import { UpperCasePipe } from "src/common/pipe/upperCasePipe";
+import { UpperCasePipe } from "src/common/pipe";
 import { AssetService } from "./asset.service";
 
 @Controller('asset')

@@ -3,11 +3,11 @@ import {
   Logger,
   OnApplicationBootstrap
 } from "@nestjs/common";
-import { ExchangeService } from "src/exchange/exchange.service";
-import { AccessorService } from "src/asset/service";
-import { Database_UpdaterService } from "src/database/updater/updater.service";
-import { ProductApiService } from "src/productApi/productApi.service";
-import { Market_Exchange } from "src/market/exchange/class";
+import { ExchangeService } from "src/exchange";
+import { AccessorService } from "src/asset";
+import { Database_UpdaterService } from "src/database";
+import { ProductApiService } from "src/productApi";
+import { Market_Exchange } from "src/market";
 import { Log_priceUpdate } from "src/database/log_priceUpdate/log_priceUpdate.schema";
 import { FulfilledYfPrice } from "src/common/interface";
 import { Launcher } from "src/common/enum";

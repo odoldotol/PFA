@@ -1,5 +1,4 @@
 import { Injectable } from "@nestjs/common";
-import { ConfigService } from "@nestjs/config";
 import {
   ButtonAction,
   Data,
@@ -9,73 +8,20 @@ import {
   TextCardFactory
 } from "./skillResponse/v2";
 import {
-  EnvironmentVariables,
   FinancialAssetCore,
   Ticker
 } from "src/common/interface";
-import { EnvKey } from "src/common/enum/envKey.emun";
 import { CachedPrice } from "src/common/class/cachedPrice.class";
 import { MarketDate } from "src/common/class/marketDate.class";
 import { currencyToSign, to2Decimal } from "src/common/util";
+import { KakaoChatbotConfigService } from "src/config";
 
 @Injectable()
 export class SkillResponseService {
 
-  private readonly KAKAO_CHATBOT_BLOCK_ID_INQUIRE_ASSET
-  = this.configService.get(
-    EnvKey.KAKAO_CHATBOT_BLOCK_ID_INQUIRE_ASSET,
-    { infer: true }
-  );
-  private readonly KAKAO_CHATBOT_BLOCK_ID_REPORT
-  = this.configService.get(
-    EnvKey.KAKAO_CHATBOT_BLOCK_ID_REPORT,
-    { infer: true }
-  );
-  private readonly KAKAO_CHATBOT_BLOCK_ID_SUBSCRIBE_ASSET
-  = this.configService.get(
-    EnvKey.KAKAO_CHATBOT_BLOCK_ID_SUBSCRIBE_ASSET,
-    { infer: true }
-  );
-  private readonly KAKAO_CHATBOT_BLOCK_ID_CANCEL_ASSET_SUBSCRIPTION
-  = this.configService.get(
-    EnvKey.KAKAO_CHATBOT_BLOCK_ID_CANCEL_ASSET_SUBSCRIPTION,
-    { infer: true }
-  );
-
   constructor(
-    // Todo: ConfigModule
-    private readonly configService: ConfigService<EnvironmentVariables>,
-  ) {
-    const isProduction = this.configService.get(
-      EnvKey.DOCKER_ENV,
-      { infer: true }
-    ) === 'production';
-
-    if (isProduction && (
-      this.KAKAO_CHATBOT_BLOCK_ID_INQUIRE_ASSET === undefined ||
-      this.KAKAO_CHATBOT_BLOCK_ID_REPORT === undefined ||
-      this.KAKAO_CHATBOT_BLOCK_ID_SUBSCRIBE_ASSET === undefined ||
-      this.KAKAO_CHATBOT_BLOCK_ID_CANCEL_ASSET_SUBSCRIPTION === undefined
-    )) {
-      throw new Error('KAKAO_CHATBOT_BLOCK_ID is not defined!');
-    } else { // Todo: Block ID 들 기본값을 테스트용으로 줘서 undefined 막기
-      this.KAKAO_CHATBOT_BLOCK_ID_INQUIRE_ASSET ||
-      (this.KAKAO_CHATBOT_BLOCK_ID_INQUIRE_ASSET
-      = 'KAKAO_CHATBOT_BLOCK_ID_INQUIRE_ASSET');
-
-      this.KAKAO_CHATBOT_BLOCK_ID_REPORT ||
-      (this.KAKAO_CHATBOT_BLOCK_ID_REPORT
-      = 'KAKAO_CHATBOT_BLOCK_ID_REPORT');
-
-      this.KAKAO_CHATBOT_BLOCK_ID_SUBSCRIBE_ASSET ||
-      (this.KAKAO_CHATBOT_BLOCK_ID_SUBSCRIBE_ASSET
-      = 'KAKAO_CHATBOT_BLOCK_ID_SUBSCRIBE_ASSET');
-
-      this.KAKAO_CHATBOT_BLOCK_ID_CANCEL_ASSET_SUBSCRIPTION ||
-      (this.KAKAO_CHATBOT_BLOCK_ID_CANCEL_ASSET_SUBSCRIPTION
-      = 'KAKAO_CHATBOT_BLOCK_ID_CANCEL_ASSET_SUBSCRIPTION');
-    }
-  }
+    private readonly kakaoChatbotConfigSrv: KakaoChatbotConfigService,
+  ) {}
 
   public unexpectedError(
     exception: any,
@@ -127,7 +73,7 @@ export class SkillResponseService {
           [[
             "다시 찾기",
             ButtonAction.BLOCK,
-            this.KAKAO_CHATBOT_BLOCK_ID_INQUIRE_ASSET!,
+            this.kakaoChatbotConfigSrv.getBlockIdInquireAsset(),
             {
               failedTicker: ticker,
               reason,
@@ -135,7 +81,7 @@ export class SkillResponseService {
           ], [
             "신고하기",
             ButtonAction.BLOCK,
-            this.KAKAO_CHATBOT_BLOCK_ID_REPORT!,
+            this.kakaoChatbotConfigSrv.getBlockIdReport(),
             {
               ticker,
               reason,
@@ -171,15 +117,15 @@ export class SkillResponseService {
             isSubscribed ? "구독 취소하기" : "구독하기",
             ButtonAction.BLOCK,
             isSubscribed ?
-              this.KAKAO_CHATBOT_BLOCK_ID_CANCEL_ASSET_SUBSCRIPTION! :
-              this.KAKAO_CHATBOT_BLOCK_ID_SUBSCRIBE_ASSET!,
+              this.kakaoChatbotConfigSrv.getBlockIdCancelAssetSubscription() :
+              this.kakaoChatbotConfigSrv.getBlockIdSubscribeAsset(),
             {
               ticker: asset.symbol,
             }
           ], [
             "다른 찾기",
             ButtonAction.BLOCK,
-            this.KAKAO_CHATBOT_BLOCK_ID_INQUIRE_ASSET!,
+            this.kakaoChatbotConfigSrv.getBlockIdInquireAsset(),
           ]]
         )
       ]],

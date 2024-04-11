@@ -1,6 +1,6 @@
 import { Inject, Injectable } from "@nestjs/common";
 import { RedisClientType } from "redis";
-import { REDIS_CLIENT_TOKEN } from "src/common/const/injectionToken.const";
+import { REDIS_CLIENT_TOKEN } from "src/common/const";
 import { MaximumOneOf } from "src/common/interface";
 import { RedisModel } from "../interface";
 

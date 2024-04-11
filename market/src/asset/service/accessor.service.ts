@@ -5,12 +5,8 @@ import {
   NotFoundException
 } from "@nestjs/common";
 import { GetPriceByExchangeResponse } from "../response";
-import {
-  Market_FinancialAssetService
-} from "src/market/financialAsset/financialAsset.service";
-import {
-  Database_FinancialAssetService
-} from "src/database/financialAsset/financialAsset.service";
+import { Market_FinancialAssetService } from "src/market";
+import { Database_FinancialAssetService } from "src/database";
 import { SubscriberService } from "./subscriber.service";
 import {
   ExchangeIsoCode,

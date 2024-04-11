@@ -1,8 +1,8 @@
 import { NestFactory } from '@nestjs/core';
-import { AppModule } from 'src/app/app.module';
+import { AppModule } from './app';
 import { AppConfigService } from './config';
 import { Pm2Service } from './pm2/pm2.service';
-import { versioningOptions } from './config/const';
+import { versioningOptions } from './config';
 import setupSwagger from './setupSwagger';
 import addTerminator from './addTerminator';
 

@@ -1,40 +1,36 @@
-import { Injectable, Logger, OnModuleInit } from "@nestjs/common";
-import { ConfigService } from "@nestjs/config";
+import {
+  Injectable,
+  Logger,
+  OnModuleInit
+} from "@nestjs/common";
+import { Pm2ConfigService } from "src/config";
 import * as pm2 from "pm2";
-import { EnvironmentVariables } from "src/common/interface/environmentVariables.interface";
-import { EnvKey } from "src/common/enum/envKey.emun";
 import * as F from "@fxts/core";
 
 @Injectable()
-export class Pm2Service implements OnModuleInit {
-
+export class Pm2Service
+  implements OnModuleInit
+{
   private readonly logger = new Logger(Pm2Service.name);
-  private readonly PM2_NAME
-  = this.configService.get(EnvKey.PM2_NAME, { infer: true });
-  public readonly IS_RUN_BY_PM2: boolean;
-  private readonly PM2_listen_timeout
-  = this.configService.get(EnvKey.PM2_LISTEN_TIMEOUT, 60000, { infer: true });
-  private PM2_ID!: number; // onModuleInit 에서 할당된 이후 상수 이어야 함.
+  private PM2_ID!: number;
   private msgBus: any;
   private isOld: boolean = false;
 
   constructor(
-    private readonly configService: ConfigService<EnvironmentVariables>,
-  ) {
-    this.IS_RUN_BY_PM2 = F.not(F.isUndefined(this.PM2_NAME));
-  }
+    private readonly pm2ConfigSrv: Pm2ConfigService,
+  ) {}
 
   async onModuleInit() {
-    if (this.IS_RUN_BY_PM2) {
+    if (this.pm2ConfigSrv.isRunByPm2()) {
       await this.identify(); // PM2_ID 할당
-    }
 
-    this.IS_RUN_BY_PM2 &&
-    (this.msgBus = await this.launchBus()) &&
-    this.listenNewProcessReady(
-      // 이게 리슨 안되고 올드프로레스가 죽으면 wait_ready = true 필요하다는 뜻이다.
-      () => this.logger.verbose(`It confirmed that New ${this.PM2_ID + '|' + this.PM2_NAME} was ready`)
-    );
+      if (this.msgBus = await this.launchBus()) {
+        this.listenNewProcessReady(
+          // 이게 리슨 안되고 올드프로레스가 죽으면 wait_ready = true 필요하다는 뜻이다.
+          () => this.logger.verbose(`It confirmed that New ${this.PM2_ID + '|' + this.pm2ConfigSrv.getName()!} was ready`)
+        );
+      }
+    }
   }
 
   // 더이상 필요 없는 메소드 아닌가?
@@ -45,13 +41,27 @@ export class Pm2Service implements OnModuleInit {
         resolve((this.logger.verbose("Cache Recovery listener closed"), listener()))
       );
       
-      F.delay(this.PM2_listen_timeout + 3000)
+      F.delay(this.pm2ConfigSrv.getListenTimeout() + 3000)
       .then(() => {
         listener = F.noop;
         resolve(this.logger.verbose("Cache Recovery listener closed"));
       });
       this.logger.verbose("Cache Recovery listener opened");
     });
+  }
+
+  public sendReady() {
+    if (
+      this.pm2ConfigSrv.isRunByPm2() &&
+      process.send
+    ) {
+      process.send(
+        'ready',
+        this.logger.log("Send Ready to Parent Process"),
+        { swallowErrors: true },
+        err => err && this.logger.error(err)
+      );
+    }
   }
 
   private identify() {
@@ -95,7 +105,7 @@ export class Pm2Service implements OnModuleInit {
 
   private async isReadyMsgFromNewProcess(packet: any) {
     return packet.raw === 'ready' &&
-    packet.process.name === this.PM2_NAME &&
+    packet.process.name === this.pm2ConfigSrv.getName() &&
     packet.process.pm_id === this.PM2_ID &&
     await this.isOldNow();
   }
@@ -103,7 +113,7 @@ export class Pm2Service implements OnModuleInit {
   private isCacheRecoveryMsgFromOldProcess(packet: any) {
     return packet.process.pm_id === `_old_${this.PM2_ID}` &&
     packet.raw === 'cache_backup_end' &&
-    packet.process.name === this.PM2_NAME &&
+    packet.process.name === this.pm2ConfigSrv.getName() &&
     F.not(this.isOld);
   }
 
@@ -116,7 +126,7 @@ export class Pm2Service implements OnModuleInit {
   private oldCheck() {
     return F.pipe(
       this.getPm2List(),
-      F.find(this.isPm2IdEqualMine.bind(this)),
+      F.find(this.isPm2IdEqualMine),
       this.isProcessIdEqualMine,
       F.not
     );

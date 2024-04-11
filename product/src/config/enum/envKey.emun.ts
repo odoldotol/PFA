@@ -1,0 +1,41 @@
+export enum AppEnvKey {
+  PORT = 'PORT',
+  DOCKER_ENV = 'RACK_ENV'
+}
+
+export enum AssetEnvKey {
+  THRESHOLD_PRICE_COUNT = 'PRICE_CACHE_COUNT',
+}
+
+export enum KakaoChatbotEnvKey {
+  ID = 'KAKAO_CHATBOT_ID',
+  BLOCK_ID_INQUIRE_ASSET = 'KAKAO_CHATBOT_BLOCK_ID_INQUIRE_ASSET',
+  BLOCK_ID_REPORT = 'KAKAO_CHATBOT_BLOCK_ID_REPORT',
+  BLOCK_ID_SUBSCRIBE_ASSET = 'KAKAO_CHATBOT_BLOCK_ID_SUBSCRIBE_ASSET',
+  BLOCK_ID_CANCEL_ASSET_SUBSCRIPTION = 'KAKAO_CHATBOT_BLOCK_ID_CANCEL_ASSET_SUBSCRIPTION',
+}
+
+export enum MarketApiEnvKey {
+  BASE_URL = 'MARKET_API_BASE_URL',
+  TIMEOUT = 'MARKET_API_TIMEOUT',
+}
+
+export enum Pm2EnvKey {
+  NAME = 'PM2_NAME',
+  LISTEN_TIMEOUT = 'listen_timeout',
+}
+
+export enum PostgresEnvKey {
+  HOST = 'PG_HOST',
+  USERNAME = 'PG_USERNAME',
+  PASSWORD = 'PG_PASSWORD',
+  DATABASE = 'PG_DATABASE',
+}
+
+export enum RedisEnvKey {
+  URL = 'REDIS_URL',
+}
+
+export enum TempEnvKey {
+  KEY = 'TEMP_KEY',
+}

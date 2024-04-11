@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { MarketDateModule } from 'src/database/marketDate/marketDate.module';
+import { MarketDateModule } from 'src/database';
 import { DevController } from './dev.controller';
 import { DevService } from './dev.service';
 

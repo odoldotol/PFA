@@ -2,9 +2,11 @@
 
 import { Injectable, Logger } from "@nestjs/common";
 import { MarketDate } from "src/common/class/marketDate.class";
-import { MarketDateService } from "src/database/marketDate/marketDate.service";
-import { PriceService } from "src/database/price/price.service";
-import { MarketApiService } from "src/marketApi/marketApi.service";
+import {
+  MarketDateService,
+  PriceService
+} from "src/database";
+import { MarketApiService } from "src/marketApi";
 import { CachedPrice } from "src/common/class/cachedPrice.class";
 import { FinancialAssetCore } from "src/common/interface";
 

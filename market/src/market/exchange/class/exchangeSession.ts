@@ -1,13 +1,13 @@
 import { Logger, OnModuleInit } from "@nestjs/common";
-import { ExchangeSessionApiService } from "src/market/childApi/exchangeSessionApi.service";
+import { ExchangeSessionApiService } from "src/market/childApi";
 import { ExchangeIsoCode } from "src/common/interface";
 import { ExchangeSession } from "src/market/interface";
-import { YAHOO_FINANCE_CCC_EXCHANGE_ISO_CODE } from "src/config/const";
+import { YAHOO_FINANCE_CCC_EXCHANGE_ISO_CODE } from "src/config";
 import {
   EVENT_MARGIN_DEFAULT,
   EVENT_TICK,
   UPDATE_RETRY_LIMIT
-} from "../const/sessionConfig"; // Temporary
+} from "../const"; // Temporary
 import {
   buildLoggerContext,
   calculateElapsedMs,

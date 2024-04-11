@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { ProductApiConfigService } from 'src/config';
-import { HttpModule } from 'src/http/http.module';
+import { HttpModule } from 'src/http';
 import { ProductApiService } from './productApi.service';
 
 @Module({

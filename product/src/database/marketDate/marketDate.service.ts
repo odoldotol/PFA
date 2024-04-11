@@ -3,7 +3,7 @@
 import { Injectable } from "@nestjs/common";
 import { InjectRedisRepository } from "../decorator";
 import { MarketDate } from "./marketDate.schema";
-import { Repository } from "../redis/redis.repository";
+import { Repository } from "../redis";
 import { ExchangeCore, ExchangeIsoCode } from "src/common/interface";
 
 @Injectable()

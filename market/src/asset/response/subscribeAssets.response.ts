@@ -1,7 +1,9 @@
 import { ApiProperty } from "@nestjs/swagger";
 import Either from "src/common/class/either";
-import { Yf_info } from "src/database/yf_info/yf_info.schema";
-import { FinancialAssetCore } from "src/common/interface";
+import {
+  FinancialAssetCore,
+  YfInfo
+} from "src/common/interface";
 
 export class SubscribeAssetsResponse {
 
@@ -19,7 +21,7 @@ export class SubscribeAssetsResponse {
 
   constructor(
     generalFailures: any[],
-    yfInfoCreationRes: Either<any, Yf_info[]>,
+    yfInfoCreationRes: Either<any, YfInfo[]>,
     finAssetCreationRes: Either<any, FinancialAssetCore[]>
   ) {
     this.failure = {

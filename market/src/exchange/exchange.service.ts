@@ -1,6 +1,6 @@
 import { Injectable, Logger } from "@nestjs/common";
-import { Database_ExchangeService } from "src/database/exchange/exchange.service";
-import { Market_ExchangeService } from "src/market/exchange/exchange.service";
+import { Database_ExchangeService } from "src/database";
+import { Market_ExchangeService } from "src/market";
 import { Market_Exchange } from "src/market/exchange/class";
 import { ExchangeCore, UpdateEventListener } from "src/common/interface";
 import { MarketEvent } from "src/common/enum";

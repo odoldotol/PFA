@@ -1,10 +1,14 @@
 import { Module } from "@nestjs/common";
-import { Market_FinancialAssetModule } from "src/market/financialAsset/financialAsset.module";
-import { Database_FinancialAssetModule } from "src/database/financialAsset/financialAsset.module";
-import { YfinanceInfoModule } from "src/database/yf_info/yf_info.module";
+import { Market_FinancialAssetModule } from "src/market";
+import {
+  Database_FinancialAssetModule,
+  YfinanceInfoModule
+} from "src/database";
 import { AssetController } from "./asset.controller";
-import { SubscriberService } from "./service/subscriber.service";
-import { AccessorService } from "./service/accessor.service";
+import {
+  AccessorService,
+  SubscriberService
+} from "./service";
 
 @Module({
   imports: [

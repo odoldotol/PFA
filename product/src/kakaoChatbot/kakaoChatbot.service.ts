@@ -1,8 +1,10 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { MarketApiService } from 'src/marketApi/marketApi.service';
-import { AssetService } from 'src/asset/asset.service';
-import { UserService } from 'src/database/user/user.service';
-import { AssetSubscriptionService } from 'src/database';
+import { MarketApiService } from 'src/marketApi';
+import { AssetService } from 'src/asset';
+import {
+  AssetSubscriptionService,
+  UserService
+} from 'src/database';
 import { SkillResponseService } from './skillResponse.service';
 import { User } from 'src/database/user/user.entity';
 import {

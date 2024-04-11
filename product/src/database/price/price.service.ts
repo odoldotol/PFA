@@ -2,31 +2,24 @@
 
 import { Injectable } from "@nestjs/common";
 import { InjectRedisRepository } from "../decorator";
-import { ConfigService } from "@nestjs/config";
 import { CachedPrice } from "./price.schema";
 import { MarketDate } from "../marketDate/marketDate.schema";
 import {
-  EnvironmentVariables,
   ExchangeIsoCode,
   PriceTuple,
   Ticker
 } from "src/common/interface";
-import { EnvKey } from "src/common/enum/envKey.emun";
-import { Repository } from "../redis/redis.repository";
+import { AssetConfigService } from "src/config";
+import { Repository } from "../redis";
 import * as F from "@fxts/core";
 
 @Injectable()
 export class PriceService {
 
-  private readonly minThreshold
-  = this.configService.get(
-    EnvKey.MinThreshold_priceCache,
-    1,
-    { infer: true }
-  );
+  private readonly minThreshold = this.assetConfigSrv.getPriceThreshold();
 
   constructor(
-    private readonly configService: ConfigService<EnvironmentVariables>,
+    private readonly assetConfigSrv: AssetConfigService,
     @InjectRedisRepository(CachedPrice)
     private readonly priceRepo: Repository<CachedPrice>,
   ) {}
@@ -90,5 +83,4 @@ export class PriceService {
       v => v && this.minThreshold <= v.count
     );
   }
-
 }

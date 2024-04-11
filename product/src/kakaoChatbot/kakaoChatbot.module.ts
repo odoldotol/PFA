@@ -1,8 +1,10 @@
 import { Module } from "@nestjs/common";
-import { MarketApiModule } from "src/marketApi/marketApi.module";
-import { AssetModule } from "src/asset/asset.module";
-import { UserModule } from "src/database/user/user.module";
-import { AssetSubscriptionModule } from "src/database/assetSubscription/assetSubscription.module";
+import { MarketApiModule } from "src/marketApi";
+import { AssetModule } from "src/asset";
+import {
+  AssetSubscriptionModule,
+  UserModule
+} from "src/database";
 import { KakaoChatbotController } from "./kakaoChatbot.controller";
 import { KakaoChatbotService } from "./kakaoChatbot.service";
 import { SkillResponseService } from "./skillResponse.service";

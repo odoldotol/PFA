@@ -18,9 +18,10 @@ import {
   REIDS_SCHEMA_SERVICE_TOKEN_SUFFIX
 } from "src/common/const/injectionToken.const";
 import { RedisModel } from "../interface";
+import { RedisConfigService } from "src/config";
 
 @Module({})
-export class RedisModule
+export class RedisRootModule
   extends ConfigurableModuleClass
 {
   static forRootAsync(
@@ -49,6 +50,21 @@ export class RedisModule
 
     return dynamicModule;
   }
+}
+
+@Module({
+  // Todo
+  imports: [RedisRootModule.forRootAsync({
+    isGlobal: true,
+    useFactory: (
+      redisConfigSrv: RedisConfigService
+    ) => ({
+      url: redisConfigSrv.getUrl(),
+    }),
+    inject: [RedisConfigService],
+  })]
+})
+export class RedisModule {
 
   static forFeature(
     models: RedisModel[]
@@ -111,5 +127,4 @@ export class RedisModule
       ],
     };
   }
-
 }

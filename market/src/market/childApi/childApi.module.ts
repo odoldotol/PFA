@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
-import { HttpModule } from 'src/http/http.module';
-import { TaskQueueModule } from 'src/taskQueue/taskQueue.module';
+import { HttpModule } from 'src/http';
+import { TaskQueueModule } from 'src/taskQueue';
 import { ConnectionService } from './connection.service';
 import { ChildApiService } from './childApi.service';
 import { ExchangeSessionApiService } from './exchangeSessionApi.service';

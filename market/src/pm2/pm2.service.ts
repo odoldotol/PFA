@@ -8,8 +8,9 @@ import * as pm2 from "pm2";
 import * as F from "@fxts/core";
 
 @Injectable()
-export class Pm2Service implements OnModuleInit {
-
+export class Pm2Service
+  implements OnModuleInit
+{
   private readonly logger = new Logger(Pm2Service.name);
   private PM2_ID!: number;
   private msgBus: any;

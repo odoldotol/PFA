@@ -1,6 +1,6 @@
 import { Module } from "@nestjs/common";
-import { Database_ExchangeModule } from "src/database/exchange/exchange.module";
-import { Market_ExchangeModule } from "src/market/exchange/exchange.module";
+import { Database_ExchangeModule } from "src/database";
+import { Market_ExchangeModule } from "src/market";
 import { ExchangeController } from "./exchange.controller";
 import { ExchangeService } from "./exchange.service";
 

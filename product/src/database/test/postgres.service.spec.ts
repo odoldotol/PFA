@@ -1,8 +1,12 @@
 import { Test } from "@nestjs/testing";
-import { ConfigModule, ConfigService } from "@nestjs/config";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { DataSource } from "typeorm";
-import { TypeOrmConfigService } from "../postgres/typeormConfig.service";
+import {
+  AppConfigService,
+  ConfigModule,
+  PostgresConfigService
+} from "src/config";
+import { TypeOrmOptionsService } from "../postgres/typeormOptions.service";
 import {
   AssetSubscription,
   ENTITY_NAME as assetSubscriptionTableName
@@ -336,11 +340,12 @@ const getTestingInstances = async (): Promise<TestingInstances> => {
 const moduleBuilder = Test.createTestingModule({
   imports: [
     TypeOrmModule.forRootAsync({
-      imports: [
-        ConfigModule.forRoot()
-      ],
-      useClass: TypeOrmConfigService,
-      inject: [ConfigService]
+      imports: [ConfigModule],
+      useClass: TypeOrmOptionsService,
+      inject: [
+        AppConfigService,
+        PostgresConfigService
+      ]
     }),
     TypeOrmModule.forFeature([User]),
     TypeOrmModule.forFeature([AssetSubscription]),
