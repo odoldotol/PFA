@@ -1,22 +1,21 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { ItemKey, SkillTemplate } from "./template";
+import { SkillTemplate } from "./template";
 
-const KAKAO_CHATBOT_VERSION = "2.0";
+export enum KakaoChatbotVersion {
+  V2 = "2.0"
+}
 
 /**
  * ### Kakao chatbot skill response
  * Ref: https://kakaobusiness.gitbook.io/main/tool/chatbot/skill_guide/answer_json_format#skillresponse
  */
-export class SkillResponse<
-T1 extends ItemKey | null = ItemKey | null,
-T2 extends (T1 extends ItemKey ? (ItemKey | null) : null) = null,
-T3 extends (T2 extends ItemKey ? (ItemKey | null) : null) = null
-> {
-  @ApiProperty({ default: KAKAO_CHATBOT_VERSION })
-  readonly version = KAKAO_CHATBOT_VERSION;
+export class SkillResponse {
+
+  @ApiProperty({ default: KakaoChatbotVersion.V2 })
+  public readonly version: KakaoChatbotVersion;
 
   @ApiProperty({ type: SkillTemplate, required: false})
-  readonly template?: Template<T1, T2, T3>;
+  readonly template?: SkillTemplate;
 
   @ApiProperty({
     type: "object",
@@ -45,33 +44,28 @@ T3 extends (T2 extends ItemKey ? (ItemKey | null) : null) = null
   readonly data?: Data;
 
   constructor(
-    options?: SkillResponseOptions<Template<T1, T2, T3>>
+    options: SkillResponseOptions
   ) {
     const {
-      // version,
+      version,
       template,
       context,
       data
-    } = options || {};
-    this.version = /*version || */KAKAO_CHATBOT_VERSION;
+    } = options;
+
+    this.version = version;
     template && (this.template = template);
     context && (this.context = context);
     data && (this.data = data);
   }
 }
 
-export type Template<
-T1 extends ItemKey | null,
-T2 extends (T1 extends ItemKey ? (ItemKey | null) : null),
-T3 extends (T2 extends ItemKey ? (ItemKey | null) : null)
-> = T1 extends ItemKey ? SkillTemplate<T1, T2, T3> : never;
-
 /**
  * ### ContextControl in SkillResponse
  * https://kakaobusiness.gitbook.io/main/tool/chatbot/skill_guide/answer_json_format#contextcontrol
  */
-type ContextControl = Readonly<{
-  values: ContextValue;
+export type ContextControl = Readonly<{
+  values: ContextValue[];
 }>;
 
 type ContextValue = Readonly<{
@@ -87,10 +81,9 @@ export type Data = Readonly<{
   [key: string]: any;
 }>;
 
-export type SkillResponseOptions<T>
-= {
-  // version?: string;
-  template?: T;
+export type SkillResponseOptions = {
+  version: KakaoChatbotVersion;
+  template?: SkillTemplate;
   context?: ContextControl;
   data?: Data;
 };

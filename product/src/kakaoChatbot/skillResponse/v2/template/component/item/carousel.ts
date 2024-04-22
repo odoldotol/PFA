@@ -1,6 +1,5 @@
-import { ApiProperty } from "@nestjs/swagger";
 import { LimitedArray } from "src/common/interface";
-import { CardItem } from "./item";
+import { CardItem, ItemKey as Key } from "./item";
 import { Thumbnail } from "./common";
 
 /**
@@ -8,31 +7,9 @@ import { Thumbnail } from "./common";
  */
 export class Carousel<T extends CarouselCardKey = CarouselCardKey> {
 
-  // Todo: textCard 확인하고 필요시 Carousel, CarouselCardKey, CardKey 수정
-  @ApiProperty({
-    enum: [
-      "basicCard",
-      "commerceCard",
-      "listCard",
-      "itemCard"
-    ]
-  })
-  readonly type: T;
-
-  @ApiProperty({
-    type: "array",
-    items: { type: "ItemCard" },
-    minItems: 1,
-    maxItems: 10,
-    description: "Card 최대 10개, ListCard 의 경우는 최대 5개"
-  })
+  readonly type: T; // Todo: textCard 확인하고 필요시 Carousel, CarouselCardKey, CardKey 수정
   readonly items: Items<T>;
-
-  @ApiProperty({
-    description: "TextCard, ListCard 는 케로셀 헤더 사용 불가",
-    required: false
-  })
-  readonly header?: CarouselHeader;
+  readonly header?: CarouselHeader; // Todo: TextCard, ListCard 는 케로셀 헤더 사용 불가
 
   constructor(
     type: T,
@@ -46,13 +23,13 @@ export class Carousel<T extends CarouselCardKey = CarouselCardKey> {
 }
 
 export type CarouselCardKey =
-| 'basicCard'
-| 'commerceCard'
-| 'listCard'
-| 'itemCard';
+| Key.BASICCARD
+| Key.COMMERCECARD
+| Key.LISTCARD
+| Key.ITEMCARD;
 
 export type Items<T extends CarouselCardKey>
-= Readonly<LimitedArray<CardItem<T>, T extends 'listCard' ? 5 : 10>>;
+= Readonly<LimitedArray<CardItem<T>, T extends Key.LISTCARD ? 5 : 10>>;
 
 /**
  * https://kakaobusiness.gitbook.io/main/tool/chatbot/skill_guide/answer_json_format#carouselheader

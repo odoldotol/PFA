@@ -1,12 +1,8 @@
-import { Item } from "./item";
-import { Component } from "./component";
+import { TextCard } from "./item";
 
-export class TextCardComponent
-  extends Component<'textCard'>
-{
+export class TextCardComponent {
+
   constructor(
-    public override readonly textCard: Item<'textCard'>
-  ) {
-    super();
-  }
+    public readonly textCard: TextCard,
+  ) {}
 }

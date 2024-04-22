@@ -1,3 +1,4 @@
-export * from './item';
 export * from './component';
-export * from './component.factory';
+export * from './simpleText.factory';
+export * from './textCard.builder';
+export * from './carousel.factory';

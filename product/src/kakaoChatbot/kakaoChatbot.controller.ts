@@ -36,7 +36,6 @@ import {
 } from './dto';
 import { SkillResponse } from './skillResponse/v2';
 import { InvalidTickerException } from 'src/common/exception';
-import { ApiCommonResponse } from 'src/common/decorator/apiCommonResponse.decorator';
 import { URL_API, URL_PREFIX } from './const';
 
 @Controller(URL_PREFIX)
@@ -49,7 +48,7 @@ import { URL_API, URL_PREFIX } from './const';
   ForbiddenExceptionFilter,
 )
 @ApiTags('Kakao Chatbot')
-@ApiCommonResponse()
+@ApiOkResponse({ status: '2XX', description: '카카오챗봇스킬 응답', type: SkillResponse })
 export class KakaoChatbotController {
 
   constructor(
@@ -68,7 +67,6 @@ export class KakaoChatbotController {
     exceptionFactory: () => new InvalidTickerException()
   }))
   @ApiOperation({ summary: '카카오챗봇스킬: asset/inquire' })
-  @ApiOkResponse({ description: '카카오챗봇스킬 응답', type: SkillResponse })
   inquireAsset(
     @Body() body: InquireAssetDto
   ): Promise<SkillResponse> {
@@ -77,7 +75,6 @@ export class KakaoChatbotController {
 
   @Post(URL_API.addAssetSubscription.path)
   @ApiOperation({ summary: '카카오챗봇스킬: asset-subscription/add' })
-  @ApiOkResponse({ description: '카카오챗봇스킬 응답', type: SkillResponse })
   async addAssetSubscription(
     @Res() response: Response,
     @Body() body: AssetSubscriptionDto
@@ -97,7 +94,6 @@ export class KakaoChatbotController {
   @Post(URL_API.cancelAssetSubscription.path)
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: '카카오챗봇스킬: asset-subscription/cancel' })
-  @ApiOkResponse({ description: '카카오챗봇스킬 응답', type: SkillResponse })
   cancelAssetSubscription(
     @Body() body: AssetSubscriptionDto
   ): Promise<SkillResponse> {
@@ -107,7 +103,6 @@ export class KakaoChatbotController {
   @Post(URL_API.inquireSubscribedAsset.path)
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: '카카오챗봇스킬: asset/subscriptions/inquire' })
-  @ApiOkResponse({ description: '카카오챗봇스킬 응답', type: SkillResponse })
   inquireSubscribedAsset(
     @Body() body: SkillPayloadDto
   ): Promise<SkillResponse> {
@@ -117,7 +112,6 @@ export class KakaoChatbotController {
   @Post(URL_API.reportTicker.path)
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: '카카오챗봇스킬: report/ticker' })
-  @ApiOkResponse({ description: '카카오챗봇스킬 응답', type: SkillResponse })
   reportTicker(
     @Body() body: ReportTickerDto
   ): Promise<SkillResponse> {

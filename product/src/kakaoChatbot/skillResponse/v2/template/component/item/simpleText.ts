@@ -1,5 +1,3 @@
-import { ApiProperty } from "@nestjs/swagger";
-
 /**
  * Skill SimpleText Item
  * https://kakaobusiness.gitbook.io/main/tool/chatbot/skill_guide/answer_json_format#simpletext
@@ -9,10 +7,7 @@ import { ApiProperty } from "@nestjs/swagger";
  */
 export class SimpleText {
 
-  @ApiProperty({ type: "string" })
-  readonly text: string;
-
-  constructor(text: string) {
-    this.text = text;
-  }
+  constructor(
+    public readonly text: string
+  ) {}
 }

@@ -1,29 +1,14 @@
-import { Extra } from "./button";
-import { blockButton } from "./block";
+import { Extra, Label } from "./button";
+import { blockButton, BlockId } from "./block";
+import { ButtonChildFactory } from "./button.factory";
 
-export class BlockButtonFactory {
-
-  static create(label: string, blockId: string, messageText?: string, extra?: Extra): blockButton;
-  static create(label: string, blockId: string, extra?: Extra): blockButton;
-  static create(
-    label: string,
-    blockId: string,
-    messageTextOrExtra?: string | Extra,
-    extra?: Extra
-  ): blockButton {
-    if (typeof messageTextOrExtra === "object") {
-      extra = messageTextOrExtra;
-    }
-
-    let messageText: string | undefined = undefined;
-
-    if (typeof messageTextOrExtra === "string") {
-      messageText = messageTextOrExtra;
-    }
-
-    return new blockButton(label, {
-      blockId,
-      messageText
-    }, extra);
-  }
-}
+/**
+ * @todo MessageText 를 가지는 blockButton 생성
+ */
+export const blockButtonFactory: ButtonChildFactory = (
+  label: Label,
+  blockId: BlockId,
+  extra?: Extra
+): blockButton => {
+  return new blockButton(label, blockId, extra);
+};

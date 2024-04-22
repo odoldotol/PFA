@@ -8,6 +8,7 @@ import {
 import { KakaoChatbotController } from "./kakaoChatbot.controller";
 import { KakaoChatbotService } from "./kakaoChatbot.service";
 import { SkillResponseService } from "./skillResponse.service";
+import { TextService } from "./text.service";
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { SkillResponseService } from "./skillResponse.service";
   providers: [
     KakaoChatbotService,
     SkillResponseService,
+    TextService,
   ]
 })
 export class KakaoChatbotModule {}

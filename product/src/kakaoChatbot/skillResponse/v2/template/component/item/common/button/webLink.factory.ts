@@ -1,13 +1,11 @@
-import { Extra } from "./button";
-import { WebLinkButton } from "./webLink";
+import { Extra, Label } from "./button";
+import { ButtonChildFactory } from "./button.factory";
+import { WebLinkButton, WebLinkUrl } from "./webLink";
 
-export class WebLinkButtonFactory {
-
-  static create(
-    label: string,
-    webLinkUrl: string,
-    extra?: Extra
-  ): WebLinkButton {
-    return new WebLinkButton(label, webLinkUrl, extra);
-  }
-}
+export const webLinkButtonFactory: ButtonChildFactory = (
+  label: Label,
+  webLinkUrl: WebLinkUrl,
+  extra?: Extra
+): WebLinkButton => {
+  return new WebLinkButton(label, webLinkUrl, extra);
+};

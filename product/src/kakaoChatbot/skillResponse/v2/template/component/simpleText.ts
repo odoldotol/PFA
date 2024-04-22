@@ -1,12 +1,8 @@
-import { Component } from "./component";
-import { Item } from "./item";
+import { SimpleText } from "./item";
 
-export class SimpleTextComponent
-  extends Component<'simpleText'>
-{
+export class SimpleTextComponent {
+
   constructor(
-    public override readonly simpleText: Item<'simpleText'>
-  ) {
-    super();
-  }
+    public readonly simpleText: SimpleText,
+  ) {}
 }

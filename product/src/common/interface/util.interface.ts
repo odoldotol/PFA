@@ -1,24 +1,3 @@
-export type MaximumOneOf<T, K extends keyof T = keyof T>
-= K extends keyof T ?
-  {
-    [P in K]?: T[K];
-  } & Partial<Record<Exclude<keyof T, K>, never>> :
-  never;
-
-export type AtleastOneOf<T, K extends keyof T = keyof T>
-= K extends keyof T ?
-  {
-    [P in K]: T[K];
-  } :
-  never;
-
-/**
- * ### L Available: 1 ~ 10
- */
-export type LimitedArray<T, L extends number> = [T, ...T[]] & {
-  length: PositiveIntegerLessOrEqualThen<L>
-};
-
 /**
  * ### N Available : 1 ~ 10
  */
@@ -35,10 +14,3 @@ export type PositiveIntegerLessOrEqualThen<N extends number>
 : N extends 9 ? 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9
 : N extends 10 ? 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10
 : never;
-
-export const isLimitedArray = <T, L extends number>(
-  buttons: T[],
-  limit: L
-): buttons is Readonly<LimitedArray<T, L>> => {
-  return buttons.length <= limit;
-};

@@ -1,8 +1,13 @@
-import { Item } from "./item";
+import { Component } from "./component";
+import { SimpleTextItemFactory } from "./item";
 import { SimpleTextComponent } from "./simpleText";
 
-export class SimpleTextComponentFactory {
-  static create(item: Item<'simpleText'>): SimpleTextComponent {
-    return new SimpleTextComponent(item);
+export class SimpleTextFactory
+  extends SimpleTextItemFactory
+{
+  static createComponent(
+    ...params: Parameters<typeof SimpleTextItemFactory.createItem>
+  ): Component {
+    return new SimpleTextComponent(this.createItem(...params));
   }
 }

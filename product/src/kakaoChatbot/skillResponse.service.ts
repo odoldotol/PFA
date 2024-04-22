@@ -1,33 +1,34 @@
 import { Injectable } from "@nestjs/common";
+import { KakaoChatbotConfigService } from "src/config";
+import { TextService } from "./text.service";
 import {
   ButtonAction,
   Data,
   SimpleTextFactory,
   SkillResponse,
-  SkillResponseFactory,
-  TextCardFactory
+  SkillResponseBuilder,
+  SkillTemplateBuilder,
+  TextCardBuilder,
 } from "./skillResponse/v2";
 import {
   FinancialAssetCore,
   Ticker
 } from "src/common/interface";
 import { CachedPrice } from "src/common/class/cachedPrice.class";
-import { MarketDate } from "src/common/class/marketDate.class";
-import { currencyToSign, to2Decimal } from "src/common/util";
-import { KakaoChatbotConfigService } from "src/config";
 
 @Injectable()
 export class SkillResponseService {
 
   constructor(
     private readonly kakaoChatbotConfigSrv: KakaoChatbotConfigService,
+    private readonly textSrv: TextService,
   ) {}
 
   public unexpectedError(
     exception: any,
     dataExtra?: Data
-  ): SkillResponse<'simpleText'> {
-    return this.singleSimpleText(this.unexpectedErrorText(), {
+  ): SkillResponse {
+    return this.singleSimpleText(this.textSrv.unexpectedError(), {
       exception,
       ...dataExtra,
     });
@@ -36,8 +37,8 @@ export class SkillResponseService {
   public timeoutError(
     exception: any,
     dataExtra?: Data
-  ): SkillResponse<'simpleText'> {
-    return this.singleSimpleText(this.timeoutErrorText(), {
+  ): SkillResponse {
+    return this.singleSimpleText(this.textSrv.timeoutError(), {
       exception,
       ...dataExtra
     });
@@ -49,8 +50,8 @@ export class SkillResponseService {
   public invalidTickerError(
     exception: any,
     dataExtra?: Data
-  ): SkillResponse<'simpleText'> {
-    return this.singleSimpleText(this.invalidTickerErrorText(), {
+  ): SkillResponse {
+    return this.singleSimpleText(this.textSrv.invalidTickerError(), {
       exception,
       ...dataExtra
     });
@@ -62,40 +63,45 @@ export class SkillResponseService {
   public notFoundTickerAssetInquiry(
     ticker: Ticker,
     reason: any,
-  ): SkillResponse<'textCard'> {
-    const textOptions = this.notFoundTickerAssetInquiryText(ticker);
+  ): SkillResponse {
+    const {
+      title,
+      description
+    } = this.textSrv.notFoundTickerAssetInquiryCard(ticker);
 
-    return SkillResponseFactory.create({
-      components: [[
-        'textCard',
-        TextCardFactory.create(
-          textOptions,
-          [[
-            "다시 찾기",
-            ButtonAction.BLOCK,
-            this.kakaoChatbotConfigSrv.getBlockIdInquireAsset(),
-            {
-              failedTicker: ticker,
-              reason,
-            }
-          ], [
-            "신고하기",
-            ButtonAction.BLOCK,
-            this.kakaoChatbotConfigSrv.getBlockIdReport(),
-            {
-              ticker,
-              reason,
-            }
-          ]]
-        )
-      ]],
-      data: {
-        title: textOptions.title,
-        description: textOptions.description,
+    const component = new TextCardBuilder()
+    .setTitle(title)
+    .setDescription(description)
+    .addButton(
+      "다시 찾기",
+      ButtonAction.BLOCK,
+      this.kakaoChatbotConfigSrv.getBlockIdInquireAsset(),
+      {
+        failedTicker: ticker,
+        reason,
+      }
+    ).addButton(
+      "신고하기",
+      ButtonAction.BLOCK,
+      this.kakaoChatbotConfigSrv.getBlockIdReport(),
+      {
         ticker,
         reason,
-      },
-    });
+      }
+    ).buildComponent();
+
+    const template = new SkillTemplateBuilder()
+    .addComponent(component)
+    .build();
+
+    return new SkillResponseBuilder()
+    .addTemplate(template)
+    .addData({
+      title,
+      description,
+      ticker,
+      reason,
+    }).build();
   }
 
   /**
@@ -104,38 +110,42 @@ export class SkillResponseService {
   public assetInquiry(
     asset: FinancialAssetCore,
     isSubscribed: boolean,
-  ): SkillResponse<'textCard'> {
+  ): SkillResponse {
+    const {
+      title,
+      description
+    } = this.textSrv.assetInquiryCard(asset);
 
-    const textOptions = this.assetInquiryText(asset);
+    const component = new TextCardBuilder()
+    .setTitle(title)
+    .setDescription(description)
+    .addButton(
+      isSubscribed ? "구독 취소하기" : "구독하기",
+      ButtonAction.BLOCK,
+      isSubscribed ?
+        this.kakaoChatbotConfigSrv.getBlockIdCancelAssetSubscription() :
+        this.kakaoChatbotConfigSrv.getBlockIdSubscribeAsset(),
+      {
+        ticker: asset.symbol,
+      }
+    ).addButton(
+      "다른 찾기",
+      ButtonAction.BLOCK,
+      this.kakaoChatbotConfigSrv.getBlockIdInquireAsset(),
+    ).buildComponent();
 
-    return SkillResponseFactory.create({
-      components: [[
-        'textCard',
-        TextCardFactory.create(
-          textOptions,
-          [[
-            isSubscribed ? "구독 취소하기" : "구독하기",
-            ButtonAction.BLOCK,
-            isSubscribed ?
-              this.kakaoChatbotConfigSrv.getBlockIdCancelAssetSubscription() :
-              this.kakaoChatbotConfigSrv.getBlockIdSubscribeAsset(),
-            {
-              ticker: asset.symbol,
-            }
-          ], [
-            "다른 찾기",
-            ButtonAction.BLOCK,
-            this.kakaoChatbotConfigSrv.getBlockIdInquireAsset(),
-          ]]
-        )
-      ]],
-      data: {
-        title: textOptions.title,
-        description: textOptions.description,
-        asset,
-        isSubscribed,
-      },
-    });
+    const template = new SkillTemplateBuilder()
+    .addComponent(component)
+    .build();
+
+    return new SkillResponseBuilder()
+    .addTemplate(template)
+    .addData({
+      title,
+      description,
+      asset,
+      isSubscribed,
+    }).build();
   }
 
   /**
@@ -143,27 +153,27 @@ export class SkillResponseService {
    */
   public alreadySubscribedAsset(
     ticker: Ticker
-  ): SkillResponse<'simpleText'> {
+  ): SkillResponse {
     return this.singleSimpleText(
-      this.assetSubscribedText(ticker),
+      this.textSrv.assetSubscribed(ticker),
       { ticker }
     );
   }
 
   public assetSubscribed(
     ticker: Ticker
-  ): SkillResponse<'simpleText'> {
+  ): SkillResponse {
     return this.singleSimpleText(
-      this.assetSubscribedText(ticker),
+      this.textSrv.assetSubscribed(ticker),
       { ticker }
     );
   }
 
   public assetUnsubscribed(
     ticker: Ticker
-  ): SkillResponse<'simpleText'> {
+  ): SkillResponse {
     return this.singleSimpleText(
-      this.assetUnsubscribedText(ticker),
+      this.textSrv.assetUnsubscribed(ticker),
       { ticker }
     );
   }
@@ -173,17 +183,15 @@ export class SkillResponseService {
    */
   public notSubscribedAsset(
     ticker: Ticker
-  ): SkillResponse<'simpleText'> {
+  ): SkillResponse {
     return this.singleSimpleText(
-      this.notSubscribedAssetText(ticker),
+      this.textSrv.notSubscribedAsset(ticker),
       { ticker }
     );
   }
 
-  public noSubscribedAsset()
-  : SkillResponse<'simpleText'>
-  {
-    return this.singleSimpleText(this.noSubscribedAssetText());
+  public noSubscribedAsset(): SkillResponse {
+    return this.singleSimpleText(this.textSrv.noSubscribedAsset());
   }
 
   // Todo: asset 을 redis 에 캐깅한 후 Refac
@@ -191,99 +199,29 @@ export class SkillResponseService {
     assets: (CachedPrice & { ticker: string; })[]
   ): SkillResponse {
     return this.singleSimpleText(
-      this.subscribedAssetInquiryText(assets),
+      this.textSrv.subscribedAssetInquiry(assets),
       { assets }
     );
   }
 
-  public tickerReported()
-  : SkillResponse<'simpleText'>
-  {
-    return this.singleSimpleText(this.reportedText());
+  public tickerReported(): SkillResponse {
+    return this.singleSimpleText(this.textSrv.reported());
   }
 
   private singleSimpleText(
     text: string,
     dataExtra?: Data
-  ): SkillResponse<'simpleText'> {
-    return SkillResponseFactory.create({
-      components: [[
-        'simpleText', SimpleTextFactory.create(text)
-      ]],
-      data: {
-        text,
-        ...dataExtra,
-      },
-    });
-  }
+  ): SkillResponse {
+    const template = new SkillTemplateBuilder()
+    .addComponent(SimpleTextFactory.createComponent(text))
+    .build();
 
-  private unexpectedErrorText(): string {
-    return "죄송해요. 제가 예상치 못한 문제가 발생한 것 같아요.\n하지만 제가 지금 확인했으니 곧 고쳐질 거예요!";
+    return new SkillResponseBuilder()
+    .addTemplate(template)
+    .addData({
+      text,
+      ...dataExtra,
+    })
+    .build();
   }
-
-  private timeoutErrorText(): string {
-    return "죄송해요. 제가 작업을 처리하는 데에 너무 오랜 시간이 필요했어요.\n다시 시도해 주세요.";
-  }
-
-  private invalidTickerErrorText(): string {
-    return "올바르지 않은 티커 같아요.\n다시 확인해 주세요.";
-  }
-
-  /**
-   * @todo refac
-   */
-  private notFoundTickerAssetInquiryText(
-    ticker: Ticker
-  ): Parameters<typeof TextCardFactory.create>[0] {
-    return {
-      title: `${ticker} 에 대한 정보를 찾을 수 없었어요.`,
-      description: `혹시 잘못 입력하셨으면 아래 다시 찾기 버튼으로 다시 시도해 보세요.\n만약 올바르게 입력하셨어도 제가 찾지 못한 거라면, 아래 신고하기 버튼으로 제게 알려주세요!`,
-    };
-  }
-
-  /**
-   * @todo refac
-   */
-  private assetInquiryText(
-    asset: FinancialAssetCore
-  ): Parameters<typeof TextCardFactory.create>[0] {
-    const name = asset.longName || asset.shortName || '';
-    const price = `${to2Decimal(asset.regularMarketLastClose)} ${currencyToSign(asset.currency)}`;
-    return {
-      title: asset.symbol,
-      description: `${name}\n${price}`, // marketDate 보여줘야함. marketExchange 받아오는것 검토해보기.
-    };
-  }
-
-  private assetSubscribedText(ticker: Ticker): string {
-    return `${ticker} 구독을 시작했어요!`;
-  }
-
-  private assetUnsubscribedText(ticker: Ticker): string {
-    return `${ticker} 구독을 취소했어요!`;
-  }
-
-  private notSubscribedAssetText(ticker: Ticker): string {
-    return `${ticker} 구독중이 아니에요!`;
-  }
-
-  private noSubscribedAssetText(): string {
-    return "구독중인것이 없네요...";
-  }
-
-  // Todo: asset 을 redis 에 캐깅한 후 Refac
-  private subscribedAssetInquiryText(assets: (CachedPrice & { ticker: string; })[]): string {
-    return assets.map((asset) => {
-      return `${asset.ticker} ${to2Decimal(asset.price)} ${currencyToSign(asset.currency)} (${this.getMonthSlashDayStr(asset.marketDate)})`;
-    }).join('\n');
-  }
-
-  private reportedText(): string {
-    return "신고해주셔서 감사해요!";
-  }
-
-  private getMonthSlashDayStr(marketDate: MarketDate): string {
-    return marketDate.split('-').slice(1).join('/');
-  }
-
 }

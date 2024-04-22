@@ -1,12 +1,8 @@
-import { Component } from "./component";
-import { Item } from "./item";
+import { Carousel } from "./item";
 
-export class CarouselComponent
-  extends Component<'carousel'>
-{
+export class CarouselComponent {
+
   constructor(
-    public override readonly carousel: Item<'carousel'>
-  ) {
-    super();
-  }
+    public readonly carousel: Carousel,
+  ) {}
 }

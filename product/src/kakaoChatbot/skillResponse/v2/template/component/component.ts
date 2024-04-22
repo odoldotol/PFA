@@ -1,13 +1,17 @@
-// import { SchemaObject } from "@nestjs/swagger/dist/interfaces/open-api-spec.interface";
-import { ItemKey, Item } from "./item";
+import { OnlyOneOf } from "src/common/interface";
+import {
+  SimpleText,
+  TextCard,
+  Carousel
+} from "./item";
 
-export abstract class Component<T extends ItemKey = ItemKey> {
-  readonly simpleText?: T extends 'simpleText' ? Item<T> : never;
+export type Component = OnlyOneOf<{
+  readonly simpleText: SimpleText;
   // simpleImage
-  readonly textCard?: T extends 'textCard' ? Item<T> : never;
+  readonly textCard: TextCard;
   // basicCard
   // commerceCard
   // listCard
   // itemCard
-  readonly carousel?: T extends 'carousel' ? Item<T> : never;
-}
+  readonly carousel: Carousel;
+}>;

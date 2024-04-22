@@ -1,16 +1,13 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { LimitedArray } from "src/common/interface";
-import { Component, ItemKey } from "./component";
+import { Component } from "./component";
 
 /**
  * ### SkillTemplate in SkillResponse
  * https://kakaobusiness.gitbook.io/main/tool/chatbot/skill_guide/answer_json_format#skilltemplate
  */
-export class SkillTemplate<
-T1 extends ItemKey = ItemKey,
-T2 extends ItemKey | null = null,
-T3 extends (T2 extends ItemKey ? (ItemKey | null) : null) = null
-> {
+export class SkillTemplate {
+
   @ApiProperty({
     type: "array",
     items: {
@@ -22,8 +19,7 @@ T3 extends (T2 extends ItemKey ? (ItemKey | null) : null) = null
     minItems: 1,
     maxItems: 3
   })
-  readonly outputs: Outputs<T1, T2, T3>;
-
+  readonly outputs: Outputs;
 
   @ApiProperty({
     type: "array",
@@ -44,7 +40,7 @@ T3 extends (T2 extends ItemKey ? (ItemKey | null) : null) = null
   readonly quickReplies?: QuickReplies;
 
   constructor(
-    outputs: Outputs<T1, T2, T3>,
+    outputs: Outputs,
     quickReplies?: QuickReplies
   ) {
     this.outputs = outputs;
@@ -52,15 +48,7 @@ T3 extends (T2 extends ItemKey ? (ItemKey | null) : null) = null
   }
 }
 
-export type Outputs<
-T1 extends ItemKey,
-T2 extends ItemKey | null,
-T3 extends (T2 extends ItemKey ? (ItemKey | null) : null)
-> = Readonly<
-T2 extends ItemKey ? (T3 extends ItemKey ?
-  [Component<T1>, Component<T2>, Component<T3>] :
-  [Component<T1>, Component<T2>]
-) : [Component<T1>]>;
+export type Outputs = Readonly<LimitedArray<Component, 3>>;
 
 export type QuickReplies = Readonly<LimitedArray<QuickReply, 10>>;
 

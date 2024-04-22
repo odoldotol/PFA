@@ -1,39 +1,48 @@
-import { ApiProperty } from "@nestjs/swagger";
 import {
   Button,
   ButtonAction,
-  Extra
+  Extra,
+  Label
 } from "./button";
 
 export class blockButton
-  extends Button<ButtonAction.BLOCK>
+  extends Button
 {
-  @ApiProperty({ type: "string" })
-  override readonly blockId: string;
-
-  @ApiProperty({ type: "string", required: false })
-  readonly messageText?: string;
-
-  readonly webLinkUrl?: never;
-  readonly phoneNumber?: never;
+  readonly blockId: BlockId;
+  readonly messageText?: MessageText;
   
+  constructor(label: Label, blockId: BlockId, extra?: Extra)
+  constructor(label: Label, blockId: BlockId, messageText?: MessageText, extra?: Extra)
   constructor(
-    label: string,
-    options: BlockOptions,
+    label: Label,
+    blockId: BlockId,
+    messageTextOrExtra?: MessageText | Extra,
     extra?: Extra
   ) {
+    let messageText: MessageText | undefined = undefined;
+
+    if (messageTextOrExtra) {
+      if (typeof messageTextOrExtra === "object") {
+        extra = messageTextOrExtra;
+      } else {
+        messageText = messageTextOrExtra
+      }
+    }
+
     super(
       label,
       ButtonAction.BLOCK,
       extra
     );
 
-    this.blockId = options.blockId;
-    options.messageText && (this.messageText = options.messageText);
+    this.blockId = blockId;
+
+    if (messageText !== undefined) {
+      this.messageText = messageText;
+    }
   }
 }
 
-type BlockOptions = {
-  blockId: string;
-  messageText: string | undefined;
-};
+export type BlockId = string;
+
+export type MessageText = string; //

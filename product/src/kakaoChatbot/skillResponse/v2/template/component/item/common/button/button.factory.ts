@@ -1,18 +1,40 @@
-import { Button, ButtonAction } from "./button";
-import { factoryMap } from "./factory.map";
+import { BlockId } from "./block";
+import { blockButtonFactory } from "./block.factory";
+import { Button, ButtonAction, Extra, Label } from "./button";
+import { WebLinkUrl } from "./webLink";
+import { webLinkButtonFactory } from "./webLink.factory";
 
 export class ButtonFactory {
 
-  static create(
-    label: string,
-    action: ButtonAction,
-    option: string,
-    extra?: any
+  private static factoryMap: Map<ButtonAction, ButtonChildFactory>
+  = new Map([
+    [ButtonAction.WEBLINK, webLinkButtonFactory],
+    [ButtonAction.BLOCK, blockButtonFactory]
+  ]);
+
+  static create<A extends ButtonAction>(
+    label: Label,
+    action: A,
+    option: ButtonOption<A>,
+    extra?: Extra
   ): Button {
-    const factory = factoryMap.get(action);
+    const factory = this.factoryMap.get(action);
     if (!factory) {
       throw new Error("Factory not implemented");
     }
-    return factory.create(label, option, extra);
+    return factory(label, option, extra);
   }
+}
+
+export type ButtonOption<A extends ButtonAction = ButtonAction>
+= A extends ButtonAction.WEBLINK ? WebLinkUrl
+// : A extends ButtonAction.MESSAGE ? MessageText
+// : A extends ButtonAction.PHONE ? PhoneNumber
+: A extends ButtonAction.BLOCK ? BlockId
+: never;
+
+export interface ButtonChildFactory {
+  // (label: Label, extra?: Extra): Button;
+  (label: Label, option: ButtonOption, extra?: Extra): Button;
+  // (label: Label, option: ButtonOption, option2?: ButtonOption, extra?: Extra): Button;
 }

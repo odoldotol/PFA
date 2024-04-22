@@ -1,23 +1,18 @@
-import { ApiProperty } from "@nestjs/swagger";
 import {
   Button,
   ButtonAction,
-  Extra
+  Extra,
+  Label
 } from "./button";
 
 export class WebLinkButton
-  extends Button<ButtonAction.WEBLINK>
+  extends Button
 {
-  @ApiProperty({ type: "string", format: "url" })
-  readonly webLinkUrl: string;
-
-  readonly messageText?: never;
-  readonly phoneNumber?: never;
-  readonly blockId?: never;
+  readonly webLinkUrl: WebLinkUrl;
 
   constructor(
-    label: string,
-    webLinkUrl: string,
+    label: Label,
+    webLinkUrl: WebLinkUrl,
     extra?: Extra
   ) {
     super(
@@ -29,3 +24,5 @@ export class WebLinkButton
     this.webLinkUrl = webLinkUrl;
   }
 }
+
+export type WebLinkUrl = string;
