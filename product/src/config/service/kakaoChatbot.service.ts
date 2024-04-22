@@ -1,6 +1,12 @@
 import { Injectable } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
-import { DEFAULT_KAKAO_CHATBOT_ID, DEFAULT_KAKAO_CHATBOT_BLOCK_ID_INQUIRE_ASSET, DEFAULT_KAKAO_CHATBOT_BLOCK_ID_REPORT, DEFAULT_KAKAO_CHATBOT_BLOCK_ID_SUBSCRIBE_ASSET, DEFAULT_KAKAO_CHATBOT_BLOCK_ID_CANCEL_ASSET_SUBSCRIPTION } from "../const";
+import {
+  DEFAULT_KAKAO_CHATBOT_ID,
+  DEFAULT_KAKAO_CHATBOT_BLOCK_ID_INQUIRE_ASSET,
+  DEFAULT_KAKAO_CHATBOT_BLOCK_ID_REPORT,
+  DEFAULT_KAKAO_CHATBOT_BLOCK_ID_SUBSCRIBE_ASSET,
+  DEFAULT_KAKAO_CHATBOT_BLOCK_ID_CANCEL_ASSET_SUBSCRIPTION
+} from "../const";
 import { KakaoChatbotEnvKey } from "../enum";
 import { KakaoChatbotEnvironmentVariables } from "../interface";
 import { AppConfigService } from "./app.service";

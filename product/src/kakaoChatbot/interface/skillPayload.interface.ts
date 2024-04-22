@@ -53,7 +53,7 @@ export type User = {
 export type Properties = {
   plusfriendUserKey: string;
   plusfriend_user_key?: string;
-  appUserId: string;
+  appUserId?: string;
   isFriend: boolean;
   botUserKey?: string;
   bot_user_key?: string;

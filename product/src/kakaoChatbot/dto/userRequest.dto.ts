@@ -24,10 +24,21 @@ class PropertiesDto
   @ApiProperty()
   readonly botUserKey!: string;
 
+  @IsOptional()
+  @IsString()
+  @ApiProperty()
+  readonly bot_user_key?: string;
+
   @IsString()
   @ApiProperty()
   readonly plusfriendUserKey!: string;
 
+  @IsOptional()
+  @IsString()
+  @ApiProperty()
+  readonly plusfriend_user_key?: string;
+
+  @IsOptional()
   @IsString()
   @ApiProperty()
   readonly appUserId!: string;
