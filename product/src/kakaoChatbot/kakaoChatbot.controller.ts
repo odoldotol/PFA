@@ -11,14 +11,18 @@ import {
   UsePipes,
   ValidationPipe
 } from '@nestjs/common';
+import { Throttle } from '@nestjs/throttler';
 import { Response } from "express";
 import {
-  ApiOkResponse,
+  ApiResponse,
   ApiOperation,
   ApiTags
 } from '@nestjs/swagger';
 import { KakaoChatbotService } from './kakaoChatbot.service';
-import { KakaoChatbotGuard } from './guard/kakaoChatbot.guard';
+import {
+  KakaoChatbotGuard,
+  KakaoChatbotThrottlerGuard
+} from './guard';
 import { TimeoutInterceptor } from './interceptor';
 import {
   UnexpectedExceptionFilter,
@@ -36,10 +40,18 @@ import {
 } from './dto';
 import { SkillResponse } from './skillResponse/v2';
 import { InvalidTickerException } from 'src/common/exception';
-import { URL_API, URL_PREFIX } from './const';
+import {
+  URL_API,
+  URL_PREFIX,
+  throttleOptions
+} from './const';
 
 @Controller(URL_PREFIX)
-@UseGuards(KakaoChatbotGuard)
+@Throttle(throttleOptions)
+@UseGuards(
+  KakaoChatbotGuard,
+  KakaoChatbotThrottlerGuard,
+)
 @UseInterceptors(TimeoutInterceptor)
 @UseFilters(
   UnexpectedExceptionFilter, // 순서 주의 - 순서에 따라 달라질 수 있는거 나쁜 구성일까?
@@ -48,7 +60,7 @@ import { URL_API, URL_PREFIX } from './const';
   ForbiddenExceptionFilter,
 )
 @ApiTags('Kakao Chatbot')
-@ApiOkResponse({ status: '2XX', description: '카카오챗봇스킬 응답', type: SkillResponse })
+@ApiResponse({ status: "2XX", description: '카카오챗봇스킬 응답', type: SkillResponse })
 export class KakaoChatbotController {
 
   constructor(

@@ -8,5 +8,6 @@ export * from './postgres.service';
 export * from './productApi.service';
 export * from './temp.service';
 export * from './exchange.service';
+export * from './throttle.service';
 
 export const serviceArr = Object.values(module.exports).filter(isType);

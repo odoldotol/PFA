@@ -1,12 +1,15 @@
 import {
   Controller,
-  Get
+  Get,
+  UseGuards
 } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { GlobalThrottlerGuard } from 'src/common/guard';
 import { DevService } from './dev.service';
 import { ApiCommonResponse } from 'src/common/decorator/apiCommonResponse.decorator'
 
 @Controller('dev')
+@UseGuards(GlobalThrottlerGuard)
 @ApiTags('Development')
 @ApiCommonResponse()
 export class DevController {

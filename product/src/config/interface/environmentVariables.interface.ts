@@ -8,6 +8,7 @@ import {
   PostgresEnvKey,
   RedisEnvKey,
   TempEnvKey,
+  ThrottleEnvKey,
 } from "../enum";
 
 export interface EnvironmentVariables
@@ -19,7 +20,8 @@ export interface EnvironmentVariables
   Pm2EnvironmentVariables,
   PostgresEnvironmentVariables,
   RedisEnviromentVariables,
-  TempEnvironmentVariables
+  TempEnvironmentVariables,
+  ThrottleEnvironmentVariables
 {}
 
 export interface AppEnvironmentVariables {
@@ -62,4 +64,18 @@ export interface TempEnvironmentVariables {
 
 export interface AssetEnvironmentVariables {
   [AssetEnvKey.THRESHOLD_PRICE_COUNT]: number;
+}
+
+export interface ThrottleEnvironmentVariables {
+  [ThrottleEnvKey.TTL_GLOBAL_SHORT]: number;
+  [ThrottleEnvKey.LIMIT_GLOBAL_SHORT]: number;
+
+  [ThrottleEnvKey.TTL_GLOBAL_LONG]: number;
+  [ThrottleEnvKey.LIMIT_GLOBAL_LONG]: number;
+
+  [ThrottleEnvKey.TTL_KAKAO_CHATBOT_SHORT]: number;
+  [ThrottleEnvKey.LIMIT_KAKAO_CHATBOT_SHORT]: number;
+
+  [ThrottleEnvKey.TTL_KAKAO_CHATBOT_LONG]: number;
+  [ThrottleEnvKey.LIMIT_KAKAO_CHATBOT_LONG]: number;
 }

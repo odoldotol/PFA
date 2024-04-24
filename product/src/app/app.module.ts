@@ -9,7 +9,8 @@ import {
   RedisModule,
   PostgresModule,
  } from 'src/database';
- import { UpdaterModule } from 'src/updater';
+import { ThrottlerModule } from 'src/throttler';
+import { UpdaterModule } from 'src/updater';
 import { KakaoChatbotModule } from 'src/kakaoChatbot';
 import { DevModule } from 'src/dev';
 import { AppController } from './app.controller';
@@ -26,6 +27,7 @@ import {
     Pm2Module,
     RedisModule,
     PostgresModule,
+    ThrottlerModule,
     UpdaterModule,
     KakaoChatbotModule,
     DevModule

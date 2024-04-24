@@ -1,9 +1,15 @@
-import { Controller, Get, VERSION_NEUTRAL, Version } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  VERSION_NEUTRAL,
+  Version,
+  UseGuards
+} from '@nestjs/common';
 import { HEALTH_URN } from 'src/common/const';
-import { ApiCommonResponse } from 'src/common/decorator/apiCommonResponse.decorator';
+import { GlobalThrottlerGuard } from 'src/common/guard';
 
 @Controller()
-@ApiCommonResponse()
+@UseGuards(GlobalThrottlerGuard)
 export class AppController {
 
   @Get(HEALTH_URN)

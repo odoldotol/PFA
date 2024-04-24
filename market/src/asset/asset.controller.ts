@@ -7,9 +7,11 @@ import {
   ParseArrayPipe,
   Post,
   Res,
+  UseGuards,
 } from "@nestjs/common";
 import { Response } from 'express';
 import { ApiTags } from "@nestjs/swagger";
+import { GlobalThrottlerGuard } from "src/common/guard";
 import {
   AccessorService,
   SubscriberService
@@ -26,6 +28,7 @@ import {
 import { UpperCasePipe } from "src/common/pipe";
 
 @Controller('asset')
+@UseGuards(GlobalThrottlerGuard)
 @ApiTags('Asset')
 export class AssetController {
 

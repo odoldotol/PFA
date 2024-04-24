@@ -7,7 +7,8 @@ import {
   Pm2EnvKey,
   PostgresEnvKey,
   ProductApiEnvKey,
-  TempEnvKey
+  TempEnvKey,
+  ThrottleEnvKey
 } from "../enum";
 
 export interface EnvironmentVariables
@@ -17,7 +18,8 @@ export interface EnvironmentVariables
   ChildApiEnvironmentVariables,
   TempEnvironmentVariables,
   PostgresEnvironmentVariables,
-  Pm2EnvironmentVariables
+  Pm2EnvironmentVariables,
+  ThrottleEnvironmentVariables
 {}
 
 export interface AppEnvironmentVariables {
@@ -58,4 +60,12 @@ export interface PostgresEnvironmentVariables {
 export interface Pm2EnvironmentVariables {
   [Pm2EnvKey.NAME]: string;
   [Pm2EnvKey.LISTEN_TIMEOUT]: number;
+}
+
+export interface ThrottleEnvironmentVariables {
+  [ThrottleEnvKey.TTL_GLOBAL_SHORT]: number;
+  [ThrottleEnvKey.LIMIT_GLOBAL_SHORT]: number;
+
+  [ThrottleEnvKey.TTL_GLOBAL_LONG]: number;
+  [ThrottleEnvKey.LIMIT_GLOBAL_LONG]: number;
 }

@@ -8,6 +8,7 @@ import {
   UseGuards
 } from "@nestjs/common";
 import { ApiTags } from "@nestjs/swagger";
+import { GlobalThrottlerGuard } from "src/common/guard";
 import { TempKeyGuard } from "src/common/guard/key.guard";
 import { UpperCasePipe } from "src/common/pipe";
 import { Api_updatePriceByExchange } from "./decorator/api-updatePriceByExchange.decorator";
@@ -16,6 +17,7 @@ import { MarketDateParser } from "./pipe/marketDateParser";
 import { UpdaterService } from "./updater.service";
 
 @Controller('updater')
+@UseGuards(GlobalThrottlerGuard)
 @ApiTags('Updater')
 export class UpdaterController {
 

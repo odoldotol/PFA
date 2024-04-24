@@ -4,15 +4,18 @@ import {
   Param,
   Post,
   Query,
-  Res
+  Res,
+  UseGuards
 } from "@nestjs/common";
 import { ApiTags } from "@nestjs/swagger";
 import { Api_inquirePrice } from "./decorator/api-inquirePrice.decorator";
 import { Response } from "express";
+import { GlobalThrottlerGuard } from "src/common/guard";
 import { UpperCasePipe } from "src/common/pipe";
 import { AssetService } from "./asset.service";
 
 @Controller('asset')
+@UseGuards(GlobalThrottlerGuard)
 @ApiTags('Asset')
 export class AssetController {
 
