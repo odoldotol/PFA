@@ -12,9 +12,18 @@ export class HttpLoggerMiddleware implements NestMiddleware {
     const { method, originalUrl } = req;
     let listener: (() => void) | null = () => {
       listener = null;
+
       const responseTime = Date.now() - now;
       const { statusCode } = res;
-      if (originalUrl === '/health' && method === 'GET' && statusCode === 200) return;
+
+      if (
+        originalUrl === '/health' &&
+        method === 'GET' &&
+        (statusCode === 200 || statusCode === 304)
+      ) {
+        return;
+      }
+
       this.logger.log(`${statusCode} | ${responseTime}ms | ${method} | ${originalUrl}`);
     };
     res.on('finish', listener);
