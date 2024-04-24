@@ -1,0 +1,9 @@
+set -e
+
+docker build ./dev -t pfa-nginx-dev
+
+sh scripts/stopDev
+
+docker compose -p pfa-nginx-dev -f ./dev/docker-compose.yml up -d
+
+docker rmi $(docker images -f "dangling=true" -q) || true

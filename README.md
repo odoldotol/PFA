@@ -13,7 +13,7 @@
 ### APIs
 - Product https://product.lapiki-invest.com/docs
 - Market https://market.lapiki-invest.com/docs
-- Market-Child https://child.lapiki-invest.com/docs
+- Market-Child https://child.lapiki-invest.com/docs (documents only)
 
 ---
 ---

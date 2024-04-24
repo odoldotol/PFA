@@ -1,0 +1,1 @@
+docker compose -p pfa-nginx-dev -f ./dev/docker-compose.yml stop

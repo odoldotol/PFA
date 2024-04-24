@@ -1,0 +1,15 @@
+version: "3"
+
+services:
+  nginx-dev:
+    container_name: nginx
+    image: pfa-nginx-dev:latest
+    networks:
+      - default
+    ports:
+      - "8080:80"
+
+networks:
+  default:
+    name: pfa-nginx-dev-network
+    driver: bridge
