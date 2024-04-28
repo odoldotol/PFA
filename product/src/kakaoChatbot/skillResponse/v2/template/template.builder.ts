@@ -13,19 +13,15 @@ abstract class SkillTemplateRootBuilder {
   /**
    * @todo QuickReply Creation
    */
-  protected addQuickRepliesRoot(quickReplies: QuickReplies): void {
+  public addQuickReplies(quickReplies: QuickReplies): this {
     this.data.quickReplies = quickReplies;
+    return this;
   }
 
   /**
    * 3개 초과 추가 부터는 무시됨
    */
   abstract addComponent(component: Component): ValidSkillTemplateBuilder;
-
-  /**
-   * @todo QuickReply Creation
-   */
-  abstract addQuickReplies(quickReplies: QuickReplies): this;
 }
 
 export class SkillTemplateBuilder
@@ -37,11 +33,6 @@ export class SkillTemplateBuilder
 
   public addComponent(component: Component): ValidSkillTemplateBuilder {
     return new ValidSkillTemplateBuilder(this.data, component);
-  }
-
-  public addQuickReplies(quickReplies: QuickReplies): this {
-    this.addQuickRepliesRoot(quickReplies);
-    return this;
   }
 }
 
@@ -62,11 +53,6 @@ class ValidSkillTemplateBuilder
     if (this.outputs.length < 3) {
       this.outputs.push(component);
     }
-    return this;
-  }
-
-  public addQuickReplies(quickReplies: QuickReplies): this {
-    this.addQuickRepliesRoot(quickReplies);
     return this;
   }
 

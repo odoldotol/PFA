@@ -13,9 +13,9 @@ abstract class TextCardBuilderRoot {
   /**
    * 3개 초과 추가 부터는 무시됨
    */
-  protected addButtonRoot(
+  public addButton(
     ...params: Parameters<typeof ButtonFactory.create>
-  ): void {
+  ): this {
     const button = () => ButtonFactory.create(...params);
 
     if (!this.data.buttons) {
@@ -23,15 +23,12 @@ abstract class TextCardBuilderRoot {
     } else if (this.data.buttons.length < 3) {
       this.data.buttons.push(button());
     }
+
+    return this;
   }
 
   abstract setTitle(title: string): ValidTextCardItemBuilder;
   abstract setDescription(description: string): ValidTextCardItemBuilder;
-
-  /**
-   * 3개 초과 추가 부터는 무시됨
-   */
-  abstract addButton(...params: Parameters<typeof ButtonFactory.create>): this;
 }
 
 /**
@@ -50,13 +47,6 @@ export class TextCardItemBuilder
 
   public setDescription(description: string): ValidTextCardItemBuilder {
     return new ValidTextCardItemBuilder(this.data, { description });
-  }
-
-  public addButton(
-    ...params: Parameters<typeof ButtonFactory.create>
-  ): this {
-    this.addButtonRoot(...params);
-    return this;
   }
 }
 
@@ -78,13 +68,6 @@ export class ValidTextCardItemBuilder
 
   public setDescription(description: string): this {
     this.textOptions.description = description;
-    return this;
-  }
-
-  public addButton(
-    ...params: Parameters<typeof ButtonFactory.create>
-  ): this {
-    this.addButtonRoot(...params);
     return this;
   }
 
