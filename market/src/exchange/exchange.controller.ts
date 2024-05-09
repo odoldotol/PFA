@@ -1,11 +1,9 @@
-import { Controller, Get, UseGuards } from "@nestjs/common";
+import { Controller, Get } from "@nestjs/common";
 import { ApiTags } from "@nestjs/swagger";
-import { GlobalThrottlerGuard } from "src/common/guard";
 import { ExchangeService } from "./exchange.service";
 import { Api_getAllExchangesFromDatabase } from "./decorator";
 
 @Controller("exchange")
-@UseGuards(GlobalThrottlerGuard)
 @ApiTags("Exchange")
 export class ExchangeController {
 

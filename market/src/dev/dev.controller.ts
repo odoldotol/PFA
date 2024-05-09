@@ -2,11 +2,9 @@ import {
   Controller,
   Get,
   Query,
-  UseGuards,
   Version
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
-import { GlobalThrottlerGuard } from 'src/common/guard';
 import { DevService } from './dev.service';
 import { ExchangeIsoCode } from 'src/common/interface';
 import { UpperCasePipe } from 'src/common/pipe';
@@ -17,7 +15,6 @@ import {
 } from './decorator';
 
 @Controller('dev')
-@UseGuards(GlobalThrottlerGuard)
 @ApiTags('Development')
 @ApiCommonResponse()
 export class DevController {

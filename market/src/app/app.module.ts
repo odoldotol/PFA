@@ -9,7 +9,6 @@ import {
   MongodbModule,
   PostgresModule
 } from 'src/database';
-import { ThrottlerModule } from 'src/throttler';
 import { DevModule } from 'src/dev';
 import { UpdaterModule } from 'src/updater';
 import { AppController } from './app.controller';
@@ -26,7 +25,6 @@ import {
     Pm2Module,
     MongodbModule,
     PostgresModule,
-    ThrottlerModule,
     DevModule,
     UpdaterModule,
   ],
