@@ -7,7 +7,7 @@ import {
   firstValueFrom,
   map
 } from 'rxjs';
-import Either from "src/common/class/either";
+import Either, * as E from "src/common/class/either";
 
 @Injectable()
 export class ChildApiService {
@@ -18,22 +18,21 @@ export class ChildApiService {
   ) {}
 
   // Todo: Refac <- 먼저 차일드서버에서 에러를 그냥 던지도록 리팩터링하자. 그리고 either 의 wrapPromise 로 감싸자.
-  public post<T>(url: string): Promise<Either<ChildError, T>> {
-    return this.taskQueue.runTask(() => firstValueFrom(this.httpService.post<T>(url).pipe(
+  public post<T>(
+    url: string,
+    data?: any
+  ): Promise<Either<ChildError, T>> {
+    return this.taskQueue.runTask(() => E.wrapPromise(firstValueFrom(this.httpService.post<T>(
+      url,
+      data
+    ).pipe(
       catchError(err => {
-        return [Either.left<ChildError, T>({
+        throw {
           statusCode: err.response.status,
           ...err.response.data,
-        })];
+        };
       }),
-      map(res => {
-        if (res instanceof Either) {
-          return res;
-        } else {
-          return Either.right<ChildError, T>(res.data);
-        }
-      }),
-    )));
+      map(res => res.data)
+    ))));
   }
-
 }

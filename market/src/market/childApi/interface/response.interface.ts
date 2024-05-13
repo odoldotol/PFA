@@ -6,12 +6,18 @@ import {
   Ticker,
   TimezoneShortName
 } from "src/common/interface";
+import { ChildError } from "./error.interface";
 
 export type ChildResponseEcSession = Readonly<{
   previous_open: string;
   previous_close: string;
   next_open: string;
   next_close: string;
+}>;
+
+export type ChildResponseYfInfos = Readonly<{
+  infos: ChildResponseYfInfo[];
+  exceptions: ChildError[];
 }>;
 
 export type ChildResponseYfInfo = Readonly<{

@@ -29,9 +29,9 @@ export class TaskQueueService<T = any>
     }
   }
 
-  public runTask(task: Task<T>): ReturnType<Task<T>> {
+  public runTask<S extends T>(task: Task<S>): ReturnType<Task<S>> {
     return new Promise((resolve, reject) => {
-      const taskWrapper: Task<T> = () => {
+      const taskWrapper: Task<S> = () => {
         const taskPromise = task();
         taskPromise.then(resolve, reject);
         return taskPromise;

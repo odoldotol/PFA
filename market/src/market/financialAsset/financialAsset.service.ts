@@ -31,6 +31,31 @@ export class Market_FinancialAssetService {
     );
   }
 
+  /**
+   * ### admin 용도로만 사용 될 예정인 임시 함수.
+   * ChildApi 의 구현에 의존하고 있음.
+   */
+  public async fetchYfInfoArrByEitherTickerArr(
+    eitherTickerArr: readonly Either<any, Ticker>[]
+  ): Promise<Either<any/* */, YfInfo>[]> {
+    const eitherYfInfoArr = await this.yfinanceApiSrv.fetchYfInfoArr(E.getRightArray(eitherTickerArr));
+
+    /*
+    ChildApi 의 구현으로부터 eitherYfInfoArr 은 다음을 보장함.
+    - eitherYfInfoArr.length === E.getRightArray(eitherTickerArr).length
+    - eitherYfInfoArr 는 E.getRightArray(eitherTickerArr) 의 순서를 따름.
+
+    이 전제로부터 아래 코드를 신뢰가능.
+    */
+
+    let i = 0;
+    return F.pipe(
+      eitherTickerArr, F.toAsync,
+      F.map(E.flatMap(_ => eitherYfInfoArr[i++]!)),
+      F.toArray
+    );
+  }
+
   public async fetchFulfilledYfPrices(
     isoCode: ExchangeIsoCode,
     tickerArr: Ticker[]

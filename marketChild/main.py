@@ -1,5 +1,5 @@
 import logging
-from typing import Union
+from typing import List, Union
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.exceptions import ResponseValidationError
 from fastapi.responses import JSONResponse
@@ -36,10 +36,24 @@ class Session(BaseModel):
   next_open: str
   next_close: str
 
+class Infos(BaseModel):
+  infos: List[Info]
+  exceptions: list
+
 app = FastAPI(
   title="Market Child API",
   description="Yahoo Finance API, Exchange Calendar API",
 )
+
+def uppercase_ticker_validation_pipe(
+  ticker: Union[str, List[str]]
+) -> Union[str, List[str]]:
+  """
+  fastapi 에서 제공하는 더 우아한 방법이 있을텐데?
+  """
+  if isinstance(ticker, str):
+    return ticker.upper()
+  return [t.upper() for t in ticker]
 
 @app.exception_handler(ResponseValidationError)
 async def response_validation_exception_handler(_, exc):
@@ -71,17 +85,87 @@ async def unexpected_exception_handler(request: Request, exc: Exception):
     }
   )
 
-@app.get("/health", description="Health Check")
+@app.get(
+  "/health",
+  description="Health Check"
+)
 def health_check():
   return {"status": "ok"}
 
-@app.post("/yf/info/{ticker}", tags=["Asset"], description="Yahoo Finance API Info", response_model=Info)
+@app.post(
+  "/yf/info",
+  tags=["Asset"],
+  description="Yahoo Finance API Infos",
+  response_model=Infos
+)
+def get_infos_by_tickers(tickers: List[str]) -> Infos:
+  # print(tickers, os.getpid())
+  tickers = uppercase_ticker_validation_pipe(tickers)
+
+  yf_tickers = yf.Tickers(' '.join(tickers))
+
+  result: Infos = {
+    "infos": [],
+    "exception": []
+  }
+
+  for ticker in tickers:
+    yf_ticker = yf_tickers.tickers[ticker]
+
+    try:
+      result["infos"].append(get_info_by_yf_ticker(yf_ticker))
+    except HTTPException as e:
+      result["exception"].append({
+        "status_code": e.status_code,
+        "detail": e.detail,
+      })
+  
+  return result
+
+@app.post(
+  "/yf/info/{ticker}",
+  tags=["Asset"],
+  description="Yahoo Finance API Info",
+  response_model=Info
+)
 def get_info_by_ticker(ticker: str) -> Info:
   # print(ticker, os.getpid())
+  ticker = uppercase_ticker_validation_pipe(ticker)
+
+  return get_info_by_yf_ticker(get_yf_ticker(ticker))
+
+@app.post(
+  "/yf/price/{ticker}",
+  tags=["Asset"],
+  description="Yahoo Finance API Price",
+  response_model=Price
+)
+def get_price_by_ticker(ticker: str) -> Price:
+  # print(ticker, os.getpid())
+  ticker = uppercase_ticker_validation_pipe(ticker)
+
+  return get_price_if_exist(get_yf_ticker(ticker))
+
+@app.post(
+  "/ec/session/{ISO_Code}",
+  tags=["Exchange Session"],
+  description="Exchange Calendar API",
+  response_model=Session
+)
+def get_session_by_ISOcode(ISO_Code: str) -> Session:
+  # print(ISO_Code, os.getpid())
+  ISO_Code = uppercase_ticker_validation_pipe(ISO_Code)
+
+  cd = xcals.get_calendar(ISO_Code)
+  return {
+    "previous_open": cd.previous_open(datetime.utcnow()).isoformat(),
+    "previous_close": cd.previous_close(datetime.utcnow()).isoformat(),
+    "next_open": cd.next_open(datetime.utcnow()).isoformat(),
+    "next_close": cd.next_close(datetime.utcnow()).isoformat(),
+  }
+
+def get_info_by_yf_ticker(yf_ticker: yf.Ticker) -> Info:
   result = {}
-  
-  yf_ticker = get_yf_ticker(ticker)
-  
   result["price"] = get_price_if_exist(yf_ticker)
 
   # Todo: refac
@@ -103,24 +187,6 @@ def get_info_by_ticker(ticker: str) -> Info:
 
   return result
 
-@app.post("/yf/price/{ticker}", tags=["Asset"], description="Yahoo Finance API Price", response_model=Price)
-def get_price_by_ticker(ticker) -> Price:
-  # print(ticker, os.getpid())
-
-  return get_price_if_exist(get_yf_ticker(ticker))
-
-@app.post("/ec/session/{ISO_Code}", tags=["Exchange Session"], description="Exchange Calendar API", response_model=Session)
-def get_session_by_ISOcode(ISO_Code) -> Session:
-  # print(ISO_Code, os.getpid())
-
-  cd = xcals.get_calendar(ISO_Code)
-  return {
-    "previous_open": cd.previous_open(datetime.utcnow()).isoformat(),
-    "previous_close": cd.previous_close(datetime.utcnow()).isoformat(),
-    "next_open": cd.next_open(datetime.utcnow()).isoformat(),
-    "next_close": cd.next_close(datetime.utcnow()).isoformat(),
-  }
-
 def get_price_if_exist(yf_ticker: yf.Ticker) -> Price:
   """
   ### 존재하지 않는 ticker 404 던짐
@@ -128,8 +194,7 @@ def get_price_if_exist(yf_ticker: yf.Ticker) -> Price:
   최근 7일간의 기록이 없다면 존재하지 않는 ticker 로 판단
   """
   price_chart = yf_ticker.history(period="7d")
-
-  if not is_exist_ticker(price_chart):
+  if is_empty(price_chart):
     raise HTTPException(404, {
       "error": "NotFoundError",
       "message": "Ticker not found",
@@ -144,8 +209,8 @@ def get_price_if_exist(yf_ticker: yf.Ticker) -> Price:
 def get_yf_ticker(ticker: str) -> yf.Ticker:
   return yf.Ticker(ticker)
 
-def is_exist_ticker(price_chart: DataFrame) -> bool:
-  return not price_chart.empty
+def is_empty(price_chart: DataFrame) -> bool:
+  return price_chart.empty
 
 def is_nan(num: any) -> bool:
   return type(num) == float and num != num
