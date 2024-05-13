@@ -12,7 +12,7 @@
 
 ### APIs
 - Product https://product.lapiki-invest.com/docs
-- Market https://market.lapiki-invest.com/docs
+- Market https://market.lapiki-invest.com/docs (documents only)
 - Market-Child https://child.lapiki-invest.com/docs (documents only)
 
 ---
@@ -97,6 +97,11 @@ The service scope expands through queries.
 <br>
 
 ## Logs Monitering
+Use below,
+```
+$ docker [OPT] logs [CONTAINER]
+```
+OR
 
 ### Product Server
 ```shell
@@ -130,6 +135,12 @@ $ sh scripts/pfa:logs:market-child
 <br>
 
 ## Reload
+
+먼저, 다운타임 없는 리로드를 pm2 레벨에서 구현함. <br>
+후에, 도커로 컨테이너화하면서 위 구현은 의미가 없어짐. (컨테이너 레벨에서 리로드는 다운타임이 존재함) <br>
+컨테이너 오케스트레이션과 pm2 를 제거하는 업데이트를 예정하고 있으며, 이때 컨테이너 레벨의 다운타임 없는 리로드를 함께 업데이트 예정. <br>
+때문에 (활용하기 어렵고 거의 무의미하지만) 지금은 각 컨테이너 내부에서 pm2 에 의한 다운타임 없는 리로드는 가능. <br>
+
 ```shell
 # Product Server (pm2 in container)
 $ sh scripts/pfa:reload:product-pm2
@@ -138,6 +149,7 @@ $ sh scripts/pfa:reload:product-pm2
 # Market Server (pm2 in container)
 $ sh scripts/pfa:reload:market-pm2
 ```
+
 ---
 <br>
 

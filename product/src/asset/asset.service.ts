@@ -48,7 +48,8 @@ export class AssetService {
       data = await this.createFromAsset(asset);
       created = true;
     }
-    
+
+    // dev
     this.logger.verbose(
       `${ticker} : ${updated ? 'updated' : created ? 'created' : 'read'} | ${id}`
     );
