@@ -106,7 +106,7 @@ def get_infos_by_tickers(tickers: List[str]) -> Infos:
 
   result: Infos = {
     "infos": [],
-    "exception": []
+    "exceptions": []
   }
 
   for ticker in tickers:
@@ -115,7 +115,7 @@ def get_infos_by_tickers(tickers: List[str]) -> Infos:
     try:
       result["infos"].append(get_info_by_yf_ticker(yf_ticker))
     except HTTPException as e:
-      result["exception"].append({
+      result["exceptions"].append({
         "status_code": e.status_code,
         "detail": e.detail,
       })
