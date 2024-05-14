@@ -7,10 +7,16 @@ module.exports = (
   const tickerArr = [];
 
   const limit = Number(process.argv[3]);
-  const csvLine = fs.readFileSync(filePathToRead, 'utf8').split('\n');  
-  for (let i = 1; i < csvLine.length; i++) {
+  const rowArr = fs.readFileSync(filePathToRead, 'utf8').split('\n');
+
+  const colLen = rowArr[0].split(',').length;
+  while (rowArr[rowArr.length-1].split(',').length !== colLen) {
+    rowArr.pop();
+  }
+
+  for (let i = 1; i < rowArr.length; i++) {
     if (tickerArr.length < limit) {
-      tickerArr.push(csvLine[i].split(',')[0]);
+      tickerArr.push(rowArr[i].split(',')[0]);
     } else {
       break;
     }
