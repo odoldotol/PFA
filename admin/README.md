@@ -22,7 +22,7 @@ $ time node pushingYfInfo/childApiTest [ChartName] [Limit] [ApiFlag]
 ```
 - ChartName: Asset 뽑아낼때 사용할 차트 이름 <br> 다음 중 택 1
   - russell1000
-  - russell2000
+  - russell2000_1
 
 <br>
 
@@ -57,7 +57,7 @@ $ time node pushingYfInfo/push [ChartName] [Limit]
 ```
 - ChartName: Asset 뽑아낼때 사용할 차트 이름 <br> 다음 중 택 1
   - russell1000
-  - russell2000
+  - russell2000_1
 
 <br>
 
