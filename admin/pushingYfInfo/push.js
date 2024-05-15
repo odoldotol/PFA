@@ -52,6 +52,12 @@ function logResult(func) {
       console.warn('Pushed and failed counts do not match!!!');
     }
 
+    // 이미 존재하는 자산 이외의 실패 사례 로깅
+    const failuresToLog = v.failure.general.filter(v => {
+      return v.msg !== 'Already exists'
+    });
+    0 < failuresToLog.length && console.log('Failures(not already exists)', failuresToLog);
+
     func(v);
   }
 }
