@@ -37,8 +37,8 @@ INSERT INTO ${this.tableName}
     ${values.map(v => `(
       '${v.symbol}',
       '${v.quoteType}',
-      ${v.shortName ? `'${v.shortName}'` : `NULL`},
-      ${v.longName ? `'${v.longName}'` : `NULL`},
+      ${v.shortName ? `'${this.handleEscape(v.shortName)}'` : `NULL`},
+      ${v.longName ? `'${this.handleEscape(v.longName)}'` : `NULL`},
       '${v.currency}',
       ${v.regularMarketLastClose},
       ${v.exchange ? `'${v.exchange}'` : `NULL`}
@@ -121,6 +121,13 @@ UPDATE ${this.tableName} AS t
         { regularMarketLastClose: pick.regular_market_last_close }
       ));
     });
+  }
+
+  /**
+   * @todo common util
+   */
+  private handleEscape(str: string): string {
+    return str.replace(/'/g, "''");
   }
 
   private extendFinancialAsset(financialAssetEntity: FinancialAssetEntity): FinancialAsset;
