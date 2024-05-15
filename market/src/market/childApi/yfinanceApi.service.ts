@@ -103,13 +103,33 @@ export class YfinanceApiService {
     if (!childYfInfo.info) {
       this.logger.warn(`${childYfInfo.metadata.symbol} : No info`); //
     }
-    return Object.assign(
+
+    const result = Object.assign(
       {},
       childYfInfo.info,
       childYfInfo.fastinfo,
       childYfInfo.metadata,
       childYfInfo.price
     );
+
+    /*
+    Todo: currency 가 없는 경우가 있음. 이 경우 financialCurrency 를 사용하도록 하자.
+    코스닥의 경우 financialCurrency 이마저도 없는 경우가 있음.
+    아마 다른 시장에서도 있을텐데 일단은 아래처럼 간단하게 처리하고 넘어가고, Currency 와 Money 관련해서는 종확한 솔루션을 마련하는게 좋음.
+    */
+    if (!result.currency) {
+      if (result.financialCurrency) {
+        result.currency = result.financialCurrency;
+      } else {
+        if (result.exchangeTimezoneName === 'Asia/Seoul') {
+          result.currency = 'KRW';
+        } else {
+          result.currency = 'N/A';
+          this.logger.warn(`${result.symbol} : No currency`);
+        }
+      }
+    }
+    return result
   }
 
   private getYfPrice(ticker: Ticker, childYfPrice: ChildResponseYfPrice): YfPrice {

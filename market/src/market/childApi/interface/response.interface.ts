@@ -38,6 +38,7 @@ type YfinanceInfo = Readonly<{
   beta?: number;
   marketCap?: number;
   currency: Currency; // ex) "USD"
+  financialCurrency: Currency; // currency 의 대체제로 사용하자
   exchange: ExchangeName; // ex) "NMS"
   quoteType: QuoteType; // ex) "EQUITY"
   symbol: Ticker;
