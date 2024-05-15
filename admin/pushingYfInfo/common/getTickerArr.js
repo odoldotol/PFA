@@ -1,5 +1,6 @@
 const fs = require('fs');
 const path = require("path");
+const { YfTickerException } = require('../config');
 
 module.exports = (
   chartConfig,
@@ -60,10 +61,20 @@ const popFooterFromCsvRow = (rowArr) => {
   return rowArr.slice(0, rowArr.length - countFooterRow)
 };
 
+/**
+ * ### Yahoo Finance 방식의 ticker 로 변환
+ * - TICKER.NationalCode
+ * - TICKER 내부의 '.' 은 '-' 로 대체
+ * - 예외적인 티커 처리 (YfTickerException)
+ */
 const makeFulfillYfTicker = (nationalCode) => {
-  if (nationalCode === null) {
-    return (ticker) => ticker;
-  } else {
-    return (ticker) => ticker + '.' + nationalCode;
+  let suffix = '';
+  if (nationalCode !== null) {
+    suffix = '.' + nationalCode;
   }
+
+  return (ticker) => {
+    const result = ticker.replace(/\./g, '-') + suffix;
+    return YfTickerException[result] || result;
+  };
 };
