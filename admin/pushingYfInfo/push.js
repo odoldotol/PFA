@@ -1,21 +1,10 @@
 const {
-  getPath,
-  getTickerArr,
-  makeHttpClientRequest,
-  makeWriteBody
- } = require('./common');
-
-const {
-  filePathToRead,
-  filePathToWriteBuilder,
-} = getPath(
+  tickerArr,
+  writeBody,
+  makeHttpClientRequest
+} = require('./common')(
   process,
   __dirname
-);
-
-const tickerArr = getTickerArr(
-  process,
-  filePathToRead
 );
 
 const httpClientRequestOptions = {
@@ -28,8 +17,6 @@ const httpClientRequestOptions = {
     'Content-Type': 'application/json',
   },
 };
-
-const writeBody = makeWriteBody(filePathToWriteBuilder);
 
 makeHttpClientRequest(
   httpClientRequestOptions,
@@ -56,7 +43,12 @@ function logResult(func) {
       console.log('Failed(mongo)', (failedMongo = v.yfInfo.writeErrors.length));
     }
 
+    // 모든 자산이 잘 요청되고 잘 응답되었는지 간단한 카운트 확인
     if (pushed + failed !== tickerArr.length || pushed !== pushedMongo + failedMongo) {
+      console.warn('Pushed and failed counts do not match!!!');
+      console.warn('Pushed and failed counts do not match!!!');
+      console.warn('Pushed and failed counts do not match!!!');
+      console.warn('Pushed and failed counts do not match!!!');
       console.warn('Pushed and failed counts do not match!!!');
     }
 
