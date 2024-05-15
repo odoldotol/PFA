@@ -40,6 +40,6 @@ module.exports = {
   [ChartName.KOSDAQ]: {
     fileName: process.env[ChartName.KOSDAQ],
     fileExtension: 'csv',
-    yfNationalCode: 'KS',
+    yfNationalCode: 'KQ',
   },
 };
