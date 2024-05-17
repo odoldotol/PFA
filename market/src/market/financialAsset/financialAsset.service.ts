@@ -24,12 +24,16 @@ export class Market_FinancialAssetService {
   public fetchYfInfosByEitherTickerArr(
     eitherTickerArr: readonly Either<any, Ticker>[]
   ): Promise<Either<any/* */, YfInfo>[]> {
-    return F.pipe(
-      eitherTickerArr, F.toAsync,
-      F.map(E.flatMap(this.yfinanceApiSrv.fetchYfInfo.bind(this.yfinanceApiSrv))),
-      F.concurrent(eitherTickerArr.length),
-      F.toArray
-    );
+    if (0 < eitherTickerArr.length) {
+      return F.pipe(
+        eitherTickerArr, F.toAsync,
+        F.map(E.flatMap(this.yfinanceApiSrv.fetchYfInfo.bind(this.yfinanceApiSrv))),
+        F.concurrent(eitherTickerArr.length), // 0 이면 여기서 오류.
+        F.toArray
+      );
+    } else {
+      return Promise.resolve([]);
+    }
   }
 
   /**
@@ -98,12 +102,16 @@ export class Market_FinancialAssetService {
   private fetchYfPrices(
     tickerArr: readonly Ticker[]
   ): Promise<Either<any/* */, YfPrice>[]> {
-    return F.pipe(
-      tickerArr, F.toAsync,
-      F.map(this.yfinanceApiSrv.fetchYfPrice.bind(this.yfinanceApiSrv)),
-      F.concurrent(tickerArr.length),
-      F.toArray
-    );
+    if (0 < tickerArr.length) {
+      return F.pipe(
+        tickerArr, F.toAsync,
+        F.map(this.yfinanceApiSrv.fetchYfPrice.bind(this.yfinanceApiSrv)),
+        F.concurrent(tickerArr.length), // 0 이면 여기서 오류.
+        F.toArray
+      );
+    } else {
+      return Promise.resolve([]);
+    }
   }
 
 }
