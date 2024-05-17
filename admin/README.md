@@ -41,7 +41,8 @@ Kosdaq [Ref](https://seibro.or.kr/websquare/control.jsp?w2xPath=/IPORTAL/user/st
 
 ### Command
 ```sh
-$ time node pushingYfInfo/[ExcuteFileName] [ChartName] [Limit] [ApiFlag]
+# PathEnd 와 ApiFlag 는 ExcuteFileName 가 childApiTest 일때만 필요
+$ time node pushingYfInfo/[ExcuteFileName] [ChartName] [Limit] [PathEnd] [ApiFlag]
 ```
 - ExcuteFileName <br> 다음 중 택 1
   - push
@@ -59,6 +60,12 @@ $ time node pushingYfInfo/[ExcuteFileName] [ChartName] [Limit] [ApiFlag]
 <br>
 
 - Limit: number <br> 요청할 Asset 수 제한 (차트에서 순서대로 Limit 만큼 Asset 뽑아내서 요청함)
+
+<br>
+
+- PathEnd (childApiTest) <br> 다음 중 택 1
+  - info
+  - price
 
 <br>
 

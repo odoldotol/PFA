@@ -7,10 +7,11 @@ const {
   __dirname
 );
 
+const pathEnd = process.argv[4];
 const httpClientRequestOptions = {
   hostname: '127.0.0.1',
   port: 8001,
-  path: '/yf/info',
+  path: `/yf/${pathEnd}`,
   method: 'POST',
   headers: {
     'accept': 'application/json',
@@ -18,7 +19,7 @@ const httpClientRequestOptions = {
   },
 };
 
-const apiFlag = process.argv[4];
+const apiFlag = process.argv[5];
 if (apiFlag) {
   makeHttpClientRequest(
     httpClientRequestOptions,
