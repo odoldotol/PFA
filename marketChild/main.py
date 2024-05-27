@@ -191,9 +191,9 @@ def get_price_if_exist(yf_ticker: yf.Ticker) -> Price:
   """
   ### 존재하지 않는 ticker 404 던짐
 
-  최근 7일간의 기록이 없다면 존재하지 않는 ticker 로 판단
+  최근 5일간의 기록이 없다면 존재하지 않는 ticker 로 판단
   """
-  price_chart = yf_ticker.history(period="7d")
+  price_chart = yf_ticker.history(period="5d")
   if is_empty(price_chart):
     raise HTTPException(404, {
       "error": "NotFoundError",
