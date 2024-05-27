@@ -12,6 +12,7 @@ import yfinance as yf
 import exchange_calendars as xcals
 from datetime import datetime
 import warnings
+# from time_test import start_time_test, end_time_test
 
 RLIMIT_NOFILE_SOFT_DEFAULT = 2520
 
@@ -190,6 +191,7 @@ def get_session_by_ISOcode(ISO_Code: str) -> Session:
   }
 
 def get_info_by_yf_ticker(yf_ticker: yf.Ticker) -> Info:
+  # end_time_test("Ticker-" + yf_ticker.ticker)
   result = {}
   result["price"] = get_price_if_exist(yf_ticker)
 
@@ -199,7 +201,9 @@ def get_info_by_yf_ticker(yf_ticker: yf.Ticker) -> Info:
 
   # info 에 접근할 수 없는 경우가 종종 생기는데 이는 최대한 빠르게 고쳐야함. 그동안은 임시로 fast_info 사용함.
   try:
-    result["info"] = yf_ticker.info
+    # start_time_test("info-" + yf_ticker.ticker)
+    result["info"] = yf_ticker.info # io
+    # end_time_test("info-" + yf_ticker.ticker)
   except:
     result["fastinfo"] = {}
     for i in fast_info: # lazy loading ResponseValidationError 조치
@@ -218,7 +222,9 @@ def get_price_if_exist(yf_ticker: yf.Ticker) -> Price:
 
   최근 5일간의 기록이 없다면 존재하지 않는 ticker 로 판단
   """
-  price_chart = yf_ticker.history(period="5d")
+  # start_time_test("history-" + yf_ticker.ticker)
+  price_chart = yf_ticker.history(period="5d") # io
+  # end_time_test("history-" + yf_ticker.ticker)
   if is_empty(price_chart):
     raise HTTPException(404, {
       "error": "NotFoundError",
@@ -232,6 +238,7 @@ def get_price_if_exist(yf_ticker: yf.Ticker) -> Price:
   }
 
 def get_yf_ticker(ticker: str) -> yf.Ticker:
+  # start_time_test("Ticker-" + ticker)
   return yf.Ticker(ticker)
 
 def is_empty(price_chart: DataFrame) -> bool:
