@@ -8,6 +8,7 @@ yfinance = "*"
 exchange-calendars = "*"
 fastapi = "*"
 uvicorn = "*"
+python-dotenv = "*"
 
 [dev-packages]
 

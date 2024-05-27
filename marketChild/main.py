@@ -1,15 +1,40 @@
 import logging
+import resource
 from typing import List, Union
+from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.exceptions import ResponseValidationError
 from fastapi.responses import JSONResponse
 from pandas import DataFrame
 from pydantic import BaseModel
-# import os
+import os
 import yfinance as yf
 import exchange_calendars as xcals
 from datetime import datetime
 import warnings
+
+RLIMIT_NOFILE_SOFT_DEFAULT = 2520
+
+load_dotenv(os.path.join(
+  os.path.dirname(os.path.abspath(__file__)),
+  ".env"
+))
+
+RLIMIT_NOFILE_SOFT = int(os.getenv(
+  "RLIMIT_NOFILE_SOFT",
+  RLIMIT_NOFILE_SOFT_DEFAULT
+))
+
+rlimit_nofile_org = resource.getrlimit(resource.RLIMIT_NOFILE)
+
+if rlimit_nofile_org[1] <= RLIMIT_NOFILE_SOFT:
+  RLIMIT_NOFILE_SOFT = rlimit_nofile_org[1]
+  warnings.warn(f"RLIMIT_NOFILE_SOFT is set to {RLIMIT_NOFILE_SOFT} because RLIMIT_NOFILE_SOFT must not exceed RLIMIT_NOFILE_HARD.")
+
+resource.setrlimit(resource.RLIMIT_NOFILE, (
+  RLIMIT_NOFILE_SOFT,
+  rlimit_nofile_org[1]
+))
 
 warnings.simplefilter(action='ignore', category=FutureWarning)
 
