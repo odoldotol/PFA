@@ -1,4 +1,7 @@
-import { Inject } from '@nestjs/common';
+import {
+  Inject,
+  // Logger
+} from '@nestjs/common';
 import { MODULE_OPTIONS_TOKEN } from './taskQueue.module-definition';
 import { TaskQueue, Task } from 'src/common/interface';
 import { TaskQueueModuleOptions } from './interface';
@@ -6,6 +9,8 @@ import { TaskQueueModuleOptions } from './interface';
 export class TaskQueueService<T = any> 
   implements TaskQueue<T>
 {
+  // private readonly logger = new Logger(TaskQueueService.name);
+
   // Todo: 내장 Array 말고 Queue 를 구현해서 사용하기.
   private readonly taskQueue: Task<T>[] = [];
 
@@ -40,10 +45,12 @@ export class TaskQueueService<T = any>
       if (this.consumerQueue.length !== 0) {
         // there is a sleeping consumer available, use it to run our task
         const getNextTaskResolver = this.consumerQueue.shift()!;
+        // this.logger.verbose('consumerQueue.len: ' + this.consumerQueue.length);
         getNextTaskResolver(taskWrapper);
       } else {
         // all consumers are busy, enqueue the task
         this.taskQueue.push(taskWrapper);
+        // this.logger.verbose('taskQueue.len: ' + this.taskQueue.length);
       }
     });
   }
@@ -65,8 +72,10 @@ export class TaskQueueService<T = any>
     return new Promise(resolve => {
       if (this.taskQueue.length !== 0) {
         resolve(this.taskQueue.shift()!);
+        // this.logger.verbose('taskQueue.len: ' + this.taskQueue.length);
       } else {
         this.consumerQueue.push(resolve);
+        // this.logger.verbose('consumerQueue.len: ' + this.consumerQueue.length);
       }
     });
   }
