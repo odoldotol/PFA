@@ -2,7 +2,7 @@ const fs = require('fs');
 const path = require('path');
 
 // dotenv 때문에 npm 쓰기 귀찮아서
-const env = fs.readFileSync(path.join(__dirname, '..', '..', '..', '.env'), 'utf8');
+const env = fs.readFileSync(path.join(__dirname, '..', '..', '.env'), 'utf8');
 env.split('\n').forEach(v => {
   const [key, value] = v.split('=');
   process.env[key] = value;

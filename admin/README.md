@@ -1,4 +1,4 @@
-# Pushing Yahoo Finance Asset Info
+# Yahoo Finance Asset
 
 >Node.js (V18)
 
@@ -7,7 +7,7 @@
 ## Asset Chart
 
 #### .env 파일 구성하여 사용할 차트 파일 정하기.
->.env.guide 참고
+>yf/.env.guide 참고
 
 <br>
 
@@ -42,11 +42,11 @@ Kosdaq [Ref](https://seibro.or.kr/websquare/control.jsp?w2xPath=/IPORTAL/user/st
 ### Command
 ```sh
 # PathEnd 와 ApiFlag 는 ExcuteFileName 가 childApiTest 일때만 필요
-$ time node pushingYfInfo/[ExcuteFileName] [ChartName] [Limit] [PathEnd] [ApiFlag]
+$ time node yf/[ExcuteFileName] [ChartName] [Limit] [PathEnd] [ApiFlag]
 ```
 - ExcuteFileName <br> 다음 중 택 1
-  - push
-  - childApiTest
+  - push : 차트의 모든 에셋으로 market api, asset/subscribe 에 요청.
+  - childApiTest : 차트의 모든 에셋으로 child api, yf/{PathEnd} 이용.
 
 <br>
 
