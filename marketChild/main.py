@@ -220,21 +220,47 @@ def get_price_if_exist(yf_ticker: yf.Ticker) -> Price:
   """
   ### 존재하지 않는 ticker 404 던짐
 
-  최근 5일간의 기록이 없다면 존재하지 않는 ticker 로 판단
+  5 영업일 기록이 없을때 존재하지 않는 ticker 로 판단
+
+  #### A 안
+  최근 1 영업일 기록과 5영입일 기록을 조회하고, 1 영업일 기록이 없다면 존재하지 않는 ticker 로 판단.
+  1 영업일 기록에서 regularMarketPrice,
+  5 영업일 기록에서 regularMarketPreviousClose 를 얻음.
+  만약, 최근 1 영입일 기록뿐이라면(최근 상장?) regularMarketPreviousClose = regularMarketPrice
+
+  하지만, io 를 하나라도 줄이는게 더 우선된다고 판단,
+
+  #### B 안
+  5 영업일 기록만 조회,
+  5 영업일간 기록이 없을때 존재하지 않는 ticker 로 판단.
+  이떄 만약, 5 영업일 기록중 1 영업일의 기록 뿐이라면 그 기록 = regularMarketPreviousClose = regularMarketPrice
+
+  대신, A 안 대신 B 안을 선택함으로써 다음의 케이스를 절충하고있음.
+  - 5 영업일 이내 상장 폐지한 에셋은 여전히 조회됨.
+  - 5 영업일 이내 상장한 에셋과 상장 폐지한 에셋 사이의 구분을 못함.
+
+  영업일을 통해 구분하는 로직으로 부정확성을 제거하면 좋지만, 추가적인 io 없이 정확한 최근 영업일을 알아내기 어려움.
+
+  #### 리팩터링
+  - 옵션 1 - Market 서버에서 거래소별 정확한 영업일을 알고 있으니, 이 데이터를 이용하면 모든 부정확성을 제거할 수 있음.
   """
-  # start_time_test("history-" + yf_ticker.ticker)
-  price_chart = yf_ticker.history(period="5d") # io
-  # end_time_test("history-" + yf_ticker.ticker)
-  if is_empty(price_chart):
+  # start_time_test("history5d-" + yf_ticker.ticker)
+  price_chart_5d = yf_ticker.history(period="5d") # io
+  # end_time_test("history5d-" + yf_ticker.ticker)
+
+  if is_empty(price_chart_5d):
     raise HTTPException(404, {
       "error": "NotFoundError",
       "message": "Ticker not found",
       "ticker": yf_ticker.ticker,
     })
 
+  regularMarketPrice = price_chart_5d['Close'][-1]
+  regularMarketPreviousClose = price_chart_5d['Close'][-2] if len(price_chart_5d) >= 2 else regularMarketPrice
+
   return {
-    "regularMarketPrice": price_chart['Close'][-1],
-    "regularMarketPreviousClose": price_chart['Close'][-2]
+    "regularMarketPrice": regularMarketPrice,
+    "regularMarketPreviousClose": regularMarketPreviousClose,
   }
 
 def get_yf_ticker(ticker: str) -> yf.Ticker:
