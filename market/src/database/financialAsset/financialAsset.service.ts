@@ -98,7 +98,11 @@ SELECT *
     queryRunner?: QueryRunner
   ): Promise<FulfilledYfPrice[]> {
     if (updateArr.length === 0) return Promise.resolve([]);
-    return this.dataSource.query<[Pick<FinancialAssetEntity, 'symbol' | 'regular_market_last_close'>[], number]>(
+    return this.dataSource.query<[
+      Pick<FinancialAssetEntity, 'symbol' | 'regular_market_last_close'>[],
+      number
+    ]>(
+// "EXPLAIN ANALYZE" + // EXPLAIN ANALYZE 테스트
 `
 UPDATE ${this.tableName} AS t
   SET
@@ -112,7 +116,9 @@ UPDATE ${this.tableName} AS t
 `,
       undefined,
       queryRunner
-    ).then(res => {
+    )
+    .then(this.logExplainAndThrowErr.bind(this))
+    .then(res => {
       res[1] === updateArr.length || this.logger.warn(
         `updatePriceMany Warn! | Attempt: ${updateArr.length} | Success: ${res[1]}`
       ); // Todo: 여기서 실패된 케이스도 전달하도록
@@ -122,6 +128,14 @@ UPDATE ${this.tableName} AS t
       ));
     });
   }
+
+  private logExplainAndThrowErr<T>(res: T): T {
+    if (Array.isArray(res) && res[0]["QUERY PLAN"]) {
+      this.logger.verbose(res.reduce((acc, r) => acc + "\n" + r["QUERY PLAN"], "QUERY PLAN"));
+      throw new Error("EXPLAIN ANALYZE");
+    }
+    return res;
+  };
 
   /**
    * @todo common util

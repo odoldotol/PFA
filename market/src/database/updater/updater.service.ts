@@ -27,14 +27,20 @@ export class Database_UpdaterService {
     updateEitherArr: readonly Either<any, FulfilledYfPrice>[],
     exchange: ExchangeCore,
   ): Promise<Either<any, FulfilledYfPrice>[]> {
-    const updateRes = this.updateTx(
-      E.getRightArray(updateEitherArr),
-      exchange
-    );
+    let updateRes: FulfilledYfPrice[];
+    try {
+      updateRes = await this.updateTx(
+        E.getRightArray(updateEitherArr),
+        exchange
+      );
+    } catch (err: any) {
+      this.logger.error(`${exchange.isoCode} : Update Transaction Failed!!! ${err}`, err.stack);
+      return [];
+    }
 
     // Todo: Refac -----------------------------------------
     // financialAssetSrv.updatePriceMany 에서 부터 성공 실패를 Either 로 반환하도록 해야한다.
-    const symbolToUpdateResEleMap = new Map((await updateRes).map(e => [e.symbol, e]));
+    const symbolToUpdateResEleMap = new Map(updateRes.map(e => [e.symbol, e]));
     const turnLeftIfUpdateFailed = (either: Either<any, FulfilledYfPrice>) => {
       if (either.isRight() && symbolToUpdateResEleMap.get(either.right.symbol) === undefined)
       return Either.left<any, FulfilledYfPrice>({
@@ -76,7 +82,7 @@ export class Database_UpdaterService {
     } catch (err) {
       await queryRunner.rollbackTransaction();
       // Todo: warn
-      this.logger.warn(`Transaction Rollback!!!\nError: ${err}`); throw err;
+      this.logger.warn(`Transaction Rollback!!!`); throw err;
     } finally {
       await queryRunner.release();
     }
