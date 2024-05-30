@@ -44,15 +44,19 @@ export class UpdaterService
     );
   }
 
-  public updatePriceByExchange(
+  public async updatePriceByExchange(
     ISO_Code: string,
     body: UpdatePriceByExchangeBodyDto
   ) {
-    return this.priceSrv.updateOrDelete(
+    await this.marketDateSrv.update(
+      ISO_Code,
+      body.marketDate
+    );
+    await this.priceSrv.updateOrDelete(
       ISO_Code,
       body.marketDate,
       body.priceArrs
     );
+    this.logger.verbose(`${ISO_Code} : Updated`)
   }
-
 }
