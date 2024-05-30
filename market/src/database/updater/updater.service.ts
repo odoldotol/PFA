@@ -27,16 +27,10 @@ export class Database_UpdaterService {
     updateEitherArr: readonly Either<any, FulfilledYfPrice>[],
     exchange: ExchangeCore,
   ): Promise<Either<any, FulfilledYfPrice>[]> {
-    let updateRes: FulfilledYfPrice[];
-    try {
-      updateRes = await this.updateTx(
-        E.getRightArray(updateEitherArr),
-        exchange
-      );
-    } catch (err: any) {
-      this.logger.error(`${exchange.isoCode} : Update Transaction Failed!!! ${err}`, err.stack);
-      return [];
-    }
+    const updateRes = await this.updateTx(
+      E.getRightArray(updateEitherArr),
+      exchange
+    );
 
     // Todo: Refac -----------------------------------------
     // financialAssetSrv.updatePriceMany 에서 부터 성공 실패를 Either 로 반환하도록 해야한다.
@@ -64,25 +58,25 @@ export class Database_UpdaterService {
     fulfilledYfPriceArr: readonly FulfilledYfPrice[],
     exchange: ExchangeCore,
   ): Promise<FulfilledYfPrice[]> {
-    let updateRes: Promise<FulfilledYfPrice[]>;
+    let updateRes: FulfilledYfPrice[] = [];
     const queryRunner = this.dataSource.createQueryRunner();
     try {
       await queryRunner.connect();
       await queryRunner.startTransaction("REPEATABLE READ");
-      await (updateRes = this.financialAssetSrv.updatePriceMany(
+      await this.financialAssetSrv.updatePriceMany(
         fulfilledYfPriceArr,
         queryRunner
-      ));
+      ).then(res => updateRes = res);
       await this.exchangeSrv.updateMarketDateByPk(
         exchange.isoCode,
         exchange.marketDate,
         queryRunner
       );
+      // throw new Error('Repeatable Test');
       await queryRunner.commitTransaction();
-    } catch (err) {
+    } catch (err: any) {
       await queryRunner.rollbackTransaction();
-      // Todo: warn
-      this.logger.warn(`Transaction Rollback!!!`); throw err;
+      this.logger.error(`${exchange.isoCode} : Transaction Rollback!!! ${err}`, err.stack);
     } finally {
       await queryRunner.release();
     }
