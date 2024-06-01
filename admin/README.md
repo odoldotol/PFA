@@ -1,6 +1,6 @@
 # Yahoo Finance Asset
 
->Node.js (V18)
+>Node.js (16.20.2)
 
 <br><br>
 
@@ -35,7 +35,9 @@ Kosdaq [Ref](https://seibro.or.kr/websquare/control.jsp?w2xPath=/IPORTAL/user/st
 
 ## Excute
 
->로컬에 필요한 각 서버들 열어야함
+1. 로컬에서 간단하게 필요한 각 서버들 열어두고 진행하거나
+2. docker 에서 진행하는 경우 admin 컨테이너에 진입하여 진행하면 됨<br>
+```docker exec -it pfa-admin /bin/sh```
 
 <br><br>
 

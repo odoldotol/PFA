@@ -14,3 +14,5 @@ echo "\n\n------------------ Build Product Redis -------------------------------
 docker build ./redis -t pfa-product-redis
 echo "\n\n------------------ Build NGINX -------------------------------------------------\n"
 docker build ./nginx -t pfa-nginx
+echo "\n\n------------------ Build Admin -------------------------------------------------\n"
+docker build ./admin -t pfa-admin

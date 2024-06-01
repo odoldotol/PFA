@@ -9,7 +9,7 @@ const {
 
 const pathEnd = process.argv[4];
 const httpClientRequestOptions = {
-  hostname: '127.0.0.1',
+  hostname: process.env.CHILD_API_HOSTNAME || '127.0.0.1',
   port: 8001,
   path: `/yf/${pathEnd}`,
   method: 'POST',

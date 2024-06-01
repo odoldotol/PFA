@@ -8,7 +8,7 @@ const {
 );
 
 const httpClientRequestOptions = {
-  hostname: '127.0.0.1',
+  hostname: process.env.MARKET_API_HOSTNAME || '127.0.0.1',
   port: 6001,
   path: '/api/v1/asset/subscribe',
   method: 'POST',
