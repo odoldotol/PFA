@@ -14,28 +14,36 @@ from datetime import datetime
 import warnings
 # from time_test import start_time_test, end_time_test
 
-RLIMIT_NOFILE_SOFT_DEFAULT = 2520
-
 load_dotenv(os.path.join(
   os.path.dirname(os.path.abspath(__file__)),
-  ".env"
+  ".env.market"
 ))
 
-RLIMIT_NOFILE_SOFT = int(os.getenv(
-  "RLIMIT_NOFILE_SOFT",
-  RLIMIT_NOFILE_SOFT_DEFAULT
-))
+######################### Config Concurrency #########################
+CONCURRENCY = os.getenv("CHILD_CONCURRENCY")
 
-rlimit_nofile_org = resource.getrlimit(resource.RLIMIT_NOFILE)
+if CONCURRENCY is not None:
+  CONCURRENCY = int(CONCURRENCY)
 
-if rlimit_nofile_org[1] <= RLIMIT_NOFILE_SOFT:
-  RLIMIT_NOFILE_SOFT = rlimit_nofile_org[1]
-  warnings.warn(f"RLIMIT_NOFILE_SOFT is set to {RLIMIT_NOFILE_SOFT} because RLIMIT_NOFILE_SOFT must not exceed RLIMIT_NOFILE_HARD.")
+  def calculate_rlimit_nofile_soft(CONCURRENCY: int) -> int:
+    """
+    POST yf/price/{ticker} 를 기준으로 rlimit_nofile_soft = 30 + (CONCURRENCY * 5) 정도로 계산해도 충분해보이지만 보수적으로 계산. (get_price_by_ticker 매서드의 구현에 따라 달라질 수 있음)
+    자세한 정보는 Price Update 최적화 문서의 MarketChild 최적화 부분을 참고.
+    """
+    return 50 + (CONCURRENCY * 7)
 
-resource.setrlimit(resource.RLIMIT_NOFILE, (
-  RLIMIT_NOFILE_SOFT,
-  rlimit_nofile_org[1]
-))
+  rlimit_nofile_soft = calculate_rlimit_nofile_soft(CONCURRENCY)
+  rlimit_nofile_hard_org = resource.getrlimit(resource.RLIMIT_NOFILE)[1]
+
+  if rlimit_nofile_hard_org < rlimit_nofile_soft:
+    rlimit_nofile_soft = rlimit_nofile_hard_org
+    warnings.warn(f"RLIMIT_NOFILE_SOFT is set to {rlimit_nofile_soft} because RLIMIT_NOFILE_SOFT must not exceed RLIMIT_NOFILE_HARD.")
+
+  resource.setrlimit(resource.RLIMIT_NOFILE, (
+    rlimit_nofile_soft,
+    rlimit_nofile_hard_org
+  ))
+######################################################################
 
 warnings.simplefilter(action='ignore', category=FutureWarning)
 
