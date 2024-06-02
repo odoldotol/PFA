@@ -6,6 +6,4 @@ sh scripts/pfa:build
 
 sh scripts/pfa:up:prod
 
-docker compose stop admin
-
 docker rmi $(docker images -f "dangling=true" -q)
