@@ -10,5 +10,6 @@ RUN npm install -g npm@8.19.3 \
 ENV NODE_OPTIONS="--max-old-space-size=600"
 
 # Todo: 여기서 COPY 하면, env 나 cert 변경시 market, product 빌드에서 캐시 이용 안하면서 느려짐
+# env 를 pfa 레벨과 각 서비스 레벨로 나눠 관리하던가, 어떻게 하든 빌드때 env 변경으로 캐시이용을 못하는 부분을 최소화 해야함
 COPY ./env /home/node/app
 COPY ./cert /home/node/app
