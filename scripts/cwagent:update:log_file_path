@@ -1,0 +1,12 @@
+product_log_path=$(docker inspect --format '{{.LogPath}}' pfa-product)
+market_log_path=$(docker inspect --format '{{.LogPath}}' pfa-market)
+market_child_log_path=$(docker inspect --format '{{.LogPath}}' pfa-market-child)
+
+echo $(cat /opt/aws/amazon-cloudwatch-agent/bin/config.json | jq \
+  --arg product_file_path $product_log_path \
+  --arg market_file_path $market_log_path \
+  --arg market_child_file_path $market_child_log_path \
+  '(.logs.logs_collected.files.collect_list[] | select(.log_stream_name == "product") | .file_path) |= $product_file_path
+  | (.logs.logs_collected.files.collect_list[] | select(.log_stream_name == "market") | .file_path) |= $market_file_path
+  | (.logs.logs_collected.files.collect_list[] | select(.log_stream_name == "market-child") | .file_path) |= $market_child_file_path'
+) > /opt/aws/amazon-cloudwatch-agent/bin/config.json
