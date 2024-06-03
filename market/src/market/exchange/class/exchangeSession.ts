@@ -22,6 +22,7 @@ export class Market_ExchangeSession
     buildLoggerContext(Market_ExchangeSession, this.isoCode)
   );
 
+  // todo: ! 어썰션 제거
   private session!: ExchangeSession;
 
   /**
@@ -106,8 +107,9 @@ export class Market_ExchangeSession
     if (this.isoCode === YAHOO_FINANCE_CCC_EXCHANGE_ISO_CODE) {
       this.session = this.getMidnightUTCSession();
     } else {
-      this.session
-      = (await this.exchangeSessionApiSrv.fetchEcSession(this.isoCode)).right;
+      await this.exchangeSessionApiSrv.fetchEcSession(this.isoCode)
+      .then(e => e.isRight() ? this.session = e.right
+      : this.logger.error("Failed to fetch exchange session", e.left));
     }
     this.calculateElapsedMsSinceNext();
     return this.session;

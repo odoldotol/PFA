@@ -29,6 +29,8 @@ export class Pm2Service
           // 이게 리슨 안되고 올드프로레스가 죽으면 wait_ready = true 필요하다는 뜻이다.
           () => this.logger.verbose(`It confirmed that New ${this.PM2_ID + '|' + this.pm2ConfigSrv.getName()!} was ready`)
         );
+
+        this.msgBus.on('error', (err: any) => this.logger.error(err));
       }
     }
   }
@@ -126,7 +128,7 @@ export class Pm2Service
   private oldCheck() {
     return F.pipe(
       this.getPm2List(),
-      F.find(this.isPm2IdEqualMine),
+      F.find(this.isPm2IdEqualMine.bind(this)),
       this.isProcessIdEqualMine,
       F.not
     );
