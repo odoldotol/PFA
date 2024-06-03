@@ -1,1 +1,1 @@
-docker exec -it pfa-market /bin/sh -c "pm2 logs --lines 50"
+docker exec -it pfa-market /bin/sh -c "pm2 logs --lines ${1:-50}"

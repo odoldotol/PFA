@@ -1,1 +1,1 @@
-docker logs -f -n 50 -t pfa-market-child
+docker logs -f -n ${1:-50} -t pfa-market-child
