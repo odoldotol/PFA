@@ -97,38 +97,34 @@ The service scope expands through queries.
 
 <br>
 
-## Logs Monitering
+## Logs, Monit
 Use below,
 ```
 $ docker [OPT] logs [CONTAINER]
 ```
+
 OR
 
-### Product Server
 ```shell
-# Logs
-$ sh scripts/pfa:logs:product
-
-# Monitering
-$ sh scripts/pfa:monit:product
+$ sh scripts/pfa:[EXCUTION]:[SERVER] [LINES]
 ```
+- EXCUTION: 아래 중 택 1 필수
+  - logs
+  - monit
+
 <br>
 
-### Market Server
-```shell
-# Logs
-$ sh scripts/pfa:logs:market
+- SERVER: 아래 중 택 1 필수
+  - product
+  - market
+  - market-child
+    - EXCUTION = monit 인 경우 선택 불가능
 
-# Monitering
-$ sh scripts/pfa:monit:market
-```
 <br>
 
-### Market Child Server
-```shell
-# Logs
-$ sh scripts/pfa:logs:market-child
-```
+- LINES: number
+  - EXCUTION = logs 인 경우에 선택적으로 전달 (기본값: 50)
+
 <br>
 
 ---
@@ -235,6 +231,25 @@ $ npm run migration:generate
 # If they're synchronized,
 $ mkdir -p migrations/postgres
 $ cp -r devMigrations/postgres/. migrations/postgres/.
+```
+
+<br>
+
+## Monitoring
+
+### AWS CloudWatch
+
+#### CloudWatch Agent
+
+config.json
+```
+/opt/aws/amazon-cloudwatch-agent/bin/config.json
+```
+
+<br>
+
+```sh
+$ sh scripts/cwagent:update:log_file_path
 ```
 
 <br>
