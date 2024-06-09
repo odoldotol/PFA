@@ -13,6 +13,7 @@ import {
   FulfilledYfPrice,
   Ticker
 } from "src/common/interface";
+// import { writeFile } from "fs";
 
 @Injectable()
 export class Database_FinancialAssetService {
@@ -30,7 +31,8 @@ export class Database_FinancialAssetService {
     values: readonly FinancialAssetCore[]
   ): Promise<FinancialAsset[]> {
     if (values.length === 0) return Promise.resolve([]);
-    return this.dataSource.query<FinancialAssetEntity[]>(
+
+    const query = "" +
 `
 INSERT INTO ${this.tableName}
   VALUES
@@ -44,8 +46,12 @@ INSERT INTO ${this.tableName}
       ${v.exchange ? `'${v.exchange}'` : `NULL`}
     )`).join(',')}
   RETURNING *
-`
-    ).then(this.extendFinancialAsset);
+`;
+
+    // writeFile(`seeder/sql/insert.timestamp-${new Date().toLocaleString('en-GB').replace(/\/|,|:| /g, '-')}.sql`, query, () => console.log("createMany sql file created"));
+    
+    return this.dataSource.query<FinancialAssetEntity[]>(query)
+    .then(this.extendFinancialAsset);
   }
 
   public existByPk(

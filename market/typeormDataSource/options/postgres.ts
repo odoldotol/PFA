@@ -1,12 +1,17 @@
 import { config } from 'dotenv';
 import { readFileSync } from 'fs';
-import { DataSource, DataSourceOptions } from 'typeorm';
+import * as path from 'path';
+import { DataSourceOptions } from 'typeorm';
 
-config({ path: ".env.market" });
+const rootPath = path.join(__dirname, "..", "..");
+const envPath = path.join(rootPath, ".env.market");
+const rdsKeyPath = path.join(rootPath, "aws-rds.pem");
+
+config({ path: envPath });
 
 const getTlsOptions = () => ({
   ssl: {
-    ca: readFileSync("aws-rds.pem")
+    ca: readFileSync(rdsKeyPath)
   },
   extra: {
     ssl: {
@@ -28,6 +33,8 @@ const dataSourceOptions: DataSourceOptions = {
   migrationsTableName: 'migrations',
 };
 
-if (process.env['RACK_ENV'] === 'production') Object.assign(dataSourceOptions, getTlsOptions());
+if (process.env['RACK_ENV'] === 'production') {
+  Object.assign(dataSourceOptions, getTlsOptions());
+}
 
-export default new DataSource(dataSourceOptions);
+export default dataSourceOptions;
