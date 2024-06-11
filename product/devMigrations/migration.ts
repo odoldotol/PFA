@@ -12,8 +12,8 @@ export const migrationRun = async (
     await migration.up(queryRunner);
     await queryRunner.commitTransaction();
   } catch (err) {
+    console.error(err);
     await queryRunner.rollbackTransaction();
-    throw err;
   } finally {
     await queryRunner.release();
   }

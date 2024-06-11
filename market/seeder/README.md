@@ -54,3 +54,29 @@ insert.kosdaq-all-05-13-2024-cut-501-1000.T20240604.sql
 ```
 
 >쿼리에 대한 정보는 디렉토리 sql 에서 확인
+
+#### 실행 결과 예시
+```
+***@***-MacBook-Pro market % npm run seeder:simple:dev:20240513
+
+> market@0.0.1 seeder:simple:dev:20240513
+> ts-node -r tsconfig-paths/register seeder/simple/dev.20240513.ts
+
+[simple_dev_20240513] 3916 records will be inserted
+  RUSSELL 1997
+  KOSPI 950
+  KOSDAQ 969
+[seeder] - 10/06/2024, 02:10:33 | Empty table(financial_assets) 실행중...
+[seeder] - 10/06/2024, 02:10:33 | Empty table(financial_assets) 완료!!
+[seeder] - 10/06/2024, 02:10:33 | insert.russell-1000-index-05-13-2024.T20240604.sql 실행중...
+[seeder] - 10/06/2024, 02:10:33 | insert.russell-1000-index-05-13-2024.T20240604.sql 완료!!
+[seeder] - 10/06/2024, 02:10:33 | insert.russell-2000-index-05-14-2024-page-1.T20240604.sql 실행중...
+[seeder] - 10/06/2024, 02:10:34 | insert.russell-2000-index-05-14-2024-page-1.T20240604.sql 완료!!
+[seeder] - 10/06/2024, 02:10:34 | insert.kospi-all-05-13-2024.T20240604.sql 실행중...
+[seeder] - 10/06/2024, 02:10:34 | insert.kospi-all-05-13-2024.T20240604.sql 완료!!
+[seeder] - 10/06/2024, 02:10:34 | insert.kosdaq-all-05-13-2024-cut-1-500.T20240604.sql 실행중...
+[seeder] - 10/06/2024, 02:10:34 | insert.kosdaq-all-05-13-2024-cut-1-500.T20240604.sql 완료!!
+[seeder] - 10/06/2024, 02:10:34 | insert.kosdaq-all-05-13-2024-cut-501-1000.T20240604.sql 실행중...
+[seeder] - 10/06/2024, 02:10:34 | insert.kosdaq-all-05-13-2024-cut-501-1000.T20240604.sql 완료!!
+[seeder] - 10/06/2024, 02:10:34 | Completed
+```

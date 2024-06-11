@@ -91,3 +91,10 @@ responseBody/[ExcuteFileName]/[ChartFileName].limit-[Limit].timestemp-[Timestemp
 
 ---
 ---
+
+### TickerArray
+Market Seed "simple_dev_20240513" TickerArr ordered MarketCap
+```sh
+# temp
+$ node yf/writeTestTickers.js
+```
