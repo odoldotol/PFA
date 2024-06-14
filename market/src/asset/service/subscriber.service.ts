@@ -10,7 +10,6 @@ import {
   FinancialAssetCore,
   FulfilledYfInfo,
   Ticker,
-  YfInfo
 } from "src/common/interface";
 import { SubscribeAssetsResponse } from "../response";
 import { dedupStrIter } from "src/common/util";
@@ -46,10 +45,16 @@ export class SubscriberService {
 
     const yfInfoArr = E.getRightArray(eitherYfInfoArr);
     const yfInfoCreationRes = await this.yfinanceInfoSrv.insertMany(yfInfoArr);
-    const financialAssetCreationRes = await this.createFinancialAssets(yfInfoArr);
+
+    const fulfilledYfInfoArr = await Promise.all(yfInfoArr.map(this.market_financialAssetSrv.fulfillYfInfo.bind(this.market_financialAssetSrv)));
+
+    const financialAssetCreationRes = await this.createFinancialAssets(E.getRightArray(fulfilledYfInfoArr));
 
     return new SubscribeAssetsResponse(
-      E.getLeftArray(eitherYfInfoArr),
+      [
+        ...E.getLeftArray(eitherYfInfoArr),
+        ...E.getLeftArray(fulfilledYfInfoArr)
+      ],
       yfInfoCreationRes,
       financialAssetCreationRes
     );
@@ -75,11 +80,10 @@ export class SubscriberService {
   }
 
   private async createFinancialAssets(
-    yfInfoArr: readonly YfInfo[],
+    fulfilledYfInfoArr: readonly FulfilledYfInfo[],
   ) {
     return E.wrapPromise(F.pipe(
-      yfInfoArr,
-      F.map(this.market_financialAssetSrv.fulfillYfInfo.bind(this.market_financialAssetSrv)),
+      fulfilledYfInfoArr,
       F.peek(this.logNewExchange.bind(this)),
       F.map(this.getFinancialAssetFromFuilfilledYfInfo),
       F.toArray,

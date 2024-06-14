@@ -28,8 +28,8 @@ export type ChildResponseYfInfo = Readonly<{
 }>;
 
 export type ChildResponseYfPrice = Readonly<{
-  regularMarketPrice: number;
-  regularMarketPreviousClose: number;
+  regularMarketPrice: number | null;
+  regularMarketPreviousClose: number| null;
 }>;
 
 // Todo

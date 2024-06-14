@@ -46,8 +46,8 @@ type Yf = Readonly<{
 export type YfPrice
 = Yf
 & Readonly<{
-  regularMarketPrice: number;
-  regularMarketPreviousClose: number;
+  regularMarketPrice: number | null;
+  regularMarketPreviousClose: number | null;
 }>;
 
 export type YfInfo
@@ -70,6 +70,7 @@ export type FulfilledYfPrice
 = Yf
 & Readonly<{
   regularMarketLastClose: number;
+  liveMarketPrice?: number | null;
 }>;
 
 export type FulfilledYfInfo

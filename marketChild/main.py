@@ -30,7 +30,7 @@ if CONCURRENCY is not None:
     POST yf/price/{ticker} 를 기준으로 rlimit_nofile_soft = 30 + (CONCURRENCY * 5) 정도로 계산해도 충분해보이지만 보수적으로 계산. (get_price_by_ticker 매서드의 구현에 따라 달라질 수 있음)
     자세한 정보는 Price Update 최적화 문서의 MarketChild 최적화 부분을 참고.
     """
-    return 50 + (CONCURRENCY * 7)
+    return 50 + (CONCURRENCY * 10)
 
   rlimit_nofile_soft = calculate_rlimit_nofile_soft(CONCURRENCY)
   rlimit_nofile_hard_org = resource.getrlimit(resource.RLIMIT_NOFILE)[1]
@@ -43,6 +43,8 @@ if CONCURRENCY is not None:
     rlimit_nofile_soft,
     rlimit_nofile_hard_org
   ))
+
+print(f"RLIMIT_NOFILE: {resource.getrlimit(resource.RLIMIT_NOFILE)}")
 ######################################################################
 
 warnings.simplefilter(action='ignore', category=FutureWarning)
@@ -55,8 +57,8 @@ class HealthCheckFilter(logging.Filter):
 logging.getLogger("uvicorn.access").addFilter(HealthCheckFilter())
 
 class Price(BaseModel):
-  regularMarketPrice: float
-  regularMarketPreviousClose: float
+  regularMarketPrice: Union[int, float, None]
+  regularMarketPreviousClose: Union[int, float, None]
 
 class Info(BaseModel):
   info: Union[dict, None] = None
@@ -234,14 +236,12 @@ def get_price_if_exist(yf_ticker: yf.Ticker) -> Price:
   최근 1 영업일 기록과 5영입일 기록을 조회하고, 1 영업일 기록이 없다면 존재하지 않는 ticker 로 판단.
   1 영업일 기록에서 regularMarketPrice,
   5 영업일 기록에서 regularMarketPreviousClose 를 얻음.
-  만약, 최근 1 영입일 기록뿐이라면(최근 상장?) regularMarketPreviousClose = regularMarketPrice
 
   하지만, io 를 하나라도 줄이는게 더 우선된다고 판단,
 
   #### B 안
   5 영업일 기록만 조회,
   5 영업일간 기록이 없을때 존재하지 않는 ticker 로 판단.
-  이떄 만약, 5 영업일 기록중 1 영업일의 기록 뿐이라면 그 기록 = regularMarketPreviousClose = regularMarketPrice
 
   대신, A 안 대신 B 안을 선택함으로써 다음의 케이스를 절충하고있음.
   - 5 영업일 이내 상장 폐지한 에셋은 여전히 조회됨.
@@ -263,8 +263,8 @@ def get_price_if_exist(yf_ticker: yf.Ticker) -> Price:
       "ticker": yf_ticker.ticker,
     })
 
-  regularMarketPrice = price_chart_5d['Close'][-1]
-  regularMarketPreviousClose = price_chart_5d['Close'][-2] if len(price_chart_5d) >= 2 else regularMarketPrice
+  regularMarketPrice = nan_to_none(price_chart_5d['Close'][-1])
+  regularMarketPreviousClose = nan_to_none(price_chart_5d['Close'][-2]) if len(price_chart_5d) >= 2 else None
 
   return {
     "regularMarketPrice": regularMarketPrice,
@@ -280,3 +280,6 @@ def is_empty(price_chart: DataFrame) -> bool:
 
 def is_nan(num: any) -> bool:
   return type(num) == float and num != num
+
+def nan_to_none(num: any) -> any:
+  return None if is_nan(num) else num

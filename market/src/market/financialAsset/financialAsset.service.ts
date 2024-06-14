@@ -64,25 +64,33 @@ export class Market_FinancialAssetService {
   public async fetchFulfilledYfPrices(
     isoCode: ExchangeIsoCode,
     tickerArr: Ticker[]
-  ) {
+  ): Promise<Either<any, FulfilledYfPrice>[]> {
     const yfPriceArr = await this.fetchYfPrices(tickerArr);
     const marketExchange = this.exchangeSrv.getOne(isoCode);
     return F.pipe(
       yfPriceArr, F.toAsync,
-      F.map(E.map(this.fulfillYfPrice.bind(this, marketExchange))),
+      F.map(E.flatMap(this.fulfillYfPrice.bind(this, marketExchange))),
       F.toArray
     );
   }
 
-  public fulfillYfInfo(yfInfo: YfInfo): FulfilledYfInfo {
+  // todo: yf 엔티티 리팩터링
+  public fulfillYfInfo(
+    yfInfo: YfInfo
+  ): Promise<Either<any, FulfilledYfInfo>> {
     const marketExchange = this.exchangeSrv.findOneByYfInfo(yfInfo);
-    return Object.assign(
+
+    return this.fulfillYfPrice(
+      marketExchange,
+      yfInfo
+    ).map(fulfilledYfPrice => Object.assign(
       yfInfo,
       { marketExchange },
-      this.fulfillYfPrice(marketExchange, yfInfo)
-    );
+      fulfilledYfPrice
+    ));
   }
 
+  // todo: yf 엔티티 리팩터링
   private fulfillYfPrice(
     exchange: Market_Exchange | null,
     {
@@ -90,13 +98,24 @@ export class Market_FinancialAssetService {
       regularMarketPreviousClose,
       regularMarketPrice
     }: YfPrice
-  ): FulfilledYfPrice {
-    return {
+  ): Either<any, FulfilledYfPrice> {
+    const price = exchange?.isMarketOpen() ? {
+      regularMarketLastClose: regularMarketPreviousClose,
+      liveMarketPrice: regularMarketPrice
+    } : {
+      regularMarketLastClose: regularMarketPrice,
+      liveMarketPrice: null
+    }
+
+    if (price.regularMarketLastClose === null) {
+      return Either.left(new Error('regularMarketLastClose is null')); // temp
+    }
+
+    return Either.right({
       symbol,
-      regularMarketLastClose: exchange?.isMarketOpen() ?
-        regularMarketPreviousClose :
-        regularMarketPrice
-    };
+      regularMarketLastClose: price.regularMarketLastClose,
+      liveMarketPrice: price.liveMarketPrice
+    });
   }
 
   private fetchYfPrices(

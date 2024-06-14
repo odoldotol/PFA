@@ -63,13 +63,13 @@ export class Yf_info
     required: true,
     type: Number,
   })
-  regularMarketPrice!: number; // 장중 아닐때 접근
+  regularMarketPrice!: number | null;
 
   @Prop({
     required: true,
     type: Number,
   })
-  regularMarketPreviousClose!: number; // 장중일때 접근
+  regularMarketPreviousClose!: number | null;
 
 }
 
