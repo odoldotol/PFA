@@ -96,9 +96,9 @@ export class Database_UpdaterService {
         `${launcher === Launcher.SCHEDULER || launcher === Launcher.INITIATOR ? key : launcher} : Log_priceUpdate Doc Created${fLen ? ` (${fLen} failed)` : ''}`
       );
     })
-    .catch(_ => {
+    .catch(err => {
+      this.logger.error(err, err.stack);
       this.logger.warn(`${launcher} : Failed to Create Log_priceUpdate Doc!!!`);
-      // throw error;
     });
   }
   // ---------------------------------------------------------
