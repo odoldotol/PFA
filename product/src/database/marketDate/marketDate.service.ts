@@ -14,12 +14,12 @@ export class MarketDateService {
     private readonly marketDateRepo: Repository<MarketDate>,
   ) {}
 
-  // Todo: repository 수준에서 메서드로 제공해야함.
-  public updateOrCreate(
+  // Todo: Redis Repository 수준에서 메서드로 제공해야함.
+  public async updateOrCreate(
     isoCode: ExchangeIsoCode,
     marketDate: MarketDate
   ) {
-    return this.update(isoCode, marketDate) || this.create(isoCode, marketDate);
+    return (await this.update(isoCode, marketDate)) || this.create(isoCode, marketDate);
   }
 
   public create(
