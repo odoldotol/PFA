@@ -1,3 +1,7 @@
 어떤 데이터를 어떤 형태로 최신화 로직과 함께 가져갈지 서버 차원의 Entity 결정하기
 결정된 데로 redis schema, interface, redisModule, 마켓서버 API + marketApi 리팩터링
 연관된 database 폴더 내부 모듈들 리팩터링 -> 이를 사용하는 나머지 모듈들 리팩터링
+
+각 asset 캐싱할때 market_date 를 exchange 기준 말고 각 asset 기준으로 하기 (market 서버에서 선행되어야 가능).
+
+모듈 주입식 간단한 배치 프로세싱

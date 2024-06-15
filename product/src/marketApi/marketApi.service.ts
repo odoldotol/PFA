@@ -12,11 +12,14 @@ import {
 import {
   ExchangeCore,
   FinancialAssetCore,
-  PriceTuple
+  PriceTuple,
+  Ticker
 } from 'src/common/interface';
 
 @Injectable()
 export class MarketApiService {
+
+  private readonly runningFetchFinancialAsset = new Map<Ticker, Promise<FinancialAssetCore>>();
 
   constructor(
     private httpService: HttpService
@@ -37,10 +40,20 @@ export class MarketApiService {
     ));
   }
 
-  public fetchFinancialAsset(ticker: string): Promise<FinancialAssetCore> {
-    return firstValueFrom(this.httpService.post(INQUIRE_ASSET + ticker).pipe(
-      map(res => res.data as FinancialAssetCore)
-    ));
-  }
+  /**
+   * - 배치 프로세싱
+   */
+  public fetchFinancialAsset(ticker: Ticker): Promise<FinancialAssetCore> {
+    if (this.runningFetchFinancialAsset.has(ticker)) {
+      return this.runningFetchFinancialAsset.get(ticker)!;
+    }
 
+    const fetchFinancialAsset = firstValueFrom(this.httpService.post(INQUIRE_ASSET + ticker).pipe(
+      map(res => res.data as FinancialAssetCore)
+    )).finally(() => this.runningFetchFinancialAsset.delete(ticker));
+
+    this.runningFetchFinancialAsset.set(ticker, fetchFinancialAsset);
+
+    return fetchFinancialAsset;
+  }
 }

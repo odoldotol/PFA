@@ -3,7 +3,10 @@ import { SchemaService } from "./schema.service";
 import { joinColon } from "src/common/util";
 import * as F from "@fxts/core";
 
-// Todo: Refac
+/**
+ * @todo Refac
+ * @todo CRUD 비동기작업 일괄처리 및 문제되는 동시성 해결?
+ */
 export class Repository<T = any> {
   constructor(
     private readonly redisSrv: RedisService,
@@ -85,5 +88,4 @@ export class Repository<T = any> {
   private getKeyBody(key: string) {
     return key.slice(key.lastIndexOf(":") + 1);
   }
-
 }

@@ -56,7 +56,7 @@ export class PriceService {
 
   /**
    * ### this method calls the incr_count method of the cachedPrice
-   * Todo: count 는 따로 키로 빼두고 카운팅 하는게 더 좋은 구조다.
+   * Todo: Redis INCR 이용해서 count 는 별개 엔티티로 관리하자.
    * Todo: findOne -> count -> updateOne
    */
   public readWithCounting(symbol: Ticker) {

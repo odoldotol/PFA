@@ -107,6 +107,9 @@ export class KakaoChatbotService {
     return this.skillResponseSrv.assetUnsubscribed(ticker);
   }
 
+  /**
+   * @todo asset 엔티티 리팩터링
+   */
   public async inquireSubscribedAsset(
     skillPayload: SkillPayloadDto
   ): Promise<SkillResponse> {
@@ -118,14 +121,13 @@ export class KakaoChatbotService {
       return this.skillResponseSrv.noSubscribedAsset();
     }
 
-    // Todo: asset 을 redis 에 캐싱한 후 리팩
+    // Todo: 엔티티 리팩터링(price -> financialAsset)
     const assets = await F.pipe(
       subscriptionTickerArr, F.toAsync,
-      F.map(async (ticker) => {
-        const price = (await this.assetSrv.inquirePrice(ticker, userId.toString())).data!; //
-        return price && Object.assign(price, {ticker});
-      }),
-      F.filter(price => price !== undefined) as <T>(arr: AsyncIterableIterator<undefined | T>) => AsyncIterableIterator<T>,
+      F.map(async ticker => Object.assign(
+        (await this.assetSrv.inquirePrice(ticker, userId.toString())).data,
+        { ticker }
+      )),
       F.toArray,
     );
 
