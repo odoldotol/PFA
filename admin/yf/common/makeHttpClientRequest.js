@@ -16,5 +16,5 @@ module.exports = (
     });
 
     res.on('error', errCb);
-  });
+  }).on('error', errCb);
 };

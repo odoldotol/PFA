@@ -17,7 +17,7 @@ export class ExchangeSessionApiService {
     isoCode: ExchangeIsoCode
   ): Promise<Either<ChildError, ExchangeSession>> {
     return this.childApiSrv.post<ChildResponseEcSession>(
-      EXCHANGE_SESSION_URN + isoCode
+      EXCHANGE_SESSION_URN + "/" + isoCode
     ).then(E.map(this.getExchangeSession));
   }
 
@@ -31,5 +31,4 @@ export class ExchangeSessionApiService {
       nextClose: new Date(session.next_close),
     };
   }
-
 }

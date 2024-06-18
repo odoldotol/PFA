@@ -6,6 +6,7 @@ import {
   MongoDevEnv,
   Pm2EnvKey,
   PostgresEnvKey,
+  PriceRequestStrategy,
   ProductApiEnvKey,
   TempEnvKey,
 } from "../enum";
@@ -37,6 +38,8 @@ export interface ChildApiEnvironmentVariables {
   [ChildApiEnvKey.TIMEOUT]: number;
   [ChildApiEnvKey.WORKERS]: number;
   [ChildApiEnvKey.CONCURRENCY]: number;
+  [ChildApiEnvKey.THREADPOOL_WORKERS]: number;
+  [ChildApiEnvKey.PRICE_REQUEST_STRATEGY]: PriceRequestStrategy;
 }
 
 export interface ProductApiEnvironmentVariables {

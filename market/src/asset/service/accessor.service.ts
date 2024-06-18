@@ -68,7 +68,7 @@ export class AccessorService {
     isoCode: ExchangeIsoCode
   ): Promise<Either<any, FulfilledYfPrice>[]> {
     const tickerArr = await this.database_financialAssetSrv.readSymbolsByExchange(isoCode);
-    return this.market_financialAssetSrv.fetchFulfilledYfPrices(isoCode, tickerArr);
+    return this.market_financialAssetSrv.fetchFulfilledYfPriceArr(isoCode, tickerArr);
   }
 
 }

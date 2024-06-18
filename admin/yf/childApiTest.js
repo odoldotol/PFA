@@ -39,7 +39,8 @@ if (apiFlag) {
         httpClientRequestOptions,
         resolve,
         reject
-      ).end().on('error', reject);
+      ).end();
     }).catch((err) => err);
-  })).then(writeBody);
+  })).then(writeBody)
+  .catch(console.error);
 }

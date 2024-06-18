@@ -27,6 +27,8 @@ export type ChildResponseYfInfo = Readonly<{
   metadata: YfinanceMetadata;
 }>;
 
+export type ChildResponseYfPrices = (ChildResponseYfPrice | ChildError)[];
+
 export type ChildResponseYfPrice = Readonly<{
   regularMarketPrice: number | null;
   regularMarketPreviousClose: number| null;

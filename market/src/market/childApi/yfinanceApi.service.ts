@@ -9,14 +9,20 @@ import {
   YfPrice
 } from 'src/common/interface';
 import {
+  InjectTaskQueue,
+  TaskQueue
+} from 'src/taskQueue';
+import {
   ChildError,
   ChildResponseYfInfo,
   ChildResponseYfInfos,
-  ChildResponseYfPrice
+  ChildResponseYfPrice,
+  ChildResponseYfPrices
 } from './interface';
 import { 
   YFINANCE_INFO_URN,
   YFINANCE_PRICE_URN,
+  YF_PRICE_ARRAY_TASK_QUEUE_TOKEN,
 } from './const';
 import Either, * as E from "src/common/class/either";
 
@@ -27,6 +33,8 @@ export class YfinanceApiService {
 
   constructor(
     private readonly childApiSrv: ChildApiService,
+    @InjectTaskQueue(YF_PRICE_ARRAY_TASK_QUEUE_TOKEN)
+    private readonly yfPriceArrTaskQueueSrv: TaskQueue<Either<any, ChildResponseYfPrices>>
   ) {}
 
   public fetchYfInfo(
@@ -40,13 +48,17 @@ export class YfinanceApiService {
   /**
    * ### admin 용도로만 사용 될 예정인 임시 함수.
    * ChildApi 의 구현에 의존하고 있음.
+   * 
+   * @todo childApi 에서 해당하는 api 를 쓰레드풀 이용해서 비동기적으로 동작하도록 수정해야함.
+   * @todo childApi 에서 해당하는 api 의 응답 폼을 수정해야함. 그냥 배열에 순서대로 성공 실패 다 담아야함.
+   * @todo 그 후, 이 함수도 수정해야함.
    */
   public async fetchYfInfoArr(
     tickerArr: Ticker[]
   ): Promise<Either<ChildError, YfInfo>[]> {
     const childApiInfos = await this.childApiSrv.post<ChildResponseYfInfos>(
       YFINANCE_INFO_URN,
-      tickerArr
+      { data: tickerArr }
     );
 
     if (childApiInfos.isLeft()) {
@@ -94,8 +106,42 @@ export class YfinanceApiService {
     ticker: Ticker
   ): Promise<Either<ChildError, YfPrice>> {
     return this.childApiSrv.post<ChildResponseYfPrice>(
-      YFINANCE_PRICE_URN + ticker
+      YFINANCE_PRICE_URN + "/" + ticker,
+      {
+        retryOptions: {
+          interval: 1000,
+          timeout: 1000 * 60
+        }
+      }
     ).then(E.map(this.getYfPrice.bind(null, ticker)));
+  }
+
+  /**
+   * @todo CHILD_THREADPOOL_WORKERS 제한 만큼의 티커를 하나의 요청으로 보내야한다. 발생하는 요청수는 워커수와 일치하는것이 이상적이다. 한번에 업데이트하는 갯수에 맞춰서 조정해야한다.
+   */
+  public async fetchYfPriceArr(
+    tickerArr: readonly Ticker[]
+  ): Promise<Either<ChildError, YfPrice>[]> {
+    const a = await this.yfPriceArrTaskQueueSrv.runTask(() => this.childApiSrv.post(
+      YFINANCE_PRICE_URN,
+      { data: tickerArr }
+    ));
+
+    if (a.isLeft()) {
+      throw a.left;
+    }
+
+    const result: Either<ChildError, YfPrice>[] = [];
+    for (let i = 0; i < tickerArr.length; i++) {
+      const ticker = tickerArr[i]!;
+      const childYfPrice = a.right[i]!;
+      if ('regularMarketPrice' in childYfPrice) {
+        result.push(Either.right(this.getYfPrice(ticker, childYfPrice)));
+      } else {
+        result.push(Either.left(childYfPrice));
+      }
+    }
+    return result;
   }
 
   // Todo: Refac - 겹치는 키에 다른 데이터가 있음. assign 순서에 의존하는 방식은 맘에 들지 않음.
@@ -138,5 +184,4 @@ export class YfinanceApiService {
       { symbol: ticker }
     );
   }
-
 }

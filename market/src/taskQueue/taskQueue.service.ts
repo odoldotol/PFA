@@ -3,7 +3,7 @@ import {
   // Logger
 } from '@nestjs/common';
 import { MODULE_OPTIONS_TOKEN } from './taskQueue.module-definition';
-import { TaskQueue, Task } from 'src/common/interface';
+import { TaskQueue, Task } from './interface';
 import { TaskQueueModuleOptions } from './interface';
 
 export class TaskQueueService<T = any> 
@@ -79,5 +79,4 @@ export class TaskQueueService<T = any>
       }
     });
   }
-
 }

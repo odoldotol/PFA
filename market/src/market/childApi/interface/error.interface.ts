@@ -1,5 +1,5 @@
 export type ChildError = Readonly<{
-  statusCode: number
+  statusCode?: number
   error?: string
   message?: string
   detail?: any

@@ -61,6 +61,25 @@ export class Market_FinancialAssetService {
     );
   }
 
+  /**
+   * @todo dedup
+   */
+  public async fetchFulfilledYfPriceArr(
+    isoCode: ExchangeIsoCode,
+    tickerArr: Ticker[]
+  ): Promise<Either<any, FulfilledYfPrice>[]> {
+    const yfPriceArr = await this.fetchYfPriceArr(tickerArr);
+    const marketExchange = this.exchangeSrv.getOne(isoCode);
+    return F.pipe(
+      yfPriceArr, F.toAsync,
+      F.map(E.flatMap(this.fulfillYfPrice.bind(this, marketExchange))),
+      F.toArray
+    );
+  }
+
+  /**
+   * @todo dedup
+   */
   public async fetchFulfilledYfPrices(
     isoCode: ExchangeIsoCode,
     tickerArr: Ticker[]
@@ -133,4 +152,13 @@ export class Market_FinancialAssetService {
     }
   }
 
+  private fetchYfPriceArr(
+    tickerArr: readonly Ticker[]
+  ): Promise<Either<any, YfPrice>[]> {
+    if (0 < tickerArr.length) {
+      return this.yfinanceApiSrv.fetchYfPriceArr(tickerArr);
+    } else {
+      return Promise.resolve([]);
+    }
+  }
 }

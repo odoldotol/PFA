@@ -12,7 +12,7 @@ export class HealthService {
   ) {}
 
   public async resolveWhenHealthy() {
-    await this.httpSrv.tryUntilResolved(
+    await this.httpSrv.intervalTryUntilRespondOrTimeout(
       HEALTHCHECK_INTERVAL,
       HEALTHCHECK_TIMEOUT,
       this.healthCheck.bind(this)
@@ -26,5 +26,4 @@ export class HealthService {
 
     return firstValueFrom(this.httpSrv.get(HEALTH_URN).pipe(throwErrorIfHealthStatusIsNot200));
   }
-
 }

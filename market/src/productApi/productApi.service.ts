@@ -40,7 +40,7 @@ export class ProductApiService {
       this.addKey(data)
     ));
 
-    await this.httpService.tryUntilResolved(
+    await this.httpService.intervalTryUntilRespondOrTimeout(
       1000,
       1000 * 5,
       httpCb
@@ -66,7 +66,6 @@ export class ProductApiService {
       fulfilledYfPrice.regularMarketLastClose
     ];
   }
-
 }
 
 // Todo: interface
