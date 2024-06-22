@@ -52,6 +52,8 @@ export class TypeOrmOptionsService
 
   private getDevelopmentOptions(isDockerDev: boolean): TypeOrmModuleOptions {
 
+    const testDbNameSuffix = process.env["PFA_TEST_DB_NAME_SUFFIX"];
+
     const developmentDocker: TypeOrmModuleOptions = {
       type: 'postgres',
       host: 'market-postgres',
@@ -69,7 +71,7 @@ export class TypeOrmOptionsService
       port: 5432,
       username: 'test',
       password: 'test',
-      database: 'test',
+      database: testDbNameSuffix ? 'test' + "_" + testDbNameSuffix : 'test',
       synchronize: true,
       autoLoadEntities: true
     };

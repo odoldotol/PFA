@@ -1,10 +1,10 @@
 import { DataSource } from 'typeorm';
 import dataSourceOptions from './options/postgres';
 
-const TEST_DATABASE_NAME_SUFFIX = '_test';
+const TEST_DATABASE_NAME_SUFFIX = 'test';
 
 Object.assign(dataSourceOptions, {
-  database: dataSourceOptions.database + TEST_DATABASE_NAME_SUFFIX,
+  database: dataSourceOptions.database + "_" + TEST_DATABASE_NAME_SUFFIX,
 });
 
 if (process.env['RACK_ENV'] !== 'production') {
