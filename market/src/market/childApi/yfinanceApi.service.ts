@@ -10,14 +10,14 @@ import {
 } from 'src/common/interface';
 import {
   InjectTaskQueue,
-  TaskQueue
+  TaskQueueService,
 } from 'src/taskQueue';
 import {
   ChildError,
   ChildResponseYfInfo,
   ChildResponseYfInfos,
   ChildResponseYfPrice,
-  ChildResponseYfPrices
+  ChildResponseYfPrices,
 } from './interface';
 import { 
   YFINANCE_INFO_URN,
@@ -34,7 +34,7 @@ export class YfinanceApiService {
   constructor(
     private readonly childApiSrv: ChildApiService,
     @InjectTaskQueue(YF_PRICE_ARRAY_TASK_QUEUE_TOKEN)
-    private readonly yfPriceArrTaskQueueSrv: TaskQueue<Either<any, ChildResponseYfPrices>>
+    private readonly yfPriceArrTaskQueueSrv: TaskQueueService
   ) {}
 
   public fetchYfInfo(
@@ -122,7 +122,7 @@ export class YfinanceApiService {
   public async fetchYfPriceArr(
     tickerArr: readonly Ticker[]
   ): Promise<Either<ChildError, YfPrice>[]> {
-    const a = await this.yfPriceArrTaskQueueSrv.runTask(() => this.childApiSrv.post(
+    const a = await this.yfPriceArrTaskQueueSrv.runTask(() => this.childApiSrv.post<ChildResponseYfPrices>(
       YFINANCE_PRICE_URN,
       { data: tickerArr }
     ));
