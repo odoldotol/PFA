@@ -45,7 +45,7 @@ describe('SubscriberService', () => {
         return Promise.all(eitherTickerArr.map(eitherTicker => E.flatMap(_ => Either.right({} as YfInfo))(eitherTicker)));
       });
       yfinanceInfoSrv.insertMany = jest.fn().mockResolvedValue(Either.right([]));
-      market_financialAssetSrv.fulfillYfInfo = jest.fn().mockReturnValue({});
+      market_financialAssetSrv.fulfillYfInfo = jest.fn().mockResolvedValue(Either.right({}));
       database_financialAssetSrv.createMany = jest.fn().mockResolvedValue([]);
     });
     
