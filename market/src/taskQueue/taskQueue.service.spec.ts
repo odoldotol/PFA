@@ -114,4 +114,41 @@ describe('TaskQueueService', () => {
       };
     });
   });
+
+  describe('pauseable', () => {
+    describe('pause', () => {
+      let resume: () => void;
+      let done = 0
+
+      const maxTaskDuration = 100;
+
+      const pauseTestTask = () => new Promise<number>(resolve => {
+        setTimeout(() => resolve(++done), Math.random() * maxTaskDuration);
+      });
+
+      const pauseTestNum = TEST_CONCURRENCY * 3;
+      const pauseNum = TEST_CONCURRENCY * 2;
+
+      it('should pause the task queue', async () => {
+
+        for (let i = 0; i < pauseTestNum; i++) {
+          taskQueueService.runTask(async () => {
+            if (i === pauseNum - 1) {
+              resume = await taskQueueService.pause();
+            }
+            return pauseTestTask();
+          });
+        }
+
+        await new Promise(resolve => setTimeout(resolve, maxTaskDuration * pauseTestNum / TEST_CONCURRENCY));
+        expect(done).toBe(pauseNum);
+      });
+
+      it('should return a resume function that resumes the task queue', async () => {
+        resume();
+        await new Promise(resolve => setTimeout(resolve, maxTaskDuration * (pauseTestNum - pauseNum) / TEST_CONCURRENCY));
+        expect(done).toBe(pauseTestNum);
+      });
+    });
+  })
 });

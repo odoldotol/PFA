@@ -11,6 +11,8 @@ export class TaskQueueService {
   private readonly taskQueue: TaskWrapper[] = [];
   private readonly consumerQueue: GetNextTaskWrapperResolver[] = [];
 
+  private paused: Promise<void> | null = null;
+
   constructor (
     @Inject(MODULE_OPTIONS_TOKEN) options: TaskQueueModuleOptions
   ) {
@@ -46,10 +48,29 @@ export class TaskQueueService {
   }
 
   /**
-   * - 비동기적 재귀함수.
-   * - TaskWrapper 를 큐에서 꺼내 실행하고 기다림.
+   * 큐를 일시정지시키고, 큐를 재개시킬 함수를 반환.
    */
-  private consumer(): Promise<void> {
+  public async pause(): Promise<() => void> {
+    return new Promise(resolve => {
+      this.paused = new Promise((pausedResolver) => {
+        resolve(() => {
+          this.paused = null;
+          pausedResolver();
+        });
+      });
+    });
+  }
+
+  /**
+   * - TaskWrapper 를 큐에서 꺼내 실행하고 기다림.
+   * - 비동기적 재귀함수.
+   * - paused 있으면 이를 기다림으로써 동작을 멈춤. 결국 모든 consumer 가 멈추면 전체 큐를 일시정지시킴.
+   */
+  private async consumer(): Promise<void> {
+    if (this.paused) {
+      await this.paused;
+    }
+
     return new Promise(resolve => {
       this.getNextTaskWrapper()
       .then(taskWrapper => {
