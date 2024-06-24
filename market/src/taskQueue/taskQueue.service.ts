@@ -14,7 +14,7 @@ export class TaskQueueService {
   private readonly taskQueue: TaskWrapper[] = [];
   private readonly consumerQueue: GetNextTaskWrapperResolver[] = [];
 
-  private paused: Promise<void> | null = null;
+  private readonly pausedSet = new Set<Promise<void>>();
 
   constructor (
     @Inject(MODULE_OPTIONS_TOKEN) options: TaskQueueModuleOptions
@@ -51,16 +51,19 @@ export class TaskQueueService {
   }
 
   /**
-   * 큐를 일시정지시키고, 큐를 재개시킬 함수를 반환.
+   * #### 큐를 일시정지시키고, 큐를 재개시킬 함수를 반환.
+   * pause 는 독립적으로 동작하며 각각이 독립적으로 큐를 일시정지시키며, 각각에 대한 재개함수인 resume 을 반환함.
+   * 즉, 모든 pause 에 대한 resume 이 실행되어야 큐가 재개되며, pause 가 하나라도 살아있으면 큐는 동작하지 않음.
    */
   public async pause(): Promise<() => void> {
     return new Promise(resolve => {
-      this.paused = new Promise((pausedResolver) => {
+      const paused = new Promise<void>(pausedResolver => {
         resolve(() => {
-          this.paused = null;
+          this.pausedSet.delete(paused);
           pausedResolver();
         });
       });
+      this.pausedSet.add(paused);
     });
   }
 
@@ -70,8 +73,8 @@ export class TaskQueueService {
    * - paused 있으면 이를 기다림으로써 동작을 멈춤. 결국 모든 consumer 가 멈추면 전체 큐를 일시정지시킴.
    */
   private async consumer(): Promise<void> {
-    if (this.paused) {
-      await this.paused;
+    while (this.pausedSet.size !== 0) {
+      await Promise.all(this.pausedSet);
     }
 
     return new Promise(resolve => {

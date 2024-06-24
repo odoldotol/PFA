@@ -114,22 +114,21 @@ describe('TaskQueueService', () => {
     });
   });
 
-  describe('pauseable', () => {
-    describe('pause', () => {
+  describe('pause', () => {
+    const maxTaskDuration = 100;
+    let done = 0;
+
+    const pauseTestTask = () => new Promise<number>(resolve => {
+      setTimeout(() => resolve(++done), Math.random() * maxTaskDuration);
+    });
+
+    describe('pause and resume', () => {
       let resume: () => void;
-      let done = 0
-
-      const maxTaskDuration = 100;
-
-      const pauseTestTask = () => new Promise<number>(resolve => {
-        setTimeout(() => resolve(++done), Math.random() * maxTaskDuration);
-      });
 
       const pauseTestNum = TEST_CONCURRENCY * 3;
       const pauseNum = TEST_CONCURRENCY * 2;
 
       it('should pause the task queue', async () => {
-
         for (let i = 0; i < pauseTestNum; i++) {
           taskQueueService.runTask(async () => {
             if (i === pauseNum - 1) {
@@ -146,6 +145,44 @@ describe('TaskQueueService', () => {
       it('should return a resume function that resumes the task queue', async () => {
         resume();
         await new Promise(resolve => setTimeout(resolve, maxTaskDuration * (pauseTestNum - pauseNum) / TEST_CONCURRENCY));
+        expect(done).toBe(pauseTestNum);
+      });
+
+      afterAll(() => {
+        done = 0;
+      });
+    });
+
+    describe('independence', () => {
+      let resume1: () => void;
+      let resume2: () => void;
+
+      const pauseTestNum = TEST_CONCURRENCY * 3;
+      const pauseNum1 = TEST_CONCURRENCY;
+      const pauseNum2 = TEST_CONCURRENCY * 2;
+
+      it('operations of pause are independent. all resumes should be executed to resume the queue', async () => {
+        for (let i = 0; i < pauseTestNum; i++) {
+          if (i === pauseNum2 - 1) {
+            await new Promise(resolve => setTimeout(resolve, maxTaskDuration * pauseTestNum / TEST_CONCURRENCY));
+            expect(done).toBe(pauseNum1);
+            resume2 = await taskQueueService.pause();
+          }
+
+          taskQueueService.runTask(async () => {
+            if (i === pauseNum1 - 1) {
+              resume1 = await taskQueueService.pause();
+            }
+            return pauseTestTask();
+          });
+        }
+
+        resume1();
+        await new Promise(resolve => setTimeout(resolve, maxTaskDuration * (pauseTestNum - pauseNum1) / TEST_CONCURRENCY));
+        expect(done).toBe(pauseNum1);
+        
+        resume2();
+        await new Promise(resolve => setTimeout(resolve, maxTaskDuration * (pauseTestNum - pauseNum1) / TEST_CONCURRENCY));
         expect(done).toBe(pauseTestNum);
       });
     });
