@@ -4,7 +4,6 @@ import { MODULE_OPTIONS_TOKEN } from "./taskQueue.module-definition";
 import {
   Observable,
   lastValueFrom,
-  Subject,
 } from "rxjs";
 
 const TEST_CONCURRENCY = 5;
@@ -35,7 +34,7 @@ describe('TaskQueueService', () => {
         expect(result).toBe(1);
       });
 
-      it('<T>(task: () => Observable<T>): Promise<Observable<T>>', async () => {
+      it('<T>(task: () => Observable<T>): Promise<Observable<T>> (동기 옵저버블 테스트를 겸함)', async () => {
         const task = () => new Observable(subscriber => {
           subscriber.next(1);
           subscriber.complete();
@@ -73,7 +72,7 @@ describe('TaskQueueService', () => {
         });
       });
 
-      it('Observable', async () => {
+      it('Observable (비동기)', async () => {
         const TestTaskNum = TEST_CONCURRENCY * (Math.floor(Math.random() * 10) + 2);
         const result: number[] = [];
         await Promise.all(new Array(TestTaskNum)
@@ -99,18 +98,18 @@ describe('TaskQueueService', () => {
         testNum--;
         return concurrencyArr.pop()!;
       };
-      
+
       const concurrencyTestObservable = (): Observable<number> => {
         concurrencyArr.push(++testNum);
         expect(concurrencyArr.length).toBe(testNum);
         expect(concurrencyArr.length).toBeLessThanOrEqual(TEST_CONCURRENCY);
-        const subject = new Subject<number>();
-        setTimeout(() => {
-          testNum--;
-          subject.next(concurrencyArr.pop()!);
-          subject.complete();
-        }, Math.random() * 100);
-        return subject;
+        return new Observable(subscriber => {
+          setTimeout(() => {
+            testNum--;
+            subscriber.next(concurrencyArr.pop()!);
+            subscriber.complete();
+          }, Math.random() * 100);
+        });
       };
     });
   });

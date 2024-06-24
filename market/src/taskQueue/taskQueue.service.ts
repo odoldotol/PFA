@@ -3,7 +3,10 @@ import {
 } from '@nestjs/common';
 import { MODULE_OPTIONS_TOKEN } from './taskQueue.module-definition';
 import { TaskQueueModuleOptions } from './interface';
-import { Observable } from 'rxjs';
+import {
+  Observable,
+  Subject
+} from 'rxjs';
 
 export class TaskQueueService {
 
@@ -31,7 +34,7 @@ export class TaskQueueService {
   /**
    * 큐를 통과해 처리되는 데로 결과를 반환.
    * - Promise 는 이행될 때까지 기다리고 반환함.
-   * - Observable 은 곧바로 이행되어 반환되지만 큐 내부에서 Observable 이 완료되는 것을 기다림.
+   * - Observable 은 최대한 빠르게 이행되어 반환되지만 큐 내부에서 Observable 이 완료되는 것을 기다림.
    */
   public runTask<T>(task: PromiseTask<T>): Promise<T>;
   public runTask<T>(task: ObservableTask<T>): Promise<Observable<T>>;
@@ -95,9 +98,13 @@ export class TaskQueueService {
   }
 
   /**
-   * 큐에서 실제로 처리하고 기다리는 TaskWrapper 를 반환.
-   * - Promise 에는 리졸버랑 리젝터를 달아두고 이행될 때까지 기다림.
-   * - Observable 은 곧바로 리졸버에 넘기고, Observable 이 완료되는 것을 기다림.
+   * 큐에서 실제로 처리하고 기다리는 TaskWrapper 를 반환.  
+   * TaskWrapper 는 Task 의 결과인 Promise 나 Observable 를 처리하고 기다림.
+   * 
+   * - Promise 에는 runTaskResolver 와 runTaskRejecter 을 달아두고 이를 기다림.
+   * 
+   * - Observable 은 옵저버역할을 할 Subject 에 의해 구독되며 Subject 가 최대한 빠르게 runTaskResolver 에 넘겨짐.
+   * - 동기적인 Observable 을 처리할 수 있도록 Observable 에 대한 구독은 setImmediate 을 통해 이벤트 루프상에서 필요한 만큼 미뤄짐.
    */
   private wrapTask<T>(
     task: Task<T>,
@@ -116,13 +123,22 @@ export class TaskQueueService {
       if (taskReturn instanceof Promise) {
         await taskReturn.then(runTaskResolver, runTaskRejecter);
       } else if (taskReturn instanceof Observable) {
-        runTaskResolver(taskReturn); // 일단 runTask 리졸버앤 넘기고 기다리기.
-        await new Promise<void>((resolve, reject) => {
-          (taskReturn as Observable<T>).subscribe({ // 타입단언 필요없지만, 테스트코드에서 유추 못하는 애러가 있음.
+        const observerSubject = new Subject<T>();
+        runTaskResolver(observerSubject); // 일단 runTask 리졸버에 옵저버를 넘기고 기다리기.
+
+        // 옵저버 Observable 의 완료, 즉 이 Task 의 완료를 기다릴 Done Promise.
+        const done = new Promise<void>((resolve, reject) => {
+          observerSubject.subscribe({
             complete: resolve,
             error: reject,
           });
         });
+
+        // 동기 Observable 도 처리할 수 있도록,
+        // setImmediate 에 넘겨서 해결된 Promise 큐인 microTaskQueue 이후에 처리하도록.
+        // taskReturn 이 동기적인 Observable 이라도 외부애서 observerSubject 로 구독할 수 있어짐.
+        setImmediate(() => (taskReturn as Observable<T>).subscribe(observerSubject));
+        await done;
       } else { // never
         runTaskRejecter(new Error('Task must return a Promise or an Observable'));
       }
