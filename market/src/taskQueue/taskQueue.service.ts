@@ -107,7 +107,7 @@ export class TaskQueueService {
    * - Promise 에는 runTaskResolver 와 runTaskRejecter 을 달아두고 이를 기다림.
    * 
    * - Observable 은 옵저버역할을 할 Subject 에 의해 구독되며 Subject 가 최대한 빠르게 runTaskResolver 에 넘겨짐.
-   * - 동기적인 Observable 을 처리할 수 있도록 Observable 에 대한 구독은 setImmediate 을 통해 이벤트 루프상에서 필요한 만큼 미뤄짐.
+   * - 동기적인 Observable 을 처리할 수 있도록 Observable 에 대한 구독은 setImmediate 을 통해 충분히 미뤄짐. (Promise.resolve().then 으로 처리하여도 충분할 수 있음)
    */
   private wrapTask<T>(
     task: Task<T>,
@@ -138,9 +138,9 @@ export class TaskQueueService {
         });
 
         // 동기 Observable 도 처리할 수 있도록,
-        // setImmediate 에 넘겨서 해결된 Promise 큐인 microTaskQueue 이후에 처리하도록.
+        // setImmediate 에 넘겨서 microTaskQueue 의 모든 해결된 Promise 처리 이후에 충분히 미룬 후 처리하도록. (Promise.resolve().then 으로 처리하여도 충분할 수 있음)
         // taskReturn 이 동기적인 Observable 이라도 외부애서 observerSubject 로 구독할 수 있어짐.
-        setImmediate(() => (taskReturn as Observable<T>).subscribe(observerSubject));
+        setImmediate(() => (taskReturn as Observable<T>).subscribe(observerSubject)); // 타입 단언 없으면 jest 가 타입 유추를 못함, 해결하고 타입단언 지우기.
         await done;
       } else { // never
         runTaskRejecter(new Error('Task must return a Promise or an Observable'));
