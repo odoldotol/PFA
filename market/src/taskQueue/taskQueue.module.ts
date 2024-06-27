@@ -2,7 +2,10 @@ import { DynamicModule, Module } from "@nestjs/common";
 import { ConfigurableModuleClass, MODULE_OPTIONS_TOKEN } from "./taskQueue.module-definition";
 import { TaskQueueService } from "./taskQueue.service";
 import { TaskQueueModuleOptions } from "./interface";
-import { TOKEN_SUFFIX } from "./const/injectionToken.const";
+import {
+  TOKEN_SUFFIX
+} from "./const";
+import { buildInjectionToken } from "src/common/util";
 
 @Module({})
 export class TaskQueueModule
@@ -53,6 +56,6 @@ export class TaskQueueModule
   }
 
   private static makeToken(token: string): string {
-    return token + TOKEN_SUFFIX;
+    return buildInjectionToken(token, TOKEN_SUFFIX);
   }
 }

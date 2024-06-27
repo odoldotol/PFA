@@ -1,5 +1,6 @@
 import {
   Inject,
+  Logger,
 } from '@nestjs/common';
 import { MODULE_OPTIONS_TOKEN } from './taskQueue.module-definition';
 import { TaskQueueModuleOptions } from './interface';
@@ -10,25 +11,42 @@ import {
 
 export class TaskQueueService {
 
+  private readonly logger = new Logger(TaskQueueService.name);
+
   // Todo: 내장 Array 말고 Queue 를 구현해서 사용하기?
   private readonly taskQueue: TaskWrapper[] = [];
   private readonly consumerQueue: GetNextTaskWrapperResolver[] = [];
-
+  
+  private readonly consumerSet = new Set<ConsumerWrapper>();
   private readonly pausedSet = new Set<Promise<void>>();
 
   constructor (
-    @Inject(MODULE_OPTIONS_TOKEN) options: TaskQueueModuleOptions
+    @Inject(MODULE_OPTIONS_TOKEN)
+    private readonly options: TaskQueueModuleOptions
   ) {
-    const { concurrency } = options;
+    this.start();
+  }
 
-    if (!(1 <= concurrency)) {
-      throw new Error('Concurrency must be at least 1');
-    }
+  /**
+   * 살아있는 consumer 의 수 반환.
+   */
+  public getConcurrency(): number {
+    return this.consumerSet.size;
+  }
 
-    // spawn consumers
-    for (let i = 1; i <= concurrency; i++) {
-      this.consumer();
-    }
+  public countQueueingTasks(): number {
+    return this.taskQueue.length;
+  }
+
+  public countQueuingConsumers(): number {
+    return this.consumerQueue.length;
+  }
+
+  /**
+   * Task 를 처리중인 consumer 의 수 반환.
+   */
+  public countWorkingConsumers(): number {
+    return this.getConcurrency() - this.countQueuingConsumers();
   }
 
   /**
@@ -68,26 +86,56 @@ export class TaskQueueService {
   }
 
   /**
-   * - TaskWrapper 를 큐에서 꺼내 실행하고 기다림.
-   * - 비동기적 재귀함수.
-   * - paused 있으면 이를 기다림으로써 동작을 멈춤. 결국 모든 consumer 가 멈추면 전체 큐를 일시정지시킴.
+   * [Dev]
+   * 컨슈머가 현재 하던일을 마치는데로 종료되어 결국 모든 컨슈머를 종료시킴.
    */
-  private async consumer(): Promise<void> {
-    while (this.pausedSet.size !== 0) {
-      await Promise.all(this.pausedSet);
+  public stop(): void {
+    this.consumerSet.clear(); // 컨슈머들 모두가 현재 하던일을 마치는데로 종료.
+    while (this.consumerQueue.length !== 0) { // 대기중인 컨슈머를 모두 종료시키기 위해 더미 TaskWrapper 를 전달.
+      this.consumerQueue.pop()!(() => Promise.resolve());
     }
+  }
 
-    return new Promise(resolve => {
-      this.getNextTaskWrapper()
-      .then(taskWrapper => {
-        return taskWrapper()
-      })
-      .catch(_error => {}) // Task 에 대한 에러는 여기서는 무시하고 runTask 를 통해 던져져서 외부에서 처리한다.
-      .finally(() => {
-        this.consumer(); // 비동기적 재귀
-        resolve(); // 주의: resolve(this.consumer()); 는 무한 재귀 프로미스 해결 체인의 메모리 누수 버그를 일으킴.
-      });
-    });
+  /**
+   * [Dev]
+   * 컨슈머를 생성.
+   */
+  public start(concurrency = this.options.concurrency): void {
+    if (this.isRunning()) {
+      this.logger.warn('Queue is already running.');
+    } else {
+      if (concurrency < 1) {
+        throw new Error('Concurrency must be at least 1');
+      }
+  
+      for (let i = 1; i <= concurrency; i++) {
+        this.spawnConsumer();
+      }
+    }
+  }
+
+  private spawnConsumer(): void {
+    const consumerWrapper: ConsumerWrapper = {};
+    consumerWrapper.consumer = this.consumer(consumerWrapper);
+    this.consumerSet.add(consumerWrapper);
+  }
+
+  private async consumer(wrapper: ConsumerWrapper): Promise<void> {
+    do {
+      while (this.pausedSet.size !== 0) { // paused
+        await Promise.all(this.pausedSet);
+        if (!this.consumerSet.has(wrapper)) {
+          return;
+        }
+      }
+
+      try {
+        const taskWrapper = await this.getNextTaskWrapper();
+        await taskWrapper();
+      } catch (error) {
+        this.logger.warn(error); //
+      }
+    } while (this.consumerSet.has(wrapper));
   }
 
   private getNextTaskWrapper(): Promise<TaskWrapper> {
@@ -130,10 +178,10 @@ export class TaskQueueService {
         runTaskResolver(observerSubject); // 일단 runTask 리졸버에 옵저버를 넘기고 기다리기.
 
         // 옵저버 Observable 의 완료, 즉 이 Task 의 완료를 기다릴 Done Promise.
-        const done = new Promise<void>((resolve, reject) => {
+        const done = new Promise<void>(resolve => {
           observerSubject.subscribe({
             complete: resolve,
-            error: reject,
+            error: resolve,
           });
         });
 
@@ -147,6 +195,10 @@ export class TaskQueueService {
       }
     };
   }
+
+  private isRunning(): boolean {
+    return this.consumerSet.size !== 0;
+  }
 }
 
 type Task<T> = PromiseTask<T> | ObservableTask<T>;
@@ -155,3 +207,13 @@ type ObservableTask<T> = () => Observable<T>;
 
 type TaskWrapper = () => Promise<void>;
 type GetNextTaskWrapperResolver = (value: TaskWrapper) => void;
+
+type ConsumerWrapper = {
+  consumer?: Promise<void>;
+  state?: ConsumerState;
+};
+enum ConsumerState {
+  PAUSED,
+  QUEUEING,
+  WORKING,
+}
