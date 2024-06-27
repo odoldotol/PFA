@@ -40,7 +40,7 @@ export class Market_Exchange
   ) {
     super();
     // Todo: error 핸들링
-    this.on("error", e => this.logger.error(e.stack));
+    this.on("error", e => this.logger.error(e, e.stack));
   }
 
   onApplicationBootstrap() {

@@ -83,7 +83,7 @@ export class Database_UpdaterService {
     return updateRes;
   }
 
-  // 불필요한 부분일 수 있음 --------------------------------------
+  // Todo: Refac ---------------------------------------------
   public createLog(
     newLogDoc: Log_priceUpdate
   ) {

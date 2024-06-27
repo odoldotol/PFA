@@ -74,14 +74,6 @@ export class ExchangeService {
 
   private isOutofdateExchange(exchange: ExchangeCore): boolean {
     const marketExchange = this.market_exchangeSrv.getOne(exchange.isoCode);
-    const result = exchange.marketDate != marketExchange.marketDate;
-    
-    // Todo: Warn 처리
-    result &&
-    marketExchange.isMarketOpen() &&
-    this.logger.warn(`${exchange.isoCode} : Run Updater while Open`);
-
-    return result;
+    return exchange.marketDate != marketExchange.marketDate;
   }
-
 }
