@@ -3,7 +3,7 @@ import {
   Logger
 } from '@nestjs/common';
 import { TempConfigService } from 'src/config';
-import { HttpService } from 'src/http';
+import { HttpService } from '@nestjs/axios';
 import {
   ExchangeCore,
   FulfilledYfPrice,
@@ -13,6 +13,10 @@ import {
 import { UPDATE_PRICE_BY_EXCHANGE_URN } from './const';
 import { firstValueFrom } from 'rxjs';
 import Either, * as E from 'src/common/class/either';
+import {
+  intervalTryUntilResolvedOrTimeout,
+  isHttpResponse4XX
+} from 'src/common/util';
 
 @Injectable()
 export class ProductApiService {
@@ -28,29 +32,30 @@ export class ProductApiService {
   public async updatePriceByExchange(
     exchange: ExchangeCore,
     updateResult: Either<any, FulfilledYfPrice>[]
-  ) {
+  ): Promise<void> {
     const isoCode = exchange.isoCode;
     const data: updatePriceByExchangeData = {
       marketDate: exchange.marketDate,
       priceArrs: E.getRightArray(updateResult).map(this.convertToUpdateTuple)
     };
 
-    const httpCb = () => firstValueFrom(this.httpService.post(
+    const task = () => firstValueFrom(this.httpService.post(
       UPDATE_PRICE_BY_EXCHANGE_URN + isoCode,
       this.addKey(data)
     ));
 
-    await this.httpService.intervalTryUntilRespondOrTimeout(
-      1000,
-      1000 * 5,
-      httpCb
-    ).then(res => {
-      this.logger.verbose(`${isoCode} : Response status From Product ${res.status}`);
-    }).catch(e => {
-      this.logger.warn(`${isoCode} : RequestRegularUpdater Failed | ${e.message}`);
-    });
+    await intervalTryUntilResolvedOrTimeout(task, {
+      interval: 1000,
+      timeout: 1000 * 5,
+      rejectCondition: isHttpResponse4XX
+    })
+    .then(res => this.logger.verbose(`${isoCode} : Response status From Product ${res.status}`))
+    .catch(e => this.logger.warn(`${isoCode} : RequestRegularUpdater Failed | ${e.message}`));
   }
 
+  /**
+   * @todo 삭제
+   */
   private addKey<T>(data: T extends ProductApiData ? T : never): T {
     return (data.key = this.TEMP_KEY, data);
   }
