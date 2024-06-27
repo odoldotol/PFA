@@ -1,6 +1,10 @@
 import { Test, TestingModule } from "@nestjs/testing";
+import { ChildApiConfigService } from "src/config";
 import { Market_FinancialAssetService } from "./financialAsset.service";
-import { YfinanceApiService } from "../childApi/yfinanceApi.service";
+import {
+    ConnectionService,
+    YfinanceApiService
+} from "../childApi";
 import { Market_ExchangeService } from "../exchange/exchange.service";
 
 describe('Market_FinancialAssetService', () => {
@@ -9,6 +13,8 @@ describe('Market_FinancialAssetService', () => {
     beforeEach(async () => {
         const module: TestingModule = await Test.createTestingModule({
             providers: [
+                { provide: ConnectionService, useValue: {} },
+                { provide: ChildApiConfigService, useValue: {} },
                 { provide: YfinanceApiService, useValue: {} },
                 { provide: Market_ExchangeService, useValue: {} },
                 Market_FinancialAssetService

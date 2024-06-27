@@ -1,7 +1,8 @@
-import { Logger, OnModuleInit } from "@nestjs/common";
+import { InternalServerErrorException, Logger, OnModuleInit } from "@nestjs/common";
 import { ExchangeSessionApiService } from "src/market/childApi";
 import { ExchangeIsoCode } from "src/common/interface";
 import { ExchangeSession } from "src/market/interface";
+import { ChildResponseEcSession } from "src/market/childApi/interface";
 import { YAHOO_FINANCE_CCC_EXCHANGE_ISO_CODE } from "src/config";
 import {
   EVENT_MARGIN_DEFAULT,
@@ -11,9 +12,12 @@ import {
 import {
   buildLoggerContext,
   calculateElapsedMs,
-  getISOYmdStr
+  getISOYmdStr,
+  isHttpResponse4XX,
+  retryUntilResolvedOrTimeout
 } from "src/common/util";
 import * as F from '@fxts/core';
+import * as X from 'rxjs';
 
 export class Market_ExchangeSession
   implements OnModuleInit, ExchangeSession
@@ -37,8 +41,14 @@ export class Market_ExchangeSession
   ) {}
 
   async onModuleInit() {
-    await this.fetchAndSetSession();
-    await this.updateSession();
+    try {
+      await this.fetchAndSetSession();
+      await this.updateSession();
+    } catch (e: any) {
+      this.logger.error(e, e.stack);
+      this.logger.verbose("Failed to initialize");
+      process.exit(1);
+    }
   }
 
   public get nextOpen(): Date {
@@ -103,17 +113,47 @@ export class Market_ExchangeSession
     return this.updateSession(retry + 1);
   }
 
+  /**
+   * @todo 세션 업데이트 실패시 어떤 영향을 미칠지 테스트하기
+   */
   private async fetchAndSetSession(): Promise<ExchangeSession> {
     if (this.isoCode === YAHOO_FINANCE_CCC_EXCHANGE_ISO_CODE) {
       this.session = this.getMidnightUTCSession();
     } else {
-      await this.exchangeSessionApiSrv.fetchEcSession(this.isoCode)
-      .then(e => e.isRight() ? this.session = e.right
-      : this.logger.error("Failed to fetch exchange session", e.left));
+      await this.fetchExchangeSession(this.isoCode)
+      .then(session => this.session = session);
     }
     this.calculateElapsedMsSinceNext();
     return this.session;
   };
+
+  private async fetchExchangeSession(
+    isoCode: ExchangeIsoCode
+  ): Promise<ExchangeSession> {
+    const task = async () =>
+      X.lastValueFrom(await this.exchangeSessionApiSrv.fetchEcSession(isoCode));
+
+    return retryUntilResolvedOrTimeout(task, {
+      interval: 10,
+      timeout: 1000 * 30,
+      rejectCondition: isHttpResponse4XX
+    })
+    .then(this.getExchangeSession)
+    .catch(e => {
+      throw new InternalServerErrorException(e);
+    });
+  }
+
+  private getExchangeSession(
+    session: ChildResponseEcSession
+  ): ExchangeSession {
+    return {
+      previousOpen: new Date(session.previous_open),
+      previousClose: new Date(session.previous_close),
+      nextOpen: new Date(session.next_open),
+      nextClose: new Date(session.next_close),
+    };
+  }
 
   /**
    * @todo refac

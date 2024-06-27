@@ -1,4 +1,7 @@
-import { Injectable } from "@nestjs/common";
+import {
+  Injectable,
+  Logger
+} from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import {
   DEFAULT_CHILD_API_CONCURRENCY,
@@ -12,11 +15,16 @@ import { ChildApiEnvironmentVariables } from "../interface";
 @Injectable()
 export class ChildApiConfigService {
 
+  private readonly logger = new Logger(ChildApiConfigService.name);
+
   private readonly LOCAL_BASE_URL = 'http://127.0.0.1:8001';
+  private readonly PRICE_REQUEST_STRATEGY: PriceRequestStrategy;
 
   constructor(
     private readonly configSrv: ConfigService<ChildApiEnvironmentVariables>,
-  ) {}
+  ) {
+    this.PRICE_REQUEST_STRATEGY = this.getPriceRequestStrategy();
+  }
 
   public getBaseUrl(): string {
     return this.configSrv.get(
@@ -42,15 +50,12 @@ export class ChildApiConfigService {
     );
   }
 
-  /**
-   * 기본값 multi
-   */
-  public getPriceRequestStrategy(): PriceRequestStrategy {
-    const result = this.configSrv.get(
-      ChildApiEnvKey.PRICE_REQUEST_STRATEGY,
-      { infer: true }
-    );
-    return result === PriceRequestStrategy.SINGLE ? result : PriceRequestStrategy.MULTI;
+  public isPriceRequestStrategySingle(): boolean {
+    return this.PRICE_REQUEST_STRATEGY === PriceRequestStrategy.SINGLE;
+  }
+
+  public isPriceRequestStrategyMulti(): boolean {
+    return this.PRICE_REQUEST_STRATEGY === PriceRequestStrategy.MULTI;
   }
 
   public getConcurrency(): number {
@@ -69,5 +74,26 @@ export class ChildApiConfigService {
       DEFAULT_CHILD_API_THREADPOOL_WORKERS,
       { infer: true }
     );
+  }
+
+  /**
+   * 기본값 multi
+   */
+  private getPriceRequestStrategy(): PriceRequestStrategy {
+    let result = this.configSrv.get(
+      ChildApiEnvKey.PRICE_REQUEST_STRATEGY,
+      { infer: true }
+    );
+
+    switch (result) {
+      case PriceRequestStrategy.SINGLE:
+        break;
+      case PriceRequestStrategy.MULTI:
+        break;
+      default:
+        result = PriceRequestStrategy.MULTI;
+        this.logger.verbose("PRICE_REQUEST_STRATEGY : Use default value 'multi'");
+    }
+    return result;
   }
 }

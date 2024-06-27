@@ -28,8 +28,14 @@ export class UpdaterService
   ) {}
 
   async onApplicationBootstrap() {
-    await this.synchronizeAllExchangesWithMarket();
-    this.exchangeSrv.registerUpdaterAllExchanges(this.updater.bind(this));
+    try {
+      await this.synchronizeAllExchangesWithMarket();
+      this.exchangeSrv.registerUpdaterAllExchanges(this.updater.bind(this));
+    } catch (e: any) {
+      this.logger.error(e, e.stack);
+      this.logger.verbose("Failed to initialize");
+      process.exit(1);
+    }
   }
 
   private async synchronizeAllExchangesWithMarket(): Promise<void> {
@@ -60,30 +66,35 @@ export class UpdaterService
     
     const updateEitherArr
     = await this.accessorSrv.fetchFulfilledYfPricesOfSubscribedAssets(isoCode);
-    const updateResult = await this.database_updaterSrv.update(
-      updateEitherArr,
-      exchange,
-    ).then(res => (this.logger.log(`${isoCode} : Update End!!!`), res));
 
-    // Todo: Refac (불필요한 부분일 수 있음) ---------------------
-    let endTime: Date;
-    const newLogDoc: Log_priceUpdate = {
-      launcher,
-      isStandard: true,
-      key: exchange.isoCode,
-      success: E.getRightArray(updateResult),
-      failure: E.getLeftArray(updateResult),
-      startTime: startTime.toISOString(),
-      endTime: (endTime = new Date()).toISOString(),
-      duration: endTime.getTime() - startTime.getTime()
-    };
+    if (0 < updateEitherArr.length) {
+      const updateResult = await this.database_updaterSrv.update(
+        updateEitherArr,
+        exchange,
+      ).then(res => (this.logger.log(`${isoCode} : Update End!!!`), res));
 
-    this.database_updaterSrv.createLog(newLogDoc);
-    // ------------------------------------------------------
+      // Todo: Refac ------------------------------------------
+      let endTime: Date;
+      const newLogDoc: Log_priceUpdate = {
+        launcher,
+        isStandard: true,
+        key: exchange.isoCode,
+        success: E.getRightArray(updateResult),
+        failure: E.getLeftArray(updateResult),
+        startTime: startTime.toISOString(),
+        endTime: (endTime = new Date()).toISOString(),
+        duration: endTime.getTime() - startTime.getTime()
+      };
 
-    this.productApiSrv.updatePriceByExchange(exchange, updateResult);
+      this.database_updaterSrv.createLog(newLogDoc);
+      // ------------------------------------------------------
 
-    return updateResult;
+      this.productApiSrv.updatePriceByExchange(exchange, updateResult);
+
+      return updateResult;
+    } else {
+      this.logger.log(`${isoCode} : Update End (No Assets to Update)!!!`);
+      return [];
+    }
   }
-
 }
