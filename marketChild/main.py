@@ -93,7 +93,7 @@ def calculate_rlimit_nofile_soft(
     multiple = 7
   else:
     amount = threadpool_maxworkers
-    multiple = amount + 4000 / amount + 1000
+    multiple = (amount + 4000) / (amount + 1000)
   return min_start + (multiple * amount)
 
 rlimit_nofile_soft = calculate_rlimit_nofile_soft(
