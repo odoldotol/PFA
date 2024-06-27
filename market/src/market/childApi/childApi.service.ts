@@ -1,63 +1,73 @@
-import { Injectable } from '@nestjs/common';
-import { HttpService } from 'src/http';
-import { TaskQueueService } from 'src/taskQueue';
-import { ChildError } from './interface';
 import {
-  // catchError,
-  firstValueFrom,
-  // map
-} from 'rxjs';
-import Either, * as E from "src/common/class/either";
+  Injectable,
+  Logger,
+} from '@nestjs/common';
+import { AxiosResponse } from 'axios';
+import {
+  InjectTaskQueue,
+  TaskQueueService
+} from 'src/taskQueue';
+import {
+  CHILD_WORKERS_QUEUE
+} from './const';
+import { Observable } from 'rxjs';
+import * as X from 'rxjs';
 import * as F from "@fxts/core";
 
 @Injectable()
 export class ChildApiService {
 
+  private readonly logger = new Logger(ChildApiService.name);
+
   constructor(
-    private readonly httpService: HttpService,
-    private readonly taskQueue: TaskQueueService,
-  ) {}
+    private readonly concurrencyQueueSrv: TaskQueueService,
+    @InjectTaskQueue(CHILD_WORKERS_QUEUE)
+    private readonly workersQueueSrv: TaskQueueService
+  ) {
+    this.logger.verbose("ConcurrencyQueue Concurrency: " + `${concurrencyQueueSrv.getConcurrency()}`);
+    this.logger.verbose("WorkersQueue Concurrency: " + `${workersQueueSrv.getConcurrency()}`);
+  }
 
-  // Todo: 프로젝트 전체적으로 either 를 제거하기.
-  // Todo: 옵저버블을 외부로 노출해야한다.
-  public post<T>(
-    url: string,
-    options?: Options,
-  ): Promise<Either<ChildError, T>> {
-    const req = () => firstValueFrom(this.httpService.post<T>(
-      url,
-      options?.data
-    ));
+  public async withConcurrencyQueue<T>(
+    axiosRequest: () => Observable<AxiosResponse<T, any>>
+  ): Promise<Observable<T>> {
+    return this.axiosPipe(await this.concurrencyQueueSrv.runTask(axiosRequest));
+  }
 
-    const reqWithQueue = () => this.taskQueue.runTask(req);
+  public async withWorkersQueue<T>(
+    axiosRequest: () => Observable<AxiosResponse<T, any>>
+  ): Promise<Observable<T>> {
+    return this.axiosPipe(await this.workersQueueSrv.runTask(axiosRequest));
+  }
 
-    return E.wrapPromise(this.httpService.retryUntilRespondOrTimeout(
-      options?.retryOptions?.interval || 500,
-      options?.retryOptions?.timeout || 1000 * 5,
-      reqWithQueue
-    ).then(res => res.data)
-    .catch(err => {
-      if (err.response === undefined) {
-        throw {
-          statusCode: 500,
-          ...F.omit(["request", "config"], err), // 필요없는것 제거(특히, 몽고에 업데이트 결과 로깅하는데 bson 전환 이슈떄문에 제거함)
-        };
-      } else {
-        throw {
-          statusCode: err.response.status,
-          ...err.response.data,
-        };
-      }
-    }));
+  public pauseConcurrencyQueue(): Promise<() => void> {
+    return this.concurrencyQueueSrv.pause();
+  }
+
+  /**
+   * Axios 응답 Observable 에 차일드 API 에 알맞는 일차적 파이프 처리.
+   * 
+   * - Axios 응답에서 data 를 꺼냄
+   * - 에러를 ChildError 로 변환.
+   */
+  private axiosPipe<T>(
+    axiosObservable: Observable<AxiosResponse<T, any>>
+  ): Observable<T> {
+    return axiosObservable.pipe(
+      X.catchError(err => {
+        if (err.response === undefined) {
+          throw {
+            statusCode: 500,
+            ...F.omit(["request", "config"], err), // 필요없는것 제거(특히, 몽고에 업데이트 결과 로깅하는데 bson 전환 이슈떄문에 제거함)
+          };
+        } else {
+          throw {
+            statusCode: err.response.status,
+            ...err.response.data,
+          };
+        }
+      }),
+      X.map(res => res.data)
+    );
   }
 }
-
-type Options = {
-  data?: any,
-  retryOptions?: RetryOptions
-};
-
-type RetryOptions = {
-  interval: number,
-  timeout: number
-};

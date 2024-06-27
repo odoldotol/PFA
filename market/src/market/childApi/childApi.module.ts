@@ -6,7 +6,7 @@ import { ChildApiService } from './childApi.service';
 import { ExchangeSessionApiService } from './exchangeSessionApi.service';
 import { YfinanceApiService } from './yfinanceApi.service';
 import { ChildApiConfigService } from 'src/config';
-import { YF_PRICE_ARRAY_TASK_QUEUE_TOKEN } from './const';
+import { CHILD_WORKERS_QUEUE } from './const';
 
 @Module({
   imports: [
@@ -28,7 +28,7 @@ import { YF_PRICE_ARRAY_TASK_QUEUE_TOKEN } from './const';
       inject: [ChildApiConfigService],
     }),
     TaskQueueModule.customRegisterAsync(
-      YF_PRICE_ARRAY_TASK_QUEUE_TOKEN,
+      CHILD_WORKERS_QUEUE,
       {
         useFactory: ( // Todo: useClass 로 변경
           childApiConfigSrv: ChildApiConfigService
@@ -47,6 +47,7 @@ import { YF_PRICE_ARRAY_TASK_QUEUE_TOKEN } from './const';
   exports: [
     ExchangeSessionApiService,
     YfinanceApiService,
+    ConnectionService,
   ]
 })
 export class ChildApiModule {}
