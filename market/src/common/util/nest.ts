@@ -1,4 +1,5 @@
 import { Type } from "@nestjs/common";
+import { joinUnderbar } from ".";
 
 export const isType = (value: any): value is Type => {
   if (
@@ -11,4 +12,12 @@ export const isType = (value: any): value is Type => {
   } else {
     return false;
   }
-}
+};
+
+export const buildLoggerContext = (
+  ...arr: Array<string | Type>
+): string => joinUnderbar(...arr.map(
+  item => typeof item !== "string" ? item.name : item
+));
+
+export const buildInjectionToken = joinUnderbar;
