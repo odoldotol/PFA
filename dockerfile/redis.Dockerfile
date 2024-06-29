@@ -2,7 +2,7 @@
 
 FROM redis:7.2-rc2-alpine3.18
 
-COPY ./health-check .
+COPY ./redis/health-check .
 
 EXPOSE 6379
 

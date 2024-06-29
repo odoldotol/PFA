@@ -22,14 +22,16 @@
 <br>
 
 ## Stack
-NodeJS (16) / Typescript / NestJS <br>
+NodeJS (18.12.1) / Typescript / NestJS <br>
 PostgreSQL / typeorm <br>
 MongoDB Atlas / mongoose <br>
 ~~cache-manager~~ / Redis / node-redis <br>
-~~child_process~~ / ~~cron~~ / fxts <br>
+fxts / rxjs <br>
+jest <br>
+~~child_process~~ / ~~cron~~ <br>
 
 AWS EC2 / Nginx <br>
-Docker / pm2 (will be deprecated) / jest <br>
+Docker / pm2 (will be deprecated) <br>
 
 Python (3.8) / Fastapi / uvicorn <br>
 yfinance / exchange_calendars <br>
@@ -75,7 +77,7 @@ The initial service scope of this app is 0.
 Here are three servers running. <br>
 The Market server focuses on updating and managing market data. <br>
 The Product server directly serves data. <br>
-The Market-Child is just a server dependent on the market server." <br>
+The Market-Child is just a server dependent on the market server. <br>
 
 - #### Product http://localhost:7001/docs
 - #### Market http://localhost:6001/docs
@@ -162,7 +164,10 @@ This design approach has two main goals:
 
 The following is a sequence diagram showing the initialization to the listen phase of the market server.
 
-![market-init-dia](https://storage.googleapis.com/odoldotol-image-store/market-init-dia.png)
+![market-init-dia](https://storage.googleapis.com/odoldotol-image-store/market-init-dia.png) 
+<span style="float:right;">[should be updated]</span>
+
+<br>
 
 ...more
 
@@ -266,8 +271,10 @@ $ sh scripts/cwagent:update:log_file_path
 ### Modules
 
 ![market-module-dia](https://storage.googleapis.com/odoldotol-image-store/market-module-dia.png)
+<span style="float:right;">[should be updated]</span>
 
 
 ### Instances
 
 ![market-instance-dia](https://storage.googleapis.com/odoldotol-image-store/market-instance-dia.png)
+<span style="float:right;">[should be updated]</span>

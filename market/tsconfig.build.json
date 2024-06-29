@@ -1,4 +1,14 @@
 {
   "extends": "./tsconfig.json",
-  "exclude": ["node_modules", "test", "dist", "**/*spec.ts", "migrations", "devMigrations", "*.dataSource.ts", "**/mock"]
+  "exclude": [
+    "node_modules",
+    "test",
+    "dist",
+    "**/*spec.ts",
+    "migrations",
+    "devMigrations",
+    "typeormDataSource",
+    "**/mock",
+    "seeder"
+  ]
 }

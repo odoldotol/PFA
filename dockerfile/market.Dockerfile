@@ -1,13 +1,14 @@
-# Todo: Dedup market/Dockerfile, product/Dockerfile
-
 FROM pfa-base-node
 
 WORKDIR /home/node/app
-COPY package.json .
-RUN npm install
+COPY ./market/package*.json .
+RUN npm ci
 
-COPY . .
+COPY ./market .
 RUN npm run build:prod
+
+COPY ./env/.env.market .
+COPY ./cert/aws-rds.pem .
 
 EXPOSE 6001
 

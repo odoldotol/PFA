@@ -7,7 +7,7 @@
     "**/*spec.ts",
     "migrations",
     "devMigrations",
-    "*.dataSource.ts",
+    "typeormDataSource",
     "**/mock",
     "seeder"
   ]

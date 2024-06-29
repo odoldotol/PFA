@@ -1,11 +1,13 @@
 FROM pfa-base-python
 
 WORKDIR /home/app
-COPY Pipfile .
-COPY Pipfile.lock .
+COPY ./marketChild/Pipfile .
+COPY ./marketChild/Pipfile.lock .
 RUN pipenv install --system
 
-COPY . .
+COPY ./marketChild .
+
+COPY ./env/.env.market .
 
 EXPOSE 8001
 

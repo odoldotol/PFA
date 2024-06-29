@@ -5,7 +5,7 @@ RUN apk update \
 
 WORKDIR /home/node/app
 
-COPY . .
+COPY ./admin .
 
 ENV MARKET_API_HOSTNAME=market \
   CHILD_API_HOSTNAME=market-child

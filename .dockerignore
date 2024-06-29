@@ -1,0 +1,24 @@
+**/.DS_Store
+
+**/.gitignore
+**/.git
+
+**/README.md
+**/todo
+**/test
+**/mock
+**/.env*guide*
+**/.env*local*
+
+**/coverage
+**/dist
+**/node_modules
+**/npm-debug.log
+**/*.spec.ts
+
+# admin
+admin/yf/data
+admin/yf/responseBody
+
+# product
+product/cacheBackup

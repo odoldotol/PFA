@@ -5,5 +5,3 @@ RUN apt-get update \
 
 RUN pip3 install -U pip \
 && pip3 install -U pipenv
-
-COPY ./env /home/app
