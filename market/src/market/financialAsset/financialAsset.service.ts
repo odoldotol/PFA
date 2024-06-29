@@ -54,7 +54,7 @@ export class Market_FinancialAssetService {
       return F.pipe(
         eitherTickerArr, F.toAsync,
         F.map(E.map(makeTask)),
-        F.map(E.map(this.warpRetry.bind(this))),
+        F.map(E.flatMap(task => E.wrapPromise(this.warpRetry(task)))),
         F.map(E.map(this.getYfInfo.bind(this))),
         F.concurrent(eitherTickerArr.length),
         F.toArray

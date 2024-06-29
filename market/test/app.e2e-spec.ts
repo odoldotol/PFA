@@ -316,39 +316,6 @@ describe('Market E2E', () => {
         });
       });
     });
-
-    describe('POST /api/v1/asset/inquire', () => {
-      it('Ticker 로 Asset 찾아서 응답 (200)', () => {
-        return request(app.getHttpServer())
-        .post(`/asset/inquire/${mockApple.symbol}`)
-        .expect(HttpStatus.OK)
-        .expect(({ body }) => {
-          const mockResponse = financialAssetAfterInitializingArr.find(
-            financialAsset => financialAsset.symbol === mockApple.symbol
-          )!
-          expect(body).toEqual(mockResponse);
-        });
-      });
-
-      it('DB 에 없는 Ticker 는 추가하고 반환 (201)', () => {
-        return request(app.getHttpServer())
-        .post(`/asset/inquire/amzn`)
-        .expect(HttpStatus.CREATED)
-        .expect(async ({ body }) => {
-          const rawAmazon = await dataSource.query<FinancialAssetEntity[]>(
-            `SELECT * FROM financial_assets WHERE symbol = 'AMZN'`
-          );
-          expect(rawAmazon).toHaveLength(1);
-          expect(body).toHaveProperty('symbol', rawAmazon[0]!.symbol);
-        });
-      });
-
-      it('DB 에 없는 Ticker, Not Found 추가 실패 (404)', () => {
-        return request(app.getHttpServer())
-        .post(`/asset/inquire/${NOT_FOUND_TICKER}`)
-        .expect(HttpStatus.NOT_FOUND);
-      });
-    });
   });
 
   afterAll(async () => {

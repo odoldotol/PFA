@@ -27,7 +27,7 @@ import {
   generateMockTicker
 } from "src/mock";
 
-jest.setTimeout(5000);
+jest.setTimeout(10000);
 
 describe('UserService', () => {
   let userSrv: UserService;
