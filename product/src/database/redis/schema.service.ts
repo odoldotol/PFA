@@ -1,17 +1,22 @@
 import { OnModuleInit } from "@nestjs/common";
 import { RedisService } from "./redis.service";
 import { RedisModel } from "../interface";
+import { isType } from "src/common/util";
 
 // Todo: Refac
-export class SchemaService
+export class SchemaService<T>
   implements OnModuleInit
 {
   private readonly schemaName: string;
 
   constructor(
-    private readonly redisSrv: RedisService,
-    private readonly redisModel: RedisModel,
+    private readonly redisSrv: RedisService<T>,
+    private readonly redisModel: RedisModel<T>,
   ) {
+    if (!isType(redisModel.schema)) {
+      throw new Error("Invalid RedisModel schema");
+    }
+
     this.schemaName = redisModel.schema.name.toLowerCase();
   }
 
@@ -28,7 +33,7 @@ export class SchemaService
   }
 
   get constructorClass() { // 임시
-    return this.redisModel.schema;
+    return this.redisModel.schema as { new(arg: T): T };
   }
 
 }

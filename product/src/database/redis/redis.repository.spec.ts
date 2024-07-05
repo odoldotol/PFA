@@ -18,11 +18,12 @@ class TestStrEntityClass extends String {}
 
 const setOneReturn = {prop: Math.random()};
 const getOneReturn = {prop: Math.random()};
-const deleteOneReturn = {prop: Math.random()};
+const getAndDeleteOneReturn = {prop: Math.random()};
 class MockRedisService {
     setOne = jest.fn();
     getOne = jest.fn();
-    deleteOne = jest.fn();
+    getAndDeleteOne = jest.fn();
+    delete = jest.fn();
 }
 
 describe("RedisRepository", () => {
@@ -53,14 +54,14 @@ describe("RedisRepository", () => {
                 },
                 {
                     provide: "TEST_OBJECT_REPO",
-                    useFactory(redisSrv: RedisService, schemaSrv: SchemaService) {
+                    useFactory(redisSrv: RedisService, schemaSrv: SchemaService<any>) {
                         return new Repository(redisSrv, schemaSrv);
                     },
                     inject: [RedisService, "TEST_OBJECT_SCHEMA_SERVICE"],
                 },
                 {
                     provide: "TEST_STRING_REPO",
-                    useFactory(redisSrv: RedisService, schemaSrv: SchemaService) {
+                    useFactory(redisSrv: RedisService, schemaSrv: SchemaService<any>) {
                         return new Repository(redisSrv, schemaSrv);
                     },
                     inject: [RedisService, "TEST_STRING_SCHEMA_SERVICE"],
@@ -76,7 +77,7 @@ describe("RedisRepository", () => {
     beforeEach(() => {
         jest.spyOn(service, "setOne").mockResolvedValue(setOneReturn);
         jest.spyOn(service, "getOne").mockResolvedValue(getOneReturn);
-        jest.spyOn(service, "deleteOne").mockResolvedValue(deleteOneReturn);
+        jest.spyOn(service, "getAndDeleteOne").mockResolvedValue(getAndDeleteOneReturn);
     });
 
     afterEach(() => {
@@ -89,7 +90,8 @@ describe("RedisRepository", () => {
             const testReturn = await repository_obj.createOne("newKey", newValue);
             expect(service.setOne).toBeCalledTimes(1);
             expect(service.setOne).toBeCalledWith(
-                [joinColon(TEST_KEY_PREFIX, "newKey"), newValue],
+                joinColon(TEST_KEY_PREFIX, "newKey"),
+                newValue,
                 { expireSec: TEST_TTL, ifNotExist: true });
             expect(testReturn!.prop).toBe(setOneReturn.prop);
         });
@@ -131,7 +133,8 @@ describe("RedisRepository", () => {
             await repository_obj.updateOne("alreadyKey", updateValue);
             expect(service.setOne).toBeCalledTimes(1);
             expect(service.setOne).toBeCalledWith(
-                [joinColon(TEST_KEY_PREFIX, "alreadyKey"), updatedValue],
+                joinColon(TEST_KEY_PREFIX, "alreadyKey"),
+                updatedValue,
                 { expireSec: TEST_TTL, ifExist: true });
         });
 
@@ -144,30 +147,45 @@ describe("RedisRepository", () => {
             const testReturn = await repository_str.updateOne("alreadyKey", new TestStrEntityClass("updateValue"));
             expect(service.setOne).toBeCalledTimes(1);
             expect(service.setOne).toBeCalledWith(
-                [joinColon(TEST_KEY_PREFIX, "alreadyKey"), new TestStrEntityClass("updateValue")],
+                joinColon(TEST_KEY_PREFIX, "alreadyKey"),
+                new TestStrEntityClass("updateValue"),
                 { expireSec: TEST_TTL, ifExist: true });
             expect(testReturn).toBeInstanceOf(TestStrEntityClass);
         });
 
         it.todo("실패시 null 반환하지 말고 그에 맞는 에러 던지기");
     });
-    
+
     describe("deleteOne", () => {
-        it("service.deleteOne 실행.", async () => {
+        it("service.delete 실행.", async () => {
             await repository_obj.deleteOne("alreadyKey");
-            expect(service.deleteOne).toBeCalledTimes(1);
-            expect(service.deleteOne).toBeCalledWith(joinColon(TEST_KEY_PREFIX, "alreadyKey"));
+            expect(service.delete).toBeCalledTimes(1);
+            expect(service.delete).toBeCalledWith(joinColon(TEST_KEY_PREFIX, "alreadyKey"));
+        });
+
+        it.todo("삭제 성공시 true 반환, 실패시 false 반환");
+    });
+    
+    describe("getAndDeleteOne", () => {
+        it("service.getAndDeleteOne 실행.", async () => {
+            await repository_obj.getAndDeleteOne("alreadyKey");
+            expect(service.getAndDeleteOne).toBeCalledTimes(1);
+            expect(service.getAndDeleteOne).toBeCalledWith(joinColon(TEST_KEY_PREFIX, "alreadyKey"));
         });
 
         it("(임시) 반환하는 value 는 생성 클래스의 인스턴스이어야 함", async () => {
-            expect(await repository_obj.deleteOne("alreadyKey"))
+            expect(await repository_obj.getAndDeleteOne("alreadyKey"))
                 .toBeInstanceOf(TestObjEntityClass);
         });
     });
 
-    describe("getAllKeyValueMap", () => {
-        it.todo('레포지토리에 해당하는 모든 키-값 쌍을 Map 에 담아서 반환.');
-        it.todo('key(Redis keyBody) => value(: T) 매핑');
-    });
+    // describe("getAllKeyValueMap", () => {
+    //     it.todo('레포지토리에 해당하는 모든 키-값 쌍을 Map 에 담아서 반환.');
+    //     it.todo('key(Redis keyBody) => value(: T) 매핑');
+    // });
+
+    it.todo("count");
+    it.todo("getCount");
+    it.todo("resetCount");
     
 });

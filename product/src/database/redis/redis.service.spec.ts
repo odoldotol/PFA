@@ -91,7 +91,7 @@ describe("RedisService", () => {
             )("$desc", async ({value}) => {
                 const testKey = makeTestKey("testKey");
                 const valueAsJson = JSON.stringify(value);
-                expect(await service.setOne([testKey, value]))
+                expect(await service.setOne(testKey, value))
                     .toStrictEqual(JSON.parse(valueAsJson));
                 expect(await client.sendCommand([
                     "GET", testKey
@@ -122,7 +122,7 @@ describe("RedisService", () => {
             ]);
         });
 
-        describe("잘못된 타입의 value 는 set 하지 않으며, 단지 null 을 반환함.", () => {
+        describe("잘못된 타입의 value 는 에러던짐.", () => {
             it.each([
                 undefined,
                 null,
@@ -132,8 +132,8 @@ describe("RedisService", () => {
                 ()=>{}
             ])("%p", async (wrongValue) => {
                 const testKey = makeTestKey("testKey");
-                expect(await service.setOne([testKey, wrongValue]))
-                    .toBeNull();
+                expect(() => service.setOne(testKey, wrongValue))
+                    .rejects.toThrow();
                 expect(await client.sendCommand([
                     "EXISTS", testKey
                 ])).toBe(0);
@@ -143,14 +143,14 @@ describe("RedisService", () => {
         describe("set expire time", () => {
             it("setOptions 에서 만료시간 설정하지 않으면 Expire 안함.", async () => {
                 const testKey = makeTestKey("testKey");
-                await service.setOne([testKey, "testValue"]);
+                await service.setOne(testKey, "testValue");
                 expect(await client.sendCommand([
                     "TTL", testKey
                 ])).toBe(-1);
             });
             it("setOptions 에서 만료시간 설정.", async () => {
                 const testKey = makeTestKey("testKey");
-                await service.setOne([testKey, "testValue"], {expireSec: 100});
+                await service.setOne(testKey, "testValue", {expireSec: 100});
                 expect(await client.sendCommand([
                     "TTL", testKey
                 ])).toBe(100);
@@ -158,11 +158,11 @@ describe("RedisService", () => {
         });
 
         describe("set if not exist", () => {
-            it("setOptions 에서 키가 존재하지 않을때만 set 하도록 설정 (null 반환)", async () => {
+            it("setOptions 에서 키가 존재하지 않을때만 set 하도록 설정, 이미 존재시 에러", async () => {
                 const testKeyBody = testKeyValueMap.keys().next().value;
                 const existTestKey = makeTestKey(testKeyBody);
-                expect(await service.setOne([existTestKey, "testValue"], {ifNotExist: true}))
-                    .toBe(null);
+                expect(() => service.setOne(existTestKey, "testValue", {ifNotExist: true}))
+                    .rejects.toThrow();
                 expect(JSON.parse(await client.sendCommand([
                     "GET", existTestKey
                 ]))).toBe((testKeyValueMap.get(testKeyBody)));
@@ -170,10 +170,10 @@ describe("RedisService", () => {
         });
         
         describe("set if exist", () => {
-            it("setOptions 에서 키가 존재할때만 set 하도록 설정 (null 반환)", async () => {
+            it("setOptions 에서 키가 존재할때만 set 하도록 설정, 존재않을시 에러", async () => {
                 const notExistTestKey = makeTestKey(`key${testKeyValuePairCount}`);
-                expect(await service.setOne([notExistTestKey, "testValue"], {ifExist: true}))
-                    .toBe(null);
+                expect(() => service.setOne(notExistTestKey, "testValue", {ifExist: true}))
+                    .rejects.toThrow();
                 expect(JSON.parse(await client.sendCommand([
                     "EXISTS", notExistTestKey
                 ]))).toBe(0);
@@ -181,20 +181,38 @@ describe("RedisService", () => {
         });
     });
 
-    describe('deleteOne', () => {
-        it("key 하나 삭제하고 Json 파싱된 value 반환. 삭제할 키가 없을시 null 반환.", async () => {
+    describe('getAndDeleteOne', () => {
+        it("key 하나 삭제하고 Json 파싱된 value 반환. 삭제할 키가 없을시 에러.", async () => {
             const testKeyBody = testKeyValueMap.keys().next().value;
             const testKey = makeTestKey(testKeyBody);
             expect(await client.sendCommand([
                 "EXISTS", testKey
             ])).toBe(1);
-            expect(await service.deleteOne(testKey))
+            expect(await service.getAndDeleteOne(testKey))
                 .toBe(testKeyValueMap.get(testKeyBody));
             expect(await client.sendCommand([
                 "EXISTS", testKey
             ])).toBe(0);
-            expect(await service.deleteOne(testKey)).toBe(null);
+            expect(() => service.getAndDeleteOne(testKey)).rejects.toThrow();
         });
+    });
+
+    describe('delete: keys 전부 삭제하고 삭제된 갯수 반환', () => {
+        it("key 1개", async () => {
+            // 1개 삭제
+            const testKeyBody = testKeyValueMap.keys().next().value;
+            const testKey = makeTestKey(testKeyBody);
+            expect(await client.sendCommand([
+                "EXISTS", testKey
+            ])).toBe(1);
+            expect(await service.delete(testKey)).toBe(1);
+            expect(await client.sendCommand([
+                "EXISTS", testKey
+            ])).toBe(0);
+            expect(await service.delete(testKey)).toBe(0);
+        });
+
+        it.todo('key 여러개 삭제 (레디스=단일쓰레드 고려 아직 사용하지는 않음)');
     });
 
     describe('getOne', () => {
@@ -207,6 +225,19 @@ describe("RedisService", () => {
                 "DEL", testKey
             ]);
             expect(await service.getOne(testKey)).toBe(null);
+        });
+    });
+
+    describe('count', () => {
+        it("값 1 증가하고 반환. 키가 없어도 생성하고 1 증가하고 반환.", async () => {
+            const testKey = makeTestKey("testKey");
+            expect(await service.count(testKey)).toBe(1);
+            expect(await service.count(testKey)).toBe(2);
+
+            await client.sendCommand([
+                "DEL", testKey
+            ]);
+            expect(await service.count(testKey)).toBe(1);
         });
     });
     

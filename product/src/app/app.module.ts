@@ -12,7 +12,6 @@ import {
 import { ThrottlerModule } from 'src/throttler';
 import { UpdaterModule } from 'src/updater';
 import { KakaoChatbotModule } from 'src/kakaoChatbot';
-import { DevModule } from 'src/dev';
 import { AppController } from './app.controller';
 import { HttpLoggerMiddleware } from './middleware';
 import { KeepAliveInterceptor } from './interceptor';
@@ -30,7 +29,6 @@ import {
     ThrottlerModule,
     UpdaterModule,
     KakaoChatbotModule,
-    DevModule
   ],
   controllers: [AppController],
   providers: [

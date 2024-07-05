@@ -66,24 +66,24 @@ export class RedisRootModule
 })
 export class RedisModule {
 
-  static forFeature(
-    models: RedisModel[]
+  static forFeature<T>(
+    models: RedisModel<T>[]
   ): DynamicModule {
 
     const modelProviders
-    : ValueProvider<RedisModel>[]
+    : ValueProvider<RedisModel<T>>[]
     = models.map(model => ({
       provide: model.schema.name, //
       useValue: model,
     }));
 
     const schemaServices
-    : FactoryProvider<SchemaService>[]
+    : FactoryProvider<SchemaService<T>>[]
     = models.map(model => ({
       provide: model.schema.name + REIDS_SCHEMA_SERVICE_TOKEN_SUFFIX,
       useFactory(
         redisSrv: RedisService,
-        model: RedisModel
+        model: RedisModel<T>
       ) {
         return new SchemaService(
           redisSrv,
@@ -97,12 +97,12 @@ export class RedisModule {
     }));
 
     const schemaRepositorys
-    : FactoryProvider<Repository>[]
+    : FactoryProvider<Repository<T>>[]
     = models.map(model => ({
       provide: model.schema.name + REDIS_REPOSITORY_TOKEN_SUFFIX, //
       useFactory(
         redisSrv: RedisService,
-        schemaSrv: SchemaService
+        schemaSrv: SchemaService<T>
       ) {
         return new Repository(
           redisSrv,
@@ -127,4 +127,5 @@ export class RedisModule {
       ],
     };
   }
+
 }

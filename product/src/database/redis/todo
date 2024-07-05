@@ -3,3 +3,5 @@ Entity 변경에 따른 완전한 리팩터링 필요
 스키마(decorator, validation, metadata)
 
 redisService 와 redisRepository 로 이어지는 주요 로직에 대한 리팩터링 필요
+
+redisRepository 테스트코드 다시 작성. 필요한것을 잘 테스트하고있지 않은 케이스들이 많은것 같음. 점검하고 재작성.
