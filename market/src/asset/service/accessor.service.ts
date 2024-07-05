@@ -60,7 +60,7 @@ export class AccessorService {
     isoCode: ExchangeIsoCode
   ): Promise<GetPriceByExchangeResponse> {
     return new GetPriceByExchangeResponse(
-      await this.database_financialAssetSrv.readManyByExchange(isoCode)
+      await this.database_financialAssetSrv.readUptodateManyByExchange(isoCode)
     );
   }
 

@@ -6,6 +6,7 @@ import {
   Repository
 } from "typeorm";
 import { FinancialAssetEntity } from "./financialAsset.entity";
+import { Database_ExchangeService } from "..";
 import { FinancialAsset } from "src/common/class/financialAsset";
 import {
   ExchangeIsoCode,
@@ -25,7 +26,8 @@ export class Database_FinancialAssetService {
   constructor(
     @InjectRepository(FinancialAssetEntity)
     private readonly finAssetsRepo: Repository<FinancialAssetEntity>,
-    private readonly dataSource: DataSource
+    private readonly dataSource: DataSource,
+    private readonly exchangeSrv: Database_ExchangeService
   ) {}
 
   public createMany(
@@ -105,6 +107,19 @@ SELECT symbol
 SELECT *
   FROM ${this.tableName}
   WHERE exchange ${exchange ? `= '${exchange}'` : `is NULL`}
+`
+    ).then(this.extendFinancialAsset);
+  }
+
+  public readUptodateManyByExchange(
+    exchange: ExchangeIsoCode
+  ): Promise<FinancialAsset[]> {
+    return this.dataSource.query<FinancialAssetEntity[]>(
+`
+SELECT *
+  FROM ${this.tableName}
+  WHERE exchange = '${exchange}'
+    AND market_date = (${this.exchangeSrv.query_readMarketDateByPk(exchange)})
 `
     ).then(this.extendFinancialAsset);
   }

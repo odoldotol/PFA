@@ -283,6 +283,25 @@ describe('FinancialAssetsService', () => {
     it.todo('exchange 가 null 인 경우');
   });
 
+  describe('readUptodateManyByExchange', () => {
+    it('should return up-to-date records by exchange', async () => {
+      const uptodatedMockApple = {
+        ...mockApple,
+        market_date: mockNewYorkStockExchange.marketDate,
+        marketDate: mockNewYorkStockExchange.marketDate
+      };
+
+      await financialAssetSrv.createMany([
+        uptodatedMockApple,
+        mockSamsungElec,
+        mockUsaTreasuryYield10y
+      ]);
+
+      const result = await financialAssetSrv.readUptodateManyByExchange(mockNewYorkStockExchange.isoCode);
+      expect(result).toEqual([uptodatedMockApple]);
+    });
+  });
+
   describe('updatePriceMany', () => {
     const TEST_MARKET_DATE = '1993-07-04';
 

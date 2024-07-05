@@ -76,6 +76,14 @@ UPDATE ${this.tableName}
     });
   }
 
+  public query_readMarketDateByPk(pk: ExchangeIsoCode): string {
+    return `
+SELECT market_date
+  FROM ${this.tableName}
+  WHERE iso_code = '${pk}'
+`;
+  }
+
   private extendExchange(exchangeEntity: ExchangeEntity): Exchange;
   private extendExchange(exchangeEntityArr: ExchangeEntity[]): Exchange[];
   private extendExchange(arg: ExchangeEntity | ExchangeEntity[]): Exchange | Exchange[] {
