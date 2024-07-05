@@ -11,7 +11,9 @@ export const mockSamsungElec: FinancialAsset = {
   exchange: "XKRX",
   currency: "KRW",
   regularMarketLastClose: 100000,
-  regular_market_last_close: 100000
+  regular_market_last_close: 100000,
+  regularMarketPreviousClose: 90000,
+  regular_market_previous_close: 90000
 };
 
 export const mockApple: FinancialAsset = {
@@ -25,7 +27,9 @@ export const mockApple: FinancialAsset = {
   exchange: "XNYS",
   currency: "USD",
   regularMarketLastClose: 200,
-  regular_market_last_close: 200
+  regular_market_last_close: 200,
+  regularMarketPreviousClose: 180,
+  regular_market_previous_close: 180
 };
 
 export const mockUsaTreasuryYield10y: FinancialAsset = {
@@ -39,5 +43,7 @@ export const mockUsaTreasuryYield10y: FinancialAsset = {
   exchange: "XNYS",
   currency: "USD",
   regularMarketLastClose: 4.5,
-  regular_market_last_close: 4.5
+  regular_market_last_close: 4.5,
+  regularMarketPreviousClose: 4.0,
+  regular_market_previous_close: 4.0
 };

@@ -40,7 +40,7 @@
     "migration:generate": "npm run typeorm migration:generate migrations/postgres/Migration",
     "migration:run": "npm run typeorm migration:run",
     "migration:revert": "npm run typeorm migration:revert",
-    "migration:test::run": "npm run typeorm:test migration:run",
+    "migration:test:run": "npm run typeorm:test migration:run",
     "migration:test:revert": "npm run typeorm:test migration:revert",
     "seeder:simple:dev:20240513": "ts-node -r tsconfig-paths/register seeder/simple/dev.20240513.ts"
   },

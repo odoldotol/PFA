@@ -248,6 +248,8 @@ describe('Market E2E', () => {
           return Object.assign(mockFinancialAsset, {
             regularMarketLastClose: rawFinancialAsset!.regular_market_last_close,
             regular_market_last_close: rawFinancialAsset!.regular_market_last_close,
+            regularMarketPreviousClose: rawFinancialAsset!.regular_market_previous_close,
+            regular_market_previous_close: rawFinancialAsset!.regular_market_previous_close
           });
         }
       );

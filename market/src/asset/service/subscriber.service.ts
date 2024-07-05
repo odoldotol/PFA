@@ -108,6 +108,7 @@ export class SubscriberService {
       exchange: fulfilledYfInfo.marketExchange?.isoCode || null,
       currency: fulfilledYfInfo.currency,
       regularMarketLastClose: fulfilledYfInfo.regularMarketLastClose,
+      regularMarketPreviousClose: fulfilledYfInfo.regularMarketPreviousClose,
     };
   }
 

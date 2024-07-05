@@ -69,8 +69,9 @@ export type YfInfo
 export type FulfilledYfPrice
 = Yf
 & Readonly<{
-  regularMarketLastClose: number;
   liveMarketPrice?: number | null;
+  regularMarketLastClose: number;
+  regularMarketPreviousClose: number | null;
 }>;
 
 export type FulfilledYfInfo

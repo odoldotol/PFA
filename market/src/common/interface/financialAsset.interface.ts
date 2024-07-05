@@ -9,4 +9,5 @@ export interface FinancialAssetCore {
   readonly exchange: ExchangeIsoCode | null;
   readonly currency: Currency;
   readonly regularMarketLastClose: number;
+  readonly regularMarketPreviousClose: number | null;
 }

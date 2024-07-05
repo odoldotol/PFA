@@ -23,6 +23,8 @@ export class FinancialAsset
   public readonly currency: Currency;
   public readonly regular_market_last_close: number;
   public readonly regularMarketLastClose: number;
+  public readonly regularMarketPreviousClose: number | null;
+  public readonly regular_market_previous_close: number | null;
 
   constructor(
     financialAsset: FinancialAssetEntity
@@ -38,6 +40,8 @@ export class FinancialAsset
     this.currency = financialAsset.currency;
     this.regular_market_last_close = financialAsset.regular_market_last_close;
     this.regularMarketLastClose = financialAsset.regular_market_last_close;
+    this.regularMarketPreviousClose = financialAsset.regular_market_previous_close;
+    this.regular_market_previous_close = financialAsset.regular_market_previous_close;
   }
 
 }

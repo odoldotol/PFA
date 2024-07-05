@@ -78,4 +78,13 @@ export class FinancialAssetEntity {
     name: 'regular_market_last_close'
   })
   regular_market_last_close!: number;
+
+  @Column({
+    type: 'double precision',
+    name: 'regular_market_previous_close',
+    nullable: true,
+    default: null,
+  })
+  regular_market_previous_close!: number | null;
+
 }

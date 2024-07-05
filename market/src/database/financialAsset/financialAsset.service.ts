@@ -35,16 +35,27 @@ export class Database_FinancialAssetService {
     const query = "" +
 `
 INSERT INTO ${this.tableName}
+  (
+    symbol,
+    quote_type,
+    short_name,
+    long_name,
+    currency,
+    regular_market_last_close,
+    regular_market_previous_close,
+    exchange
+  )
   VALUES
-    ${values.map(v => `(
-      '${v.symbol}',
-      '${v.quoteType}',
-      ${v.shortName ? `'${this.handleEscape(v.shortName)}'` : `NULL`},
-      ${v.longName ? `'${this.handleEscape(v.longName)}'` : `NULL`},
-      '${v.currency}',
-      ${v.regularMarketLastClose},
-      ${v.exchange ? `'${v.exchange}'` : `NULL`}
-    )`).join(',')}
+  ${values.map(v => `(
+    '${v.symbol}',
+    '${v.quoteType}',
+    ${v.shortName ? `'${this.handleEscape(v.shortName)}'` : `NULL`},
+    ${v.longName ? `'${this.handleEscape(v.longName)}'` : `NULL`},
+    '${v.currency}',
+    ${v.regularMarketLastClose},
+    ${v.regularMarketPreviousClose ? v.regularMarketPreviousClose : `DEFAULT`},
+    ${v.exchange ? `'${v.exchange}'` : `NULL`}
+  )`).join(',')}
   RETURNING *
 `;
 
@@ -105,20 +116,21 @@ SELECT *
   ): Promise<FulfilledYfPrice[]> {
     if (updateArr.length === 0) return Promise.resolve([]);
     return this.dataSource.query<[
-      Pick<FinancialAssetEntity, 'symbol' | 'regular_market_last_close'>[],
+      Pick<FinancialAssetEntity, 'symbol' | 'regular_market_last_close' | 'regular_market_previous_close'>[],
       number
     ]>(
 // "EXPLAIN ANALYZE" + // EXPLAIN ANALYZE 테스트
 `
 UPDATE ${this.tableName} AS t
   SET
-    regular_market_last_close = u.regular_market_last_close
+    regular_market_last_close = u.regular_market_last_close,
+    regular_market_previous_close = COALESCE(u.regular_market_previous_close, NULL::double precision)
   FROM (VALUES
-    ${updateArr.map(u => `('${u.symbol}', ${u.regularMarketLastClose})`).join(`,
+    ${updateArr.map(u => `('${u.symbol}', ${u.regularMarketLastClose}, ${u.regularMarketPreviousClose})`).join(`,
     `)}
-  ) AS u(symbol, regular_market_last_close)
+  ) AS u(symbol, regular_market_last_close, regular_market_previous_close)
   WHERE t.symbol = u.symbol
-  RETURNING t.symbol, t.regular_market_last_close
+  RETURNING t.symbol, t.regular_market_last_close, t.regular_market_previous_close
 `,
       undefined,
       queryRunner
@@ -128,9 +140,12 @@ UPDATE ${this.tableName} AS t
       res[1] === updateArr.length || this.logger.warn(
         `updatePriceMany Warn! | Attempt: ${updateArr.length} | Success: ${res[1]}`
       ); // Todo: 여기서 실패된 케이스도 전달하도록
-      return res[0].map(pick => Object.assign(
+      return res[0].map(pick => Object.assign( // assign 말고 확장하는 솔루션 쓰기
         pick,
-        { regularMarketLastClose: pick.regular_market_last_close }
+        {
+          regularMarketLastClose: pick.regular_market_last_close,
+          regularMarketPreviousClose: pick.regular_market_previous_close
+        }
       ));
     });
   }

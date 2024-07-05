@@ -166,11 +166,13 @@ export class Market_FinancialAssetService {
     }: YfPrice
   ): Either<any, FulfilledYfPrice> {
     const price = exchange?.isMarketOpen() ? {
+      liveMarketPrice: regularMarketPrice,
       regularMarketLastClose: regularMarketPreviousClose,
-      liveMarketPrice: regularMarketPrice
+      regularMarketPreviousClose: null
     } : {
+      liveMarketPrice: null,
       regularMarketLastClose: regularMarketPrice,
-      liveMarketPrice: null
+      regularMarketPreviousClose
     }
 
     if (price.regularMarketLastClose === null) {
@@ -179,8 +181,9 @@ export class Market_FinancialAssetService {
 
     return Either.right({
       symbol,
+      liveMarketPrice: price.liveMarketPrice,
       regularMarketLastClose: price.regularMarketLastClose,
-      liveMarketPrice: price.liveMarketPrice
+      regularMarketPreviousClose: price.regularMarketPreviousClose
     });
   }
 
@@ -240,4 +243,5 @@ export class Market_FinancialAssetService {
       rejectCondition: isHttpResponse4XX
     });
   }
+
 }
