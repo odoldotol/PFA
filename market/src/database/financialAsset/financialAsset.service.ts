@@ -11,6 +11,7 @@ import {
   ExchangeIsoCode,
   FinancialAssetCore,
   FulfilledYfPrice,
+  MarketDate,
   Ticker
 } from "src/common/interface";
 // import { writeFile } from "fs";
@@ -32,8 +33,7 @@ export class Database_FinancialAssetService {
   ): Promise<FinancialAsset[]> {
     if (values.length === 0) return Promise.resolve([]);
 
-    const query = "" +
-`
+    const query = `
 INSERT INTO ${this.tableName}
   (
     symbol,
@@ -43,7 +43,8 @@ INSERT INTO ${this.tableName}
     currency,
     regular_market_last_close,
     regular_market_previous_close,
-    exchange
+    exchange,
+    market_date
   )
   VALUES
   ${values.map(v => `(
@@ -54,7 +55,8 @@ INSERT INTO ${this.tableName}
     '${v.currency}',
     ${v.regularMarketLastClose},
     ${v.regularMarketPreviousClose ? v.regularMarketPreviousClose : `DEFAULT`},
-    ${v.exchange ? `'${v.exchange}'` : `NULL`}
+    ${v.exchange ? `'${v.exchange}'` : `NULL`},
+    ${v.marketDate ? `'${v.marketDate}'` : `DEFAULT`}
   )`).join(',')}
   RETURNING *
 `;
@@ -112,6 +114,7 @@ SELECT *
    */
   public async updatePriceMany(
     updateArr: readonly FulfilledYfPrice[],
+    marketDate: MarketDate,
     queryRunner?: QueryRunner
   ): Promise<FulfilledYfPrice[]> {
     if (updateArr.length === 0) return Promise.resolve([]);
@@ -124,9 +127,10 @@ SELECT *
 UPDATE ${this.tableName} AS t
   SET
     regular_market_last_close = u.regular_market_last_close,
-    regular_market_previous_close = COALESCE(u.regular_market_previous_close, NULL::double precision)
+    regular_market_previous_close = u.regular_market_previous_close,
+    market_date = '${marketDate}'
   FROM (VALUES
-    ${updateArr.map(u => `('${u.symbol}', ${u.regularMarketLastClose}, ${u.regularMarketPreviousClose})`).join(`,
+    ${updateArr.map(u => `('${u.symbol}', ${u.regularMarketLastClose}, ${u.regularMarketPreviousClose === null ? 'NULL::double precision' : u.regularMarketPreviousClose})`).join(`,
     `)}
   ) AS u(symbol, regular_market_last_close, regular_market_previous_close)
   WHERE t.symbol = u.symbol

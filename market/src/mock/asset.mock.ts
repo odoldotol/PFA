@@ -13,7 +13,9 @@ export const mockSamsungElec: FinancialAsset = {
   regularMarketLastClose: 100000,
   regular_market_last_close: 100000,
   regularMarketPreviousClose: 90000,
-  regular_market_previous_close: 90000
+  regular_market_previous_close: 90000,
+  market_date: "1990-03-25",
+  marketDate: "1990-03-25"
 };
 
 export const mockApple: FinancialAsset = {
@@ -29,7 +31,9 @@ export const mockApple: FinancialAsset = {
   regularMarketLastClose: 200,
   regular_market_last_close: 200,
   regularMarketPreviousClose: 180,
-  regular_market_previous_close: 180
+  regular_market_previous_close: 180,
+  market_date: "1990-03-25",
+  marketDate: "1990-03-25"
 };
 
 export const mockUsaTreasuryYield10y: FinancialAsset = {
@@ -45,5 +49,7 @@ export const mockUsaTreasuryYield10y: FinancialAsset = {
   regularMarketLastClose: 4.5,
   regular_market_last_close: 4.5,
   regularMarketPreviousClose: 4.0,
-  regular_market_previous_close: 4.0
+  regular_market_previous_close: 4.0,
+  market_date: "1990-03-25",
+  marketDate: "1990-03-25"
 };

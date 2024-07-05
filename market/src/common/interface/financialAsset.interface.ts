@@ -1,4 +1,4 @@
-import { ExchangeIsoCode } from "./exchange.interface";
+import { ExchangeIsoCode, MarketDate } from "./exchange.interface";
 import { Currency, QuoteType, Ticker } from "./yahooFinance.interface";
 
 export interface FinancialAssetCore {
@@ -10,4 +10,5 @@ export interface FinancialAssetCore {
   readonly currency: Currency;
   readonly regularMarketLastClose: number;
   readonly regularMarketPreviousClose: number | null;
+  readonly marketDate: MarketDate;
 }

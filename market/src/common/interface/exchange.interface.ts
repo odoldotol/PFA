@@ -8,6 +8,8 @@ export type ExchangeIsoCode = keyof typeof CONFIG_EXCHANGES2;
  */
 export type MarketDate = string;
 
+export const MARKET_DATE_DEFAULT = '0000-00-00';
+
 export interface ExchangeIso {
   readonly isoCode: ExchangeIsoCode;
   readonly isoTimezoneName: IsoTimezoneName;

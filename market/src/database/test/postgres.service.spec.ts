@@ -204,7 +204,9 @@ describe('FinancialAssetsService', () => {
         regularMarketLastClose: mockApple.regularMarketLastClose,
         regular_market_last_close: mockApple.regularMarketLastClose,
         regularMarketPreviousClose: null,
-        regular_market_previous_close: null
+        regular_market_previous_close: null,
+        marketDate: mockApple.marketDate,
+        market_date: mockApple.marketDate
       }];
       const result = await financialAssetSrv.createMany(values);
       const queryResult = await dataSource.query('SELECT * FROM financial_assets');
@@ -217,7 +219,8 @@ describe('FinancialAssetsService', () => {
         exchange: null,
         currency: mockApple.currency,
         regular_market_last_close: mockApple.regularMarketLastClose,
-        regular_market_previous_close: null
+        regular_market_previous_close: null,
+        market_date: mockApple.marketDate,
       });
     });
 
@@ -281,7 +284,9 @@ describe('FinancialAssetsService', () => {
   });
 
   describe('updatePriceMany', () => {
-    it('should update regularMarketLastClose, regularMarketPreviousClose', async () => {
+    const TEST_MARKET_DATE = '1993-07-04';
+
+    it('should update regularMarketLastClose, regularMarketPreviousClose, marketDate', async () => {
       await financialAssetSrv.createMany([
         mockApple,
         mockSamsungElec,
@@ -298,7 +303,7 @@ describe('FinancialAssetsService', () => {
           regularMarketLastClose: 77777,
           regularMarketPreviousClose: null
         },
-      ]);
+      ], TEST_MARKET_DATE);
       const result = await dataSource.query<FinancialAssetEntity[]>(`
         SELECT * FROM financial_assets
       `).then(res => res.map(entity => new FinancialAsset(entity)));
@@ -309,14 +314,18 @@ describe('FinancialAssetsService', () => {
           regularMarketLastClose: 777,
           regular_market_last_close: 777,
           regularMarketPreviousClose: 666,
-          regular_market_previous_close: 666
+          regular_market_previous_close: 666,
+          marketDate: TEST_MARKET_DATE,
+          market_date: TEST_MARKET_DATE,
         },
         {
           ...mockSamsungElec,
           regularMarketLastClose: 77777,
           regular_market_last_close: 77777,
           regularMarketPreviousClose: null,
-          regular_market_previous_close: null
+          regular_market_previous_close: null,
+          marketDate: TEST_MARKET_DATE,
+          market_date: TEST_MARKET_DATE,
         },
       ]);
     });
@@ -324,7 +333,7 @@ describe('FinancialAssetsService', () => {
     it.todo('should return { symbol, regularMarketLastClose, regularMarketPreviousClose } of updated records');
     
     it('should return empty Array if updateArr is empty', async () => {
-      const result = await financialAssetSrv.updatePriceMany([]);
+      const result = await financialAssetSrv.updatePriceMany([], TEST_MARKET_DATE);
       expect(result).toEqual([]);
     });
   });

@@ -10,6 +10,8 @@ import { ExchangeEntity } from '../exchange/exchange.entity';
 import {
   Currency,
   ExchangeIsoCode,
+  MARKET_DATE_DEFAULT,
+  MarketDate,
   QuoteType,
   Ticker
 } from 'src/common/interface';
@@ -86,5 +88,13 @@ export class FinancialAssetEntity {
     default: null,
   })
   regular_market_previous_close!: number | null;
+
+  @Column({
+    type: 'char',
+    length: 10,
+    name: 'market_date',
+    default: MARKET_DATE_DEFAULT,
+  }) // Todo: nnnn-nn-nn 형식 아니면 인서트 막기
+  market_date!: MarketDate;
 
 }

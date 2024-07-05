@@ -15,6 +15,7 @@ import {
   Market_ExchangeSession
 } from 'src/market/exchange/class';
 import { FinancialAsset } from 'src/common/class/financialAsset';
+import { MARKET_DATE_DEFAULT, MarketDate } from 'src/common/interface';
 import {
   mockApple,
   mockKoreaExchange,
@@ -35,6 +36,7 @@ const mockFinancialAssetArr = [
 describe('Market E2E', () => {
   let app: INestApplication;
   let dataSource: DataSource;
+  let marketExchangeSrv: Market_ExchangeService;
   
   beforeAll(async () => {
     app = await createApp();
@@ -46,8 +48,6 @@ describe('Market E2E', () => {
   });
 
   describe('Application Initializing', () => {
-    let marketExchangeSrv: Market_ExchangeService;
-
     let seedExchangeArr: ExchangeEntity[];
     let seedFinancialAssetArr: FinancialAssetEntity[];
 
@@ -146,10 +146,12 @@ describe('Market E2E', () => {
           });
 
           financialAssetArr.forEach(financialAsset => {
-            const seedFinancialAsset = seedFinancialAssetArr
-            .find(seedFinancialAsset => seedFinancialAsset.symbol === financialAsset.symbol);
-            expect(financialAsset.regular_market_last_close)
-            .not.toBe(seedFinancialAsset!.regular_market_last_close);
+            const seedFinancialAsset
+            = seedFinancialAssetArr.find(seedFinancialAsset => seedFinancialAsset.symbol === financialAsset.symbol);
+
+            expect(financialAsset.regular_market_last_close).not.toBe(seedFinancialAsset!.regular_market_last_close);
+            
+            expect(financialAsset.market_date).not.toBe(seedFinancialAsset!.market_date);
           });
         }
       );
@@ -245,11 +247,20 @@ describe('Market E2E', () => {
           const rawFinancialAsset = rawFinancialAssetArr.find(
             rawFinancialAsset => rawFinancialAsset.symbol === mockFinancialAsset.symbol
           );
+          let newMarketDate: MarketDate;
+          if (rawFinancialAsset!.exchange === null) {
+            newMarketDate = MARKET_DATE_DEFAULT;
+          } else {
+            newMarketDate = marketExchangeSrv.getOne(rawFinancialAsset!.exchange).marketDate;
+          }
+
           return Object.assign(mockFinancialAsset, {
             regularMarketLastClose: rawFinancialAsset!.regular_market_last_close,
             regular_market_last_close: rawFinancialAsset!.regular_market_last_close,
             regularMarketPreviousClose: rawFinancialAsset!.regular_market_previous_close,
-            regular_market_previous_close: rawFinancialAsset!.regular_market_previous_close
+            regular_market_previous_close: rawFinancialAsset!.regular_market_previous_close,
+            marketDate: newMarketDate,
+            market_date: newMarketDate
           });
         }
       );

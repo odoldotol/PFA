@@ -65,6 +65,7 @@ export class Database_UpdaterService {
       await queryRunner.startTransaction("REPEATABLE READ");
       await this.financialAssetSrv.updatePriceMany(
         fulfilledYfPriceArr,
+        exchange.marketDate,
         queryRunner
       ).then(res => updateRes = res);
       await this.exchangeSrv.updateMarketDateByPk(

@@ -9,6 +9,7 @@ import {
 import {
   FinancialAssetCore,
   FulfilledYfInfo,
+  MARKET_DATE_DEFAULT,
   Ticker,
 } from "src/common/interface";
 import { SubscribeAssetsResponse } from "../response";
@@ -109,6 +110,7 @@ export class SubscriberService {
       currency: fulfilledYfInfo.currency,
       regularMarketLastClose: fulfilledYfInfo.regularMarketLastClose,
       regularMarketPreviousClose: fulfilledYfInfo.regularMarketPreviousClose,
+      marketDate: fulfilledYfInfo.marketExchange?.marketDate || MARKET_DATE_DEFAULT,
     };
   }
 
