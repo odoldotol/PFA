@@ -11,13 +11,13 @@ import {
 import { ConnectionService } from "./connection.service";
 import { RedisService } from "./redis.service";
 import { SchemaService } from "./schema.service";
-import { Repository } from "./redis.repository";
+import { RedisRepository } from "./redis.repository";
 import {
   REDIS_CLIENT_TOKEN,
   REDIS_REPOSITORY_TOKEN_SUFFIX,
   REIDS_SCHEMA_SERVICE_TOKEN_SUFFIX
 } from "src/common/const/injectionToken.const";
-import { RedisModel } from "../interface";
+import { RedisModel } from "./interface";
 import { RedisConfigService } from "src/config";
 
 @Module({})
@@ -66,24 +66,24 @@ export class RedisRootModule
 })
 export class RedisModule {
 
-  static forFeature<T>(
-    models: RedisModel<T>[]
+  static forFeature(
+    models: RedisModel<any>[]
   ): DynamicModule {
 
     const modelProviders
-    : ValueProvider<RedisModel<T>>[]
+    : ValueProvider<RedisModel<any>>[]
     = models.map(model => ({
-      provide: model.schema.name, //
+      provide: model.entity.name, //
       useValue: model,
     }));
 
     const schemaServices
-    : FactoryProvider<SchemaService<T>>[]
+    : FactoryProvider<SchemaService<any>>[]
     = models.map(model => ({
-      provide: model.schema.name + REIDS_SCHEMA_SERVICE_TOKEN_SUFFIX,
+      provide: model.entity.name + REIDS_SCHEMA_SERVICE_TOKEN_SUFFIX,
       useFactory(
         redisSrv: RedisService,
-        model: RedisModel<T>
+        model: RedisModel<any>
       ) {
         return new SchemaService(
           redisSrv,
@@ -92,26 +92,26 @@ export class RedisModule {
       },
       inject: [
         RedisService,
-        model.schema.name //
+        model.entity.name //
       ],
     }));
 
     const schemaRepositorys
-    : FactoryProvider<Repository<T>>[]
+    : FactoryProvider<RedisRepository<any>>[]
     = models.map(model => ({
-      provide: model.schema.name + REDIS_REPOSITORY_TOKEN_SUFFIX, //
+      provide: model.entity.name + REDIS_REPOSITORY_TOKEN_SUFFIX, //
       useFactory(
         redisSrv: RedisService,
-        schemaSrv: SchemaService<T>
+        schemaSrv: SchemaService<any>
       ) {
-        return new Repository(
+        return new RedisRepository(
           redisSrv,
           schemaSrv
         );
       },
       inject: [
         RedisService,
-        model.schema.name + REIDS_SCHEMA_SERVICE_TOKEN_SUFFIX //
+        model.entity.name + REIDS_SCHEMA_SERVICE_TOKEN_SUFFIX //
       ],
     }));
 

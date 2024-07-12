@@ -1,191 +1,241 @@
-import { Test, TestingModule } from "@nestjs/testing";
+import { COUNT } from "./const";
+import { RedisRepository } from "./redis.repository";
 import { RedisService } from "./redis.service";
-import { Repository } from "./redis.repository";
 import { SchemaService } from "./schema.service";
-import { joinColon } from "src/common/util";
 
-const TEST_KEY_PREFIX = "test";
-const TEST_TTL = 60;
-class TestObjEntityClass {
-    readonly prop: any;
-    readonly updateProp?: any;
-    constructor(obj: TestObjEntityClass) {
-        this.prop = obj.prop;
-        this.updateProp = obj.updateProp;
-    }
-}
-class TestStrEntityClass extends String {}
+// 너무 redisSrv 에 의존하는 걸까?
+describe('RedisRepository', () => {
+  let repository: RedisRepository<any>;
 
-const setOneReturn = {prop: Math.random()};
-const getOneReturn = {prop: Math.random()};
-const getAndDeleteOneReturn = {prop: Math.random()};
-class MockRedisService {
-    setOne = jest.fn();
-    getOne = jest.fn();
-    getAndDeleteOne = jest.fn();
-    delete = jest.fn();
-}
+  beforeAll(async () => {
+    repository = new RedisRepository(redisServiceMock, schemaServiceMock);
+  });
 
-describe("RedisRepository", () => {
+  beforeEach(() => {
+    jest.spyOn(redisServiceMock, "setOne").mockResolvedValue(redisServiceMockResolvedValue.setOne);
+    jest.spyOn(redisServiceMock, "getAndDeleteOne").mockResolvedValue(redisServiceMockResolvedValue.getAndDeleteOne);
+    jest.spyOn(redisServiceMock, "delete").mockResolvedValue(redisServiceMockResolvedValue.delete);
+    jest.spyOn(redisServiceMock, "getOne").mockResolvedValue(redisServiceMockResolvedValue.getOne);
+    jest.spyOn(redisServiceMock, "count").mockResolvedValue(redisServiceMockResolvedValue.count);
+    redisCacheFactoryMock.mockImplementation((
+      keyBody,
+      value
+    ) => {
+      return new RedisCacheMock(keyBody, value);
+    });
+  });
 
-    let module: TestingModule;
-    let repository_obj: Repository<TestObjEntityClass>;
-    let repository_str: Repository<TestStrEntityClass>;
-    let service: RedisService;
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
 
-    beforeAll(async () => {
-        module = await Test.createTestingModule({
-            providers: [
-                {
-                    provide: "TEST_OBJECT_SCHEMA_SERVICE",
-                    useValue: {
-                        KEY_PREFIX: TEST_KEY_PREFIX,
-                        TTL: TEST_TTL,
-                        constructorClass: TestObjEntityClass
-                    }
-                },
-                {
-                    provide: "TEST_STRING_SCHEMA_SERVICE",
-                    useValue: {
-                        KEY_PREFIX: TEST_KEY_PREFIX,
-                        TTL: TEST_TTL,
-                        constructorClass: TestStrEntityClass
-                    }
-                },
-                {
-                    provide: "TEST_OBJECT_REPO",
-                    useFactory(redisSrv: RedisService, schemaSrv: SchemaService<any>) {
-                        return new Repository(redisSrv, schemaSrv);
-                    },
-                    inject: [RedisService, "TEST_OBJECT_SCHEMA_SERVICE"],
-                },
-                {
-                    provide: "TEST_STRING_REPO",
-                    useFactory(redisSrv: RedisService, schemaSrv: SchemaService<any>) {
-                        return new Repository(redisSrv, schemaSrv);
-                    },
-                    inject: [RedisService, "TEST_STRING_SCHEMA_SERVICE"],
-                },
-                { provide: RedisService, useClass: MockRedisService },
-            ],
-        }).compile();
-        repository_obj = module.get("TEST_OBJECT_REPO");
-        repository_str = module.get<Repository<TestStrEntityClass>>("TEST_STRING_REPO");
-        service = module.get<RedisService>(RedisService);
+  describe('createOne', () => {
+    it('should return RedisCache, using redisService.setOne', async () => {
+      const result = await repository.createOne(TEST_KEYBODY, TEST_VALUE);
+      expect(result).toBeInstanceOf(RedisCacheMock);
+      expect(result).toHaveProperty("keyBody", TEST_KEYBODY);
+      expect(result).toHaveProperty("value", redisServiceMockResolvedValue.setOne);
+
+      expect(redisServiceMock.setOne).toBeCalledWith(
+        TEST_KEY,
+        TEST_VALUE,
+        { expireSec: schemaServiceMock.TTL, ifNotExist: true }
+      );
+      expect(redisServiceMock.setOne).toBeCalledTimes(1);
+
+      expect(redisCacheFactoryMock).toBeCalledWith(TEST_KEYBODY, redisServiceMockResolvedValue.setOne);
+      expect(redisCacheFactoryMock).toBeCalledTimes(1);
+    });
+  });
+
+  describe('updateOrCreateOne', () => {
+    it('should return RedisCache, using redisService.setOne', async () => {
+      const result = await repository.updateOrCreateOne(TEST_KEYBODY, TEST_VALUE);
+      expect(result).toBeInstanceOf(RedisCacheMock);
+      expect(result).toHaveProperty("keyBody", TEST_KEYBODY);
+      expect(result).toHaveProperty("value", redisServiceMockResolvedValue.setOne);
+
+      expect(redisServiceMock.setOne).toBeCalledWith(
+        TEST_KEY,
+        TEST_VALUE,
+        { expireSec: schemaServiceMock.TTL }
+      );
+      expect(redisServiceMock.setOne).toBeCalledTimes(1);
+
+      expect(redisCacheFactoryMock).toBeCalledWith(TEST_KEYBODY, redisServiceMockResolvedValue.setOne);
+      expect(redisCacheFactoryMock).toBeCalledTimes(1);
+    });
+  });
+
+  describe('findOne', () => {
+    it('should return RedisCache, using redisService.getOne', async () => {
+      const redult = await repository.findOne(TEST_KEYBODY);
+      expect(redult).toBeInstanceOf(RedisCacheMock);
+      expect(redult).toHaveProperty("keyBody", TEST_KEYBODY);
+      expect(redult).toHaveProperty("value", redisServiceMockResolvedValue.getOne);
+
+      expect(redisServiceMock.getOne).toBeCalledWith(TEST_KEY);
+      expect(redisServiceMock.getOne).toBeCalledTimes(1);
+
+      expect(redisCacheFactoryMock).toBeCalledWith(TEST_KEYBODY, redisServiceMockResolvedValue.getOne);
+      expect(redisCacheFactoryMock).toBeCalledTimes(1);
     });
 
-    beforeEach(() => {
-        jest.spyOn(service, "setOne").mockResolvedValue(setOneReturn);
-        jest.spyOn(service, "getOne").mockResolvedValue(getOneReturn);
-        jest.spyOn(service, "getAndDeleteOne").mockResolvedValue(getAndDeleteOneReturn);
+    it('should return null if redisService.getOne returns null', async () => {
+      jest.spyOn(redisServiceMock, "getOne").mockResolvedValue(null);
+      expect(await repository.findOne(TEST_KEYBODY)).toBeNull();
+    });
+  });
+
+  describe('findOneAndUpdate', () => {
+    describe('should return RedisCache with updated value, using redisService.getOne, setOne.', () => {
+      it('primitive', async () => {
+        const result = await repository.findOneAndUpdate(TEST_KEYBODY, TEST_VALUE);
+        expect(result).toBeInstanceOf(RedisCacheMock);
+        expect(result).toHaveProperty("keyBody", TEST_KEYBODY);
+        expect(result).toHaveProperty("value", redisServiceMockResolvedValue.setOne);
+  
+        expect(redisServiceMock.getOne).toBeCalledWith(TEST_KEY);
+        expect(redisServiceMock.getOne).toBeCalledTimes(1);
+  
+        expect(redisServiceMock.setOne).toBeCalledWith(
+          TEST_KEY,
+          TEST_VALUE,
+          { expireSec: schemaServiceMock.TTL, ifExist: true }
+        );
+        expect(redisServiceMock.setOne).toBeCalledTimes(1);
+  
+        expect(redisCacheFactoryMock).toBeCalledWith(TEST_KEYBODY, redisServiceMockResolvedValue.setOne);
+        expect(redisCacheFactoryMock).toBeCalledTimes(1);
+      });
+
+      it('object', async () => {
+        const CURRENT = {
+          prop: TEST_VALUE,
+          updateProp: TEST_VALUE
+        };
+        const UPDATE = {
+          updateProp: redisServiceMockResolvedValue.setOne
+        };
+        const UPDATED = {
+          prop: TEST_VALUE,
+          updateProp: redisServiceMockResolvedValue.setOne
+        };
+        jest.spyOn(redisServiceMock, "getOne").mockResolvedValue(CURRENT);
+        jest.spyOn(redisServiceMock, "setOne").mockResolvedValue(UPDATED);
+
+        const result = await repository.findOneAndUpdate(TEST_KEYBODY, UPDATE);
+        expect(result).toBeInstanceOf(RedisCacheMock);
+        expect(result).toHaveProperty("keyBody", TEST_KEYBODY);
+        expect(result).toHaveProperty("value", UPDATED);
+
+        expect(redisServiceMock.getOne).toBeCalledWith(TEST_KEY);
+        expect(redisServiceMock.getOne).toBeCalledTimes(1);
+
+        expect(redisServiceMock.setOne).toBeCalledWith(
+          TEST_KEY,
+          UPDATED,
+          { expireSec: schemaServiceMock.TTL, ifExist: true }
+        );
+        expect(redisServiceMock.setOne).toBeCalledTimes(1);
+
+        expect(redisCacheFactoryMock).toBeCalledWith(TEST_KEYBODY, UPDATED);
+        expect(redisCacheFactoryMock).toBeCalledTimes(1);
+      });
     });
 
-    afterEach(() => {
-        jest.clearAllMocks();
+    it('should throw an error if redisService.getOne returns null', async () => {
+      jest.spyOn(redisServiceMock, "getOne").mockResolvedValue(null);
+      await expect(repository.findOneAndUpdate(TEST_KEYBODY, TEST_VALUE)).rejects.toThrowError();
+    });
+  });
+
+  describe('deleteOne', () => {
+    it('should return true if redisService.delete returns 1 or false', async () => {
+      jest.spyOn(redisServiceMock, "delete").mockResolvedValue(1);
+      expect(await repository.deleteOne(TEST_KEYBODY)).toBe(true);
+      expect(redisServiceMock.delete).toBeCalledWith(TEST_KEY);
+      expect(redisServiceMock.delete).toBeCalledTimes(1);
+
+      jest.spyOn(redisServiceMock, "delete").mockResolvedValue(0);
+      expect(await repository.deleteOne(TEST_KEYBODY)).toBe(false);
+      expect(redisServiceMock.delete).toBeCalledTimes(2);
+    });
+  });
+
+  describe('getAndDeleteOne', () => {});
+
+  describe('count', () => {
+    it('should return count using redis.count', async () => {
+      const result = await repository.count(TEST_KEYBODY);
+      expect(result).toBe(redisServiceMockResolvedValue.count);
+
+      expect(redisServiceMock.count).toBeCalledWith(TEST_COUNT_KEY);
+      expect(redisServiceMock.count).toBeCalledTimes(1);
+    });
+  });
+
+  describe('getCount', () => {
+    it('should return count using redis.getOne', async () => {
+      const result = await repository.getCount(TEST_KEYBODY);
+      expect(result).toBe(redisServiceMockResolvedValue.getOne);
+
+      expect(redisServiceMock.getOne).toBeCalledWith(TEST_COUNT_KEY);
+      expect(redisServiceMock.getOne).toBeCalledTimes(1);
     });
 
-    describe("createOne", () => {
-        const newValue = new TestObjEntityClass({prop: "newValue"});
-        it("service.setOne 실행. 스키마에 따라서 key prefix, ttl 적용, 존재하지 않는 키에 대해서만 수행.", async () => {
-            const testReturn = await repository_obj.createOne("newKey", newValue);
-            expect(service.setOne).toBeCalledTimes(1);
-            expect(service.setOne).toBeCalledWith(
-                joinColon(TEST_KEY_PREFIX, "newKey"),
-                newValue,
-                { expireSec: TEST_TTL, ifNotExist: true });
-            expect(testReturn!.prop).toBe(setOneReturn.prop);
-        });
-
-        it("(임시) 반환하는 value 는 생성 클래스의 인스턴스이어야 함", async () => {
-            expect(await repository_obj.createOne("newKey", newValue))
-                .toBeInstanceOf(TestObjEntityClass);
-        });
-
-        it.todo("실패시 null 반환하지 말고 그에 맞는 에러 던지기");
+    it('should return 0 if redis.getOne returns null', async () => {
+      jest.spyOn(redisServiceMock, "getOne").mockResolvedValue(null);
+      expect(await repository.getCount(TEST_KEYBODY)).toBe(0);
     });
-    
-    describe("findOne", () => {
-        it("service.getOne 실행.", async () => {
-            const testReturn = await repository_obj.findOne("alreadyKey");
-            expect(service.getOne).toBeCalledTimes(1);
-            expect(service.getOne).toBeCalledWith(joinColon(TEST_KEY_PREFIX, "alreadyKey"));
-            expect(testReturn!.prop).toBe(getOneReturn.prop);
-        });
+  });
 
-        it("(임시) 반환하는 value 는 생성 클래스의 인스턴스이어야 함", async () => {
-            expect(await repository_obj.findOne("alreadyKey"))
-                .toBeInstanceOf(TestObjEntityClass);
-        });
+  describe('resetCount', () => {
+    it('should return true calling this.deleteOne', async () => {
+      const DELETE_ONE = "repository.deleteOne" as any;
+      jest.spyOn(repository, "deleteOne").mockResolvedValue(true).mockResolvedValue(DELETE_ONE);
+      expect(await repository.resetCount(TEST_KEYBODY)).toBe(DELETE_ONE);
+      expect(repository.deleteOne).toBeCalledWith(`${TEST_KEYBODY}:${COUNT}`);
+      expect(repository.deleteOne).toBeCalledTimes(1);
     });
-    
-    describe("updateOne", () => {
-        it("findOne And Update.", async () => {
-            jest.spyOn(repository_obj, "findOne");
-            await repository_obj.updateOne("alreadyKey", {updateProp: "updateValue"});
-            expect(repository_obj.findOne).toBeCalledTimes(1);
-            expect(repository_obj.findOne).toBeCalledWith("alreadyKey");
-        });
-
-        const updateValue = {updateProp: "updateValue"};
-        const updatedValue = Object.assign(getOneReturn, updateValue);
-
-        it("업데이트된 value 로 service.setOne 실행. 스키마에 따라서 key prefix, ttl 적용, 존재하는 키에 대해서만 수행.", async () => {
-            await repository_obj.updateOne("alreadyKey", updateValue);
-            expect(service.setOne).toBeCalledTimes(1);
-            expect(service.setOne).toBeCalledWith(
-                joinColon(TEST_KEY_PREFIX, "alreadyKey"),
-                updatedValue,
-                { expireSec: TEST_TTL, ifExist: true });
-        });
-
-        it("(임시) 반환하는 value 는 생성 클래스의 인스턴스이어야 함", async () => {
-            expect(await repository_obj.updateOne("alreadyKey", updateValue))
-                .toBeInstanceOf(TestObjEntityClass);
-        });
-
-        it("String, Number 객체의 인스턴스 같이 RedisService.setOne 에서 불변타입 반환하는 경우", async () => {
-            const testReturn = await repository_str.updateOne("alreadyKey", new TestStrEntityClass("updateValue"));
-            expect(service.setOne).toBeCalledTimes(1);
-            expect(service.setOne).toBeCalledWith(
-                joinColon(TEST_KEY_PREFIX, "alreadyKey"),
-                new TestStrEntityClass("updateValue"),
-                { expireSec: TEST_TTL, ifExist: true });
-            expect(testReturn).toBeInstanceOf(TestStrEntityClass);
-        });
-
-        it.todo("실패시 null 반환하지 말고 그에 맞는 에러 던지기");
-    });
-
-    describe("deleteOne", () => {
-        it("service.delete 실행.", async () => {
-            await repository_obj.deleteOne("alreadyKey");
-            expect(service.delete).toBeCalledTimes(1);
-            expect(service.delete).toBeCalledWith(joinColon(TEST_KEY_PREFIX, "alreadyKey"));
-        });
-
-        it.todo("삭제 성공시 true 반환, 실패시 false 반환");
-    });
-    
-    describe("getAndDeleteOne", () => {
-        it("service.getAndDeleteOne 실행.", async () => {
-            await repository_obj.getAndDeleteOne("alreadyKey");
-            expect(service.getAndDeleteOne).toBeCalledTimes(1);
-            expect(service.getAndDeleteOne).toBeCalledWith(joinColon(TEST_KEY_PREFIX, "alreadyKey"));
-        });
-
-        it("(임시) 반환하는 value 는 생성 클래스의 인스턴스이어야 함", async () => {
-            expect(await repository_obj.getAndDeleteOne("alreadyKey"))
-                .toBeInstanceOf(TestObjEntityClass);
-        });
-    });
-
-    // describe("getAllKeyValueMap", () => {
-    //     it.todo('레포지토리에 해당하는 모든 키-값 쌍을 Map 에 담아서 반환.');
-    //     it.todo('key(Redis keyBody) => value(: T) 매핑');
-    // });
-
-    it.todo("count");
-    it.todo("getCount");
-    it.todo("resetCount");
-    
+  });
 });
+
+const TEST_TTL = 60000;
+const TEST_KEY_PREFIX = "test";
+
+const redisServiceMockResolvedValue = {
+  setOne: "setOne" as any,
+  getAndDeleteOne: "getAndDeleteOne" as any,
+  delete: "delete" as any,
+  getOne: "getOne" as any,
+  count: "count" as any,
+};
+
+const redisServiceMock = {
+  setOne: jest.fn(),
+  getAndDeleteOne: jest.fn(),
+  delete: jest.fn(),
+  getOne: jest.fn(),
+  count: jest.fn(),
+} as any as RedisService;
+
+const redisCacheFactoryMock = jest.fn();
+
+class RedisCacheMock {
+  constructor(
+    public keyBody: string,
+    public value: any,
+  ) {}
+}
+
+const schemaServiceMock = {
+  KEY_PREFIX: TEST_KEY_PREFIX,
+  TTL: TEST_TTL,
+  createRedisCacheFactory: () => redisCacheFactoryMock,
+} as any as SchemaService<any>;
+
+const TEST_VALUE = "value" as any;
+const TEST_KEYBODY = "keyBody";
+const TEST_KEY = `${schemaServiceMock.KEY_PREFIX}:${TEST_KEYBODY}`;
+const TEST_COUNT_KEY = `${TEST_KEY}:${COUNT}`;
