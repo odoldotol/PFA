@@ -40,6 +40,8 @@ const mockAppleAssetFromMarket: FinancialAssetCore = {
   "exchange": mockNewYorkStockExchangeIsoCode,
   "currency": mockUsdCurrency,
   "regularMarketLastClose": mockApplePrice,
+  "regularMarketPreviousClose": null,
+  "marketDate": mockNewYorkStockExchangeFromMarket.marketDate
 };
 const mockSamsungAssetFromMarket: FinancialAssetCore = {
   "symbol": mockSamsungTicker,
@@ -49,17 +51,19 @@ const mockSamsungAssetFromMarket: FinancialAssetCore = {
   "exchange": mockKoreaExchangeIsoCode,
   "currency": mockKrwCurrency,
   "regularMarketLastClose": mockSamsungPrice,
+  "regularMarketPreviousClose": null,
+  "marketDate": mockKoreaExchangeFromMarket.marketDate
 };
 
 const mockApplePriceTuple: PriceTuple = [
   mockAppleTicker,
   mockApplePrice,
-  mockUsdCurrency
+  null
 ];
 const mockSamsungPriceTuple: PriceTuple = [
   mockSamsungTicker,
   mockSamsungPrice,
-  mockKrwCurrency
+  null
 ];
 
 export const mockExchangesFromMarket: ExchangeCore[] = [

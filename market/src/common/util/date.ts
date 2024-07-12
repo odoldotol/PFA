@@ -1,3 +1,8 @@
+import {
+  Day,
+  Month
+} from ".";
+
 export const getLogStyleStr = (date: Date): string => {
   return date.toLocaleString("en-GB", { timeZone: "Asia/Seoul" });
 };
@@ -9,11 +14,11 @@ export const getLogStyleStr = (date: Date): string => {
 export const getISOYmdStr = (
   date: Date,
   timeZone: string = 'utc'
-): string => {
+): ISOYmd => {
   return new Intl.DateTimeFormat('en-GB', {timeZone}).format(date)
   .split('/')
   .reverse()
-  .join('-');
+  .join('-') as ISOYmd;
 };
 
 /**
@@ -22,7 +27,7 @@ export const getISOYmdStr = (
 export const calculateRemainingMs = (date: Date): number => {
   const result = date.getTime() - new Date().getTime();
   return 0 < result ? result : 0;
-}
+};
 
 /**
  * @returns 1 or Positive integer
@@ -35,4 +40,6 @@ export const calculateElapsedMs = (date: Date): number => {
   return 0 < result ? result :
   result === 0 ? 1 :
   0;
-}
+};
+
+export type ISOYmd = `${number}-${Month}-${Day}`;

@@ -13,11 +13,9 @@ import { migrationRun } from 'src/../devMigrations/migration';
 import {
   MigrationUpdatedAtTriggers
 } from 'src/../devMigrations/postgres/updatedAtTriggers-Migration';
-import { PriceService } from 'src/database/price/price.service';
+import { FinancialAssetService } from 'src/financialAsset';
 import { MarketApiService } from 'src/marketApi/marketApi.service';
 import { ConnectionService } from 'src/marketApi/connection.service';
-import { MarketDate } from 'src/common/class/marketDate.class';
-import { CachedPrice } from 'src/common/class/cachedPrice.class';
 import { KakaoChatbotGuard } from 'src/kakaoChatbot/guard/kakaoChatbot.guard';
 import { SkillPayloadDto } from 'src/kakaoChatbot/dto';
 import {
@@ -37,12 +35,9 @@ import {
   mockNotExistsTicker
 } from 'src/mock';
 import {
-  mockApplePrice,
   mockAssetsFromMarketMap,
   mockExchangesFromMarket,
-  mockNewYorkStockExchangeIsoCode,
   mockPriceTuplesFromMarketMap,
-  mockUsdCurrency
 } from './mock';
 import * as F from '@fxts/core';
 
@@ -52,14 +47,14 @@ describe('Product E2E', () => {
   let dataSource: DataSource;
 
   let marketApiService: MarketApiService;
-  let priceService: PriceService;
+  let financialAssetService: FinancialAssetService;
 
   let fetchFinancialAssetSpy: jest.SpyInstance;
 
   beforeAll(async () => {
     app = await createApp();
-    redisClient = app.get<RedisClientType>(REDIS_CLIENT_TOKEN);
-    dataSource = app.get<DataSource>(DataSource);
+    redisClient = app.get(REDIS_CLIENT_TOKEN);
+    dataSource = app.get(DataSource);
 
     marketApiService = app.get(MarketApiService);
 
@@ -97,7 +92,7 @@ describe('Product E2E', () => {
   describe('Application Initializing', () => {
 
     beforeAll(() => {
-      priceService = app.get(PriceService);
+      financialAssetService = app.get(FinancialAssetService);
       const marketApiConnectionService = app.get(ConnectionService);
 
       jest.spyOn(marketApiConnectionService, 'onModuleInit')
@@ -113,81 +108,52 @@ describe('Product E2E', () => {
     it.todo('앱 초기화시 최신화 되지 않은 Market 의 선택적 업데이트');
   });
 
-  describe(`Price 조회 로직. POST /asset/price/inquire/{ticker}`, () => {
-    let readWithCountingSpy: jest.SpyInstance;
-
-    beforeAll(async () => {
-      readWithCountingSpy = jest.spyOn(priceService, 'readWithCounting');
-
-      await priceService.delete(mockAppleTicker);
-    });
+  describe(`Price 조회 로직. POST /financialasset/inquire/{ticker}`, () => {
   
     afterEach(() => {
-      readWithCountingSpy.mockClear();
       fetchFinancialAssetSpy.mockClear();
     });
   
-    let asset: CachedPrice;
-  
-    it('인메모리에 없는경우 (010) => market api 로 가져와서 create, count = 1', () => {
-      jest.spyOn(priceService, 'create');
+    it('인메모리에 없는경우 => market api 로 가져와서 create', () => {
       return request(app.getHttpServer())
-        .post(`/asset/price/inquire/${mockAppleTicker}`)
+        .post(`/financialasset/inquire/${mockAppleTicker}`)
         .expect(HttpStatus.CREATED)
         .expect(res => {
           const body = res.body;
-          asset = res.body;
           expect(fetchFinancialAssetSpy).toBeCalledWith(mockAppleTicker);
           expect(fetchFinancialAssetSpy).toBeCalledTimes(1);
-          expect(readWithCountingSpy).toBeCalledTimes(1);
-          expect(priceService.create).toBeCalledTimes(1); //
-          expect(body).toHaveProperty('price');
-          expect(body).toHaveProperty('ISO_Code');
-          expect(body).toHaveProperty('currency');
-          expect(body).toHaveProperty('marketDate');
-          expect(body).toHaveProperty('count', 1);
+          expect(body).toEqual(mockAssetsFromMarketMap.get(mockAppleTicker));
         });
     });
   
-    it('인메모리에 있고 최신인 경우 (100) => 단순 조회, count++', () => {
+    it('인메모리에 있고 최신인 경우 => 단순 조회', () => {
       return request(app.getHttpServer())
-        .post(`/asset/price/inquire/${mockAppleTicker}`)
+        .post(`/financialasset/inquire/${mockAppleTicker}`)
         .expect(HttpStatus.OK)
         .expect(res => {
           const body = res.body;
           expect(fetchFinancialAssetSpy).toBeCalledTimes(0);
-          expect(readWithCountingSpy).toBeCalledTimes(1);
-          expect(body).toHaveProperty('price', mockApplePrice);
-          expect(body).toHaveProperty('ISO_Code', mockNewYorkStockExchangeIsoCode);
-          expect(body).toHaveProperty('currency', mockUsdCurrency);
-          expect(body).toHaveProperty('marketDate', asset.marketDate);
-          expect(body).toHaveProperty('count', 2);
+          expect(body).toEqual(mockAssetsFromMarketMap.get(mockAppleTicker));
         });
     });
   
-    it('인메모리에 있지만 최신 아닌 경우 (101) => market api 로 가져와서 update, count++', async () => {
-      await priceService.update(
+    it('인메모리에 있지만 최신 아닌 경우 => market api 로 가져와서 update', async () => {
+      await (financialAssetService as any).financialAssetRepo.findOneAndUpdate(
         mockAppleTicker,
         {
-          price: 1,
-          marketDate: new MarketDate('1990-03-25')
+          regularMarketLastClose: 1,
+          regularMarketPreviousClose: 1,
+          marketDate: '1990-03-25'
         }
       );
-      jest.spyOn(priceService, 'update');
       return request(app.getHttpServer())
-        .post(`/asset/price/inquire/${mockAppleTicker}`)
+        .post(`/financialasset/inquire/${mockAppleTicker}`)
         .expect(HttpStatus.OK)
         .expect(res => {
           const body = res.body;
           expect(fetchFinancialAssetSpy).toBeCalledWith(mockAppleTicker);
           expect(fetchFinancialAssetSpy).toBeCalledTimes(1);
-          expect(readWithCountingSpy).toBeCalledTimes(1);
-          expect(priceService.update).toBeCalledTimes(1); //
-          expect(body).toHaveProperty('price', mockApplePrice);
-          expect(body).toHaveProperty('ISO_Code', mockNewYorkStockExchangeIsoCode);
-          expect(body).toHaveProperty('currency', mockUsdCurrency);
-          expect(body).toHaveProperty('marketDate', asset.marketDate);
-          expect(body).toHaveProperty('count', 3);
+          expect(body).toEqual(mockAssetsFromMarketMap.get(mockAppleTicker));
         });
     });
   
@@ -197,7 +163,7 @@ describe('Product E2E', () => {
   // TODO: 없는거 조회시 mongodb 에 추가되서 돌아오는 경우
   // 일단, 지금은 마켓에서 거래소 정기 업뎃 전파될때 거래소 데이터 생성 및 업뎃 되기떄문에 이에 대한 추가작업은 불필요하다.
 
-  describe(`Market 서버에서 전파된 업데이트를 잘 반영하는가. POST /market/update/price/exchange/{ISO_Code}`, () => {
+  describe(`Market 서버에서 전파된 업데이트를 잘 반영하는가. POST /updater/price/{ISO_Code}`, () => {
     it.todo('Asset 의 업데이트, 삭제, 유지');
     it.todo('MarketDate 의 업데이트, 생성');
   });
@@ -543,6 +509,7 @@ describe('Product E2E', () => {
   });
 
   afterAll(async () => {
+    await redisClient.flushAll();
     await redisClient.disconnect();
     await dataSource.dropDatabase();
     await app.close();

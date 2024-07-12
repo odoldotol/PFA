@@ -1,11 +1,25 @@
-import { Currency } from "./yahooFinance.interface";
+import {
+  Currency,
+  ExchangeIsoCode,
+  MarketDate,
+  Ticker,
+  QuoteType
+} from ".";
 
 export interface FinancialAssetCore {
-  readonly symbol: string;
-  readonly quoteType: string;
-  readonly shortName: string | null;
-  readonly longName: string | null;
-  readonly exchange: string | null;
+  readonly symbol: Ticker;
+  readonly quoteType: QuoteType;
+  shortName: string | null;
+  longName: string | null;
+  readonly exchange: ExchangeIsoCode | null;
   readonly currency: Currency;
-  readonly regularMarketLastClose: number;
+  regularMarketLastClose: number;
+  regularMarketPreviousClose: number | null;
+  marketDate: MarketDate;
 }
+
+export type PriceTuple = [
+  Ticker,
+  number,
+  number | null
+];

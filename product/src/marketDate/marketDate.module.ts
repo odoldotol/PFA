@@ -1,11 +1,11 @@
 import { Module } from "@nestjs/common";
-import { RedisModule } from "../redis";
-import { MarketDate } from "./marketDate.schema";
+import { RedisModule } from "../database";
+import { MarketDateRedisEntity } from "./marketDate.redis.entity";
 import { MarketDateService } from "./marketDate.service";
 
 @Module({
   // Todo - model
-  imports: [RedisModule.forFeature([{ schema: MarketDate }])],
+  imports: [RedisModule.forFeature([{ entity: MarketDateRedisEntity }])],
   providers: [MarketDateService],
   exports: [MarketDateService],
 })

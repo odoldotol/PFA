@@ -3,8 +3,8 @@ export enum AppEnvKey {
   DOCKER_ENV = 'RACK_ENV'
 }
 
-export enum AssetEnvKey {
-  THRESHOLD_PRICE_COUNT = 'PRICE_CACHE_COUNT',
+export enum FinancialAssetEnvKey {
+  RENEWAL_THRESHOLD = 'FINANCIAL_ASSET_RENEWAL_THRESHOLD'
 }
 
 export enum KakaoChatbotEnvKey {

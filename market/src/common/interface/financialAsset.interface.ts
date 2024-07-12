@@ -12,3 +12,9 @@ export interface FinancialAssetCore {
   readonly regularMarketPreviousClose: number | null;
   readonly marketDate: MarketDate;
 }
+
+export type PriceTuple = [
+  Ticker,
+  number,
+  number | null
+];

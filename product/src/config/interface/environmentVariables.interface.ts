@@ -1,7 +1,7 @@
 import {
-  AssetEnvKey,
   AppEnvKey,
   DockerEnv,
+  FinancialAssetEnvKey,
   KakaoChatbotEnvKey,
   MarketApiEnvKey,
   Pm2EnvKey,
@@ -14,7 +14,7 @@ import {
 export interface EnvironmentVariables
   extends
   AppEnvironmentVariables,
-  AssetEnvironmentVariables,
+  FinancialAssetEnvironmentVariables,
   KakaoChatbotEnvironmentVariables,
   MarketApiEnvironmentVariables,
   Pm2EnvironmentVariables,
@@ -62,8 +62,8 @@ export interface TempEnvironmentVariables {
   [TempEnvKey.KEY]: string;
 }
 
-export interface AssetEnvironmentVariables {
-  [AssetEnvKey.THRESHOLD_PRICE_COUNT]: number;
+export interface FinancialAssetEnvironmentVariables {
+  [FinancialAssetEnvKey.RENEWAL_THRESHOLD]: number;
 }
 
 export interface ThrottleEnvironmentVariables {

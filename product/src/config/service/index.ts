@@ -1,7 +1,7 @@
 import { isType } from 'src/common/util';
 
 export * from './app.service';
-export * from './asset.service';
+export * from './financialAsset.service';
 export * from './kakaoChatbot.service';
 export * from './marketApi.service';
 export * from './pm2.service';

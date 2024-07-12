@@ -6,16 +6,17 @@ import {
   IsNotEmpty,
   IsString
 } from "class-validator";
-import { MarketDate } from "src/common/class/marketDate.class";
-import { PriceTuple } from "src/common/interface";
+import {
+  MarketDate,
+  PriceTuple
+} from "src/common/interface";
 
 export class UpdatePriceByExchangeBodyDto {
 
-  // marketDateParser
   @IsString()
   @IsNotEmpty()
   @ApiProperty({
-    type: MarketDate,
+    type: String,
     required: true,
     description: 'Market Date',
     example: '2023-03-25'

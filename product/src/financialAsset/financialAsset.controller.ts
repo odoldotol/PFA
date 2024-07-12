@@ -7,30 +7,30 @@ import {
   Res,
   UseGuards
 } from "@nestjs/common";
-import { ApiTags } from "@nestjs/swagger";
-import { Api_inquirePrice } from "./decorator/api-inquirePrice.decorator";
 import { Response } from "express";
+import { ApiTags } from "@nestjs/swagger";
+import { FinancialAssetService } from "./financialAsset.service";
 import { GlobalThrottlerGuard } from "src/common/guard";
 import { UpperCasePipe } from "src/common/pipe";
-import { AssetService } from "./asset.service";
+import { Api_inquire } from "./decorator";
 
-@Controller('asset')
+@Controller('financialasset')
 @UseGuards(GlobalThrottlerGuard)
-@ApiTags('Asset')
-export class AssetController {
+@ApiTags('FinancialAsset')
+export class FinancialAssetController {
 
   constructor(
-    private readonly assetSrv: AssetService
+    private readonly financialAssetSrv: FinancialAssetService
   ) {}
 
-  @Post('price/inquire/:ticker')
-  @Api_inquirePrice()
+  @Post('inquire/:ticker')
+  @Api_inquire()
   async inquirePrice(
     @Res() response: Response,
     @Param('ticker', UpperCasePipe) ticker: string,
     @Query('id') id?: string,
   ): Promise<void> {
-    const inquirePriceResult = await this.assetSrv.inquirePrice(ticker, id);
+    const inquirePriceResult = await this.financialAssetSrv.inquire(ticker, id);
     
     if (inquirePriceResult.created) {
       response.status(HttpStatus.CREATED);

@@ -7,12 +7,11 @@ import { HttpService } from '@nestjs/axios';
 import {
   ExchangeCore,
   FulfilledYfPrice,
-  Ticker,
-  MarketDate
+  MarketDate,
+  PriceTuple
 } from 'src/common/interface';
 import { UPDATE_PRICE_BY_EXCHANGE_URN } from './const';
 import { firstValueFrom } from 'rxjs';
-import Either, * as E from 'src/common/class/either';
 import {
   intervalTryUntilResolvedOrTimeout,
   isHttpResponse4XX
@@ -31,12 +30,12 @@ export class ProductApiService {
 
   public async updatePriceByExchange(
     exchange: ExchangeCore,
-    updateResult: Either<any, FulfilledYfPrice>[]
+    updateResult: FulfilledYfPrice[]
   ): Promise<void> {
     const isoCode = exchange.isoCode;
     const data: updatePriceByExchangeData = {
       marketDate: exchange.marketDate,
-      priceArrs: E.getRightArray(updateResult).map(this.convertToUpdateTuple)
+      priceArrs: updateResult.map(this.convertToPriceTuple)
     };
 
     const task = () => firstValueFrom(this.httpService.post(
@@ -63,28 +62,22 @@ export class ProductApiService {
   /**
    * Product API 리팩터링 하면서 삭제 예정
    */
-  private convertToUpdateTuple(
+  private convertToPriceTuple(
     fulfilledYfPrice: FulfilledYfPrice
-  ): UpdateTuple {
+  ): PriceTuple {
     return [
       fulfilledYfPrice.symbol,
-      fulfilledYfPrice.regularMarketLastClose
+      fulfilledYfPrice.regularMarketLastClose,
+      fulfilledYfPrice.regularMarketPreviousClose,
     ];
   }
 }
 
 // Todo: interface
 
-/**
- * Product API 리팩터링 하면서 삭제 예정
- */
-type UpdateTuple = Readonly<[Ticker, number]>;
-
-type updatePriceByExchangeData
-= ProductApiData
-& Readonly<{
+type updatePriceByExchangeData = ProductApiData & Readonly<{
   marketDate: MarketDate;
-  priceArrs: UpdateTuple[];
+  priceArrs: PriceTuple[];
 }>;
 
 // Todo: Refac - keyGuard
