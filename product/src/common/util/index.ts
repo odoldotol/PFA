@@ -4,3 +4,4 @@ export * from "./promise";
 export * from "./monetaryValue";
 export * from "./nest";
 export * from "./retry";
+export * from "./object";
