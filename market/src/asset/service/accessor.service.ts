@@ -25,6 +25,9 @@ export class AccessorService {
     private readonly subscriberSrv: SubscriberService,
   ) {}
 
+  /**
+   * @todo 지원하지 않는 거래소는 정기 업데이트 없기때문에, 이에 대한 요청에서 필요시 marketchildapi 이용할 수 있는게 좋을것같음. 결국 정기업데이트 말고도 개별 업데이트가 가능해야함. 언제 개별업데이트를 할 것인가 가 문제. 방법 없으면 업데이트 하지않고 매번 차일드를 통해야함.
+   */
   public getFinancialAsset(
     ticker: Ticker
   ): Promise<FinancialAssetCore | null> {
