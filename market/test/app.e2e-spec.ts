@@ -77,7 +77,7 @@ describe('Market E2E', () => {
       ).mockImplementation(); // Fake 타이머로 호출될때 실제 업데이트TX 를 실행하게 되면 Jest 가 테스트를 병열적으로 진행하면서 동기화때 호출하는 업데이트TX 와 겹칠 수 있기에 noop.
 
       // mock productApi - Product 서버에 실재로 요청을 보내지 않기.
-      jest.spyOn(ProductApiService.prototype, 'updatePriceByExchange')
+      jest.spyOn(ProductApiService.prototype, 'renewFinancialAssetExchange')
       .mockResolvedValue();
 
       /* 타이머 in 이벤트 루프 테스트의 어려움.
@@ -266,10 +266,10 @@ describe('Market E2E', () => {
       );
     });
 
-    describe('POST /api/v1/asset/price/get/:ISO_Code', () => {
+    describe('GET /api/v1/asset/price/:ISO_Code', () => {
       it('Exchange 에 속하는 Assets 을 응답 (200)', () => {
         return request(app.getHttpServer())
-        .post(`/asset/price/get/${mockNewYorkStockExchange.isoCode}`)
+        .get(`/asset/price/${mockNewYorkStockExchange.isoCode}`)
         .expect(HttpStatus.OK)
         .expect(({ body }) => {
           const mockResponse = new GetPriceByExchangeResponse(
@@ -285,7 +285,7 @@ describe('Market E2E', () => {
 
       it('Code 가 잘못되거나, 해당하는 Assets 을 찾을 수 없으면 빈배열을 응답 (200)', () => {
         return request(app.getHttpServer())
-        .post('/asset/price/get/krx')
+        .get('/asset/price/krx')
         .expect(HttpStatus.OK)
         .expect(({ body }) => {
           expect(body).toEqual([]);

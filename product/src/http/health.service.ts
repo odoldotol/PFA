@@ -3,10 +3,10 @@ import { Injectable } from '@nestjs/common';
 import { AxiosResponse } from 'axios';
 import { firstValueFrom, tap } from 'rxjs';
 import {
-  HEALTH_URN,
+  HEALTH_PATH,
   HEALTHCHECK_INTERVAL,
   HEALTHCHECK_TIMEOUT
-} from 'src/common/const';
+} from './const';
 import {
   intervalTryUntilResolvedOrTimeout,
   isHttpResponse4XX,
@@ -36,6 +36,6 @@ export class HealthService {
       if (res.status !== 200) throw new Error(`Health Check Failed(status code: ${res.status})`);
     });
 
-    return firstValueFrom(this.httpSrv.get(HEALTH_URN).pipe(throwErrorIfHealthStatusIsNot200));
+    return firstValueFrom(this.httpSrv.get(HEALTH_PATH).pipe(throwErrorIfHealthStatusIsNot200));
   }
 }

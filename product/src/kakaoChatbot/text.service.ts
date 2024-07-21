@@ -1,10 +1,9 @@
 import { Injectable } from "@nestjs/common";
 import {
   FinancialAssetCore,
+  MarketDate,
   Ticker
 } from "src/common/interface";
-import { CachedPrice } from "src/common/class/cachedPrice.class";
-import { MarketDate } from "src/common/class/marketDate.class";
 import { currencyToSign, to2Decimal } from "src/common/util";
 
 @Injectable()
@@ -64,9 +63,9 @@ export class TextService {
   }
 
   // Todo: asset 을 redis 에 캐깅한 후 Refac
-  public subscribedAssetInquiry(assets: (CachedPrice & { ticker: string; })[]): string {
+  public subscribedAssetInquiry(assets: FinancialAssetCore[]): string {
     return assets.map((asset) => {
-      return `${asset.ticker} ${to2Decimal(asset.price)} ${currencyToSign(asset.currency)} (${this.getMonthSlashDayStr(asset.marketDate)})`;
+      return `${asset.symbol} ${to2Decimal(asset.regularMarketLastClose)} ${currencyToSign(asset.currency)} (${this.getMonthSlashDayStr(asset.marketDate)})`;
     }).join('\n');
   }
 

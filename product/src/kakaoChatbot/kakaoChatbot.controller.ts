@@ -41,12 +41,11 @@ import {
 import { SkillResponse } from './skillResponse/v2';
 import { InvalidTickerException } from 'src/common/exception';
 import {
-  URL_API,
-  URL_PREFIX,
+  apiMetadata,
   throttleOptions
 } from './const';
 
-@Controller(URL_PREFIX)
+@Controller(apiMetadata.prefix)
 @Throttle(throttleOptions)
 @UseGuards(
   KakaoChatbotGuard,
@@ -67,7 +66,7 @@ export class KakaoChatbotController {
     private readonly kakaoChatbotSrv: KakaoChatbotService,
   ) {}
 
-  @Post(URL_API.inquireAsset.path)
+  @Post(apiMetadata.routes.inquireAsset.path)
   @HttpCode(HttpStatus.OK)
   @UseFilters(
     NotFoundExceptionFilter,
@@ -79,15 +78,15 @@ export class KakaoChatbotController {
     exceptionFactory: () => new InvalidTickerException()
   }))
   @ApiOperation({ summary: '카카오챗봇스킬: asset/inquire' })
-  inquireAsset(
+  public inquireAsset(
     @Body() body: InquireAssetDto
   ): Promise<SkillResponse> {
     return this.kakaoChatbotSrv.inquireAsset(body);
   }
 
-  @Post(URL_API.addAssetSubscription.path)
+  @Post(apiMetadata.routes.addAssetSubscription.path)
   @ApiOperation({ summary: '카카오챗봇스킬: asset-subscription/add' })
-  async addAssetSubscription(
+  public async addAssetSubscription(
     @Res() response: Response,
     @Body() body: AssetSubscriptionDto
   ): Promise<void> {
@@ -103,28 +102,28 @@ export class KakaoChatbotController {
     response.json(addAssetSubscriptionResult.data);
   }
 
-  @Post(URL_API.cancelAssetSubscription.path)
+  @Post(apiMetadata.routes.cancelAssetSubscription.path)
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: '카카오챗봇스킬: asset-subscription/cancel' })
-  cancelAssetSubscription(
+  public cancelAssetSubscription(
     @Body() body: AssetSubscriptionDto
   ): Promise<SkillResponse> {
     return this.kakaoChatbotSrv.cancelAssetSubscription(body);
   }
 
-  @Post(URL_API.inquireSubscribedAsset.path)
+  @Post(apiMetadata.routes.inquireSubscribedAsset.path)
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: '카카오챗봇스킬: asset/subscriptions/inquire' })
-  inquireSubscribedAsset(
+  public inquireSubscribedAsset(
     @Body() body: SkillPayloadDto
   ): Promise<SkillResponse> {
     return this.kakaoChatbotSrv.inquireSubscribedAsset(body);
   }
 
-  @Post(URL_API.reportTicker.path)
+  @Post(apiMetadata.routes.reportTicker.path)
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: '카카오챗봇스킬: report/ticker' })
-  reportTicker(
+  public reportTicker(
     @Body() body: ReportTickerDto
   ): Promise<SkillResponse> {
     return this.kakaoChatbotSrv.reportTicker(body);
@@ -132,4 +131,4 @@ export class KakaoChatbotController {
 
 }
 
-export type ApiName = keyof KakaoChatbotController;
+export type RouteName = keyof KakaoChatbotController;

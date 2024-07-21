@@ -14,7 +14,6 @@ import {
   FinancialAssetCore,
   Ticker
 } from "src/common/interface";
-import { CachedPrice } from "src/common/class/cachedPrice.class";
 
 @Injectable()
 export class SkillResponseService {
@@ -196,7 +195,7 @@ export class SkillResponseService {
 
   // Todo: asset 을 redis 에 캐깅한 후 Refac
   public subscribedAssetInquiry(
-    assets: (CachedPrice & { ticker: string; })[]
+    assets: FinancialAssetCore[]
   ): SkillResponse {
     return this.singleSimpleText(
       this.textSrv.subscribedAssetInquiry(assets),

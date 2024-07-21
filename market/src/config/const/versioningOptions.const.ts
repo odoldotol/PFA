@@ -3,7 +3,7 @@ import {
   VersioningType
 } from "@nestjs/common";
 
-export const versioningPrefix = 'api/v';
+export const versioningPrefix = 'v';
 
 const defaultVersion = '1';
 

@@ -11,7 +11,7 @@ import {
   PriceTuple
 } from "src/common/interface";
 
-export class UpdatePriceByExchangeBodyDto {
+export class RenewExchangeBodyDto {
 
   @IsString()
   @IsNotEmpty()
@@ -24,11 +24,11 @@ export class UpdatePriceByExchangeBodyDto {
   readonly marketDate!: MarketDate;
 
   // TODO: 튜플 검증하는 Custom validation decorator 만들어 사용하기
-  @ArrayMinSize(2, { each: true })
+  @ArrayMinSize(3, { each: true })
   @ArrayNotEmpty({ each: true })
   @IsArray({ each: true })
   @IsArray()
-  @ApiProperty({ type: Array, required: true, description: '[ticker, Price] 의 배열', example: [['AAPL', 160], ['MSFT', 280]] })
-  readonly priceArrs!: PriceTuple[];
+  @ApiProperty({ type: Array, required: true, description: '[ticker, regulerMarketLastClose, regularMarketPreviousClose] 의 배열', example: [['AAPL', 160, 150], ['MSFT', 280, 250]] })
+  readonly priceTupleArr!: PriceTuple[];
 
 }

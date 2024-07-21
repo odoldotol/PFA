@@ -89,7 +89,7 @@ export class UpdaterService
       this.database_updaterSrv.createLog(newLogDoc);
       // ------------------------------------------------------
 
-      this.productApiSrv.updatePriceByExchange(exchange, newLogDoc.success);
+      this.productApiSrv.renewFinancialAssetExchange(exchange, newLogDoc.success);
 
       return updateResult;
     } else {

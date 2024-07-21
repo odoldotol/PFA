@@ -59,6 +59,9 @@ export class AccessorService {
     }
   }
 
+  /**
+   * @todo 쿼리에서부터 가격만 가져올까?
+   */
   public async getPriceByExchange(
     isoCode: ExchangeIsoCode
   ): Promise<GetPriceByExchangeResponse> {

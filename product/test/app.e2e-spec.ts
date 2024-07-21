@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import * as request from 'supertest';
 import { RedisClientType } from 'redis';
-import { REDIS_CLIENT_TOKEN } from 'src/common/const/injectionToken.const';
+import { REDIS_CLIENT_TOKEN } from 'src/database/redis/const';
 import { DataSource } from 'typeorm';
 import { AppModule } from 'src/app/app.module';
 import { migrationRun } from 'src/../devMigrations/migration';
@@ -19,11 +19,10 @@ import { ConnectionService } from 'src/marketApi/connection.service';
 import { KakaoChatbotGuard } from 'src/kakaoChatbot/guard/kakaoChatbot.guard';
 import { SkillPayloadDto } from 'src/kakaoChatbot/dto';
 import {
-  URL_PREFIX as KAKAO_CHATBOT_URL_PREFIX,
-  URL_API as KAKAO_CHATBOT_URL_API,
+  apiMetadata as KAKAO_CHATBOT_API_METADATA,
 } from 'src/kakaoChatbot/const';
 import {
-  ApiName as KakaoChatbotApiName
+  RouteName as KakaoChatbotApiName
 } from 'src/kakaoChatbot/kakaoChatbot.controller';
 import { SkillResponseService } from 'src/kakaoChatbot/skillResponse.service';
 import {
@@ -39,6 +38,7 @@ import {
   mockExchangesFromMarket,
   mockPriceTuplesFromMarketMap,
 } from './mock';
+import { joinSlash } from 'src/common/util';
 import * as F from '@fxts/core';
 
 describe('Product E2E', () => {
@@ -59,10 +59,10 @@ describe('Product E2E', () => {
     marketApiService = app.get(MarketApiService);
 
     // Todo: SpDoc -> exchange
-    jest.spyOn(marketApiService, 'fetchAllSpDoc')
+    jest.spyOn(marketApiService, 'fetchAllExchanges')
     .mockResolvedValue(mockExchangesFromMarket);
 
-    jest.spyOn(marketApiService, 'fetchPriceByISOcode')
+    jest.spyOn(marketApiService, 'fetchPriceTupleArrByISOcode')
     .mockImplementation(async (isoCode: ExchangeIsoCode) => {
       const result = mockPriceTuplesFromMarketMap.get(isoCode);
       if (result) {
@@ -182,10 +182,10 @@ describe('Product E2E', () => {
     });
 
     describe('forbidden error: 200 OK, data has 403 exception', () => {
-      for (let api in KAKAO_CHATBOT_URL_API) {
+      for (let api in KAKAO_CHATBOT_API_METADATA.routes) {
         it(api, () => {
           return request(app.getHttpServer())
-          .post(KAKAO_CHATBOT_URL_PREFIX + KAKAO_CHATBOT_URL_API[api as KakaoChatbotApiName].path)
+          .post(joinSlash("", KAKAO_CHATBOT_API_METADATA.prefix, KAKAO_CHATBOT_API_METADATA.routes[api as KakaoChatbotApiName].path))
           .send(mockSkillPayload(mockBotUserKey1))
           .expect(HttpStatus.OK)
           .expect(({body}) => {
@@ -215,9 +215,13 @@ describe('Product E2E', () => {
       it.todo('botUserKey');
     });
 
-    describe(KAKAO_CHATBOT_URL_API.inquireAsset.path, () => {
-      const url = KAKAO_CHATBOT_URL_PREFIX +
-      KAKAO_CHATBOT_URL_API.inquireAsset.path;
+    const inquireAssetPath = KAKAO_CHATBOT_API_METADATA.routes.inquireAsset.path;
+    describe(inquireAssetPath, () => {
+      const url = joinSlash(
+        "",
+        KAKAO_CHATBOT_API_METADATA.prefix,
+        inquireAssetPath
+      );
 
       describe('bad request', () => {
         it('if ticker is not available: 200 OK, data has 400 exception', () => {
@@ -281,9 +285,13 @@ describe('Product E2E', () => {
       });
     });
 
-    describe(KAKAO_CHATBOT_URL_API.addAssetSubscription.path, () => {
-      const url = KAKAO_CHATBOT_URL_PREFIX +
-      KAKAO_CHATBOT_URL_API.addAssetSubscription.path;
+    const addAssetSubscriptionPath = KAKAO_CHATBOT_API_METADATA.routes.addAssetSubscription.path;
+    describe(addAssetSubscriptionPath, () => {
+      const url = joinSlash(
+        "",
+        KAKAO_CHATBOT_API_METADATA.prefix,
+        addAssetSubscriptionPath
+      );
 
       it('bad request if ticker is not available: 200 OK, data has 400 exception', () => {
         return request(app.getHttpServer())
@@ -328,9 +336,13 @@ describe('Product E2E', () => {
       });
     });
 
-    describe(KAKAO_CHATBOT_URL_API.cancelAssetSubscription.path, () => {
-      const url = KAKAO_CHATBOT_URL_PREFIX +
-      KAKAO_CHATBOT_URL_API.cancelAssetSubscription.path;
+    const cancelAssetSubscriptionPath = KAKAO_CHATBOT_API_METADATA.routes.cancelAssetSubscription.path;
+    describe(cancelAssetSubscriptionPath, () => {
+      const url = joinSlash(
+        "",
+        KAKAO_CHATBOT_API_METADATA.prefix,
+        cancelAssetSubscriptionPath
+      );
 
       it('bad request if ticker is not available: 200 OK, data has 400 exception', () => {
         return request(app.getHttpServer())
@@ -372,9 +384,13 @@ describe('Product E2E', () => {
       });
     });
 
-    describe(KAKAO_CHATBOT_URL_API.inquireSubscribedAsset.path, () => {
-      const url = KAKAO_CHATBOT_URL_PREFIX +
-      KAKAO_CHATBOT_URL_API.inquireSubscribedAsset.path;
+    const inquireSubscribedAssetPath = KAKAO_CHATBOT_API_METADATA.routes.inquireSubscribedAsset.path;
+    describe(inquireSubscribedAssetPath, () => {
+      const url = joinSlash(
+        "",
+        KAKAO_CHATBOT_API_METADATA.prefix,
+        inquireSubscribedAssetPath
+      );
 
       it('200 OK', () => {
         return request(app.getHttpServer())
@@ -385,9 +401,13 @@ describe('Product E2E', () => {
       });
     });
 
-    describe(KAKAO_CHATBOT_URL_API.reportTicker.path, () => {
-      const url = KAKAO_CHATBOT_URL_PREFIX +
-      KAKAO_CHATBOT_URL_API.reportTicker.path;
+    const reportTickerPath = KAKAO_CHATBOT_API_METADATA.routes.reportTicker.path;
+    describe(reportTickerPath, () => {
+      const url = joinSlash(
+        "",
+        KAKAO_CHATBOT_API_METADATA.prefix,
+        reportTickerPath
+      );
 
       describe('bad request', () => {
         it('if ticker is not available: 200 OK, data has 400 exception', () => {

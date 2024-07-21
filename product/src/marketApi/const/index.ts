@@ -1,1 +1,1 @@
-export * from './url.const';
+export * from './path.const';

@@ -1,5 +1,7 @@
 import {
+  Body,
   Controller,
+  HttpCode,
   HttpStatus,
   Param,
   Post,
@@ -10,9 +12,16 @@ import {
 import { Response } from "express";
 import { ApiTags } from "@nestjs/swagger";
 import { FinancialAssetService } from "./financialAsset.service";
-import { GlobalThrottlerGuard } from "src/common/guard";
+import {
+  GlobalThrottlerGuard,
+  TempKeyGuard
+} from "src/common/guard";
 import { UpperCasePipe } from "src/common/pipe";
-import { Api_inquire } from "./decorator";
+import { RenewExchangeBodyDto } from "./dto";
+import {
+  Api_inquire,
+  Api_renewExchange,
+} from "./decorator";
 
 @Controller('financialasset')
 @UseGuards(GlobalThrottlerGuard)
@@ -25,7 +34,7 @@ export class FinancialAssetController {
 
   @Post('inquire/:ticker')
   @Api_inquire()
-  async inquirePrice(
+  public async inquire(
     @Res() response: Response,
     @Param('ticker', UpperCasePipe) ticker: string,
     @Query('id') id?: string,
@@ -39,6 +48,23 @@ export class FinancialAssetController {
     }
 
     response.send(inquirePriceResult.data);
+  }
+
+  @Post('renew/:ISO_Code')
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(TempKeyGuard)
+  @Api_renewExchange()
+  public renewExchange(
+    @Param('ISO_Code')
+    ISO_Code: string,
+    @Body(UpperCasePipe)
+    body: RenewExchangeBodyDto
+  ) {
+    return this.financialAssetSrv.renewExchange(
+      ISO_Code,
+      body.marketDate,
+      body.priceTupleArr
+    );
   }
 
 }

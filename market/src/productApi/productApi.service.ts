@@ -10,11 +10,12 @@ import {
   MarketDate,
   PriceTuple
 } from 'src/common/interface';
-import { UPDATE_PRICE_BY_EXCHANGE_URN } from './const';
+import { FINANCIALASSET_RENEW_PATH } from './const';
 import { firstValueFrom } from 'rxjs';
 import {
   intervalTryUntilResolvedOrTimeout,
-  isHttpResponse4XX
+  isHttpResponse4XX,
+  joinSlash
 } from 'src/common/util';
 
 @Injectable()
@@ -28,18 +29,18 @@ export class ProductApiService {
     private readonly httpService: HttpService,
   ) {}
 
-  public async updatePriceByExchange(
+  public async renewFinancialAssetExchange(
     exchange: ExchangeCore,
     updateResult: FulfilledYfPrice[]
   ): Promise<void> {
     const isoCode = exchange.isoCode;
-    const data: updatePriceByExchangeData = {
+    const data: RenewData = {
       marketDate: exchange.marketDate,
       priceArrs: updateResult.map(this.convertToPriceTuple)
     };
 
     const task = () => firstValueFrom(this.httpService.post(
-      UPDATE_PRICE_BY_EXCHANGE_URN + isoCode,
+      joinSlash(FINANCIALASSET_RENEW_PATH, isoCode),
       this.addKey(data)
     ));
 
@@ -73,9 +74,7 @@ export class ProductApiService {
   }
 }
 
-// Todo: interface
-
-type updatePriceByExchangeData = ProductApiData & Readonly<{
+type RenewData = ProductApiData & Readonly<{
   marketDate: MarketDate;
   priceArrs: PriceTuple[];
 }>;

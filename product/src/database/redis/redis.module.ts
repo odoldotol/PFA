@@ -16,7 +16,7 @@ import {
   REDIS_CLIENT_TOKEN,
   REDIS_REPOSITORY_TOKEN_SUFFIX,
   REIDS_SCHEMA_SERVICE_TOKEN_SUFFIX
-} from "src/common/const/injectionToken.const";
+} from "./const";
 import { RedisModel } from "./interface";
 import { RedisConfigService } from "src/config";
 

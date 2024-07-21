@@ -6,6 +6,5 @@ export const openApiConfig = new DocumentBuilder()
 .setDescription('Product')
 .setContact('Lygorithm', 'https://github.com/odoldotol', 'lygorithm@gmail.com')
 .addTag('Kakao Chatbot')
-.addTag('Updater')
 .addTag('FinancialAsset')
 .build();

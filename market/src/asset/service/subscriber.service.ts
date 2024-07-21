@@ -94,7 +94,7 @@ export class SubscriberService {
 
   private logNewExchange(e: FulfilledYfInfo) {
     e.marketExchange ||
-    this.logger.warn(`NewExchange: ${e.exchangeName} Ticker: ${e.symbol}`)
+    this.logger.warn(`NewExchange: ${e.exchangeName} Ticker: ${e.symbol}`);
   }
 
   // Todo: 여기 맞아?

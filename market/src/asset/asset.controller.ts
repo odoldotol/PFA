@@ -1,7 +1,7 @@
 import {
   Body,
   Controller,
-  HttpCode,
+  Get,
   HttpStatus,
   Param,
   ParseArrayPipe,
@@ -34,8 +34,7 @@ export class AssetController {
     private readonly subscribeerSrv: SubscriberService,
   ) {}
 
-  @Post('price/get/:ISO_Code')
-  @HttpCode(HttpStatus.OK)
+  @Get('price/:ISO_Code')
   @Api_getPriceByExchange()
   getPrice(
     @Param('ISO_Code', UpperCasePipe) isoCode: ExchangeIsoCode

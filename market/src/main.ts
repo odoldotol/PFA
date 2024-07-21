@@ -12,6 +12,9 @@ const bootstrap = async () => {
 
   app.use(helmet()); // 헤더 보안 설정은 nginx 에서 처리하는 것이 더 좋을까?
 
+  app.setGlobalPrefix('api', {
+    exclude: [ 'health' ],
+  });
   app.enableVersioning(versioningOptions);
   
   setupSwagger(app);

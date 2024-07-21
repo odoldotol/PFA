@@ -1,6 +1,6 @@
 import { Test, TestingModule } from "@nestjs/testing";
 import { MODULE_OPTIONS_TOKEN } from "./redis.module-definition";
-import { REDIS_CLIENT_TOKEN } from "src/common/const/injectionToken.const";
+import { REDIS_CLIENT_TOKEN } from "./const";
 import { ConnectionService } from "./connection.service";
 import { RedisService } from "./redis.service";
 import * as F from '@fxts/core'
