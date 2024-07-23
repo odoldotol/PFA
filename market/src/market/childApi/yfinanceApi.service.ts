@@ -112,7 +112,7 @@ export class YfinanceApiService {
       tickerArr
     );
 
-    const resumeConcurrencyQueue = await this.childApiSrv.pauseConcurrencyQueue();
+    const resumeConcurrencyQueue = this.childApiSrv.pauseConcurrencyQueue();
     
     const result = await this.childApiSrv.withWorkersQueue(req);
 

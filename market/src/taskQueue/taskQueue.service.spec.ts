@@ -132,7 +132,7 @@ describe('TaskQueueService', () => {
         for (let i = 0; i < pauseTestNum; i++) {
           taskQueueService.runTask(async () => {
             if (i === pauseNum - 1) {
-              resume = await taskQueueService.pause();
+              resume = taskQueueService.pause();
             }
             return pauseTestTask();
           });

@@ -73,16 +73,15 @@ export class TaskQueueService {
    * pause 는 독립적으로 동작하며 각각이 독립적으로 큐를 일시정지시키며, 각각에 대한 재개함수인 resume 을 반환함.
    * 즉, 모든 pause 에 대한 resume 이 실행되어야 큐가 재개되며, pause 가 하나라도 살아있으면 큐는 동작하지 않음.
    */
-  public async pause(): Promise<() => void> {
-    return new Promise(resolve => {
-      const paused = new Promise<void>(pausedResolver => {
-        resolve(() => {
-          this.pausedSet.delete(paused);
-          pausedResolver();
-        });
-      });
-      this.pausedSet.add(paused);
-    });
+  public pause(): Resume {
+    const pausedSubject = new Subject<void>();
+    const paused = new Promise<void>(r => pausedSubject.subscribe({ complete: r }));
+    this.pausedSet.add(paused);
+
+    return () => {
+      this.pausedSet.delete(paused);
+      pausedSubject.complete();
+    };
   }
 
   /**
@@ -216,4 +215,6 @@ enum ConsumerState {
   PAUSED,
   QUEUEING,
   WORKING,
-}
+};
+
+type Resume = () => void;

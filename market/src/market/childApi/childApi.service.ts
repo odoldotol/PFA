@@ -40,7 +40,7 @@ export class ChildApiService {
     return this.axiosPipe(await this.workersQueueSrv.runTask(axiosRequest));
   }
 
-  public pauseConcurrencyQueue(): Promise<() => void> {
+  public pauseConcurrencyQueue() {
     return this.concurrencyQueueSrv.pause();
   }
 
