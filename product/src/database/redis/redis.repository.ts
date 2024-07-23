@@ -60,7 +60,8 @@ export class RedisRepository<T>
   }
 
   /**
-   * #### [사용 주의] 매서드 내부에서 두번의 쿼리가 있기때문에 동시성 문제가 발생할 수 있음.
+   * #### [Deprecated] 매서드 내부에서 두번의 쿼리가 있기때문에 동시성 문제가 발생할 수 있음.
+   * - 존재하지 않는 키의 경우 에러던짐
    * 
    * @todo deleteOne, getAndDeleteOne, updateOrCreateOne 에서 findOneAndUpdate 실행중인 keyBody로 호출되면 기다릴 수 있으면 좋겠다?
    */

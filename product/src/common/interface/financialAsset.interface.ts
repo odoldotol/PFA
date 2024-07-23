@@ -11,7 +11,7 @@ export interface FinancialAssetCore {
   readonly quoteType: QuoteType;
   shortName: string | null;
   longName: string | null;
-  readonly exchange: ExchangeIsoCode | null;
+  exchange: ExchangeIsoCode | null;
   readonly currency: Currency;
   regularMarketLastClose: number;
   regularMarketPreviousClose: number | null;

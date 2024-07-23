@@ -6,10 +6,8 @@ import {
   Param,
   Post,
   Query,
-  Res,
   UseGuards
 } from "@nestjs/common";
-import { Response } from "express";
 import { ApiTags } from "@nestjs/swagger";
 import { FinancialAssetService } from "./financialAsset.service";
 import {
@@ -18,6 +16,7 @@ import {
 } from "src/common/guard";
 import { UpperCasePipe } from "src/common/pipe";
 import { RenewExchangeBodyDto } from "./dto";
+import { FinancialAssetCore } from "src/common/interface";
 import {
   Api_inquire,
   Api_renewExchange,
@@ -32,22 +31,18 @@ export class FinancialAssetController {
     private readonly financialAssetSrv: FinancialAssetService
   ) {}
 
+  /**
+   * 이 api 는 마켓서버가 새로운 FinancialAsset 을 DB 에 추가하도록 만들 수 있음.
+   * 그것을 클라이언트가 (202 상태코드로든지) 알 필요가 있을까?
+   */
   @Post('inquire/:ticker')
+  @HttpCode(HttpStatus.OK)
   @Api_inquire()
   public async inquire(
-    @Res() response: Response,
     @Param('ticker', UpperCasePipe) ticker: string,
     @Query('id') id?: string,
-  ): Promise<void> {
-    const inquirePriceResult = await this.financialAssetSrv.inquire(ticker, id);
-    
-    if (inquirePriceResult.created) {
-      response.status(HttpStatus.CREATED);
-    } else {
-      response.status(HttpStatus.OK);
-    }
-
-    response.send(inquirePriceResult.data);
+  ): Promise<FinancialAssetCore> {
+    return this.financialAssetSrv.inquire(ticker, id);
   }
 
   @Post('renew/:ISO_Code')
@@ -59,10 +54,12 @@ export class FinancialAssetController {
     ISO_Code: string,
     @Body(UpperCasePipe)
     body: RenewExchangeBodyDto
-  ) {
+  ): Promise<void> {
     return this.financialAssetSrv.renewExchange(
-      ISO_Code,
-      body.marketDate,
+      {
+        isoCode: ISO_Code,
+        marketDate: body.marketDate,
+      },
       body.priceTupleArr
     );
   }

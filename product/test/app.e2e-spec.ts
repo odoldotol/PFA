@@ -108,16 +108,20 @@ describe('Product E2E', () => {
     it.todo('앱 초기화시 최신화 되지 않은 Market 의 선택적 업데이트');
   });
 
-  describe(`Price 조회 로직. POST /financialasset/inquire/{ticker}`, () => {
+  describe(`financialAsset Inquire. POST /financialasset/inquire/{ticker}`, () => {
   
     afterEach(() => {
       fetchFinancialAssetSpy.mockClear();
     });
+
+    /**
+     * Market 에서 funancialAsset 생성된 경우 201 응답해서 클라이언트가 이를 알 필요가 있을까?
+     */
   
-    it('인메모리에 없는경우 => market api 로 가져와서 create', () => {
+    it('캐시 없음 => market api 로 가져와서 캐싱', () => {
       return request(app.getHttpServer())
         .post(`/financialasset/inquire/${mockAppleTicker}`)
-        .expect(HttpStatus.CREATED)
+        .expect(HttpStatus.OK)
         .expect(res => {
           const body = res.body;
           expect(fetchFinancialAssetSpy).toBeCalledWith(mockAppleTicker);
@@ -126,7 +130,7 @@ describe('Product E2E', () => {
         });
     });
   
-    it('인메모리에 있고 최신인 경우 => 단순 조회', () => {
+    it('캐시 있고 최신임 => 단순 조회', () => {
       return request(app.getHttpServer())
         .post(`/financialasset/inquire/${mockAppleTicker}`)
         .expect(HttpStatus.OK)
@@ -137,7 +141,7 @@ describe('Product E2E', () => {
         });
     });
   
-    it('인메모리에 있지만 최신 아닌 경우 => market api 로 가져와서 update', async () => {
+    it('캐시 있고 최신 아님 => market api 로 가져와서 캐시 update', async () => {
       await (financialAssetService as any).financialAssetRepo.findOneAndUpdate(
         mockAppleTicker,
         {

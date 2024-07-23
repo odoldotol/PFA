@@ -46,9 +46,10 @@ export class MarketApiService {
       return this.runningFetchFinancialAsset.get(ticker)!;
     }
 
-    const fetchFinancialAsset = firstValueFrom(this.httpService.post(joinSlash(INQUIRE_ASSET_PATH, ticker)).pipe(
-      map(res => res.data as FinancialAssetCore)
-    )).finally(() => this.runningFetchFinancialAsset.delete(ticker));
+    const fetchFinancialAsset = firstValueFrom(
+      this.httpService.post<FinancialAssetCore>(joinSlash(INQUIRE_ASSET_PATH, ticker))
+      .pipe(map(res => res.data))
+    ).finally(() => this.runningFetchFinancialAsset.delete(ticker));
 
     this.runningFetchFinancialAsset.set(ticker, fetchFinancialAsset);
 

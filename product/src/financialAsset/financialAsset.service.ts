@@ -6,7 +6,6 @@ import {
 import { FinancialAssetConfigService } from "src/config";
 import {
   InjectRedisRepository,
-  RedisCache,
   RedisRepository,
 } from "src/database";
 import { MarketApiService } from "src/marketApi";
@@ -22,6 +21,11 @@ import {
   PriceTuple,
   Ticker
 } from "src/common/interface";
+import {
+  ReplaySubject,
+  Subject
+} from "rxjs";
+import * as X from "rxjs";
 import * as F from "@fxts/core";
 
 @Injectable()
@@ -30,8 +34,13 @@ export class FinancialAssetService
 {
   private readonly logger = new Logger(FinancialAssetService.name);
 
+  /**
+   * 각 financialAsset 의 count 가 이 값보다 크거나 같아야 renewal 이 일어남.
+   */
   private readonly renewalThreshold
   = this.financialAssetConfigSrv.getRenewalThreshold();
+
+  private readonly runningRenewMap = new Map<Ticker, Promise<void>>();
 
   private readonly runningInquireMap
   = new Map<Ticker, Promise<FinancialAssetCore>>();
@@ -51,94 +60,205 @@ export class FinancialAssetService
       this.marketApiSrv.fetchAllExchanges(),
       F.toAsync,
       F.reject(this.isUptodate.bind(this)),
-      F.peek(async e => this.renewExchange(
-        e.isoCode,
-        e.marketDate,
-        await this.marketApiSrv.fetchPriceTupleArrByISOcode(e.isoCode)
-      )),
+      F.peek(this.renewExchange.bind(this)),
       F.toArray
     );
   }
 
   /**
-   * #### redis 트렌젝션이 필요한가?
-   * 업데이트 중 financialAssetService 에서 inquire 하면 불필요한 marketapi 이용과 캐시 업데이트가 발생할 수 있음.
-   * 하지만 성능적인 이슈 이외의 문제는 없는 것으로 판단됨.
-   * 각 거래소의 자산에 대한 캐시 업데이트에 소요되는 시간은 하루 한번 찰나의 순간이며, 일단은 이정도 짧은 시간동안의 성능저하는 무시하고 추후에 좀 더 자세히 검토하고 개선하자.
-   * 하지만 개래소가 마감되는 시간에 업데이트가 이루어지는 서비스 성격상, 이때 서비스 이용도 높을 가능성이 크기 때문에, 이와 관련된 성능개선은 중요하다고 판단됨.
-   * - 새로운 연결로 redis 트렌젝션을 이용하던가,
-   * - 업데이트중인 자산에 대한 inquire 를 기존 일괄처리 로직에 편승하여 잠시 시연시키는 방법도 업데이트 중인 Ticker 에 대한 inquire 만 막기에 좋아보임. (메서드를 락)
-   *    - 각 Ticker 에 대한 옵저버블을 만들기(nodejs 18 성능검사에서 다수의 옵저버블 처리 성능이 생각보다 별로임) 보다는 하나의 프로미스로 업데이트중인 모든 Ticker 에 대한 메서드 호출을 지연시키는 것이 더 효율적일것임.
-   *    - 왜냐하면 업데이트하는 Ticker 들 중 일부만이 업데이트와 동시에 inquire 될 것이기 때문에, 각각의 솔루션을 두어 대체하기보다는, 단지 지연시키고 업데이트 이후에 조회하도록 하는것이 좋음.
+   * runningInquires 를 기다리는 것으로 동시성 제어.  
+   * runningRenew 생성하여 inquire 가 renew 를 기다릴 수 있게 함.
    * 
-   * @todo 업데이트도중 financialAssetService.inquire 동시성 성능 개선.
+   * @todo renew 도중 financialAssetService.inquire 동시성 성능 개선.
+   * @todo 에러 핸들.
+   * 
+   * #### 동시성 제어의 측면에서 redis 트렌젝션이 필요한가?
+   * 
+   * 같은 Ticker 에 대해 renew 중 inquire 하면 불필요한 marketapi 이용과 캐시 업데이트가 발생할 수 있고, 동시성 문제도 있을 수 있음.
+   * 각 거래소의 자산에 대한 캐시 업데이트에 소요되는 시간은 하루 한번 찰나의 순간이지만, 개래소가 마감되는 시간에 업데이트가 이루어지는 서비스 성격상,  
+   * renew 와 inquire 요청이 빈번하게 동시성을 가질 가능성이 큼.
+
+   * - redis 트렌젝션을 이용하는것이 좋을까?
+   * 
+   * 이 문제는 FinancialAssetService 의 문제이지, redis 레벨에서 보편적인 문제가 아님.
+   * 여기에 redis 트렌젝션을 쓰면 불필요하게 다른 쿼리에 대한 성능 저하, 또는 불필요한 엔지니어링이 필요할 것 같음.
+   * 
+   * 이미 inquire 가 일괄 처리를 위해 runningInquire 를 생성하고 있기 때문에, renew 에서 동시성으로 얽힐 데이터에 대한 runningInquire 를 생성해 준다면 동시성 문제와 성능이슈 모두 해결할 수 있을것 같음.
+   * 또는 단지, 동시성으로 얽힌 inquire 와 renew 가 서로를 기다리도록 하는 것도 괜찮아 보임. (매서드 락?)
+   * 
+   * 아래와 같은 이유로 간단하게 서로를 기다리는 것으로 동시성을 제어하기로 함.
+   * - renew 중인 데이터 중 굉장히 일부만이 inquire 와 동시성으로 얽힐 것이라는 예상.
+   * - nodejs 18 성능검사에서 다수의 옵저버블 처리 성능이 생각보다 별로임. => 테스트 해봐야겠지만 성능을 위해 사용하지 않을 옵저버블을 대량으로 만드는 것은 일단은 피해야 함.
+   * - 당장에, 다양한 최적화 방법이 있겠지만 일단은 서로 동시성으로 얽히지 않도록 분리해 두는 선에서 가장 간단한 방법으로 구현하고 추후에 성능 이슈를 개선해 나가는게 가장 합리적일 것.
+   * 
    */
   public async renewExchange(
-    ISO_Code: string,
-    marketDate: MarketDate,
-    priceTupleArr: PriceTuple[]
-  ) {
-    await this.marketDateRepo.updateOrCreateOne(
-      ISO_Code,
-      marketDate
-    );
-    await this.renewPriceOfExchange(
-      ISO_Code,
+    {
+      isoCode,
       marketDate,
-      priceTupleArr
-    );
-    this.logger.verbose(`${ISO_Code} : renewed`);
+    }: Pick<ExchangeCore, "isoCode" | "marketDate">,
+    priceTupleArr?: PriceTuple[]
+  ): Promise<void> {
+    if (priceTupleArr === undefined) {
+      priceTupleArr = await this.marketApiSrv.fetchPriceTupleArrByISOcode(isoCode);
+    }
+
+    const runningInquires: Promise<FinancialAssetCore>[] = [];
+
+    const renewObservable = new Subject<void>();
+    const runningRenew = new Promise<void>(r => renewObservable.subscribe({
+      complete: r,
+      error: err => {
+        r();
+        this.logger.error(`Renew Error: ${err}`, err?.stack??'');
+      }
+    }));
+    priceTupleArr.forEach(([ symbol ]) => {
+      this.runningRenewMap.set(symbol, runningRenew);
+      if (this.runningInquireMap.has(symbol)) {
+        runningInquires.push(this.runningInquireMap.get(symbol)!);
+      }
+    });
+
+    if (runningInquires.length > 0) {
+      await Promise.allSettled(runningInquires);
+    }
+
+    try {
+      await this.renewExchangeRaw(
+        isoCode,
+        marketDate,
+        priceTupleArr
+      );
+      this.logger.verbose(`${isoCode} : renewed`);
+      renewObservable.complete();
+    } catch (err) {
+      renewObservable.error(err);
+    } finally {
+      priceTupleArr.forEach(([ symbol ]) => {
+        this.runningRenewMap.delete(symbol);
+      });
+    }
   }
 
   /**
    * - 배치 프로세싱 + 캐싱
-   * @todo 엔티티 리팩터링, inquirePrice -> inquireFinancialAsset
-   * @todo 배치 프로세싱을 옵저버블 이용하고 캐시 생성 또는 업데이트를 기다리지 않고, 성공여부와 관계없이 리턴할 수 있도록 하기
-   * @todo 모두 counting
+   * 
+   * runningRenew 를 기다리는 것으로 renew 와의 동시성 제어.  
+   * runningInquire 를 생성하여 일괄처리하고 renew 와의 동시성을 제어하는데에 이용.
+   * 
+   * @param _id 임시(사용 중지)
    */
   public async inquire(
     ticker: Ticker,
     _id: string = ""
-  ): Promise<{
-    data: FinancialAssetCore;
-    updated: boolean;
-    created: boolean;
-  }> {
-    let updated = false;
-    let created = false;
-
-    const result = (data: FinancialAssetCore) => ({
-      data,
-      updated,
-      created
-    });
-
-    // const devLogger = <T>(arg: T): T => {
-    //   this.logger.verbose(
-    //     `${ticker} : ${updated ? 'updated' : created ? 'created' : 'read'} | ${_id}`
-    //   );
-    //   return arg;
-    // };
-
-    if (this.runningInquireMap.has(ticker)) {
-      return result(
-        await this.runningInquireMap.get(ticker)!
-        // .then(devLogger)
-      );
+  ): Promise<FinancialAssetCore> {
+    if (this.runningRenewMap.has(ticker)) {
+      await this.runningRenewMap.get(ticker)!;
     }
 
-    const inquirePricePromise = this.inquireRaw(
-      ticker,
-      () => updated = true,
-      () => created = true
-    ).finally(() => this.runningInquireMap.delete(ticker));
+    if (!this.runningInquireMap.has(ticker)) {
+      const inquireObx = new ReplaySubject<FinancialAssetCore>();
 
-    this.runningInquireMap.set(ticker, inquirePricePromise);
+      /**
+       * complete 되고나서 delete 전애 inquire 들어올 수 있나?
+       * 일단, 완료된 runningInquire 를 읽어도 문제 없음을 확인함.
+       */
+      inquireObx.subscribe({
+        complete: () => this.runningInquireMap.delete(ticker),
+        error: error => {
+          this.runningInquireMap.delete(ticker);
+          throw error; //
+        }
+      });
 
-    return result(
-      await inquirePricePromise
-      // .then(devLogger)
-    );
+      this.inquireRaw(
+        ticker,
+        inquireObx,
+      );
+  
+      this.runningInquireMap.set(ticker, X.lastValueFrom(inquireObx));
+    }
+
+    this.financialAssetRepo.count(ticker);
+    return this.runningInquireMap.get(ticker)!
+  }
+
+  /**
+   * 실제 renew 작업. 이것의 호출을 미루는 것으로 동시성 제어.
+   * 
+   * @todo 레디스에 쿼리를 병열로 날리는데 레디스는 이 제한 같은게 어떻게 되는지 스터디 필요.
+   * @todo 결과 리턴? 성공, 실패 있을수 있는것 등. 필요시, renew 중에 들어온 inquire 의 성능 개선에 쓰일 수도 있음.
+   * @todo 에러 핸들
+   */
+  private async renewExchangeRaw(
+    isoCode: ExchangeIsoCode,
+    marketDate: MarketDate,
+    priceTupleArr: PriceTuple[]
+  ): Promise<void> {
+    const tasks: Promise<any>[] = [];
+
+    tasks.push(this.marketDateRepo.updateOrCreateOne(
+      isoCode,
+      marketDate
+    ));
+
+    await Promise.allSettled(priceTupleArr.map(async priceTuple => {
+      if (await this.isGteRenewalThreshold(priceTuple[0])) {
+        const financialAsset = await this.financialAssetRepo.findOne(priceTuple[0]);
+        if (financialAsset) {
+          financialAsset.exchange = isoCode;
+          financialAsset.marketDate = marketDate;
+          financialAsset.regularMarketLastClose = priceTuple[1];
+          financialAsset.regularMarketPreviousClose = priceTuple[2];
+          tasks.push(financialAsset.save());
+        }
+      } else {
+        tasks.push(this.financialAssetRepo.deleteOne(priceTuple[0]));
+      }
+
+      tasks.push(this.financialAssetRepo.resetCount(priceTuple[0]));
+    }));
+
+    await Promise.allSettled(tasks);
+  }
+
+  /**
+   * 실제 inquire 작업. 이것의 호출을 미루는 것으로 동시성 제어.
+   * 
+   * @todo [refac] exchange: null 인 asset 처리 - fetch logging, caching, always uptodate => 이거 market 서버와 유기적으로 믿을만하게 처리해야함.
+   */
+  private async inquireRaw(
+    ticker: Ticker,
+    obx: ReplaySubject<FinancialAssetCore>,
+  ): Promise<void> {
+    try {
+      let financialAssetRedisCache = await this.financialAssetRepo.findOne(ticker);
+      if ( // 캐시가 있고, 최신이면
+        financialAssetRedisCache !== null &&
+        await this.isUptodate(financialAssetRedisCache)
+      ) { // next
+        obx.next(financialAssetRedisCache.data);
+      } else { // 캐시가 없거나 최신이 아니면, fetch 해서 next
+        const financialAsset = await this.marketApiSrv.fetchFinancialAsset(ticker);
+        obx.next(financialAsset);
+
+        // 캐시를 생성하거나 업데이트 하면 inquire 완료. => 이젠, 그냥 updateOrCreateOne 으로 Set 처리해도 되잖아?
+        if (financialAssetRedisCache !== null) {
+          financialAssetRedisCache.exchange = financialAsset.exchange;
+          financialAssetRedisCache.marketDate = financialAsset.marketDate;
+          financialAssetRedisCache.regularMarketLastClose = financialAsset.regularMarketLastClose;
+          financialAssetRedisCache.regularMarketPreviousClose = financialAsset.regularMarketPreviousClose;
+          await financialAssetRedisCache.save();
+        } else {
+          await this.financialAssetRepo.createOne(ticker, financialAsset);
+        }
+      }
+
+      obx.complete();
+    } catch (err) {
+      obx.error(err);
+    }
   }
 
   /**
@@ -170,80 +290,8 @@ export class FinancialAssetService
     }
   }
 
-  /**
-   * @todo 레디스에 쿼리를 병열로? 병렬제한?
-   * @todo 업데이트하는중에 동시성문재? 업데이트 중 락.
-   * @todo 결과 리턴?
-   */
-  private async renewPriceOfExchange(
-    isoCode: ExchangeIsoCode,
-    marketDate: MarketDate,
-    priceTupleArr: PriceTuple[]
-  ): Promise<void> {
-    await Promise.all(priceTupleArr.map(async priceTuple => {
-      if (await this.isGteRenewalThreshold(priceTuple[0])) {
-        await this.financialAssetRepo.findOneAndUpdate(
-          priceTuple[0],
-          {
-            exchange: isoCode,
-            marketDate,
-            regularMarketLastClose: priceTuple[1],
-            regularMarketPreviousClose: priceTuple[2]
-          }
-        )
-      } else {
-        await this.financialAssetRepo.deleteOne(priceTuple[0]);
-      }
-
-      await this.financialAssetRepo.resetCount(priceTuple[0]);
-    }));
-  }
-
-  public async isGteRenewalThreshold(symbol: Ticker): Promise<boolean> {
-    return this.renewalThreshold <= await this.financialAssetRepo.getCount(symbol)
-  }
-
-  /**
-   * @todo [refac] exchange: null 인 asset 처리.  
-   * exchange null - fetch logging, caching, always uptodate => 이거 market 서버와 유기적으로 믿을만하게 처리해야함.
-   */
-  private async inquireRaw(
-    ticker: Ticker,
-    updatedCb: (...args: any) => any,
-    createdCb: (...args: any) => any
-  ): Promise<FinancialAssetCore> {
-    let financialAssetRedisCache = await this.readWithCounting(ticker);
-    if (financialAssetRedisCache !== null) { // 있으면
-      if (await this.isUptodate(financialAssetRedisCache)) { // 최신이면
-        return financialAssetRedisCache.data;
-      } else { // 최신아니면
-        const financialAsset = await this.marketApiSrv.fetchFinancialAsset(ticker);
-        financialAssetRedisCache.marketDate = financialAsset.marketDate;
-        financialAssetRedisCache.regularMarketLastClose = financialAsset.regularMarketLastClose;
-        financialAssetRedisCache.regularMarketPreviousClose = financialAsset.regularMarketPreviousClose;
-        await financialAssetRedisCache.save();
-        updatedCb();
-        return financialAsset;
-      }
-    } else { // 없으면
-      const financialAsset = await this.marketApiSrv.fetchFinancialAsset(ticker);
-      await this.financialAssetRepo.createOne(ticker, financialAsset);
-      createdCb();
-      return financialAsset;
-    }
-  }
-
-  /**
-   * ### this method calls the incr_count method of the cachedPrice
-   * Todo: Redis INCR 이용해서 count 는 별개 엔티티로 관리하자.
-   * Todo: findOne -> count -> updateOne
-   */
-  private async readWithCounting(
-    symbol: Ticker
-  ): Promise<RedisCache<FinancialAssetCore> | null> {
-    const result = await this.financialAssetRepo.findOne(symbol);
-    result?.count();
-    return result;
+  private async isGteRenewalThreshold(symbol: Ticker): Promise<boolean> {
+    return this.renewalThreshold <= await this.financialAssetRepo.getCount(symbol);
   }
 
 }
