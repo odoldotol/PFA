@@ -1,10 +1,12 @@
-import { Injectable, Logger } from '@nestjs/common';
-import { MarketApiService } from 'src/marketApi';
-import { AssetService } from 'src/asset';
+import {
+  Injectable,
+  Logger
+} from '@nestjs/common';
 import {
   AssetSubscriptionService,
   UserService
 } from 'src/database';
+import { FinancialAssetService } from 'src/financialAsset';
 import { SkillResponseService } from './skillResponse.service';
 import { User } from 'src/database/user/user.entity';
 import {
@@ -23,8 +25,7 @@ export class KakaoChatbotService {
   private readonly logger = new Logger(KakaoChatbotService.name);
 
   constructor(
-    private readonly marketApiSrv: MarketApiService, // Todo: 제거
-    private readonly assetSrv: AssetService,
+    private readonly financialAssetSrv: FinancialAssetService,
     private readonly userSrv: UserService,
     private readonly assetSubscriptionSrv: AssetSubscriptionService,
     private readonly skillResponseSrv: SkillResponseService,
@@ -38,9 +39,7 @@ export class KakaoChatbotService {
 
     // Todo: failedTicker 재시도시 응답.
 
-    // Todo: exchange 이름도 포함되는것이 좋겠다. marketExchange 를 exchagne 에 넣어주는건 어떨지 확인해봐라.
-    // Todo: Price 만이 아니라 Asset 을 Redis 에 캐싱해야함? 그리고 직전 마감과 이전 마감사이의 변화량도 계산할 수 있어야 함.
-    const asset = await this.marketApiSrv.fetchFinancialAsset(ticker);
+    const asset = await this.financialAssetSrv.inquire(ticker);
 
     const isSubscribed = await this.assetSubscriptionSrv.readOneAcivate(
       userId,
@@ -51,7 +50,8 @@ export class KakaoChatbotService {
   }
 
   /**
-   * 일반적으로 구독중이 아닌 경우에만 진입한다고 가정, 구독중에 진입시 별도의 응답 없음.
+   * 일반적으로 구독중이 아닌 경우에만 진입한다고 가정
+   * - 구독중 진입시 아무 작업없이 정상응답
    */
   public async addAssetSubscription(
     skillPayload: AssetSubscriptionDto
@@ -63,8 +63,11 @@ export class KakaoChatbotService {
     const ticker = this.getTickerFromClientExtra(skillPayload);
 
     // Todo: 조건에 따른 두번의 쿼리를 한번의 쿼리로 합치고 비교해보기
-    const record
-    = await this.assetSubscriptionSrv.readOneAcivate(userId, ticker);
+    const record = await this.assetSubscriptionSrv.readOneAcivate(
+      userId,
+      ticker
+    );
+
     if (record === null) {
       await this.assetSubscriptionSrv.createOne(userId, ticker);
       created = true;
@@ -81,11 +84,12 @@ export class KakaoChatbotService {
       created,
       updated,
       data: this.skillResponseSrv.assetSubscribed(ticker)
-    }
+    };
   }
 
   /**
-   * 일반적으로 구독중인 경우에만 진입한다고 가정, 구독중이 아닌 경우에 진입시 별도 응답 있음.
+   * 일반적으로 구독중인 경우에만 진입한다고 가정
+   * - 비 구독중 진입시 아무 작업없이 정상응답.
    */
   public async cancelAssetSubscription(
     skillPayload: AssetSubscriptionDto
@@ -94,9 +98,12 @@ export class KakaoChatbotService {
     const ticker = this.getTickerFromClientExtra(skillPayload);
 
     // Todo: 조건에 따른 두번의 쿼리를 한번의 쿼리로 합치고 비교해보기
-    const record
-    = await this.assetSubscriptionSrv.readOneAcivate(userId, ticker);
-    if (record !== null) {
+    const record = await this.assetSubscriptionSrv.readOneAcivate(
+      userId,
+      ticker
+    );
+
+    if (record?.activate === true) {
       await this.assetSubscriptionSrv.updateOneActivate(
         userId,
         ticker,
@@ -107,9 +114,6 @@ export class KakaoChatbotService {
     return this.skillResponseSrv.assetUnsubscribed(ticker);
   }
 
-  /**
-   * @todo asset 엔티티 리팩터링
-   */
   public async inquireSubscribedAsset(
     skillPayload: SkillPayloadDto
   ): Promise<SkillResponse> {
@@ -121,13 +125,10 @@ export class KakaoChatbotService {
       return this.skillResponseSrv.noSubscribedAsset();
     }
 
-    // Todo: 엔티티 리팩터링(price -> financialAsset)
     const assets = await F.pipe(
       subscriptionTickerArr, F.toAsync,
-      F.map(async ticker => Object.assign(
-        (await this.assetSrv.inquirePrice(ticker, userId.toString())).data,
-        { ticker }
-      )),
+      F.map(ticker => this.financialAssetSrv.inquire(ticker, userId.toString())),
+      F.concurrent(subscriptionTickerArr.length),
       F.toArray,
     );
 
@@ -171,4 +172,5 @@ export class KakaoChatbotService {
   ): Ticker {
     return skillPayload.action.clientExtra.ticker;
   }
+
 }
