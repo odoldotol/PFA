@@ -1,5 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { LimitedArray } from "src/common/interface";
+import { LimitedArray } from "src/common/util";
 import { Component } from "./component";
 
 /**

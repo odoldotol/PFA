@@ -1,4 +1,4 @@
-import { OnlyOneOf } from "src/common/interface";
+import { OnlyOneOf } from "src/common/util";
 import {
   SimpleText,
   TextCard,

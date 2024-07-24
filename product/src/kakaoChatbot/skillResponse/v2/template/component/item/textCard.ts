@@ -1,4 +1,4 @@
-import { LimitedArray } from "src/common/interface";
+import { LimitedArray } from "src/common/util";
 import { Button } from "./common";
 
 /**

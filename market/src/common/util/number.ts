@@ -1,3 +1,16 @@
+export const calculateChangeRate = (
+  past: number,
+  present: number,
+  percontage: boolean = true,
+) => {
+  if (past === 0) {
+    throw new Error('Past value cannot be zero.');
+  }
+
+  const rate = (present - past) / past;
+  return percontage ? rate * 100 : rate;
+};
+
 /**
  * ### N Available : 1 ~ 10
  */

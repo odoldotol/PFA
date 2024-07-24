@@ -1,4 +1,6 @@
-import { PositiveIntegerLessOrEqualThen } from "./util.interface";
+import { PositiveIntegerLessOrEqualThen } from "./number";
+
+//////////////////////////// LimitedArray ////////////////////////////
 
 /**
  * ### L Available: 1 ~ 10
@@ -13,3 +15,5 @@ export const isLimitedArray = <T, L extends number>(
 ): array is Readonly<LimitedArray<T, L>> => {
   return 1 <= array.length && array.length <= limit;
 };
+
+//////////////////////////////////////////////////////////////////////

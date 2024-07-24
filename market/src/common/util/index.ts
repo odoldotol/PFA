@@ -5,3 +5,5 @@ export * from "./monetaryValue";
 export * from "./nest";
 export * from "./retry";
 export * from "./object";
+export * from "./array";
+export * from "./number";

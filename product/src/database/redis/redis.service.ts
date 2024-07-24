@@ -1,7 +1,7 @@
 import { Inject, Injectable } from "@nestjs/common";
 import { RedisClientType } from "redis";
 import { REDIS_CLIENT_TOKEN } from "./const";
-import { MaximumOneOf } from "src/common/interface";
+import { MaximumOneOf } from "src/common/util";
 import { RedisModel } from "./interface";
 
 @Injectable()

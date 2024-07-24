@@ -1,4 +1,4 @@
-import { LimitedArray } from "src/common/interface";
+import { LimitedArray } from "src/common/util";
 import { CardItem, ItemKey as Key } from "./item";
 import { Thumbnail } from "./common";
 
