@@ -4,7 +4,11 @@ import {
   MarketDate,
   Ticker
 } from "src/common/interface";
-import { currencyToSign, to2Decimal } from "src/common/util";
+import {
+  calculateChangeRate,
+  currencyToSign,
+  to2Decimal
+} from "src/common/util";
 
 @Injectable()
 export class TextService {
@@ -38,11 +42,10 @@ export class TextService {
   public assetInquiryCard(
     asset: FinancialAssetCore
   ) {
-    const name = asset.longName || asset.shortName || '';
-    const price = `${to2Decimal(asset.regularMarketLastClose)} ${currencyToSign(asset.currency)}`;
+    const name = asset.longName || asset.shortName || '--';
     return {
       title: asset.symbol,
-      description: `${name}\n${price}`, // marketDate 보여줘야함. marketExchange 받아오는것 검토해보기.
+      description: `${name}\n${this.getPriceStr(asset)}`, // marketDate 보여줘야함? marketExchange 받아오는것 검토?
     };
   }
 
@@ -62,10 +65,12 @@ export class TextService {
     return "구독중인것이 없네요...";
   }
 
-  // Todo: asset 을 redis 에 캐깅한 후 Refac
   public subscribedAssetInquiry(assets: FinancialAssetCore[]): string {
     return assets.map((asset) => {
-      return `${asset.symbol} ${to2Decimal(asset.regularMarketLastClose)} ${currencyToSign(asset.currency)} (${this.getMonthSlashDayStr(asset.marketDate)})`;
+      // 한 줄을 넘어가면 가독성 떨어짐에 주의.
+      // Symbol 보단 이름이 필요함.
+      // Month/Day 필요없지 않나?
+      return `${asset.symbol} ${this.getPriceStr(asset)} (${this.getMonthSlashDayStr(asset.marketDate)})`;
     }).join('\n');
   }
 
@@ -75,5 +80,24 @@ export class TextService {
 
   private getMonthSlashDayStr(marketDate: MarketDate): string {
     return marketDate.split('-').slice(1).join('/');
+  }
+
+  private getPriceStr(asset: FinancialAssetCore): string {
+    return `${to2Decimal(asset.regularMarketLastClose)}${currencyToSign(asset.currency)} ${this.getChangeRateStr(asset)}`;
+  };
+
+  private getChangeRateStr({
+    regularMarketLastClose,
+    regularMarketPreviousClose
+  }: FinancialAssetCore): string {
+    if (!regularMarketPreviousClose) { // 0 이거나 null 일 경우
+      return '--';
+    } else {
+      const percentRate = calculateChangeRate(
+        regularMarketPreviousClose,
+        regularMarketLastClose
+      );
+      return `${0 < percentRate ? '+' : ''}${to2Decimal(percentRate)}%`;
+    }
   }
 }
