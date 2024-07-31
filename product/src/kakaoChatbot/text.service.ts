@@ -70,7 +70,7 @@ export class TextService {
       // 한 줄을 넘어가면 가독성 떨어짐에 주의.
       // Symbol 보단 이름이 필요함.
       // Month/Day 필요없지 않나?
-      return `${asset.symbol} ${this.getPriceStr(asset)} (${this.getMonthSlashDayStr(asset.marketDate)})`;
+      return `${this.getSubscribedAssetInquiryNameStr(asset)} ${this.getPriceStr(asset)} (${this.getMonthSlashDayStr(asset.marketDate)})`;
     }).join('\n');
   }
 
@@ -85,6 +85,23 @@ export class TextService {
   private getPriceStr(asset: FinancialAssetCore): string {
     return `${to2Decimal(asset.regularMarketLastClose)}${currencyToSign(asset.currency)} ${this.getChangeRateStr(asset)}`;
   };
+
+  /**
+   * 한국 주식시장의 티커처럼, 유저입장에서 티커로 Asset 을 알기 어려운 경우에는, 이름을 보여주는 것이 좋다.
+   * - 카카오톡 메시지 특성상, 글자수 제한이 필요함.
+   */
+  private getSubscribedAssetInquiryNameStr(asset: FinancialAssetCore): string {
+    let result = '--';
+    switch (asset.exchange) {
+      case 'XKRX':
+        result = asset.shortName || asset.longName || asset.symbol;
+        break;
+      default:
+        result = asset.symbol;
+    }
+
+    return result.slice(0, 10);
+  }
 
   private getChangeRateStr({
     regularMarketLastClose,
