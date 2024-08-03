@@ -1,0 +1,94 @@
+{
+	"agent": {
+		"metrics_collection_interval": 60,
+		"run_as_user": "root"
+
+	},
+	"logs": {
+		"logs_collected": {
+			"files": {
+				"collect_list": [
+					{
+						"file_path": "",
+						"log_group_name": "market-log",
+						"log_stream_name": "market",
+						"retention_in_days": -1
+					},
+					{
+						"file_path": "",
+						"log_group_name": "product-log",
+						"log_stream_name": "product",
+						"retention_in_days": -1
+					},
+					{
+						"file_path": "",
+						"log_group_name": "market-child-log",
+						"log_stream_name": "market-child",
+						"retention_in_days": -1
+					}
+				]
+			}
+		}
+	},
+	"metrics": {
+		"append_dimensions": {
+			"AutoScalingGroupName": "${aws:AutoScalingGroupName}",
+			"ImageId": "${aws:ImageId}",
+			"InstanceId": "${aws:InstanceId}",
+			"InstanceType": "${aws:InstanceType}"
+		},
+		"metrics_collected": {
+			"collectd": {
+				"metrics_aggregation_interval": 60
+			},
+			"cpu": {
+				"measurement": [
+					"cpu_usage_user",
+					"cpu_usage_system"
+				],
+				"metrics_collection_interval": 60,
+				"resources": [
+					"*"
+				],
+				"totalcpu": false
+			},
+			"mem": {
+				"measurement": [
+					"mem_used_percent"
+				],
+				"metrics_collection_interval": 60
+			},
+			"netstat": {
+				"measurement": [
+					"tcp_established",
+					"tcp_time_wait"
+				],
+				"metrics_collection_interval": 60
+			},
+			"statsd": {
+				"metrics_aggregation_interval": 60,
+				"metrics_collection_interval": 10,
+				"service_address": ":8125"
+			},
+			"swap": {
+				"measurement": [
+					"swap_used_percent"
+				],
+				"metrics_collection_interval": 60
+			}
+		}
+	},
+	"traces": {
+		"buffer_size_mb": 3,
+		"concurrency": 8,
+		"insecure": false,
+		"traces_collected": {
+			"xray": {
+				"bind_address": "127.0.0.1:2000",
+				"tcp_proxy": {
+					"bind_address": "127.0.0.1:2000"
+				}
+			}
+		}
+	}
+}
