@@ -11,6 +11,9 @@ export const calculateChangeRate = (
   return percontage ? rate * 100 : rate;
 };
 
+export const to2Decimal = (value: number): number =>
+  Math.round((value + Number.EPSILON) * 100) / 100;
+
 /**
  * ### N Available : 1 ~ 10
  */

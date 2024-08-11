@@ -6,7 +6,9 @@ import {
 } from "src/common/interface";
 import {
   calculateChangeRate,
-  currencyToSign,
+  getMoneyStr,
+  joinBlank,
+  joinLineBreak,
   to2Decimal
 } from "src/common/util";
 
@@ -65,13 +67,20 @@ export class TextService {
     return "구독중인것이 없네요...";
   }
 
-  public subscribedAssetInquiry(assets: FinancialAssetCore[]): string {
-    return assets.map((asset) => {
-      // 한 줄을 넘어가면 가독성 떨어짐에 주의.
-      // Symbol 보단 이름이 필요함.
-      // Month/Day 필요없지 않나?
-      return `${this.getSubscribedAssetInquiryNameStr(asset)} ${this.getPriceStr(asset)} (${this.getMonthSlashDayStr(asset.marketDate)})`;
-    }).join('\n');
+  /**
+   * - 한 줄을 넘어가면 가독성 떨어짐에 주의.
+   * - Symbol 보단 이름이 필요함.
+   * 
+   * @todo 마켓날짜(Month/Day)는 개발용도로 보여주고 있음. 추후, 제거 해야함.
+   */
+  public subscribedAssetInquiry(
+    assets: FinancialAssetCore[]
+  ): string {
+    return joinLineBreak(...assets.map(asset => joinBlank(
+      this.getSubscribedAssetInquiryNameStr(asset),
+      this.getPriceStr(asset),
+      `(${this.getMonthSlashDayStr(asset.marketDate)})`
+    )));
   }
 
   public reported(): string {
@@ -83,7 +92,10 @@ export class TextService {
   }
 
   private getPriceStr(asset: FinancialAssetCore): string {
-    return `${to2Decimal(asset.regularMarketLastClose)}${currencyToSign(asset.currency)} ${this.getChangeRateStr(asset)}`;
+    return joinBlank(
+      getMoneyStr(asset.regularMarketLastClose, asset.currency),
+      this.getChangeRateStr(asset)
+    );
   };
 
   /**

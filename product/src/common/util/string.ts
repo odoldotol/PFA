@@ -1,6 +1,8 @@
 export const joinUnderbar = (...stringArr: string[]): string => stringArr.join("_");
 export const joinColon = (...stringArr: string[]): string => stringArr.join(":");
 export const joinSlash = (...stringArr: string[]): string => stringArr.join("/");
+export const joinBlank = (...stringArr: string[]): string => stringArr.join(" ");
+export const joinLineBreak = (...stringArr: string[]): string => stringArr.join("\n");
 
 export const dedupStrIter = (
   iterable: Iterable<string>
