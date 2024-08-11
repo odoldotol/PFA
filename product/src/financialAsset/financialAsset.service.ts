@@ -145,7 +145,9 @@ export class FinancialAssetService
    * - 배치 프로세싱 + 캐싱
    * 
    * runningRenew 를 기다리는 것으로 renew 와의 동시성 제어.  
-   * runningInquire 를 생성하여 일괄처리하고 renew 와의 동시성을 제어하는데에 이용.
+   * runningInquire 를 생성하여 일괄처리하고 renew 와의 동시성을 제어하는데에 이용.  
+   * 캐싱 전에 해결되는 프로미스를 반환하기 떄문에 캐싱과 상관없이 성공하며 캐싱을 기다리지도 않음.  
+   * 캐싱 이후 일괄처리를 마무리하며, 그동안은 ReplaySubject 를 이용해서 값을 방출하고 캐싱 이후에는 캐시를 이용함.
    * 
    * @param _id 임시(사용 중지)
    */
@@ -158,6 +160,7 @@ export class FinancialAssetService
     }
 
     if (!this.runningInquireMap.has(ticker)) {
+      const killInquire = () => this.runningInquireMap.delete(ticker);
       const inquireObx = new ReplaySubject<FinancialAssetCore>();
 
       /**
@@ -165,11 +168,8 @@ export class FinancialAssetService
        * 일단, 완료된 runningInquire 를 읽어도 문제 없음을 확인함.
        */
       inquireObx.subscribe({
-        complete: () => this.runningInquireMap.delete(ticker),
-        error: error => {
-          this.runningInquireMap.delete(ticker);
-          throw error; //
-        }
+        complete: killInquire,
+        error: killInquire,
       });
 
       this.inquireRaw(
@@ -177,7 +177,8 @@ export class FinancialAssetService
         inquireObx,
       );
   
-      this.runningInquireMap.set(ticker, X.lastValueFrom(inquireObx));
+      // inquireObx 는 next 로 값을 방출하고 complete 로 캐싱이 완료됨을 알림. 따라서 firstValueFrom 으로 캐싱을 기다리지 않고 바로 값을 받아올 수 있음.
+      this.runningInquireMap.set(ticker, X.firstValueFrom(inquireObx));
     }
 
     this.financialAssetRepo.count(ticker);
@@ -224,7 +225,8 @@ export class FinancialAssetService
   }
 
   /**
-   * 실제 inquire 작업. 이것의 호출을 미루는 것으로 동시성 제어.
+   * 실제 inquire 작업. 이것의 호출을 미루는 것으로 동시성 제어.  
+   * ReplaySubject 에 next 로 데이터를 넘기고 나서 캐싱 작업을 함. 모든게 완료되면 ReplaySubject 를 complete.
    * 
    * @todo [refac] exchange: null 인 asset 처리 - fetch logging, caching, always uptodate => 이거 market 서버와 유기적으로 믿을만하게 처리해야함.
    */
