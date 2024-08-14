@@ -217,26 +217,19 @@ $ sh scripts/pfa:start:prod
 ```
 <br>
 
-#### Migrations (Only If necessary)
-```shell
-# Enter the container with the command below.
-$ docker exec -it pfa-market /bin/sh
-# Or,
-$ docker exec -it pfa-product /bin/sh
-
-# Now, belows are available.
-$ npm run migration:run
-$ npm run migration:revert
-$ npm run migration:create
-$ npm run migration:generate
-
-# migration files are in 'migrations/'
-# ex) migrations/postgres/1706286072769-Migration.ts
-
-# If they're synchronized,
-$ mkdir -p migrations/postgres
-$ cp -r devMigrations/postgres/. migrations/postgres/.
+## Migrations
+```sh
+# typeorm Migrations dir
+market/migrations/
+product/migrations/
 ```
+
+### PostgreSQL
+각 컨테이너 내부에서 typeorm 이용. (migration 관리 가능한 admin 있으면 편할것같음)
+
+>Migration 과 앱리로드가 필요한 경우, Migration -> 앱 리로드 순서로 진행해야 안정적임.  
+현 상태에서는 이것을 매끄럽게 하려면 귀찮은 일들이 있음. 이를 매끄럽게 가능하도록 시스템화 할 필요가 있음.  
+자세한 내용은 별도 Migration 문서에서 다룸.
 
 <br>
 
@@ -245,16 +238,9 @@ $ cp -r devMigrations/postgres/. migrations/postgres/.
 ### AWS CloudWatch
 
 #### CloudWatch Agent
-
-config.json
-```
-/opt/aws/amazon-cloudwatch-agent/bin/config.json
-```
-
-<br>
-
 ```sh
-$ sh scripts/cwagent:update:log_file_path
+# config.json 파일을 초기화하고 도커 컨테이너 로그파일의 위치를 추적하여 cwagent 를 재시작함.
+$ sh scripts/cwagent:restart
 ```
 
 <br>
