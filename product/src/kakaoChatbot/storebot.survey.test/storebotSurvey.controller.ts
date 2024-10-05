@@ -75,7 +75,7 @@ export class StorebotSurveyTestController {
     return this.storebotSurveyTestSrv.start(body);
   }
 
-  @Post("answer/:questionNumber")
+  @Post("answer")
   @HttpCode(HttpStatus.OK)
   public answer(
     @Body() body: SkillPayloadDto,
