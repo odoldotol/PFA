@@ -5,7 +5,8 @@ import {
   DEFAULT_KAKAO_CHATBOT_BLOCK_ID_INQUIRE_ASSET,
   DEFAULT_KAKAO_CHATBOT_BLOCK_ID_REPORT,
   DEFAULT_KAKAO_CHATBOT_BLOCK_ID_SUBSCRIBE_ASSET,
-  DEFAULT_KAKAO_CHATBOT_BLOCK_ID_CANCEL_ASSET_SUBSCRIPTION
+  DEFAULT_KAKAO_CHATBOT_BLOCK_ID_CANCEL_ASSET_SUBSCRIPTION,
+  DEFAULT_KAKAO_CHATBOT_ID_STOREBOT
 } from "../const";
 import { KakaoChatbotEnvKey } from "../enum";
 import { KakaoChatbotEnvironmentVariables } from "../interface";
@@ -22,6 +23,7 @@ export class KakaoChatbotConfigService {
   private readonly BLOCK_ID_CANCEL_ASSET_SUBSCRIPTION: string;
 
   // survey test
+  private readonly ID_STOREBOT: string;
   private readonly BLOCK_ID_SURVEY_START: string;
   private readonly BLOCK_ID_SURVEY_ENTER: string;
   private readonly BLOCK_ID_SURVEY_ANSWER: string;
@@ -38,6 +40,7 @@ export class KakaoChatbotConfigService {
     const blockIdCancelAssetSubscription = this.readBlockIdCancelAssetSubscription();
 
     // survey test
+    const id_storebot = this.readIdStorebot();
     const blockIdSurveyStart = this.readBlockIdSurveyStart();
     const blockIdSurveyEnter = this.readBlockIdSurveyEnter();
     const blockIdSurveyAnswer = this.readBlockIdSurveyAnswer();
@@ -72,6 +75,7 @@ export class KakaoChatbotConfigService {
       DEFAULT_KAKAO_CHATBOT_BLOCK_ID_CANCEL_ASSET_SUBSCRIPTION;
 
     // survey test
+    this.ID_STOREBOT = id_storebot || DEFAULT_KAKAO_CHATBOT_ID_STOREBOT;
     this.BLOCK_ID_SURVEY_START = blockIdSurveyStart || '';
     this.BLOCK_ID_SURVEY_ENTER = blockIdSurveyEnter || '';
     this.BLOCK_ID_SURVEY_ANSWER = blockIdSurveyAnswer || '';
@@ -136,6 +140,10 @@ export class KakaoChatbotConfigService {
    * survey test
    */
 
+  public getIdStorebot(): string {
+    return this.ID_STOREBOT;
+  }
+
   public getBlockIdSurveyStart(): string {
     return this.BLOCK_ID_SURVEY_START;
   }
@@ -146,6 +154,13 @@ export class KakaoChatbotConfigService {
 
   public getBlockIdSurveyAnswer(): string {
     return this.BLOCK_ID_SURVEY_ANSWER;
+  }
+
+  private readIdStorebot(): string | undefined {
+    return this.configSrv.get(
+      KakaoChatbotEnvKey.ID_STOREBOT,
+      { infer: true }
+    );
   }
 
   private readBlockIdSurveyStart(): string | undefined {

@@ -13,7 +13,7 @@ import {
   ApiTags
 } from '@nestjs/swagger';
 import {
-  KakaoChatbotGuard,
+  KakaoChatbotStorebotGuard,
 } from '../guard';
 import { TimeoutInterceptor } from '../interceptor';
 import {
@@ -27,7 +27,7 @@ import { SkillResponse } from '../skillResponse/v2';
 import { SkillPayloadDto } from '../dto';
 
 @Controller("storebot_survey_test")
-@UseGuards(KakaoChatbotGuard)
+@UseGuards(KakaoChatbotStorebotGuard)
 @UseInterceptors(TimeoutInterceptor)
 @UseFilters(
   UnexpectedExceptionFilter, // 순서 주의 - 순서에 따라 달라질 수 있는거 나쁜 구성일까?
