@@ -3,6 +3,7 @@ import { KakaoChatbotConfigService } from "src/config";
 import { TextService } from "./text.service";
 import {
   ButtonAction,
+  Component,
   Data,
   SimpleTextFactory,
   SkillResponse,
@@ -14,6 +15,11 @@ import {
   FinancialAssetCore,
   Ticker
 } from "src/common/interface";
+import {
+  isChoiceQuestion,
+  Question
+} from "./storebot.survey.test/question.const";
+import { StorebotSurvey } from "./storebot.survey.test/storebotSurvey.schema";
 
 @Injectable()
 export class SkillResponseService {
@@ -223,4 +229,124 @@ export class SkillResponseService {
     })
     .build();
   }
+
+  public ss_showEventSerial(
+    survey: StorebotSurvey
+  ): SkillResponse {
+    return this.singleSimpleText(
+      this.ss_textEventSerial(survey),
+    );
+  }
+
+  private ss_enterComponent(): Component {
+    return new TextCardBuilder()
+    .setTitle("설문 취지/내용")
+    .setDescription("설문에 참여하고 태이커피 로스터스에서 상품을 어쩌구...!")
+    .addButton(
+      "설문 참여하고 상품받기",
+      ButtonAction.BLOCK,
+      this.kakaoChatbotConfigSrv.getBlockIdSurveyStart(),
+    ).buildComponent();
+  }
+
+  public ss_noEventSerial(): SkillResponse {
+    return new SkillResponseBuilder()
+    .addTemplate(
+      new SkillTemplateBuilder()
+      .addComponent(SimpleTextFactory.createComponent("먼저, 설문에 참여해주세요."))
+      .addComponent(this.ss_enterComponent())
+      .build()
+    ).build();
+  }
+
+  public ss_alreadyDone(
+    survey: StorebotSurvey
+  ): SkillResponse {
+    const component = new TextCardBuilder()
+    .setTitle("<이미 이벤트 참여 완료>")
+    .setDescription(`${this.ss_textEventSerial(survey)}
+<설문은 다시 가능>`)
+    .addButton(
+      "설문 다시 하기",
+      ButtonAction.BLOCK,
+      this.kakaoChatbotConfigSrv.getBlockIdSurveyEnter(),
+    ).buildComponent();
+
+    const template = new SkillTemplateBuilder()
+    .addComponent(component)
+    .build();
+
+    return new SkillResponseBuilder()
+    .addTemplate(template)
+    .build();
+  }
+
+  public ss_enter(): SkillResponse {
+    return new SkillResponseBuilder()
+    .addTemplate(
+      new SkillTemplateBuilder()
+      .addComponent(this.ss_enterComponent())
+      .build()
+    ).build();
+  }
+
+  /**
+   * 서술형 질문은 구현하지 않았음. 에러를 던지고 있음.
+   */
+  public ss_question(
+    question: Question,
+    isContinued?: boolean,
+  ): SkillResponse {
+    if (isChoiceQuestion(question) === false) {
+      throw new Error("Not supported question type");
+    }
+
+    // choices 뒤에 ! 필요없지만 jest 에서 null 이 아님을 이해하지 못해서 임시로 추가.
+    const component = question.choices!.reduce(
+      (pre, cur) => pre.addButton(
+        cur,
+        ButtonAction.BLOCK,
+        this.kakaoChatbotConfigSrv.getBlockIdSurveyAnswer(),
+        {
+          questionId: question.id,
+          value: cur,
+        }
+      ),
+      new TextCardBuilder()
+    )
+    .setDescription(question.description)
+    .buildComponent();
+
+    const template = new SkillTemplateBuilder();
+
+    if (isContinued) {
+      template.addComponent(this.ss_continue());
+    }
+
+    return new SkillResponseBuilder()
+    .addTemplate(template.addComponent(component).build())
+    .build();
+  }
+
+  private ss_continue(): Component {
+    return SimpleTextFactory.createComponent(
+      "<진행중인 설문이 있어 이어서 진행한다는 맨트>"
+    );
+  }
+
+  public ss_done(
+    survey: StorebotSurvey
+  ): SkillResponse {
+    return this.singleSimpleText(`<설문 완료 맨트>
+${this.ss_textEventSerial(survey)}
+<설문은 언제든 다시 가능>`);
+  }
+
+  private ss_textEventSerial(
+    survey: StorebotSurvey
+  ): string {
+    return `아래 이벤트 번호를 태이 커피 로스터스에 보여주세요!
+이번트 번호: ${survey.userId}`;
+  }
+
 }

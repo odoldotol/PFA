@@ -35,6 +35,11 @@ export interface KakaoChatbotEnvironmentVariables {
   [KakaoChatbotEnvKey.BLOCK_ID_REPORT]: string;
   [KakaoChatbotEnvKey.BLOCK_ID_SUBSCRIBE_ASSET]: string;
   [KakaoChatbotEnvKey.BLOCK_ID_CANCEL_ASSET_SUBSCRIPTION]: string;
+
+  // survey test
+  [KakaoChatbotEnvKey.BLOCK_ID_SURVEY_START]: string;
+  [KakaoChatbotEnvKey.BLOCK_ID_SURVEY_ENTER]: string;
+  [KakaoChatbotEnvKey.BLOCK_ID_SURVEY_ANSWER]: string;
 }
 
 export interface MarketApiEnvironmentVariables {

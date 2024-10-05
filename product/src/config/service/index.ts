@@ -9,5 +9,6 @@ export * from './postgres.service';
 export * from './redis.service';
 export * from './temp.service';
 export * from './throttle.service';
+export * from './mongodb.service';
 
 export const serviceArr = Object.values(module.exports).filter(isType);

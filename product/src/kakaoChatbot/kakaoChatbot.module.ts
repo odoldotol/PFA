@@ -9,19 +9,39 @@ import { KakaoChatbotController } from "./kakaoChatbot.controller";
 import { KakaoChatbotService } from "./kakaoChatbot.service";
 import { SkillResponseService } from "./skillResponse.service";
 import { TextService } from "./text.service";
+import {
+  StorebotSurveyTestController,
+  StorebotSurveyTestService,
+  StorebotSurveyRepository,
+} from "./storebot.survey.test";
+import { AuthService } from "./auth.service";
+import { MongooseModule } from "@nestjs/mongoose";
+import {
+  StorebotSurvey,
+  StorebotSurveySchema
+} from "./storebot.survey.test/storebotSurvey.schema";
 
 @Module({
   imports: [
     MarketApiModule, //
     FinancialAssetModule,
     UserModule,
-    AssetSubscriptionModule
+    AssetSubscriptionModule,
+    MongooseModule.forFeature([
+      { name: StorebotSurvey.name, schema: StorebotSurveySchema},
+    ])
   ],
-  controllers: [KakaoChatbotController],
+  controllers: [
+    KakaoChatbotController,
+    StorebotSurveyTestController,
+  ],
   providers: [
+    AuthService,
     KakaoChatbotService,
     SkillResponseService,
     TextService,
+    StorebotSurveyTestService,
+    StorebotSurveyRepository,
   ]
 })
 export class KakaoChatbotModule {}

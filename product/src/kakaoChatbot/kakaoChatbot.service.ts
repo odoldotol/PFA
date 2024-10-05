@@ -4,11 +4,10 @@ import {
 } from '@nestjs/common';
 import {
   AssetSubscriptionService,
-  UserService
 } from 'src/database';
 import { FinancialAssetService } from 'src/financialAsset';
+import { AuthService } from './auth.service';
 import { SkillResponseService } from './skillResponse.service';
-import { User } from 'src/database/user/user.entity';
 import {
   AssetSubscriptionDto,
   InquireAssetDto,
@@ -26,7 +25,7 @@ export class KakaoChatbotService {
 
   constructor(
     private readonly financialAssetSrv: FinancialAssetService,
-    private readonly userSrv: UserService,
+    private readonly authSrv: AuthService,
     private readonly assetSubscriptionSrv: AssetSubscriptionService,
     private readonly skillResponseSrv: SkillResponseService,
   ) {}
@@ -34,7 +33,7 @@ export class KakaoChatbotService {
   public async inquireAsset(
     skillPayload: InquireAssetDto
   ): Promise<SkillResponse> {
-    const userId = await this.getUserId(skillPayload);
+    const userId = await this.authSrv.getUserId(skillPayload);
     const ticker = this.getTickerFromParams(skillPayload);
 
     // Todo: failedTicker 재시도시 응답.
@@ -59,7 +58,7 @@ export class KakaoChatbotService {
     let created = false;
     let updated = false;
 
-    const userId = await this.getUserId(skillPayload);
+    const userId = await this.authSrv.getUserId(skillPayload);
     const ticker = this.getTickerFromClientExtra(skillPayload);
 
     // Todo: 조건에 따른 두번의 쿼리를 한번의 쿼리로 합치고 비교해보기
@@ -94,7 +93,7 @@ export class KakaoChatbotService {
   public async cancelAssetSubscription(
     skillPayload: AssetSubscriptionDto
   ): Promise<SkillResponse> {
-    const userId = await this.getUserId(skillPayload);
+    const userId = await this.authSrv.getUserId(skillPayload);
     const ticker = this.getTickerFromClientExtra(skillPayload);
 
     // Todo: 조건에 따른 두번의 쿼리를 한번의 쿼리로 합치고 비교해보기
@@ -117,7 +116,7 @@ export class KakaoChatbotService {
   public async inquireSubscribedAsset(
     skillPayload: SkillPayloadDto
   ): Promise<SkillResponse> {
-    const userId = await this.getUserId(skillPayload);
+    const userId = await this.authSrv.getUserId(skillPayload);
     const subscriptionTickerArr
     = await this.assetSubscriptionSrv.readActivatedTickersByUserId(userId);
 
@@ -138,7 +137,7 @@ export class KakaoChatbotService {
   public async reportTicker(
     skillPayload: ReportTickerDto
   ): Promise<SkillResponse> {
-    const userId = await this.getUserId(skillPayload);
+    const userId = await this.authSrv.getUserId(skillPayload);
     const ticker = this.getTickerFromClientExtra(skillPayload);
     const reason = skillPayload.action.clientExtra.reason;
 
@@ -147,18 +146,6 @@ export class KakaoChatbotService {
     );
 
     return this.skillResponseSrv.tickerReported();
-  }
-
-  private async getUserId(
-    skillPayload: SkillPayloadDto
-  ): Promise<User['id']> {
-    const botUserKey = skillPayload.userRequest.user.properties.botUserKey;
-    const userId = await this.userSrv.readOneIdByBotUserKey(botUserKey);
-    if (userId !== null) {
-      return userId;
-    } else {
-      return (await this.userSrv.createOneByBotUserKey(botUserKey)).id;
-    }
   }
 
   private getTickerFromParams(

@@ -8,6 +8,7 @@ import { Pm2Module } from 'src/pm2/pm2.module';
 import {
   RedisModule,
   PostgresModule,
+  MongodbModule,
  } from 'src/database';
 import { ThrottlerModule } from 'src/throttler';
 import { KakaoChatbotModule } from 'src/kakaoChatbot';
@@ -25,6 +26,7 @@ import {
     Pm2Module,
     RedisModule,
     PostgresModule,
+    MongodbModule,
     ThrottlerModule,
     KakaoChatbotModule,
   ],

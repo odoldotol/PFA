@@ -40,4 +40,17 @@ SELECT id
     ).then(res => res[0] ? res[0].id : null);
   }
 
+  public readOneByBotUserKey(
+    botUserKey: string
+  ): Promise<User | null> {
+    return this.dataSource.query<User[]>(
+`
+SELECT *
+  FROM ${this.tableName}
+  WHERE kakao_chatbot_user_key = '${botUserKey}'
+  LIMIT 1
+`
+    ).then(res => res[0] ? res[0] : null);
+  }
+
 }
