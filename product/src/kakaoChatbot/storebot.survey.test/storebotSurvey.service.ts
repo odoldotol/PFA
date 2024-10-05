@@ -180,7 +180,7 @@ export class StorebotSurveyTestService {
   private getAnswerQuestionId(
     skillPayload: SkillPayloadDto
   ): number {
-    const result = Number(skillPayload.action.params["questionId"]);
+    const result = Number(skillPayload.action.clientExtra["questionId"]);
     if (isNaN(result)) {
       throw new Error("QuestionId is not a number");
     } else {
@@ -191,7 +191,7 @@ export class StorebotSurveyTestService {
   private getAnswerValue(
     skillPayload: SkillPayloadDto
   ): string {
-    const result = skillPayload.action.params["value"];
+    const result = skillPayload.action.clientExtra["value"];
     if (result === undefined) {
       throw new Error("Value is undefined");
     } else {
