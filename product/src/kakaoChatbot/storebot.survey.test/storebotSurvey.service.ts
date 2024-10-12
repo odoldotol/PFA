@@ -90,6 +90,7 @@ export class StorebotSurveyTestService {
         answerArray: [],
       };
       survey.answers.push(lastAnswerSheet);
+      survey.markModified("answers");
       await survey.save();
     } else {
       isContinued = true;
@@ -138,14 +139,12 @@ export class StorebotSurveyTestService {
       lastAnswerSheet === null ||
       this.isAnswerSheetComplete(lastAnswerSheet)
     ) {
-      // 정상적인 접근이 아님, Enter 메시지와 함께 정상접근 아니라는 메시지 주기.
-      return this.enter();
+      return this.skillResponseSrv.ss_invalidAnswer();
     }
 
     const question = this.getNextQuestion(lastAnswerSheet);
     if (question === null) {
-      // 정상적인 접근이 아님, Enter 메시지와 함께 정상접근 아니라는 메시지 주기.
-      return this.enter();
+      return this.skillResponseSrv.ss_invalidAnswer();
     }
 
     if (question.id === answerQuestionId) {
@@ -156,6 +155,7 @@ export class StorebotSurveyTestService {
         date: new Date(),
       });
       survey.answers[survey.answers.length - 1] = lastAnswerSheet;
+      survey.markModified("answers");
       await survey.save();
 
       if (this.isAnswerSheetComplete(lastAnswerSheet)) {
@@ -172,8 +172,7 @@ export class StorebotSurveyTestService {
         }
       }
     } else {
-      // 정상적인 접근이 아님, Enter 메시지와 함께 정상접근 아니라는 메시지 주기.
-      return this.enter();
+      return this.skillResponseSrv.ss_invalidAnswer();
     }
   }
 

@@ -349,4 +349,14 @@ ${this.ss_textEventSerial(survey)}
 이번트 번호: ${survey.userId}`;
   }
 
+  public ss_invalidAnswer(): SkillResponse {
+    return new SkillResponseBuilder()
+    .addTemplate(
+      new SkillTemplateBuilder()
+      .addComponent(SimpleTextFactory.createComponent(`죄송해요. 제가 답변을 이해할 수 없었어요. 설문조사에 참여하고 싶으신거죠?`))
+      .addComponent(this.ss_enterComponent())
+      .build()
+    ).build();
+  }
+
 }
