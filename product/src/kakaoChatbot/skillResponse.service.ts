@@ -297,6 +297,7 @@ export class SkillResponseService {
     question: Question,
     isContinued?: boolean,
   ): SkillResponse {
+    console.log("isContinued", isContinued);
     if (isChoiceQuestion(question) === false) {
       throw new Error("Not supported question type");
     }
@@ -317,10 +318,10 @@ export class SkillResponseService {
     .setDescription(question.description)
     .buildComponent();
 
-    const template = new SkillTemplateBuilder();
+    let template = new SkillTemplateBuilder();
 
     if (isContinued) {
-      template.addComponent(this.ss_continue());
+      template = template.addComponent(this.ss_continue());
     }
 
     return new SkillResponseBuilder()
