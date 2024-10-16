@@ -1,10 +1,17 @@
-import { carouselFactory } from "./item";
+import { CarouselItemFactory } from "./item";
 import { CarouselComponent } from "./carousel";
 import { Component } from "./component";
+import { CarouselCardKey } from "./item/carousel";
 
-// Todo: Builder 로 전환하고 item 을 addItem 매서드로 추가
-export const carouselComponentFactory = (
-  ...params: Parameters<typeof carouselFactory>
-): Component => {
-  return new CarouselComponent(carouselFactory(...params));
+export class CarouselFactory
+  extends CarouselItemFactory
+{
+  /**
+   * items 일정 수 이상은 짤림 (LISTCARD ? 5 : 10)
+   */
+  static createComponent<T extends CarouselCardKey = CarouselCardKey>(
+    ...params: Parameters<typeof CarouselItemFactory.createItem<T>>
+  ): Component {
+    return new CarouselComponent(this.createItem(...params));
+  }
 }

@@ -3,13 +3,16 @@ import { KakaoChatbotConfigService } from "src/config";
 import { TextService } from "./text.service";
 import {
   ButtonAction,
+  CarouselFactory,
   Component,
   Data,
+  ItemKey,
   SimpleTextFactory,
   SkillResponse,
   SkillResponseBuilder,
   SkillTemplateBuilder,
   TextCardBuilder,
+  TextCardItemBuilder,
 } from "./skillResponse/v2";
 import {
   FinancialAssetCore,
@@ -20,6 +23,7 @@ import {
   Question
 } from "./storebot.survey.test/question.const";
 import { StorebotSurvey } from "./storebot.survey.test/storebotSurvey.schema";
+import { joinLineBreak } from "src/common/util";
 
 @Injectable()
 export class SkillResponseService {
@@ -199,14 +203,50 @@ export class SkillResponseService {
     return this.singleSimpleText(this.textSrv.noSubscribedAsset());
   }
 
-  // Todo: asset 을 redis 에 캐깅한 후 Refac
   public subscribedAssetInquiry(
     assets: FinancialAssetCore[]
   ): SkillResponse {
-    return this.singleSimpleText(
-      this.textSrv.subscribedAssetInquiry(assets),
-      { assets }
-    );
+    if (assets.length === 0) { // 이미 앞에서 걸러서 진입 불가능, 그래도 확인.
+      throw new Error("There are no assets");
+    }
+
+    const items
+    = assets
+    .slice(0, 10)
+    .map(asset => {
+      return new TextCardItemBuilder()
+      .setTitle(asset.shortName || asset.longName || asset.symbol)
+      .setDescription(joinLineBreak(
+        asset.symbol,
+        this.textSrv.getPriceStr(asset)
+      ))
+      .addButton(
+        "구독 취소하기",
+        ButtonAction.BLOCK,
+        this.kakaoChatbotConfigSrv.getBlockIdCancelAssetSubscription(),
+        {
+          ticker: asset.symbol,
+        }
+      )
+      .buildItem();
+    });
+
+    let template = new SkillTemplateBuilder()
+    .addComponent(CarouselFactory.createComponent(
+      ItemKey.TEXTCARD,
+      items,
+    ));
+
+    const simpleTextAssets = assets.slice(10);
+    if (0 < simpleTextAssets.length) {
+      template = template.addComponent(
+        SimpleTextFactory.createComponent(this.textSrv.subscribedAssetInquiry(simpleTextAssets))
+      );
+    }
+
+    return new SkillResponseBuilder()
+    .addTemplate(template.build())
+    .build();
   }
 
   public tickerReported(): SkillResponse {

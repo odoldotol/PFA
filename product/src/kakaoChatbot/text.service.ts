@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import {
   FinancialAssetCore,
-  MarketDate,
+  // MarketDate,
   Ticker
 } from "src/common/interface";
 import {
@@ -70,8 +70,6 @@ export class TextService {
   /**
    * - 한 줄을 넘어가면 가독성 떨어짐에 주의.
    * - Symbol 보단 이름이 필요함.
-   * 
-   * @todo 마켓날짜(Month/Day)는 개발용도로 보여주고 있음. 추후, 제거 해야함.
    */
   public subscribedAssetInquiry(
     assets: FinancialAssetCore[]
@@ -79,7 +77,7 @@ export class TextService {
     return joinLineBreak(...assets.map(asset => joinBlank(
       this.getSubscribedAssetInquiryNameStr(asset),
       this.getPriceStr(asset),
-      `(${this.getMonthSlashDayStr(asset.marketDate)})`
+      // `(${this.getMonthSlashDayStr(asset.marketDate)})`
     )));
   }
 
@@ -87,11 +85,11 @@ export class TextService {
     return "신고해주셔서 감사해요!";
   }
 
-  private getMonthSlashDayStr(marketDate: MarketDate): string {
-    return marketDate.split('-').slice(1).join('/');
-  }
+  // private getMonthSlashDayStr(marketDate: MarketDate): string {
+  //   return marketDate.split('-').slice(1).join('/');
+  // }
 
-  private getPriceStr(asset: FinancialAssetCore): string {
+  public getPriceStr(asset: FinancialAssetCore): string {
     return joinBlank(
       getMoneyStr(asset.regularMarketLastClose, asset.currency),
       this.getChangeRateStr(asset)
