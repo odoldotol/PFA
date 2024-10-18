@@ -1,20 +1,26 @@
-import { Carousel, CarouselCardKey } from './carousel';
+import { Carousel } from './carousel';
+import { SimpleImage } from './simpleImage';
 import { SimpleText } from './simpleText';
 import { TextCard } from './textCard';
 
 export * from './common';
 export {
   Key as ItemKey,
+  CardKey,
   Card as CardItem,
   Item,
   SimpleText,
+  SimpleImage,
   TextCard,
   Carousel,
 };
 
 type CardKey =
 | Key.TEXTCARD
-| CarouselCardKey;
+| Key.BASICCARD
+| Key.COMMERCECARD
+| Key.LISTCARD
+| Key.ITEMCARD;
 
 type Card<T extends CardKey = CardKey> =
 T extends Key.TEXTCARD ? TextCard :
@@ -26,7 +32,7 @@ never;
 
 type Item<T extends Key = Key> =
 T extends Key.SIMPLETEXT ? SimpleText :
-// T extends K.SIMPLEIMAGE ? SimpleImage :
+T extends Key.SIMPLEIMAGE ? SimpleImage :
 T extends CardKey ? Card<T> :
 T extends Key.CAROUSEL ? Carousel :
 never;

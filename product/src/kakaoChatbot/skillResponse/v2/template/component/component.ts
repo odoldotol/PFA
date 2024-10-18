@@ -2,12 +2,13 @@ import { OnlyOneOf } from "src/common/util";
 import {
   SimpleText,
   TextCard,
-  Carousel
+  Carousel,
+  SimpleImage
 } from "./item";
 
 export type Component = OnlyOneOf<{
   readonly simpleText: SimpleText;
-  // simpleImage
+  readonly simpleImage: SimpleImage;
   readonly textCard: TextCard;
   // basicCard
   // commerceCard

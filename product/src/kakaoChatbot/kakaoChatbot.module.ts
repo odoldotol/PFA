@@ -13,6 +13,7 @@ import {
   StorebotSurveyTestController,
   StorebotSurveyTestService,
   StorebotSurveyRepository,
+  StorebotSurveyText,
 } from "./storebot.survey.test";
 import { AuthService } from "./auth.service";
 import { MongooseModule } from "@nestjs/mongoose";
@@ -42,6 +43,7 @@ import {
     TextService,
     StorebotSurveyTestService,
     StorebotSurveyRepository,
+    StorebotSurveyText,
   ]
 })
 export class KakaoChatbotModule {}

@@ -1,6 +1,7 @@
 import { Thumbnail } from "./common";
 import {
   CardItem,
+  CardKey,
   ItemKey as Key
 } from "./item";
 import {
@@ -13,7 +14,7 @@ import {
  * 
  * items 갯수 제한 (LISTCARD ? 5 : 10)
  */
-export class Carousel<T extends CarouselCardKey = CarouselCardKey> {
+export class Carousel<T extends CardKey = CardKey> {
 
   readonly type: T; // Todo: textCard 확인하고 필요시 Carousel, CarouselCardKey, CardKey 수정
   readonly items: Items<T>;
@@ -33,14 +34,7 @@ export class Carousel<T extends CarouselCardKey = CarouselCardKey> {
   }
 }
 
-export type CarouselCardKey =
-| Key.TEXTCARD // 기능하는지 확인해봐야함
-| Key.BASICCARD
-| Key.COMMERCECARD
-| Key.LISTCARD
-| Key.ITEMCARD;
-
-export type Items<T extends CarouselCardKey>
+export type Items<T extends CardKey>
 = Readonly<LimitedArray<CardItem<T>, T extends Key.LISTCARD ? 5 : 10>>;
 
 /**
@@ -56,7 +50,7 @@ export type CarouselHeader = Readonly<{
  * items 갯수 제한 (LISTCARD ? 5 : 10)
  */
 const toCarouselItems
-= <T extends CarouselCardKey = CarouselCardKey>(
+= <T extends CardKey = CardKey>(
   type: T,
   items: CardItem<T>[]
 ): Items<T> => {
@@ -69,7 +63,7 @@ const toCarouselItems
   }
 };
 
-const isCarouselItems = <T extends CarouselCardKey = CarouselCardKey>(
+const isCarouselItems = <T extends CardKey = CardKey>(
   type: T,
   items: CardItem<T>[]
 ): items is Items<T> => {

@@ -27,6 +27,7 @@ export class KakaoChatbotConfigService {
   private readonly BLOCK_ID_SURVEY_START: string;
   private readonly BLOCK_ID_SURVEY_ENTER: string;
   private readonly BLOCK_ID_SURVEY_ANSWER: string;
+  private readonly BLOCK_ID_SURVEY_GET_EVENT_SERIAL: string;
 
   constructor(
     private readonly configSrv: ConfigService<KakaoChatbotEnvironmentVariables>,
@@ -44,6 +45,7 @@ export class KakaoChatbotConfigService {
     const blockIdSurveyStart = this.readBlockIdSurveyStart();
     const blockIdSurveyEnter = this.readBlockIdSurveyEnter();
     const blockIdSurveyAnswer = this.readBlockIdSurveyAnswer();
+    const blockIdSurveyGetEventSerial = this.readBlockIdSurveyGetEventSerial();
 
     if (this.appConfigSrv.isProduction()) {
       if (id === undefined) {
@@ -57,7 +59,8 @@ export class KakaoChatbotConfigService {
         // survey test
         blockIdSurveyStart === undefined ||
         blockIdSurveyEnter === undefined ||
-        blockIdSurveyAnswer === undefined
+        blockIdSurveyAnswer === undefined ||
+        blockIdSurveyGetEventSerial === undefined
       ) {
         throw new Error('KakaoChatbot block ids are not defined!');
       }
@@ -79,6 +82,7 @@ export class KakaoChatbotConfigService {
     this.BLOCK_ID_SURVEY_START = blockIdSurveyStart || '';
     this.BLOCK_ID_SURVEY_ENTER = blockIdSurveyEnter || '';
     this.BLOCK_ID_SURVEY_ANSWER = blockIdSurveyAnswer || '';
+    this.BLOCK_ID_SURVEY_GET_EVENT_SERIAL = blockIdSurveyGetEventSerial || '';
   }
 
   public getId(): string {
@@ -156,6 +160,10 @@ export class KakaoChatbotConfigService {
     return this.BLOCK_ID_SURVEY_ANSWER;
   }
 
+  public getBlockIdSurveyGetEventSerial(): string {
+    return this.BLOCK_ID_SURVEY_GET_EVENT_SERIAL;
+  }
+
   private readIdStorebot(): string | undefined {
     return this.configSrv.get(
       KakaoChatbotEnvKey.ID_STOREBOT,
@@ -180,6 +188,13 @@ export class KakaoChatbotConfigService {
   private readBlockIdSurveyAnswer(): string | undefined {
     return this.configSrv.get(
       KakaoChatbotEnvKey.BLOCK_ID_SURVEY_ANSWER,
+      { infer: true }
+    );
+  }
+
+  private readBlockIdSurveyGetEventSerial(): string | undefined {
+    return this.configSrv.get(
+      KakaoChatbotEnvKey.BLOCK_ID_SURVEY_GET_EVENT_SERIAL,
       { infer: true }
     );
   }

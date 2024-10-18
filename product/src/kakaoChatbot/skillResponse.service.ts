@@ -7,6 +7,7 @@ import {
   Component,
   Data,
   ItemKey,
+  SimpleImageFactory,
   SimpleTextFactory,
   SkillResponse,
   SkillResponseBuilder,
@@ -18,11 +19,12 @@ import {
   FinancialAssetCore,
   Ticker
 } from "src/common/interface";
+import { StorebotSurvey } from "./storebot.survey.test/storebotSurvey.schema"; // type
+import { StorebotSurveyText } from "./storebot.survey.test/storebotSurvey.text"; // 의존성 해결때 꼬이지 않게 인덱스에 접근하면 안됨
 import {
   isChoiceQuestion,
   Question
 } from "./storebot.survey.test/question.const";
-import { StorebotSurvey } from "./storebot.survey.test/storebotSurvey.schema";
 import { joinLineBreak } from "src/common/util";
 
 @Injectable()
@@ -31,6 +33,7 @@ export class SkillResponseService {
   constructor(
     private readonly kakaoChatbotConfigSrv: KakaoChatbotConfigService,
     private readonly textSrv: TextService,
+    private readonly storebotSurveyText: StorebotSurveyText,
   ) {}
 
   public unexpectedError(
@@ -273,17 +276,19 @@ export class SkillResponseService {
   public ss_showEventSerial(
     survey: StorebotSurvey
   ): SkillResponse {
-    return this.singleSimpleText(
-      this.ss_textEventSerial(survey),
-    );
+    return new SkillResponseBuilder().addTemplate(
+      new SkillTemplateBuilder()
+      .addComponent(this.ss_cookieImage())
+      .addComponent(SimpleTextFactory.createComponent(this.storebotSurveyText.eventSerial(survey)))
+      .build()
+    ).build();
   }
 
   private ss_enterComponent(): Component {
     return new TextCardBuilder()
-    .setTitle("설문 취지/내용")
-    .setDescription("설문에 참여하고 태이커피 로스터스에서 상품을 어쩌구...!")
+    .setDescription(this.storebotSurveyText.enterDescription())
     .addButton(
-      "설문 참여하고 상품받기",
+      "설문하고 맛있는 쿠키 받기!",
       ButtonAction.BLOCK,
       this.kakaoChatbotConfigSrv.getBlockIdSurveyStart(),
     ).buildComponent();
@@ -293,24 +298,27 @@ export class SkillResponseService {
     return new SkillResponseBuilder()
     .addTemplate(
       new SkillTemplateBuilder()
-      .addComponent(SimpleTextFactory.createComponent("먼저, 설문에 참여해주세요."))
+      .addComponent(this.ss_cookieImage())
+      .addComponent(SimpleTextFactory.createComponent(this.storebotSurveyText.noEventSerial()))
       .addComponent(this.ss_enterComponent())
       .build()
     ).build();
   }
 
-  public ss_alreadyDone(
-    survey: StorebotSurvey
-  ): SkillResponse {
+  public ss_alreadyDone(): SkillResponse {
     const component = new TextCardBuilder()
-    .setTitle("<이미 이벤트 참여 완료>")
-    .setDescription(`${this.ss_textEventSerial(survey)}
-<설문은 다시 가능>`)
+    .setDescription(this.storebotSurveyText.alreadyDone())
     .addButton(
       "설문 다시 하기",
       ButtonAction.BLOCK,
       this.kakaoChatbotConfigSrv.getBlockIdSurveyEnter(),
-    ).buildComponent();
+    )
+    .addButton(
+      "맛있는 쿠키 받기!",
+      ButtonAction.BLOCK,
+      this.kakaoChatbotConfigSrv.getBlockIdSurveyGetEventSerial(),
+    )
+    .buildComponent();
 
     const template = new SkillTemplateBuilder()
     .addComponent(component)
@@ -337,12 +345,12 @@ export class SkillResponseService {
     question: Question,
     isContinued?: boolean,
   ): SkillResponse {
-    console.log("isContinued", isContinued);
     if (isChoiceQuestion(question) === false) {
       throw new Error("Not supported question type");
     }
 
     // choices 뒤에 ! 필요없지만 jest 에서 null 이 아님을 이해하지 못해서 임시로 추가.
+    // choices 가 3개 이상이면 어떻게 될까?
     const component = question.choices!.reduce(
       (pre, cur) => pre.addButton(
         cur,
@@ -370,34 +378,38 @@ export class SkillResponseService {
   }
 
   private ss_continue(): Component {
-    return SimpleTextFactory.createComponent(
-      "<진행중인 설문이 있어 이어서 진행한다는 맨트>"
-    );
+    return SimpleTextFactory.createComponent(this.storebotSurveyText.continue());
   }
 
   public ss_done(
     survey: StorebotSurvey
   ): SkillResponse {
-    return this.singleSimpleText(`<설문 완료 맨트>
-${this.ss_textEventSerial(survey)}
-<설문은 언제든 다시 가능>`);
-  }
-
-  private ss_textEventSerial(
-    survey: StorebotSurvey
-  ): string {
-    return `아래 이벤트 번호를 태이 커피 로스터스에 보여주세요!
-이번트 번호: ${survey.userId}`;
+    return new SkillResponseBuilder().addTemplate(
+      new SkillTemplateBuilder()
+      .addComponent(SimpleTextFactory.createComponent(this.storebotSurveyText.done()))
+      .addComponent(this.ss_cookieImage())
+      .addComponent(SimpleTextFactory.createComponent(this.storebotSurveyText.eventSerial(survey)))
+      .build()
+    ).build();
   }
 
   public ss_invalidAnswer(): SkillResponse {
     return new SkillResponseBuilder()
     .addTemplate(
       new SkillTemplateBuilder()
-      .addComponent(SimpleTextFactory.createComponent(`죄송해요. 제가 답변을 이해할 수 없었어요. 설문조사에 참여하고 싶으신거죠?`))
+      .addComponent(SimpleTextFactory.createComponent(this.storebotSurveyText.invalidAnswer()))
       .addComponent(this.ss_enterComponent())
       .build()
     ).build();
+  }
+
+  private readonly COOKIE_IMAGE_URL = "https://storage.googleapis.com/odoldotol-image-store/storebot_taey_cookie_sample.jpg";
+
+  private ss_cookieImage(): Component {
+    return SimpleImageFactory.createComponent(
+      this.COOKIE_IMAGE_URL,
+      "쿠키 굽는중..."
+    );
   }
 
 }

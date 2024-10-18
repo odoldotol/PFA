@@ -63,7 +63,7 @@ export class StorebotSurveyTestService {
       this.isAnswerSheetVersionUpToDate(lastAnswerSheet) &&
       this.isAnswerSheetComplete(lastAnswerSheet)
     ) {
-      return this.skillResponseSrv.ss_alreadyDone(survey);
+      return this.skillResponseSrv.ss_alreadyDone();
     } else {
       return this.enter();
     }
