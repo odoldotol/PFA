@@ -81,8 +81,9 @@ export class StorebotSurveyTestService {
     let lastAnswerSheet = this.getLastAnswerSheet(survey);
     let isContinued = false;
 
-    if ( // 마지막시트가 완료이거나 시트가 없는 경우
+    if ( // 마지막시트가 없거나 완료이거나 버전이 올드인경우
       lastAnswerSheet === null ||
+      this.isAnswerSheetVersionUpToDate(lastAnswerSheet) === false ||
       this.isAnswerSheetComplete(lastAnswerSheet)
     ) {
       lastAnswerSheet = {
