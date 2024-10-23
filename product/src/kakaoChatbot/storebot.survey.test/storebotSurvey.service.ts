@@ -74,7 +74,7 @@ export class StorebotSurveyTestService {
     let lastIdx = survey.answers.length - 1;
 
     while (
-      result !== undefined &&
+      result === undefined &&
       0 < lastIdx
     ) {
       if (this.isAnswerSheetComplete(survey.answers[lastIdx]!)) {
