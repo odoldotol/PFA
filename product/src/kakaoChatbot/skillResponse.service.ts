@@ -2,18 +2,18 @@ import { Injectable } from "@nestjs/common";
 import { KakaoChatbotConfigService } from "src/config";
 import { TextService } from "./text.service";
 import {
+  BasicCardBuilder,
   ButtonAction,
   CarouselFactory,
   Component,
   Data,
   ItemKey,
-  SimpleImageFactory,
   SimpleTextFactory,
   SkillResponse,
   SkillResponseBuilder,
   SkillTemplateBuilder,
   TextCardBuilder,
-  TextCardItemBuilder,
+  ThumbnailBuilder,
 } from "./skillResponse/v2";
 import {
   FinancialAssetCore,
@@ -217,7 +217,7 @@ export class SkillResponseService {
     = assets
     .slice(0, 10)
     .map(asset => {
-      return new TextCardItemBuilder()
+      return new TextCardBuilder()
       .setTitle(asset.shortName || asset.longName || asset.symbol)
       .setDescription(joinLineBreak(
         asset.symbol,
@@ -273,36 +273,63 @@ export class SkillResponseService {
     .build();
   }
 
+  ////////////////////////// Storebot Survey Test //////////////////////////
+
   public ss_showEventSerial(
-    survey: StorebotSurvey
+    survey: StorebotSurvey,
+    surveyVersion: number
   ): SkillResponse {
     return new SkillResponseBuilder().addTemplate(
       new SkillTemplateBuilder()
-      .addComponent(this.ss_cookieImage())
-      .addComponent(SimpleTextFactory.createComponent(this.storebotSurveyText.eventSerial(survey)))
+      .addComponent(this.ss_eventSerialComponent(this.getEventSerial(
+        survey,
+        surveyVersion
+      )))
       .build()
     ).build();
+  }
+
+  private getEventSerial(
+    survey: StorebotSurvey,
+    surveyVersion: number
+  ): string {
+    return `${surveyVersion}-${survey.userId}`
+  }
+
+  private ss_eventSerialComponent(
+    serial: string
+  ): Component {
+    return new BasicCardBuilder()
+    .setThumbnail(new ThumbnailBuilder(this.COOKIE_IMAGE_URL).build())
+    .setDescription(this.storebotSurveyText.eventSerial(serial))
+    .buildComponent();
   }
 
   private ss_enterComponent(): Component {
-    return new TextCardBuilder()
-    .setDescription(this.storebotSurveyText.enterDescription())
-    .addButton(
-      "설문하고 맛있는 쿠키 받기!",
-      ButtonAction.BLOCK,
-      this.kakaoChatbotConfigSrv.getBlockIdSurveyStart(),
-    ).buildComponent();
+    return SimpleTextFactory.createComponent(this.storebotSurveyText.enterDescription());
   }
 
-  public ss_noEventSerial(): SkillResponse {
+  public ss_noEventSerial(
+    question: Question,
+    isContinued: boolean
+  ): SkillResponse {
+    let template = new SkillTemplateBuilder().addComponent(
+      new BasicCardBuilder()
+      .setThumbnail(new ThumbnailBuilder(this.COOKIE_IMAGE_URL).build())
+      .setDescription(this.storebotSurveyText.noEventSerial())
+      .buildComponent()
+    );
+
+    if (isContinued) {
+      template = template.addComponent(this.ss_continue());
+    } else {
+      template = template.addComponent(this.ss_enterComponent());
+    }
+    template = template.addComponent(this.ss_questionComponent(question));
+
     return new SkillResponseBuilder()
-    .addTemplate(
-      new SkillTemplateBuilder()
-      .addComponent(this.ss_cookieImage())
-      .addComponent(SimpleTextFactory.createComponent(this.storebotSurveyText.noEventSerial()))
-      .addComponent(this.ss_enterComponent())
-      .build()
-    ).build();
+    .addTemplate(template.build())
+    .build();
   }
 
   public ss_alreadyDone(): SkillResponse {
@@ -329,29 +356,54 @@ export class SkillResponseService {
     .build();
   }
 
-  public ss_enter(): SkillResponse {
+  public ss_question(
+    question: Question,
+  ): SkillResponse {
     return new SkillResponseBuilder()
-    .addTemplate(
-      new SkillTemplateBuilder()
-      .addComponent(this.ss_enterComponent())
-      .build()
-    ).build();
+    .addTemplate(new SkillTemplateBuilder()
+      .addComponent(this.ss_questionComponent(question))
+      .build())
+    .build();
   }
 
   /**
    * 서술형 질문은 구현하지 않았음. 에러를 던지고 있음.
    */
-  public ss_question(
+  public ss_start(
     question: Question,
     isContinued?: boolean,
   ): SkillResponse {
+    let template = new SkillTemplateBuilder();
+    if (isContinued) {
+      template = template.addComponent(this.ss_continue());
+    } else {
+      template = template.addComponent(this.ss_enterComponent());
+    }
+
+    return new SkillResponseBuilder()
+    .addTemplate(template
+      .addComponent(this.ss_questionComponent(question))
+      .build())
+    .build();
+  }
+
+  private ss_questionComponent(
+    question: Question,
+  ): Component {
     if (isChoiceQuestion(question) === false) {
       throw new Error("Not supported question type");
     }
 
+    let builder = new TextCardBuilder()
+    .setDescription(question.description);
+
+    if (question.title) {
+      builder = builder.setTitle(question.title);
+    }
+
     // choices 뒤에 ! 필요없지만 jest 에서 null 이 아님을 이해하지 못해서 임시로 추가.
     // choices 가 3개 이상이면 어떻게 될까?
-    const component = question.choices!.reduce(
+    return question.choices!.reduce(
       (pre, cur) => pre.addButton(
         cur,
         ButtonAction.BLOCK,
@@ -361,20 +413,8 @@ export class SkillResponseService {
           value: cur,
         }
       ),
-      new TextCardBuilder()
-    )
-    .setDescription(question.description)
-    .buildComponent();
-
-    let template = new SkillTemplateBuilder();
-
-    if (isContinued) {
-      template = template.addComponent(this.ss_continue());
-    }
-
-    return new SkillResponseBuilder()
-    .addTemplate(template.addComponent(component).build())
-    .build();
+      builder
+    ).buildComponent();
   }
 
   private ss_continue(): Component {
@@ -382,13 +422,16 @@ export class SkillResponseService {
   }
 
   public ss_done(
-    survey: StorebotSurvey
+    survey: StorebotSurvey,
+    surveyVersion: number
   ): SkillResponse {
     return new SkillResponseBuilder().addTemplate(
       new SkillTemplateBuilder()
       .addComponent(SimpleTextFactory.createComponent(this.storebotSurveyText.done()))
-      .addComponent(this.ss_cookieImage())
-      .addComponent(SimpleTextFactory.createComponent(this.storebotSurveyText.eventSerial(survey)))
+      .addComponent(this.ss_eventSerialComponent(this.getEventSerial(
+        survey,
+        surveyVersion
+      )))
       .build()
     ).build();
   }
@@ -403,13 +446,7 @@ export class SkillResponseService {
     ).build();
   }
 
+  // 나중에 숨기자
   private readonly COOKIE_IMAGE_URL = "https://storage.googleapis.com/odoldotol-image-store/storebot_taey_cookie_sample.jpg";
-
-  private ss_cookieImage(): Component {
-    return SimpleImageFactory.createComponent(
-      this.COOKIE_IMAGE_URL,
-      "쿠키 굽는중..."
-    );
-  }
 
 }

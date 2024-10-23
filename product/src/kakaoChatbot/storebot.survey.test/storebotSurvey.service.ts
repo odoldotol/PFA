@@ -2,14 +2,25 @@ import {
   Injectable,
   Logger
 } from "@nestjs/common";
+import { Document } from "mongoose";
 import { StorebotSurveyRepository } from "./storebotSurvey.repository";
 import { SkillResponseService } from "../skillResponse.service";
 import { SkillResponse } from "../skillResponse/v2";
 import { AuthService } from "../auth.service";
 import { SkillPayloadDto } from "../dto";
-import { AnswerSheet, StorebotSurvey, StorebotSurveyDocument } from "./storebotSurvey.schema";
-import { currentSurveyVersion, surveyMetadatas } from "./surveyMetadata.const";
-import { Question, questions } from "./question.const";
+import {
+  AnswerSheet,
+  StorebotSurvey,
+  StorebotSurveyDocument
+} from "./storebotSurvey.schema";
+import {
+  currentSurveyVersion,
+  surveyMetadatas
+} from "./surveyMetadata.const";
+import {
+  Question,
+  questions
+} from "./question.const";
 
 @Injectable()
 export class StorebotSurveyTestService {
@@ -36,80 +47,133 @@ export class StorebotSurveyTestService {
   public async getEventSerial(
     skillPayload: SkillPayloadDto
   ): Promise<SkillResponse> {
-    const survey = await this.getSurvey(skillPayload);
-
-    const firstCompleted = survey.answers.find((answerSheet) => {
-      if (this.isAnswerSheetComplete(answerSheet)) {
-        return true;
-      } else {
-        return false;
-      }
-    });
-
-    if (firstCompleted) {
-      return this.skillResponseSrv.ss_showEventSerial(survey);
+    let survey = await this.getSurvey(skillPayload);
+    const lastComplete = this.findLastComplete(survey);
+    if (lastComplete !== undefined) {
+      return this.skillResponseSrv.ss_showEventSerial(
+        survey,
+        lastComplete.surveyVersion
+      );
     } else {
-      return this.skillResponseSrv.ss_noEventSerial();
+      const {
+        nextQuestion,
+        isContinued
+      } = await this.startTask(survey);
+
+      return this.skillResponseSrv.ss_noEventSerial(
+        nextQuestion,
+        isContinued
+      );
     }
+  }
+
+  private findLastComplete(
+    survey: StorebotSurveyDocument
+  ): AnswerSheet | undefined {
+    let result: AnswerSheet | undefined = undefined;
+    let lastIdx = survey.answers.length - 1;
+
+    while (
+      result !== undefined &&
+      0 < lastIdx
+    ) {
+      if (this.isAnswerSheetComplete(survey.answers[lastIdx]!)) {
+        result = survey.answers[lastIdx];
+      } else {
+        lastIdx--;
+      }
+    }
+
+    return result;
   }
 
   public async volunteer(
     skillPayload: SkillPayloadDto
   ): Promise<SkillResponse> {
     const survey = await this.getSurvey(skillPayload);
-    const lastAnswerSheet = this.getLastAnswerSheet(survey);
-    if (
-      lastAnswerSheet &&
-      this.isAnswerSheetVersionUpToDate(lastAnswerSheet) &&
-      this.isAnswerSheetComplete(lastAnswerSheet)
-    ) {
+    if (this.isLastAnswerSheetValid(survey)) {
       return this.skillResponseSrv.ss_alreadyDone();
     } else {
-      return this.enter();
+      return this.start(survey);
     }
   }
 
-  public async enter(): Promise<SkillResponse> {
-    return this.skillResponseSrv.ss_enter();
+  // 시트 만들꺼면 여기에서만 만들어야함.
+  public async start(survey: StorebotSurveyDocument): Promise<SkillResponse>;
+  public async start(skillPayload: SkillPayloadDto): Promise<SkillResponse>;
+  public async start(
+    param: StorebotSurveyDocument | SkillPayloadDto
+  ): Promise<SkillResponse> {
+    let survey = param instanceof Document ? param : await this.getSurvey(param);
+
+    const {
+      nextQuestion,
+      isContinued
+    } = await this.startTask(survey);
+
+    return this.skillResponseSrv.ss_start(
+      nextQuestion,
+      isContinued
+    );
   }
 
-  // 시트 만들꺼면 여기에서만 만들어야함.
-  public async start(
-    skillPayload: SkillPayloadDto
-  ): Promise<SkillResponse> {
-    const survey = await this.getSurvey(skillPayload);
-    let lastAnswerSheet = this.getLastAnswerSheet(survey);
-    let isContinued = false;
+  private async startTask(
+    survey: StorebotSurveyDocument,
+  ): Promise<{
+    nextQuestion: Question,
+    isContinued: boolean
+  }> {
+    let isContinued: boolean;
 
-    if ( // 마지막시트가 없거나 완료이거나 버전이 올드인경우
-      lastAnswerSheet === null ||
-      this.isAnswerSheetVersionUpToDate(lastAnswerSheet) === false ||
-      this.isAnswerSheetComplete(lastAnswerSheet)
-    ) {
-      lastAnswerSheet = {
-        surveyVersion: currentSurveyVersion,
-        answerArray: [],
-      };
-      survey.answers.push(lastAnswerSheet);
-      survey.markModified("answers");
-      await survey.save();
+    if (this.isLastAnswerSheetValid(survey) === false) {
+      isContinued = false;
+      survey = await this.createNewAnswerSheet(survey);
     } else {
       isContinued = true;
     }
 
-    const question = this.getNextQuestion(lastAnswerSheet);
-    if (question === null) { // 여기 진입하면 문제가 있는거임
+    const nextQuestion = this.getNextQuestion(survey);
+    if (nextQuestion === null) { // 여기 진입하면 문제가 있는거임
       throw new Error("Question is null");
     }
-    return this.skillResponseSrv.ss_question(
-      question,
-      isContinued,
-    );
+
+    return {
+      nextQuestion,
+      isContinued
+    };
+  }
+
+  private createNewAnswerSheet(
+    survey: StorebotSurveyDocument,
+  ): Promise<StorebotSurveyDocument> {
+    survey.answers.push({
+      surveyVersion: currentSurveyVersion,
+      answerArray: [],
+    });
+    survey.markModified("answers");
+    return survey.save();
+  }
+
+  /**
+   * 마지막시트있고 버전이 최신이고 완료된경우
+   */
+  private isLastAnswerSheetValid(
+    survey: StorebotSurveyDocument,
+  ): boolean {
+    const lastAnswerSheet = this.getLastAnswerSheet(survey);
+    return lastAnswerSheet !== null
+    && this.isAnswerSheetVersionUpToDate(lastAnswerSheet) === false
+    && this.isAnswerSheetComplete(lastAnswerSheet);
   }
 
   private getNextQuestion(
-    answerSheet: AnswerSheet
+    survey: StorebotSurveyDocument,
   ): Question | null {
+    const answerSheet = this.getLastAnswerSheet(survey);
+    if (answerSheet === null) {
+      return null;
+    }
+
     try {
       const questionId = surveyMetadatas[answerSheet.surveyVersion]!.questionIds[answerSheet.answerArray.length];
       if (questionId === undefined) {
@@ -132,10 +196,11 @@ export class StorebotSurveyTestService {
     skillPayload: SkillPayloadDto
   ): Promise<SkillResponse> {
     const answerQuestionId = this.getAnswerQuestionId(skillPayload);
-    const survey = await this.getSurvey(skillPayload);
     const answerValue = this.getAnswerValue(skillPayload);
+    
+    let survey = await this.getSurvey(skillPayload);
 
-    let lastAnswerSheet = this.getLastAnswerSheet(survey);
+    const lastAnswerSheet = this.getLastAnswerSheet(survey);
     if ( // 마지막시트가 완료이거나 시트가 없는 경우
       lastAnswerSheet === null ||
       this.isAnswerSheetComplete(lastAnswerSheet)
@@ -143,7 +208,7 @@ export class StorebotSurveyTestService {
       return this.skillResponseSrv.ss_invalidAnswer();
     }
 
-    const question = this.getNextQuestion(lastAnswerSheet);
+    const question = this.getNextQuestion(survey);
     if (question === null) {
       return this.skillResponseSrv.ss_invalidAnswer();
     }
@@ -157,19 +222,20 @@ export class StorebotSurveyTestService {
       });
       survey.answers[survey.answers.length - 1] = lastAnswerSheet;
       survey.markModified("answers");
-      await survey.save();
+      await survey.save()
+      .then(newSurvey => survey = newSurvey);
 
       if (this.isAnswerSheetComplete(lastAnswerSheet)) {
-        return this.skillResponseSrv.ss_done(survey);
+        return this.skillResponseSrv.ss_done(
+          survey,
+          lastAnswerSheet.surveyVersion
+        );
       } else {
-        const nextQuestion = this.getNextQuestion(lastAnswerSheet);
+        const nextQuestion = this.getNextQuestion(survey);
         if (nextQuestion === null) { // 정상적으로 발생할 수 없음.
           throw new Error("Next question is null");
         } else {
-          return this.skillResponseSrv.ss_question(
-            nextQuestion,
-            false,
-          );
+          return this.skillResponseSrv.ss_question(nextQuestion);
         }
       }
     } else {

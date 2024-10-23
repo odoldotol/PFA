@@ -39,10 +39,10 @@ export const questions: Questions = [
   {
     id: 4,
     type: QuesionType.CHOICE,
-    description: "태이 커피 로스터스에 정기적으로 방문하시나요?",
+    description: "태이 커피 로스터스에 얼마나 자주 방문하시나요?",
     choices: [
       "처음 방문했어요",
-      "한 달에 1~2회 정도 방문해요",
+      "한 달에 1~2회 정도?",
       "매주 방문해요!",
     ],
   },
@@ -59,11 +59,11 @@ export const questions: Questions = [
   {
     id: 6,
     type: QuesionType.CHOICE,
-    description: `카카오톡으로 주문 시 카카오페이로 간편하게 결제하는 것 어떠세요?
-(카카오페이에서 신용카드, 체크카드, 카카오머니로 간편결제가 가능해요)`,
+    title: "카카오톡으로 주문 시 카카오페이로 간편하게 결제하는 것 어떠세요?",
+    description: "(카카오페이에서 신용카드, 체크카드, 카카오머니로 간편결제가 가능해요)",
     choices: [
-      "편할 것 같아요!",
-      "카카오페이로 결제하느니 카카오톡으로 음료를 주문하지 않을 테야!",
+      "좋아요!",
+      "별로에요",
       "잘 모르겠어요",
     ],
   },

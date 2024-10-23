@@ -3,14 +3,15 @@ import {
   SimpleText,
   TextCard,
   Carousel,
-  SimpleImage
+  SimpleImage,
+  BasicCard
 } from "./item";
 
 export type Component = OnlyOneOf<{
   readonly simpleText: SimpleText;
   readonly simpleImage: SimpleImage;
   readonly textCard: TextCard;
-  // basicCard
+  readonly basicCard: BasicCard;
   // commerceCard
   // listCard
   // itemCard

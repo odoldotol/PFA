@@ -59,14 +59,6 @@ export class StorebotSurveyTestController {
     return this.storebotSurveyTestSrv.volunteer(body);
   }
 
-  @Post("enter")
-  @HttpCode(HttpStatus.OK)
-  public enter(
-    @Body() _body: SkillPayloadDto,
-  ) {
-    return this.storebotSurveyTestSrv.enter();
-  }
-
   @Post("start")
   @HttpCode(HttpStatus.OK)
   public start(
