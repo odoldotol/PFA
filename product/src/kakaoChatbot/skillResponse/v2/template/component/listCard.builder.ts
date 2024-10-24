@@ -1,7 +1,7 @@
 import { Component } from "./component";
 import { ListCardItemBuilder, ValidListCardItemBuilder } from "./item";
 import { ListItem } from "./item/listCard";
-import { ListCardComponent } from "./ListCard";
+import { ListCardComponent } from "./listCard";
 
 export class ListCardBuilder
   extends ListCardItemBuilder

@@ -1,4 +1,5 @@
-import { Extra, Label } from "./button";
+import { Extra } from "../extra";
+import { Label } from "./button";
 import { ButtonChildFactory } from "./button.factory";
 import { WebLinkButton, WebLinkUrl } from "./webLink";
 

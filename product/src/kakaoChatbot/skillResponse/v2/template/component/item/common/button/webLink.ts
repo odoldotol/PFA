@@ -1,7 +1,7 @@
+import { ButtonAction } from "../action";
+import { Extra } from "../extra";
 import {
   Button,
-  ButtonAction,
-  Extra,
   Label
 } from "./button";
 
