@@ -39,7 +39,6 @@ export interface KakaoChatbotEnvironmentVariables {
   // survey test
   [KakaoChatbotEnvKey.ID_STOREBOT]: string;
   [KakaoChatbotEnvKey.BLOCK_ID_SURVEY_START]: string;
-  [KakaoChatbotEnvKey.BLOCK_ID_SURVEY_ENTER]: string;
   [KakaoChatbotEnvKey.BLOCK_ID_SURVEY_ANSWER]: string;
   [KakaoChatbotEnvKey.BLOCK_ID_SURVEY_GET_EVENT_SERIAL]: string;
 }

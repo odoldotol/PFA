@@ -25,7 +25,6 @@ export class KakaoChatbotConfigService {
   // survey test
   private readonly ID_STOREBOT: string;
   private readonly BLOCK_ID_SURVEY_START: string;
-  private readonly BLOCK_ID_SURVEY_ENTER: string;
   private readonly BLOCK_ID_SURVEY_ANSWER: string;
   private readonly BLOCK_ID_SURVEY_GET_EVENT_SERIAL: string;
 
@@ -43,7 +42,6 @@ export class KakaoChatbotConfigService {
     // survey test
     const id_storebot = this.readIdStorebot();
     const blockIdSurveyStart = this.readBlockIdSurveyStart();
-    const blockIdSurveyEnter = this.readBlockIdSurveyEnter();
     const blockIdSurveyAnswer = this.readBlockIdSurveyAnswer();
     const blockIdSurveyGetEventSerial = this.readBlockIdSurveyGetEventSerial();
 
@@ -58,7 +56,6 @@ export class KakaoChatbotConfigService {
 
         // survey test
         blockIdSurveyStart === undefined ||
-        blockIdSurveyEnter === undefined ||
         blockIdSurveyAnswer === undefined ||
         blockIdSurveyGetEventSerial === undefined
       ) {
@@ -80,7 +77,6 @@ export class KakaoChatbotConfigService {
     // survey test
     this.ID_STOREBOT = id_storebot || DEFAULT_KAKAO_CHATBOT_ID_STOREBOT;
     this.BLOCK_ID_SURVEY_START = blockIdSurveyStart || '';
-    this.BLOCK_ID_SURVEY_ENTER = blockIdSurveyEnter || '';
     this.BLOCK_ID_SURVEY_ANSWER = blockIdSurveyAnswer || '';
     this.BLOCK_ID_SURVEY_GET_EVENT_SERIAL = blockIdSurveyGetEventSerial || '';
   }
@@ -152,10 +148,6 @@ export class KakaoChatbotConfigService {
     return this.BLOCK_ID_SURVEY_START;
   }
 
-  public getBlockIdSurveyEnter(): string {
-    return this.BLOCK_ID_SURVEY_ENTER;
-  }
-
   public getBlockIdSurveyAnswer(): string {
     return this.BLOCK_ID_SURVEY_ANSWER;
   }
@@ -174,13 +166,6 @@ export class KakaoChatbotConfigService {
   private readBlockIdSurveyStart(): string | undefined {
     return this.configSrv.get(
       KakaoChatbotEnvKey.BLOCK_ID_SURVEY_START,
-      { infer: true }
-    );
-  }
-
-  private readBlockIdSurveyEnter(): string | undefined {
-    return this.configSrv.get(
-      KakaoChatbotEnvKey.BLOCK_ID_SURVEY_ENTER,
       { infer: true }
     );
   }

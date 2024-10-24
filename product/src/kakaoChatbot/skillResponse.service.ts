@@ -338,7 +338,7 @@ export class SkillResponseService {
     .addButton(
       "설문 다시 하기",
       ButtonAction.BLOCK,
-      this.kakaoChatbotConfigSrv.getBlockIdSurveyEnter(),
+      this.kakaoChatbotConfigSrv.getBlockIdSurveyStart(),
     )
     .addButton(
       "맛있는 쿠키 받기!",

@@ -125,11 +125,11 @@ export class StorebotSurveyTestService {
   }> {
     let isContinued: boolean;
 
-    if (this.isLastAnswerSheetValid(survey) === false) {
+    if (this.isLastAnswerSheetInProgress(survey)) {
+      isContinued = true;
+    } else {
       isContinued = false;
       survey = await this.createNewAnswerSheet(survey);
-    } else {
-      isContinued = true;
     }
 
     const nextQuestion = this.getNextQuestion(survey);
@@ -164,6 +164,18 @@ export class StorebotSurveyTestService {
     return lastAnswerSheet !== null
     && this.isAnswerSheetVersionUpToDate(lastAnswerSheet) === true
     && this.isAnswerSheetComplete(lastAnswerSheet) === true;
+  }
+
+  /**
+   * 마지막시트있고 버전이 최신이고 완료되지 않은경우
+   */
+  private isLastAnswerSheetInProgress(
+    survey: StorebotSurveyDocument,
+  ): boolean {
+    const lastAnswerSheet = this.getLastAnswerSheet(survey);
+    return lastAnswerSheet !== null
+    && this.isAnswerSheetVersionUpToDate(lastAnswerSheet) === true
+    && this.isAnswerSheetComplete(lastAnswerSheet) === false;
   }
 
   private getNextQuestion(
