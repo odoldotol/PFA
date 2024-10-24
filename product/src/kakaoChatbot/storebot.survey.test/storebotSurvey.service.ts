@@ -162,8 +162,8 @@ export class StorebotSurveyTestService {
   ): boolean {
     const lastAnswerSheet = this.getLastAnswerSheet(survey);
     return lastAnswerSheet !== null
-    && this.isAnswerSheetVersionUpToDate(lastAnswerSheet) === false
-    && this.isAnswerSheetComplete(lastAnswerSheet);
+    && this.isAnswerSheetVersionUpToDate(lastAnswerSheet) === true
+    && this.isAnswerSheetComplete(lastAnswerSheet) === true;
   }
 
   private getNextQuestion(
