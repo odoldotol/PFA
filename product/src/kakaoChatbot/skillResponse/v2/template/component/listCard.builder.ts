@@ -8,7 +8,7 @@ export class ListCardBuilder
 {
   public override addItem(item: ListItem): ValidListCardBuilder {
     super.addItem(item);
-    return new ValidListCardBuilder(super.data);
+    return new ValidListCardBuilder(this.data);
   }
 }
 
