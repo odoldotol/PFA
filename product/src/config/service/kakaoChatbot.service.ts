@@ -6,7 +6,8 @@ import {
   DEFAULT_KAKAO_CHATBOT_BLOCK_ID_REPORT,
   DEFAULT_KAKAO_CHATBOT_BLOCK_ID_SUBSCRIBE_ASSET,
   DEFAULT_KAKAO_CHATBOT_BLOCK_ID_CANCEL_ASSET_SUBSCRIPTION,
-  DEFAULT_KAKAO_CHATBOT_ID_STOREBOT
+  DEFAULT_KAKAO_CHATBOT_ID_STOREBOT,
+  DEFAULT_KAKAO_CHATBOT_BLOCK_ID_INQUIRE_SUBSCRIBED_ASSET
 } from "../const";
 import { KakaoChatbotEnvKey } from "../enum";
 import { KakaoChatbotEnvironmentVariables } from "../interface";
@@ -21,6 +22,7 @@ export class KakaoChatbotConfigService {
   private readonly BLOCK_ID_REPORT: string;
   private readonly BLOCK_ID_SUBSCRIBE_ASSET: string;
   private readonly BLOCK_ID_CANCEL_ASSET_SUBSCRIPTION: string;
+  private readonly BLOCK_ID_INQUIRE_SUBSCRIBED_ASSET: string;
 
   // survey test
   private readonly ID_STOREBOT: string;
@@ -38,6 +40,7 @@ export class KakaoChatbotConfigService {
     const blockIdReport = this.readBlockIdReport();
     const blockIdSubscribeAsset = this.readBlockIdSubscribeAsset();
     const blockIdCancelAssetSubscription = this.readBlockIdCancelAssetSubscription();
+    const blockIdInquireSubscribedAsset = this.readBlockIdInquireSubscribedAsset();
 
     // survey test
     const id_storebot = this.readIdStorebot();
@@ -53,6 +56,7 @@ export class KakaoChatbotConfigService {
         blockIdReport === undefined ||
         blockIdSubscribeAsset === undefined ||
         blockIdCancelAssetSubscription === undefined ||
+        blockIdInquireSubscribedAsset === undefined ||
 
         // survey test
         blockIdSurveyStart === undefined ||
@@ -73,6 +77,8 @@ export class KakaoChatbotConfigService {
       DEFAULT_KAKAO_CHATBOT_BLOCK_ID_SUBSCRIBE_ASSET;
     this.BLOCK_ID_CANCEL_ASSET_SUBSCRIPTION = blockIdCancelAssetSubscription ||
       DEFAULT_KAKAO_CHATBOT_BLOCK_ID_CANCEL_ASSET_SUBSCRIPTION;
+    this.BLOCK_ID_INQUIRE_SUBSCRIBED_ASSET = blockIdInquireSubscribedAsset ||
+      DEFAULT_KAKAO_CHATBOT_BLOCK_ID_INQUIRE_SUBSCRIBED_ASSET;
 
     // survey test
     this.ID_STOREBOT = id_storebot || DEFAULT_KAKAO_CHATBOT_ID_STOREBOT;
@@ -99,6 +105,10 @@ export class KakaoChatbotConfigService {
 
   public getBlockIdCancelAssetSubscription(): string {
     return this.BLOCK_ID_CANCEL_ASSET_SUBSCRIPTION;
+  }
+
+  public getBlockIdInquireSubscribedAsset(): string {
+    return this.BLOCK_ID_INQUIRE_SUBSCRIBED_ASSET;
   }
 
   private readId(): string | undefined {
@@ -132,6 +142,13 @@ export class KakaoChatbotConfigService {
   private readBlockIdCancelAssetSubscription(): string | undefined {
     return this.configSrv.get(
       KakaoChatbotEnvKey.BLOCK_ID_CANCEL_ASSET_SUBSCRIPTION,
+      { infer: true }
+    );
+  }
+
+  private readBlockIdInquireSubscribedAsset(): string | undefined {
+    return this.configSrv.get(
+      KakaoChatbotEnvKey.BLOCK_ID_INQUIRE_SUBSCRIBED_ASSET,
       { infer: true }
     );
   }

@@ -4,16 +4,17 @@ import { TextService } from "./text.service";
 import {
   BasicCardBuilder,
   ButtonAction,
-  CarouselFactory,
   Component,
   Data,
-  ItemKey,
+  ListCardBuilder,
+  ListItemBuilder,
   SimpleTextFactory,
   SkillResponse,
   SkillResponseBuilder,
   SkillTemplateBuilder,
   TextCardBuilder,
   ThumbnailBuilder,
+  ValidListCardBuilder,
 } from "./skillResponse/v2";
 import {
   FinancialAssetCore,
@@ -25,7 +26,7 @@ import {
   isChoiceQuestion,
   Question
 } from "./storebot.survey.test/question.const";
-import { joinLineBreak } from "src/common/util";
+import { joinBlank } from "src/common/util";
 
 @Injectable()
 export class SkillResponseService {
@@ -213,43 +214,48 @@ export class SkillResponseService {
       throw new Error("There are no assets");
     }
 
-    const items
-    = assets
-    .slice(0, 10)
-    .map(asset => {
-      return new TextCardBuilder()
-      .setTitle(asset.shortName || asset.longName || asset.symbol)
-      .setDescription(joinLineBreak(
-        asset.symbol,
-        this.textSrv.getPriceStr(asset)
-      ))
-      .addButton(
-        "구독 취소하기",
+    const listCardBuilder = (
+      assets
+      .slice(0, 5)
+      .reduce((builder, asset) => {
+        const itemBuilder = new ListItemBuilder(joinBlank(
+          asset.symbol,
+          this.textSrv.getPriceStr(asset)
+        ));
+
+        const name = asset.shortName || asset.longName;
+        if (name !== undefined) {
+          itemBuilder.setDescription(asset.shortName || asset.longName || asset.symbol);
+        }
+
+        itemBuilder
+        .setBlockAction(this.kakaoChatbotConfigSrv.getBlockIdInquireAsset())
+        .addExtraData({
+          ticker: asset.symbol
+        });
+
+        return builder.addItem(itemBuilder.build());
+      },
+      new ListCardBuilder("구독 중인 자산")) as ValidListCardBuilder
+    );
+
+    if (0 < assets.slice(5).length) {
+      listCardBuilder.addButton(
+        "더보기",
         ButtonAction.BLOCK,
-        this.kakaoChatbotConfigSrv.getBlockIdCancelAssetSubscription(),
+        this.kakaoChatbotConfigSrv.getBlockIdInquireSubscribedAsset(),
         {
-          ticker: asset.symbol,
+          assets: assets.slice(5)
         }
       )
-      .buildItem();
-    });
-
-    let template = new SkillTemplateBuilder()
-    .addComponent(CarouselFactory.createComponent(
-      ItemKey.TEXTCARD,
-      items,
-    ));
-
-    const simpleTextAssets = assets.slice(10);
-    if (0 < simpleTextAssets.length) {
-      template = template.addComponent(
-        SimpleTextFactory.createComponent(this.textSrv.subscribedAssetInquiry(simpleTextAssets))
-      );
     }
 
     return new SkillResponseBuilder()
-    .addTemplate(template.build())
-    .build();
+    .addTemplate(
+      new SkillTemplateBuilder()
+      .addComponent(listCardBuilder.buildComponent())
+      .build()
+    ).build();
   }
 
   public tickerReported(): SkillResponse {

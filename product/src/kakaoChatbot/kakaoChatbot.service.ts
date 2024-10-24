@@ -15,7 +15,7 @@ import {
   SkillPayloadDto,
 } from './dto';
 import { SkillResponse } from './skillResponse/v2';
-import { Ticker } from 'src/common/interface';
+import { FinancialAssetCore, Ticker } from 'src/common/interface';
 import * as F from '@fxts/core';
 
 @Injectable()
@@ -117,21 +117,31 @@ export class KakaoChatbotService {
     skillPayload: SkillPayloadDto
   ): Promise<SkillResponse> {
     const userId = await this.authSrv.getUserId(skillPayload);
-    const subscriptionTickerArr
-    = await this.assetSubscriptionSrv.readActivatedTickersByUserId(userId);
 
-    if (subscriptionTickerArr.length === 0) {
-      return this.skillResponseSrv.noSubscribedAsset();
+    let assets = this.getAssetsFromClientExtra(skillPayload);
+    if (assets === undefined) {
+      const subscriptionTickerArr
+      = await this.assetSubscriptionSrv.readActivatedTickersByUserId(userId);
+  
+      if (subscriptionTickerArr.length === 0) {
+        return this.skillResponseSrv.noSubscribedAsset();
+      }
+  
+      assets = await F.pipe(
+        subscriptionTickerArr, F.toAsync,
+        F.map(ticker => this.financialAssetSrv.inquire(ticker, userId.toString())),
+        F.concurrent(subscriptionTickerArr.length),
+        F.toArray,
+      );
     }
 
-    const assets = await F.pipe(
-      subscriptionTickerArr, F.toAsync,
-      F.map(ticker => this.financialAssetSrv.inquire(ticker, userId.toString())),
-      F.concurrent(subscriptionTickerArr.length),
-      F.toArray,
-    );
-
     return this.skillResponseSrv.subscribedAssetInquiry(assets);
+  }
+
+  private getAssetsFromClientExtra(
+    skillPayload: SkillPayloadDto
+  ): FinancialAssetCore[] | undefined {
+    return skillPayload.action.clientExtra["assets"] as FinancialAssetCore[] | undefined;
   }
 
   public async reportTicker(

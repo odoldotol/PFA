@@ -1,6 +1,8 @@
+import { ButtonAction } from "../action";
+import { Extra } from "../extra";
 import { BlockId } from "./block";
 import { blockButtonFactory } from "./block.factory";
-import { Button, ButtonAction, Extra, Label } from "./button";
+import { Button, Label } from "./button";
 import { WebLinkUrl } from "./webLink";
 import { webLinkButtonFactory } from "./webLink.factory";
 

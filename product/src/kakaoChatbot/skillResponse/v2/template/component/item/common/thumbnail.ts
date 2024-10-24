@@ -1,3 +1,5 @@
+import { Link } from "./link";
+
 /**
  * https://kakaobusiness.gitbook.io/main/tool/chatbot/skill_guide/answer_json_format#thumbnail
  */
@@ -9,12 +11,3 @@ export class Thumbnail {
     public readonly fixedRatio: boolean,
   ) {}
 }
-
-/**
- * https://kakaobusiness.gitbook.io/main/tool/chatbot/skill_guide/answer_json_format#link
- */
-export type Link = {
-  pc?: string,
-  mobile?: string,
-  web?: string
-};

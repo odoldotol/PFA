@@ -3,6 +3,10 @@ import { Carousel } from './carousel';
 import { SimpleImage } from './simpleImage';
 import { SimpleText } from './simpleText';
 import { TextCard } from './textCard';
+import {
+  ListCard,
+  ListItemBuilder
+} from "./listCard";
 
 export * from './common';
 export {
@@ -15,6 +19,8 @@ export {
   TextCard,
   Carousel,
   BasicCard,
+  ListCard,
+  ListItemBuilder,
 };
 
 type CardKey =
@@ -28,7 +34,7 @@ type Card<T extends CardKey = CardKey> =
 T extends Key.TEXTCARD ? TextCard :
 T extends Key.BASICCARD ? BasicCard :
 // T extends Key.COMMERCECARD ? CommerceCard :
-// T extends Key.LISTCARD ? ListCard :
+T extends Key.LISTCARD ? ListCard :
 // T extends Key.ITEMCARD ? ItemCard :
 never;
 

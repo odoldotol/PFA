@@ -1,3 +1,6 @@
+import { ButtonAction } from "../action";
+import { Extra } from "../extra";
+
 /**
  * https://kakaobusiness.gitbook.io/main/tool/chatbot/skill_guide/answer_json_format#button
  */
@@ -17,19 +20,6 @@ export abstract class Button {
     extra && (this.extra = extra);
   }
 }
-
-export enum ButtonAction {
-  WEBLINK = "webLink",
-  MESSAGE = "message",
-  PHONE = "phone",
-  BLOCK = "block",
-  SHARE = "share",
-  OPERATOR = "operator",
-}
-
-export type Extra = Readonly<{
-  [key: string]: any;
-}>;
 
 /**
  * maxLength 14

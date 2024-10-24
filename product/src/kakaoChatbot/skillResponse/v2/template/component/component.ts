@@ -4,7 +4,8 @@ import {
   TextCard,
   Carousel,
   SimpleImage,
-  BasicCard
+  BasicCard,
+  ListCard
 } from "./item";
 
 export type Component = OnlyOneOf<{
@@ -13,7 +14,7 @@ export type Component = OnlyOneOf<{
   readonly textCard: TextCard;
   readonly basicCard: BasicCard;
   // commerceCard
-  // listCard
+  readonly listCard: ListCard
   // itemCard
   readonly carousel: Carousel;
 }>;

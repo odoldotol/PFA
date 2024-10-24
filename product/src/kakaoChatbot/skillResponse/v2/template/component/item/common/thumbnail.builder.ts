@@ -1,5 +1,5 @@
+import { Link } from "./link";
 import {
-  Link,
   Thumbnail
 } from "./thumbnail";
 
