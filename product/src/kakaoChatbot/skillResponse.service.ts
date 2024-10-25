@@ -26,7 +26,7 @@ import {
   isChoiceQuestion,
   Question
 } from "./storebot.survey.test/question.const";
-import { joinBlank } from "src/common/util";
+import { getMoneyStr, joinBlank } from "src/common/util";
 
 @Injectable()
 export class SkillResponseService {
@@ -220,7 +220,10 @@ export class SkillResponseService {
       .reduce((builder, asset) => {
         const itemBuilder = new ListItemBuilder(joinBlank(
           asset.symbol,
-          this.textSrv.getPriceStr(asset)
+          joinBlank(
+            `(${this.textSrv.getChangeRateStr(asset)})`,
+            getMoneyStr(asset.regularMarketLastClose, asset.currency),
+          )
         ));
 
         const name = asset.shortName || asset.longName;
@@ -229,7 +232,7 @@ export class SkillResponseService {
         }
 
         itemBuilder
-        .setBlockAction(this.kakaoChatbotConfigSrv.getBlockIdInquireAsset())
+        .setBlockAction(this.kakaoChatbotConfigSrv.getBlockIdInquireAssetNoInput())
         .addExtraData({
           ticker: asset.symbol
         });

@@ -228,17 +228,6 @@ describe('Product E2E', () => {
       );
 
       describe('bad request', () => {
-        it('if ticker is not available: 200 OK, data has 400 exception', () => {
-          return request(app.getHttpServer())
-          .post(url)
-          .send(mockSkillPayload(mockBotUserKey1))
-          .expect(HttpStatus.OK)
-          .expect(({body}) => {
-            expect(body.template).toEqual(unexpectedErrorTemplate());
-            expect(body.data.exception.status).toBe(400);
-          });
-        });
-
         it('Invalid Ticker: 200 OK, data has 400 exception', () => {
           return request(app.getHttpServer())
           .post(url)
@@ -287,6 +276,18 @@ describe('Product E2E', () => {
           ).template);
         });
       });
+
+      it('if ticker is not available: 200 OK, data has unexpectedException', () => {
+        return request(app.getHttpServer())
+        .post(url)
+        .send(mockSkillPayload(mockBotUserKey1))
+        .expect(HttpStatus.OK)
+        .expect(({body}) => {
+          expect(body.template).toEqual(unexpectedErrorTemplate());
+        });
+      });
+
+      it.todo("clientExtra 또는 params 에 ticker 가 있으면 됨. 각각 validation 검사함. 둘다 있으면 params 우선.");
     });
 
     const addAssetSubscriptionPath = KAKAO_CHATBOT_API_METADATA.routes.addAssetSubscription.path;

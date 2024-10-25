@@ -113,7 +113,7 @@ export class TextService {
     return result.slice(0, 10);
   }
 
-  private getChangeRateStr({
+  public getChangeRateStr({
     regularMarketLastClose,
     regularMarketPreviousClose
   }: FinancialAssetCore): string {

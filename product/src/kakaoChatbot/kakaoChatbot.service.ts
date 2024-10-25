@@ -34,7 +34,7 @@ export class KakaoChatbotService {
     skillPayload: InquireAssetDto
   ): Promise<SkillResponse> {
     const userId = await this.authSrv.getUserId(skillPayload);
-    const ticker = this.getTickerFromParams(skillPayload);
+    const ticker = this.getTickerToInqire(skillPayload);
 
     // Todo: failedTicker 재시도시 응답.
 
@@ -158,10 +158,16 @@ export class KakaoChatbotService {
     return this.skillResponseSrv.tickerReported();
   }
 
-  private getTickerFromParams(
+  private getTickerToInqire(
     skillPayload: InquireAssetDto
   ): Ticker {
-    return skillPayload.action.params.ticker;
+    const result = skillPayload.action.params?.ticker || skillPayload.action.clientExtra?.ticker;
+
+    if (result === undefined) {
+      throw new Error('Ticker is not defined');
+    }
+
+    return result;
   }
 
   private getTickerFromClientExtra(
