@@ -23,16 +23,16 @@ class ListCardData {
 abstract class ListCardBuilderRoot {
 
   constructor(
-    protected data: ListCardData
+    protected readonly data: ListCardData
   ) {}
 
   /**
-   * 5개 이상 무시됨
+   * 5개 초과 무시됨
    */
   public abstract addItem(item: ListItem): ValidListCardItemBuilder;
 
   /**
-   * 2개 이상 무시됨
+   * 2개 초과 무시됨
    */
   public addButton(
     ...params: Parameters<typeof ButtonFactory.create>

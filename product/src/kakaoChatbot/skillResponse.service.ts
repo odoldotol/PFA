@@ -4,8 +4,11 @@ import { TextService } from "./text.service";
 import {
   BasicCardBuilder,
   ButtonAction,
+  CardItem,
+  CarouselFactory,
   Component,
   Data,
+  ItemKey,
   ListCardBuilder,
   ListItemBuilder,
   SimpleTextFactory,
@@ -15,6 +18,7 @@ import {
   TextCardBuilder,
   ThumbnailBuilder,
   ValidListCardBuilder,
+  // ValidSkillTemplateBuilder,
 } from "./skillResponse/v2";
 import {
   FinancialAssetCore,
@@ -204,20 +208,65 @@ export class SkillResponseService {
   }
 
   public noSubscribedAsset(): SkillResponse {
-    return this.singleSimpleText(this.textSrv.noSubscribedAsset());
+    return new SkillResponseBuilder()
+    .addTemplate(
+      new SkillTemplateBuilder()
+      .addComponent(
+        new TextCardBuilder()
+        .setDescription(this.textSrv.noSubscribedAsset())
+        .addButton(
+          "찾아보기",
+          ButtonAction.BLOCK,
+          this.kakaoChatbotConfigSrv.getBlockIdInquireAsset(),
+        ).buildComponent()
+      ).build()
+    ).build();
   }
 
+  /**
+   * 스킬응답빌더들의 구현의 복잡성이 사용의 복잡성으로 이어지고있음...
+   */
   public subscribedAssetInquiry(
-    assets: FinancialAssetCore[]
+    assets: FinancialAssetCore[],
+    cursor: number = 0
   ): SkillResponse {
     if (assets.length === 0) { // 이미 앞에서 걸러서 진입 불가능, 그래도 확인.
       throw new Error("There are no assets");
     }
 
-    const listCardBuilder = (
-      assets
-      .slice(0, 5)
-      .reduce((builder, asset) => {
+    const templateComponentCapacity = 3;
+    const carouselComponentListCardItemCapacity = 5;
+    const listCardItemCapacity = 4;
+
+    const componentAssetCapacity
+    = listCardItemCapacity
+    * carouselComponentListCardItemCapacity;
+
+    const templateAssetCapacity
+    = templateComponentCapacity
+    * carouselComponentListCardItemCapacity
+    * listCardItemCapacity;
+
+    const restAssets = assets.slice(templateAssetCapacity);
+
+    /**
+     * 1~4개 넣어요
+     */
+    const listCardItem = (
+      listCardAssets: FinancialAssetCore[],
+      start: number,
+      end: number
+    ) => {
+      const listItemAssets = listCardAssets.slice(start, end);
+
+      if (listItemAssets.length === 0) {
+        throw new Error("There are no assets");
+      }
+
+      const realStart = 1 + (cursor * templateAssetCapacity) + start;
+      const realEnd = realStart + listItemAssets.length - 1;
+
+      return listItemAssets.reduce((builder, asset) => {
         const itemBuilder = new ListItemBuilder(joinBlank(
           asset.symbol,
           joinBlank(
@@ -227,8 +276,8 @@ export class SkillResponseService {
         ));
 
         const name = asset.shortName || asset.longName;
-        if (name !== undefined) {
-          itemBuilder.setDescription(asset.shortName || asset.longName || asset.symbol);
+        if (name !== null) {
+          itemBuilder.setDescription(name);
         }
 
         itemBuilder
@@ -238,27 +287,81 @@ export class SkillResponseService {
         });
 
         return builder.addItem(itemBuilder.build());
-      },
-      new ListCardBuilder("구독 중인 자산")) as ValidListCardBuilder
-    );
+      }, new ListCardBuilder(`구독 중인 자산 (${realStart} ~ ${realEnd})`) as ValidListCardBuilder).buildItem()
+    };
 
-    if (0 < assets.slice(5).length) {
-      listCardBuilder.addButton(
-        "더보기",
-        ButtonAction.BLOCK,
-        this.kakaoChatbotConfigSrv.getBlockIdInquireSubscribedAsset(),
-        {
-          assets: assets.slice(5)
+    /**
+     * 1~20개 넣어요
+     */
+    const carouselComponent = (
+      templateAssets: FinancialAssetCore[],
+      componentStart: number,
+      componentEnd: number
+    ) => {
+      const componentAssets = templateAssets.slice(componentStart, componentEnd);
+
+      if (componentAssets.length === 0) {
+        throw new Error("There are no assets");
+      }
+
+      const items: CardItem<ItemKey.LISTCARD>[] = [];
+
+      let len = 1;
+      let itemStart = 0;
+      let itemEnd = listCardItemCapacity * len;
+
+      do {
+        items.push(listCardItem(componentAssets, itemStart, itemEnd));
+
+        len += 1;
+        itemStart = itemEnd;
+        itemEnd = listCardItemCapacity * len;
+      } while (
+        itemStart < componentAssets.length &&
+        len <= carouselComponentListCardItemCapacity
+      );
+
+      return CarouselFactory.createComponent(
+        ItemKey.LISTCARD,
+        items
+      );
+    };
+
+    let start = 0;
+    let end = start + componentAssetCapacity;
+
+    const template = new SkillTemplateBuilder()
+    .addComponent(carouselComponent(assets, start, end));
+
+    start = end;
+    end = start + componentAssetCapacity;
+
+    if (start < assets.length) {
+      template.addComponent(carouselComponent(assets, start, end));
+
+      start = end;
+      end = start + componentAssetCapacity;
+
+      if (start < assets.length) {
+        template.addComponent(carouselComponent(assets, start, end));
+      }
+    }
+
+    if (0 < restAssets.length) {
+      template.addQuickReply({ // 나머지 있을때만 추가해야함.
+        label: "더보기",
+        action: ButtonAction.BLOCK,
+        blockId: this.kakaoChatbotConfigSrv.getBlockIdInquireSubscribedAsset(),
+        extra: {
+          assets: restAssets,
+          cursor: cursor + 1
         }
-      )
+      });
     }
 
     return new SkillResponseBuilder()
-    .addTemplate(
-      new SkillTemplateBuilder()
-      .addComponent(listCardBuilder.buildComponent())
-      .build()
-    ).build();
+    .addTemplate(template.build())
+    .build();
   }
 
   public tickerReported(): SkillResponse {
@@ -283,6 +386,8 @@ export class SkillResponseService {
   }
 
   ////////////////////////// Storebot Survey Test //////////////////////////
+
+  private readonly COOKIE_IMAGE_URL = this.kakaoChatbotConfigSrv.getUrlTaeyCoffeeRoastersCookiesImage();
 
   public ss_showEventSerial(
     survey: StorebotSurvey,
@@ -454,8 +559,5 @@ export class SkillResponseService {
       .build()
     ).build();
   }
-
-  // 나중에 숨기자
-  private readonly COOKIE_IMAGE_URL = "https://storage.googleapis.com/odoldotol-image-store/storebot_taey_cookie_sample.jpg";
 
 }

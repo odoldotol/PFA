@@ -43,6 +43,8 @@ export interface KakaoChatbotEnvironmentVariables {
   [KakaoChatbotEnvKey.BLOCK_ID_SURVEY_START]: string;
   [KakaoChatbotEnvKey.BLOCK_ID_SURVEY_ANSWER]: string;
   [KakaoChatbotEnvKey.BLOCK_ID_SURVEY_GET_EVENT_SERIAL]: string;
+
+  [KakaoChatbotEnvKey.URL_TAEYCOFFEROASTERS_COOKIES_IMAGE]: string;
 }
 
 export interface MarketApiEnvironmentVariables {

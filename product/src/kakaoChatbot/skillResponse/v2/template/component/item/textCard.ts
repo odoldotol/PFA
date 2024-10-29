@@ -1,4 +1,3 @@
-import { LimitedArray } from "src/common/util";
 import { Button } from "./common";
 
 /**
@@ -13,32 +12,17 @@ import { Button } from "./common";
  */
 export class TextCard {
 
-  readonly title?: string;
-  readonly description?: string;
-  readonly buttons?: Buttons;
-
   constructor(
-    textOptions: TextOptions,
-    buttons?: Buttons
+    public readonly title: string | undefined,
+    public readonly description: string | undefined,
+    public readonly buttons: Button[],
   ) {
-    if ("title" in textOptions && textOptions.title !== undefined) {
-      this.title = textOptions.title;
+    if (title === undefined && description === undefined) {
+      throw new Error("title or description is required");
     }
 
-    if ("description" in textOptions && textOptions.description !== undefined) {
-      this.description = textOptions.description;
+    if (3 < buttons.length) {
+      this.buttons = buttons.slice(0, 3);
     }
-
-    buttons && (this.buttons = buttons);
   }
 }
-
-export type Buttons = Readonly<LimitedArray<Button, 3>>;
-
-export type TextOptions = {
-  title: string;
-  description?: string;
-} | {
-  title?: string;
-  description: string;
-};

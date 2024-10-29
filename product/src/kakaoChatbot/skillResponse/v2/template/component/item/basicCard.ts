@@ -4,7 +4,8 @@ import { Thumbnail } from "./common/thumbnail";
 /**
  * https://kakaobusiness.gitbook.io/main/tool/chatbot/skill_guide/answer_json_format#basiccard
  * 
- * button 3개 까지만 처리함
+ * - thumbnail 필수
+ * - button 3개 까지만 처리함
  */
 export class BasicCard {
 
@@ -14,7 +15,13 @@ export class BasicCard {
     public readonly thumbnail: Thumbnail,
     public readonly buttons: Button[],
   ) {
-    this.buttons = this.buttons.slice(0, 3);
+    if (thumbnail === undefined) {
+      throw new Error("thumbnail is required");
+    }
+
+    if (3 < buttons.length) {
+      this.buttons = buttons.slice(0, 3);
+    }
   }
 
 }

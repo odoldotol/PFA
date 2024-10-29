@@ -5,29 +5,36 @@ import {
   Thumbnail
 } from "./common";
 
+class BasicCardData {
+  public title: string | undefined;
+  public description: string | undefined;
+  public thumbnail: Thumbnail | undefined;
+  public buttons: Button[] = [];
+}
+
 abstract class BasicCardBuilderRoot {
 
-  protected title: string | undefined;
-  protected description: string | undefined;
-  protected buttons: Button[] = [];
+  constructor(
+    protected readonly data: BasicCardData
+  ) {}
 
   public setTitle(title: string): this {
-    this.title = title;
+    this.data.title = title;
     return this;
   }
 
   public setDescription(description: string): this {
-    this.description = description;
+    this.data.description = description;
     return this;
   }
 
   /**
-   * 3개 이상 버려짐
+   * 3개 초과 버려짐
    */
   public addButton(
     ...params: Parameters<typeof ButtonFactory.create>
   ): this {
-    this.buttons.push(ButtonFactory.create(...params));
+    this.data.buttons.push(ButtonFactory.create(...params));
     return this;
   }
 
@@ -35,17 +42,21 @@ abstract class BasicCardBuilderRoot {
 
 }
 
+/**
+ * setThumbnail 을 통해 buildItem 을 얻을 수 있음.
+ */
 export class BasicCardItemBuilder
   extends BasicCardBuilderRoot
 {
   constructor() {
-    super();
+    super(new BasicCardData());
   }
 
   public setThumbnail(
     thumbnail: Thumbnail
   ): ValidBasicCardItemBuilder {
-    return new ValidBasicCardItemBuilder(thumbnail);
+    this.data.thumbnail = thumbnail;
+    return new ValidBasicCardItemBuilder(this.data);
   }
 
 }
@@ -53,24 +64,21 @@ export class BasicCardItemBuilder
 export class ValidBasicCardItemBuilder
   extends BasicCardBuilderRoot
 {
-  constructor(
-    private thumbnail: Thumbnail
-  ) {
-    super();
-    this.thumbnail = thumbnail;
+  constructor(data: BasicCardData) {
+    super(data);
   }
 
   public setThumbnail(thumbnail: Thumbnail): this {
-    this.thumbnail = thumbnail;
+    this.data.thumbnail = thumbnail;
     return this;
   }
 
   public buildItem(): BasicCard {
     return new BasicCard(
-      this.title,
-      this.description,
-      this.thumbnail,
-      this.buttons,
+      this.data.title,
+      this.data.description,
+      this.data.thumbnail!,
+      this.data.buttons,
     );
   }
 

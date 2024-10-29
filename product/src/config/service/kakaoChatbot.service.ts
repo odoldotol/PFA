@@ -32,6 +32,8 @@ export class KakaoChatbotConfigService {
   private readonly BLOCK_ID_SURVEY_ANSWER: string;
   private readonly BLOCK_ID_SURVEY_GET_EVENT_SERIAL: string;
 
+  private readonly URL_TAEYCOFFEROASTERS_COOKIES_IMAGE: string;
+
   constructor(
     private readonly configSrv: ConfigService<KakaoChatbotEnvironmentVariables>,
     private readonly appConfigSrv: AppConfigService,
@@ -51,8 +53,10 @@ export class KakaoChatbotConfigService {
     const blockIdSurveyAnswer = this.readBlockIdSurveyAnswer();
     const blockIdSurveyGetEventSerial = this.readBlockIdSurveyGetEventSerial();
 
+    const urlTaeyCoffeeRoastersCookiesImage = this.readUrlTaeyCoffeeRoastersCookiesImage();
+
     if (this.appConfigSrv.isProduction()) {
-      if (id === undefined) {
+      if (id === undefined || id_storebot === undefined) {
         throw new Error('KAKAO_CHATBOT_ID is not defined!');
       } else if (
         blockIdInquireAsset === undefined ||
@@ -65,7 +69,8 @@ export class KakaoChatbotConfigService {
         // survey test
         blockIdSurveyStart === undefined ||
         blockIdSurveyAnswer === undefined ||
-        blockIdSurveyGetEventSerial === undefined
+        blockIdSurveyGetEventSerial === undefined ||
+        urlTaeyCoffeeRoastersCookiesImage === undefined
       ) {
         throw new Error('KakaoChatbot block ids are not defined!');
       }
@@ -91,6 +96,7 @@ export class KakaoChatbotConfigService {
     this.BLOCK_ID_SURVEY_START = blockIdSurveyStart || '';
     this.BLOCK_ID_SURVEY_ANSWER = blockIdSurveyAnswer || '';
     this.BLOCK_ID_SURVEY_GET_EVENT_SERIAL = blockIdSurveyGetEventSerial || '';
+    this.URL_TAEYCOFFEROASTERS_COOKIES_IMAGE = urlTaeyCoffeeRoastersCookiesImage || '';
   }
 
   public getId(): string {
@@ -119,6 +125,10 @@ export class KakaoChatbotConfigService {
 
   public getBlockIdInquireAssetNoInput(): string {
     return this.BLOCK_ID_INQUIRE_ASSET_NO_INPUT;
+  }
+
+  public getUrlTaeyCoffeeRoastersCookiesImage(): string {
+    return this.URL_TAEYCOFFEROASTERS_COOKIES_IMAGE;
   }
 
   private readId(): string | undefined {
@@ -214,6 +224,13 @@ export class KakaoChatbotConfigService {
   private readBlockIdSurveyGetEventSerial(): string | undefined {
     return this.configSrv.get(
       KakaoChatbotEnvKey.BLOCK_ID_SURVEY_GET_EVENT_SERIAL,
+      { infer: true }
+    );
+  }
+
+  private readUrlTaeyCoffeeRoastersCookiesImage(): string | undefined {
+    return this.configSrv.get(
+      KakaoChatbotEnvKey.URL_TAEYCOFFEROASTERS_COOKIES_IMAGE,
       { infer: true }
     );
   }

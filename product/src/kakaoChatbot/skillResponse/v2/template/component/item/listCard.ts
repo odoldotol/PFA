@@ -8,8 +8,8 @@ import {
 /**
  * https://kakaobusiness.gitbook.io/main/tool/chatbot/skill_guide/answer_json_format#listcard
  * 
- * items 5개 이상 무시
- * buttons 2개 이상 무시
+ * - items 5개 초과 무시
+ * - buttons 2개 초과 무시
  */
 export class ListCard {
   constructor(

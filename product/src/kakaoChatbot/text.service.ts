@@ -64,7 +64,10 @@ export class TextService {
   }
 
   public noSubscribedAsset(): string {
-    return "구독중인것이 없네요...";
+    return `구독중인것이 없네요...
+
+전 세계 다양한 국가의 주식가격, 환율, 경제지표 등을 찾아보세요!
+그리고 구독해 보세요!`;
   }
 
   /**

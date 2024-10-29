@@ -1,65 +1,70 @@
 import { Component } from "./component";
-import { Outputs, QuickReplies, SkillTemplate } from "./template";
+import { QuickReply, SkillTemplate } from "./template";
 
-class SkillTemplateBuilderData {
-  public quickReplies?: QuickReplies;
+class SkillTemplateData {
+  public outputs: Component[] = [];
+  public quickReplies: QuickReply[] = [];
 }
 
-abstract class SkillTemplateRootBuilder {
+abstract class SkillTemplateBuilderRoot {
   constructor(
-    protected readonly data: SkillTemplateBuilderData,
+    protected readonly data: SkillTemplateData,
   ) {}
 
   /**
    * @todo QuickReply Creation
+   * 
+   * - 10개 초과 무시됨
    */
-  public addQuickReplies(quickReplies: QuickReplies): this {
-    this.data.quickReplies = quickReplies;
+  public addQuickReply(quickReply: QuickReply): this {
+    this.data.quickReplies.push(quickReply);
     return this;
   }
 
   /**
    * 3개 초과 추가 부터는 무시됨
    */
-  abstract addComponent(component: Component): ValidSkillTemplateBuilder;
+  public abstract addComponent(component: Component): ValidSkillTemplateBuilder;
 }
 
+/**
+ * addComponent 를 통해 build 를 얻을 수 있음.
+ */
 export class SkillTemplateBuilder
-  extends SkillTemplateRootBuilder
+  extends SkillTemplateBuilderRoot
 {
   constructor() {
-    super(new SkillTemplateBuilderData());
+    super(new SkillTemplateData());
   }
 
-  public addComponent(component: Component): ValidSkillTemplateBuilder {
-    return new ValidSkillTemplateBuilder(this.data, component);
+  public addComponent(
+    component: Component
+  ): ValidSkillTemplateBuilder {
+    this.data.outputs.push(component);
+    return new ValidSkillTemplateBuilder(this.data);
   }
+
 }
 
-class ValidSkillTemplateBuilder
-  extends SkillTemplateRootBuilder
+export class ValidSkillTemplateBuilder
+  extends SkillTemplateBuilderRoot
 {
-  private readonly outputs: Outputs;
-
-  constructor(
-    data: SkillTemplateBuilderData,
-    component: Component,
-  ) {
+  constructor(data: SkillTemplateData) {
     super(data);
-    this.outputs = [component];
   }
 
-  public addComponent(component: Component): this {
-    if (this.outputs.length < 3) {
-      this.outputs.push(component);
-    }
+  public addComponent(
+    component: Component
+  ): this {
+    this.data.outputs.push(component);
     return this;
   }
 
   public build(): SkillTemplate {
     return new SkillTemplate(
-      this.outputs,
+      this.data.outputs,
       this.data.quickReplies
     );
   }
+
 }

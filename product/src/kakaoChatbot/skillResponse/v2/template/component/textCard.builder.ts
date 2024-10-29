@@ -6,15 +6,17 @@ export class TextCardBuilder
   extends TextCardItemBuilder
 {
   public override setTitle(title: string): ValidTextCardBuilder {
-    return new ValidTextCardBuilder(this.data, { title });
+    super.setTitle(title);
+    return new ValidTextCardBuilder(this.data);
   }
 
   public override setDescription(description: string): ValidTextCardBuilder {
-    return new ValidTextCardBuilder(this.data, { description });
+    super.setDescription(description);
+    return new ValidTextCardBuilder(this.data);
   }
 }
 
-class ValidTextCardBuilder
+export class ValidTextCardBuilder
   extends ValidTextCardItemBuilder
 {
   public buildComponent(): Component {

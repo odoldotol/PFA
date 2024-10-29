@@ -1,10 +1,12 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { LimitedArray } from "src/common/util";
 import { Component } from "./component";
 
 /**
  * ### SkillTemplate in SkillResponse
  * https://kakaobusiness.gitbook.io/main/tool/chatbot/skill_guide/answer_json_format#skilltemplate
+ * 
+ * - outputs 1개 이상 필수, 3개 초과 무시
+ * - quickReplies 10개 초과 무시
  */
 export class SkillTemplate {
 
@@ -19,7 +21,7 @@ export class SkillTemplate {
     minItems: 1,
     maxItems: 3
   })
-  readonly outputs: Outputs;
+  public readonly outputs: Component[];
 
   @ApiProperty({
     type: "array",
@@ -37,22 +39,21 @@ export class SkillTemplate {
     maxItems: 10,
     required: false
   })
-  readonly quickReplies?: QuickReplies;
+  public readonly quickReplies: QuickReply[];
 
   constructor(
-    outputs: Outputs,
-    quickReplies?: QuickReplies
+    outputs: Component[],
+    quickReplies: QuickReply[]
   ) {
-    this.outputs = outputs;
-    quickReplies && (this.quickReplies = quickReplies);
+    this.outputs = outputs.slice(0, 3);
+    this.quickReplies = quickReplies.slice(0, 10);
   }
 }
 
-export type Outputs = Readonly<LimitedArray<Component, 3>>;
-
-export type QuickReplies = Readonly<LimitedArray<QuickReply, 10>>;
-
-type QuickReply = Readonly<{
+/**
+ * @todo QuickReply Creation
+ */
+export type QuickReply = Readonly<{
   label: string;
   action: "message" | "block";
   messageText?: string; // 사용자측으로 노출될 발화

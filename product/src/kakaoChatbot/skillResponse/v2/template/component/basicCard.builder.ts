@@ -12,11 +12,12 @@ export class BasicCardBuilder
   public override setThumbnail(
     thumbnail: Thumbnail
   ): ValidBasicCardBuilder {
-    return new ValidBasicCardBuilder(thumbnail);
+    super.setThumbnail(thumbnail);
+    return new ValidBasicCardBuilder(this.data);
   }
 }
 
-class ValidBasicCardBuilder
+export class ValidBasicCardBuilder
   extends ValidBasicCardItemBuilder
 {
   public buildComponent(): Component {

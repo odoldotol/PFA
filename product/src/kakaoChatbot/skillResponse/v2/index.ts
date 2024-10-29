@@ -4,7 +4,8 @@ export * from './SkillResponse.builder';
 
 // temp --------------------------------
 export { ButtonAction } from './template/component/item';
-export { 
+export {
+  CardItem,
   ItemKey,
   ThumbnailBuilder,
   ListItemBuilder

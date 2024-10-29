@@ -1,13 +1,15 @@
-import { ButtonFactory } from "./common";
-import { Buttons, TextCard, TextOptions } from "./textCard";
+import { Button, ButtonFactory } from "./common";
+import { TextCard } from "./textCard";
 
-class TextCardBuilderData {
-  public buttons?: Buttons;
+class TextCardData {
+  public title: string | undefined;
+  public description: string | undefined;
+  public buttons: Button[] = [];
 }
 
 abstract class TextCardBuilderRoot {
   constructor(
-    protected readonly data: TextCardBuilderData,
+    protected readonly data: TextCardData,
   ) {}
 
   /**
@@ -16,65 +18,61 @@ abstract class TextCardBuilderRoot {
   public addButton(
     ...params: Parameters<typeof ButtonFactory.create>
   ): this {
-    const button = () => ButtonFactory.create(...params);
-
-    if (!this.data.buttons) {
-      this.data.buttons = [button()];
-    } else if (this.data.buttons.length < 3) {
-      this.data.buttons.push(button());
-    }
-
+    this.data.buttons.push(ButtonFactory.create(...params));
     return this;
   }
 
   abstract setTitle(title: string): ValidTextCardItemBuilder;
   abstract setDescription(description: string): ValidTextCardItemBuilder;
+
 }
 
 /**
- * title 또는 description 중 하나 필수
+ * title 또는 description 중 하나 필수  
+ * setTitle 또는 setDescription 를 통해 buildItem 을 얻을 수 있음.
  */
 export class TextCardItemBuilder
   extends TextCardBuilderRoot
 {
   constructor() {
-    super(new TextCardBuilderData());
+    super(new TextCardData());
   }
 
   public setTitle(title: string): ValidTextCardItemBuilder {
-    return new ValidTextCardItemBuilder(this.data, { title });
+    this.data.title = title;
+    return new ValidTextCardItemBuilder(this.data);
   }
 
   public setDescription(description: string): ValidTextCardItemBuilder {
-    return new ValidTextCardItemBuilder(this.data, { description });
+    this.data.description = description;
+    return new ValidTextCardItemBuilder(this.data);
   }
-}
 
+}
 
 export class ValidTextCardItemBuilder
   extends TextCardBuilderRoot
 {
-  constructor(
-    data: TextCardBuilderData,
-    protected textOptions: TextOptions,
-  ) {
+  constructor(data: TextCardData) {
     super(data);
   }
 
   public setTitle(title: string): this {
-    this.textOptions.title = title;
+    this.data.title = title;
     return this;
   }
 
   public setDescription(description: string): this {
-    this.textOptions.description = description;
+    this.data.description = description;
     return this;
   }
 
   public buildItem(): TextCard {
     return new TextCard(
-      this.textOptions,
+      this.data.title,
+      this.data.description,
       this.data.buttons
     );
   }
+
 }

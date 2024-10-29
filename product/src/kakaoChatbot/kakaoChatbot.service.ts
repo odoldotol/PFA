@@ -118,7 +118,7 @@ export class KakaoChatbotService {
   ): Promise<SkillResponse> {
     const userId = await this.authSrv.getUserId(skillPayload);
 
-    let assets = this.getAssetsFromClientExtra(skillPayload);
+    let { assets, cursor } = this.getAssetsFromClientExtra(skillPayload);
     if (assets === undefined) {
       const subscriptionTickerArr
       = await this.assetSubscriptionSrv.readActivatedTickersByUserId(userId);
@@ -135,13 +135,28 @@ export class KakaoChatbotService {
       );
     }
 
-    return this.skillResponseSrv.subscribedAssetInquiry(assets);
+    return this.skillResponseSrv.subscribedAssetInquiry(assets, cursor);
   }
 
   private getAssetsFromClientExtra(
     skillPayload: SkillPayloadDto
-  ): FinancialAssetCore[] | undefined {
-    return skillPayload.action.clientExtra["assets"] as FinancialAssetCore[] | undefined;
+  ): {
+    assets: FinancialAssetCore[] | undefined,
+    cursor: number | undefined
+  } {
+    const result = {
+      assets: skillPayload.action.clientExtra["assets"] as FinancialAssetCore[] | undefined,
+      cursor: skillPayload.action.clientExtra["cursor"] as number | undefined
+    };
+
+    if (
+      (result.assets === undefined && result.cursor === undefined) ||
+      (result.assets !== undefined && result.cursor !== undefined)
+    ) {
+      return result;
+    } else {
+      throw new Error('Invalid clientExtra (assets, cursor)');
+    }
   }
 
   public async reportTicker(
