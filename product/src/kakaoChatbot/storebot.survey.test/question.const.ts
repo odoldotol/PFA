@@ -49,7 +49,7 @@ export const questions: Questions = [
   {
     id: 5,
     type: QuesionType.CHOICE,
-    description: "카카오톡으로 태이 커피 로스터스의 음료를 주문, 예약, 결제가 가능하다면 이용하실 의향이 있으신가요?",
+    description: "태이 커피 로스터스의 음료를 카카오톡으로 언제든 미리 주문/예약/결제할 수 있다면 이용하실 건가요?",
     choices: [
       "네, 물론이죠!",
       "이용하지 않을 것 같아요",
@@ -59,7 +59,7 @@ export const questions: Questions = [
   {
     id: 6,
     type: QuesionType.CHOICE,
-    title: "카카오톡으로 주문 시 카카오페이로 간편하게 결제하는 것 어떠세요?",
+    title: "카카오톡으로 주문 시 결제까지 간편하게 카카오페이로 하는 것 어떠세요?",
     description: "(카카오페이에서 신용카드, 체크카드, 카카오머니로 간편결제가 가능해요)",
     choices: [
       "좋아요!",

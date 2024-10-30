@@ -45,6 +45,8 @@ import {
   throttleOptions
 } from './const';
 
+// Todo: 아예 앤드포인트가 잘못되어 NotFound 일때 챗봇 응답이 없다
+
 @Controller(apiMetadata.prefix)
 @Throttle(throttleOptions)
 @UseGuards(

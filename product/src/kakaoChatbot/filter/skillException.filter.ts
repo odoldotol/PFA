@@ -4,6 +4,7 @@ import {
   ExceptionFilter,
   HttpException,
   HttpStatus,
+  Logger,
 } from "@nestjs/common";
 import { SkillResponseService } from "../skillResponse.service";
 import { Response } from 'express';
@@ -24,6 +25,18 @@ export abstract class SkillExceptionFilter<T = any>
     this.respondUnexpected(
       host.switchToHttp().getResponse<Response>(),
       exception
+    );
+  }
+
+  protected logError(
+    exception: any,
+    host: ArgumentsHost,
+    logger: Logger
+  ) {
+    logger.error(
+      exception.message,
+      exception.stack,
+      `SkillPayload: ${JSON.stringify(host.switchToHttp().getRequest<Request>().body)}\nExceptionStatus: ${exception["status"]}`
     );
   }
 

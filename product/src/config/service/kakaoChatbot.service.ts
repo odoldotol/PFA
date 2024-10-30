@@ -56,9 +56,14 @@ export class KakaoChatbotConfigService {
     const urlTaeyCoffeeRoastersCookiesImage = this.readUrlTaeyCoffeeRoastersCookiesImage();
 
     if (this.appConfigSrv.isProduction()) {
-      if (id === undefined || id_storebot === undefined) {
+      if (
+        id === undefined ||
+        id_storebot === undefined
+      ) {
         throw new Error('KAKAO_CHATBOT_ID is not defined!');
-      } else if (
+      }
+      
+      if (
         blockIdInquireAsset === undefined ||
         blockIdReport === undefined ||
         blockIdSubscribeAsset === undefined ||

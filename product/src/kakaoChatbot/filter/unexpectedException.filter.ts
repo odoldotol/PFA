@@ -4,7 +4,6 @@ import {
   Logger
 } from "@nestjs/common";
 import { SkillResponseService } from "../skillResponse.service";
-import { Request } from 'express';
 import { SkillExceptionFilter } from "./skillException.filter";
 
 @Catch()
@@ -23,12 +22,8 @@ export class UnexpectedExceptionFilter
     exception: any,
     host: ArgumentsHost
   ) {
-    this.logger.error(
-      exception.message,
-      exception.stack,
-      `SkillPayload: ${JSON.stringify(host.switchToHttp().getRequest<Request>().body)}\nExceptionStatus: ${exception["status"]}`
-    );
-
+    this.logError(exception, host, this.logger);
     super.catch(exception, host);
   }
+
 }

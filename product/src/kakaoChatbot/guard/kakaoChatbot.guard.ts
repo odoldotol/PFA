@@ -27,10 +27,6 @@ export class KakaoChatbotGuard
     .getRequest()
     .body.bot?.id; //
 
-    if (botIdFromSkillPayload === undefined) {
-      return false;
-    } else {
-      return botIdFromSkillPayload === this.kakaoChatbotConfigSrv.getId();
-    }
+    return botIdFromSkillPayload === this.kakaoChatbotConfigSrv.getId();
   }
 }

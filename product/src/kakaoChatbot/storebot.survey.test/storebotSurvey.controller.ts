@@ -8,12 +8,14 @@ import {
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
+import { Throttle } from '@nestjs/throttler';
 import {
   ApiResponse,
   ApiTags
 } from '@nestjs/swagger';
 import {
   KakaoChatbotStorebotGuard,
+  KakaoChatbotThrottlerGuard,
 } from '../guard';
 import { TimeoutInterceptor } from '../interceptor';
 import {
@@ -25,9 +27,14 @@ import {
 import { StorebotSurveyTestService } from './storebotSurvey.service';
 import { SkillResponse } from '../skillResponse/v2';
 import { SkillPayloadDto } from '../dto';
+import { throttleOptions } from '../const';
 
 @Controller("storebot_survey_test")
-@UseGuards(KakaoChatbotStorebotGuard)
+@Throttle(throttleOptions)
+@UseGuards(
+  KakaoChatbotStorebotGuard,
+  KakaoChatbotThrottlerGuard
+)
 @UseInterceptors(TimeoutInterceptor)
 @UseFilters(
   UnexpectedExceptionFilter, // 순서 주의 - 순서에 따라 달라질 수 있는거 나쁜 구성일까?
