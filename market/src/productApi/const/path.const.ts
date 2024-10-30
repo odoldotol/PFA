@@ -1,1 +1,1 @@
-export const FINANCIALASSET_RENEW_PATH = 'api/v1/financailasset/renew';
+export const FINANCIALASSET_RENEW_PATH = 'api/v1/financialasset/renew';
