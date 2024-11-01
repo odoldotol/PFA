@@ -1,4 +1,8 @@
-import { Module } from "@nestjs/common";
+import {
+  MiddlewareConsumer,
+  Module,
+  NestModule
+} from "@nestjs/common";
 import { MarketApiModule } from "src/marketApi";
 import {
   AssetSubscriptionModule,
@@ -21,6 +25,7 @@ import {
   StorebotSurvey,
   StorebotSurveySchema
 } from "./storebot.survey.test/storebotSurvey.schema";
+import { MaintenanceMiddleware } from "./middleware";
 
 @Module({
   imports: [
@@ -46,4 +51,12 @@ import {
     StorebotSurveyText,
   ]
 })
-export class KakaoChatbotModule {}
+export class KakaoChatbotModule
+  implements NestModule
+{
+  configure(consumer: MiddlewareConsumer) {
+    consumer
+    .apply(MaintenanceMiddleware)
+    .forRoutes('*');
+  }
+}

@@ -27,6 +27,7 @@ export interface EnvironmentVariables
 export interface AppEnvironmentVariables {
   [AppEnvKey.PORT]: number;
   [AppEnvKey.DOCKER_ENV]: DockerEnv;
+  [AppEnvKey.MAINTENANCE]: "0" | "1";
 }
 
 export interface KakaoChatbotEnvironmentVariables {

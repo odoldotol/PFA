@@ -33,11 +33,13 @@ export abstract class SkillExceptionFilter<T = any>
     host: ArgumentsHost,
     logger: Logger
   ) {
-    logger.error(
-      exception.message,
-      exception.stack,
-      `SkillPayload: ${JSON.stringify(host.switchToHttp().getRequest<Request>().body)}\nExceptionStatus: ${exception["status"]}`
-    );
+    if (process.env["NODE_ENV"] !== "test") { // jest set 'NODE_ENV' to 'test' if it's not already set to something else.
+      logger.error(
+        exception.message,
+        exception.stack,
+        `SkillPayload: ${JSON.stringify(host.switchToHttp().getRequest<Request>().body)}\nExceptionStatus: ${exception["status"]}`
+      );
+    }
   }
 
   protected respondUnexpected(

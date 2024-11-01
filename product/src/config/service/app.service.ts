@@ -10,9 +10,13 @@ import { AppEnvironmentVariables } from "../interface";
 @Injectable()
 export class AppConfigService {
 
+  private readonly IS_MAINTEANCE: boolean;
+
   constructor(
     private readonly configSrv: ConfigService<AppEnvironmentVariables>,
-  ) {}
+  ) {
+    this.IS_MAINTEANCE = this.readIsMaintenance();
+  }
 
   public getPort(): number {
     return this.configSrv.get(
@@ -30,7 +34,21 @@ export class AppConfigService {
     return this.getDockerEnv() === DockerEnv.DEVELOPMENT;
   }
 
+  public isMaintenance(): boolean {
+    return this.IS_MAINTEANCE;
+  }
+
+  private readIsMaintenance(): boolean {
+    return Boolean(Number(
+      this.configSrv.get(
+        AppEnvKey.MAINTENANCE,
+        { infer: true }
+      )
+    ));
+  }
+
   private getDockerEnv(): DockerEnv | undefined {
     return this.configSrv.get(AppEnvKey.DOCKER_ENV, { infer: true });
   }
+
 }

@@ -41,6 +41,10 @@ export class SkillResponseService {
     private readonly storebotSurveyText: StorebotSurveyText,
   ) {}
 
+  public underMaintenance(): SkillResponse {
+    return this.singleSimpleText(this.textSrv.underMaintenance1());
+  }
+
   public unexpectedError(
     exception: any,
     dataExtra?: Data

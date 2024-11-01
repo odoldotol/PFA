@@ -17,6 +17,10 @@ export class TextService {
 
   constructor() {}
 
+  public underMaintenance1(): string {
+    return "죄송해요! 지금은 챗봇 긴급 점검중!\n금방 돌아올게요! 다음에 다시 이용해 주세요!";
+  }
+
   public unexpectedError(): string {
     return "죄송해요. 제가 예상치 못한 문제가 발생한 것 같아요.\n하지만 제가 지금 확인했으니 곧 고쳐질 거예요!";
   }

@@ -1,6 +1,7 @@
 export enum AppEnvKey {
   PORT = 'PORT',
-  DOCKER_ENV = 'RACK_ENV'
+  DOCKER_ENV = 'RACK_ENV',
+  MAINTENANCE = 'MAINTENANCE_APP',
 }
 
 export enum FinancialAssetEnvKey {

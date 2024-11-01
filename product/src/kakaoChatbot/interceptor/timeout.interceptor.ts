@@ -25,5 +25,5 @@ export class TimeoutInterceptor
         return throwError(() => err);
       }),
     );
-  };
-};
+  }
+}
