@@ -36,7 +36,7 @@ export class ProductApiService {
     const isoCode = exchange.isoCode;
     const data: RenewData = {
       marketDate: exchange.marketDate,
-      priceArrs: updateResult.map(this.convertToPriceTuple)
+      priceTupleArr: updateResult.map(this.convertToPriceTuple)
     };
 
     const task = () => firstValueFrom(this.httpService.post(
@@ -74,9 +74,12 @@ export class ProductApiService {
   }
 }
 
+/**
+ * @todo product 서버의 RenewExchangeBodyDto 와 공유하기
+ */
 type RenewData = ProductApiData & Readonly<{
   marketDate: MarketDate;
-  priceArrs: PriceTuple[];
+  priceTupleArr: PriceTuple[];
 }>;
 
 // Todo: Refac - keyGuard
