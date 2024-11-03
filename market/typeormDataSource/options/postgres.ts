@@ -22,7 +22,7 @@ const getTlsOptions = () => ({
 
 const dataSourceOptions: DataSourceOptions = {
   type: 'postgres',
-  host: process.env['PG_HOST'] || '127.0.0.1',
+  host: process.env['PG_HOST'] || process.env["RACK_ENV"] === 'development' ? 'market-postgres' : '127.0.0.1',
   port: 5432,
   username: process.env['PG_USERNAME'] || 'test',
   password: process.env['PG_PASSWORD'] || 'test',

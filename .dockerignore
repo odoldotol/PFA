@@ -10,6 +10,7 @@
 **/devMigrations
 **/.env*guide*
 **/.env*local*
+**/.env*BACKUP
 
 **/coverage
 **/dist
@@ -18,7 +19,6 @@
 **/*.spec.ts
 
 # admin
-admin/yf/data
 admin/yf/responseBody
 
 # product

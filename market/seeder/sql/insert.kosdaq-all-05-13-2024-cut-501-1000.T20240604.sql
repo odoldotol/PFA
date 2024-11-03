@@ -1,4 +1,13 @@
 INSERT INTO financial_assets
+  (
+    symbol,
+    quote_type,
+    short_name,
+    long_name,
+    currency,
+    regular_market_last_close,
+    exchange
+  )
   VALUES
     (
       '377450.KQ',
