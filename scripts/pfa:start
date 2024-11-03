@@ -2,6 +2,8 @@ set -e
 
 sh scripts/pfa:build
 
+sh scripts/pfa:build:nginx:local
+
 sh scripts/pfa:stop:all
 
 sh scripts/pfa:up

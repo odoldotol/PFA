@@ -109,8 +109,8 @@ services:
       - product
 
   nginx:
-    container_name: pfa-nginx
-    image: pfa-nginx:latest
+    container_name: pfa-nginx-local
+    image: pfa-nginx-local:latest
     networks:
       - default
     ports:

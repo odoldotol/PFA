@@ -1,0 +1,2 @@
+echo "\n\n------------------ Build NGINX -------------------------------------------------\n"
+docker build -t pfa-nginx -f ./dockerfile/nginx.Dockerfile .

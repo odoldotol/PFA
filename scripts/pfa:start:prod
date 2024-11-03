@@ -4,6 +4,8 @@ sh scripts/pfa:stop:prod # 프리티어 리소스 이슈로 스탑먼저 하는�
 
 sh scripts/pfa:build
 
+sh scripts/pfa:build:nginx:prod
+
 sh scripts/pfa:up:prod
 
 docker rmi $(docker images -f "dangling=true" -q)

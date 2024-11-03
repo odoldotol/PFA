@@ -1,0 +1,21 @@
+function usage {
+  echo "Usage: sh scripts/pfa:healthcheck:nginx [local|prod]"
+  exit 1
+}
+
+if [ -z $1 ]; then
+  usage
+fi
+
+if [ $1 == "local" ]; then
+  nginx_name="pfa-nginx-local"
+elif [ $1 == "prod" ]; then
+  nginx_name="pfa-nginx"
+else
+  usage
+fi
+
+echo "\n-- Nginx Checking..."
+
+docker exec $nginx_name /bin/sh -c "sh health-check" || exit 1
+echo "-- Healthy!!"

@@ -2,4 +2,8 @@ set -e
 
 docker compose -p pfa --profile pfa -f docker-compose.yml up -d
 
-sh scripts/pfa:healthcheck
+sh scripts/pfa:healthcheck || exit 1
+
+sh scripts/pfa:healthcheck:nginx local || exit 1
+
+echo "\n=> PFA is Ready!!"

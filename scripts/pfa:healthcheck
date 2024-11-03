@@ -2,27 +2,20 @@ set -e
 
 echo "\n\n-- Market Child Checking..."
 
-docker exec pfa-market-child /bin/bash -c "bash docker-scripts/health-check"
+docker exec pfa-market-child /bin/bash -c "bash docker-scripts/health-check" || exit 1
 echo "-- Healthy!!"
 
 echo "\n-- Market Checking..."
 
-docker exec pfa-market /bin/sh -c "sh health-check"
+docker exec pfa-market /bin/sh -c "sh health-check" || exit 1
 echo "-- Healthy!!"
 
 echo "\n-- Product Redis Checking..."
 
-docker exec pfa-product-redis /bin/sh -c "sh health-check"
+docker exec pfa-product-redis /bin/sh -c "sh health-check" || exit 1
 echo "-- Healthy!!"
 
 echo "\n-- Product Checking..."
 
-docker exec pfa-product /bin/sh -c "sh health-check"
+docker exec pfa-product /bin/sh -c "sh health-check" || exit 1
 echo "-- Healthy!!"
-
-echo "\n-- Nginx Checking..."
-
-docker exec pfa-nginx /bin/sh -c "sh health-check"
-echo "-- Healthy!!"
-
-echo "\n=> PFA is Ready!!"
