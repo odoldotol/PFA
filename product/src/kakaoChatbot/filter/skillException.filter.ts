@@ -39,6 +39,7 @@ export abstract class SkillExceptionFilter<T = any>
         exception.stack,
         `SkillPayload: ${JSON.stringify(host.switchToHttp().getRequest<Request>().body)}\nExceptionStatus: ${exception["status"]}`
       );
+      exception.response && logger.verbose(`Exception Rsponse: ${exception.response}`);
     }
   }
 
