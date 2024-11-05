@@ -43,6 +43,7 @@ class PropertiesDto
   @ApiProperty()
   readonly appUserId!: string;
 
+  @IsOptional()
   @IsBoolean()
   @ApiProperty()
   readonly isFriend!: boolean;
