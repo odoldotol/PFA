@@ -1,11 +1,10 @@
 import {
   Catch,
-  ArgumentsHost,
 } from '@nestjs/common';
-import { Response } from 'express';
 import { InvalidTickerException } from 'src/common/exception';
 import { SkillResponseService } from '../skillResponse.service';
 import { SkillExceptionFilter } from './skillException.filter';
+import { SkillResponse } from '../skillResponse/v2';
 
 @Catch(InvalidTickerException)
 export class InvalidTickerExceptionFilter
@@ -17,13 +16,10 @@ export class InvalidTickerExceptionFilter
     super(skillResponseSrv);
   }
 
-  override catch(
-    exception: InvalidTickerException,
-    host: ArgumentsHost
-  ) {
-    this.respondInvalidTicker(
-      host.switchToHttp().getResponse<Response>(),
-      exception
-    );
+  protected override getBody(
+    exception: InvalidTickerException
+  ): SkillResponse {
+    return this.skillResponseSrv.invalidTickerError(exception);
   }
+
 }

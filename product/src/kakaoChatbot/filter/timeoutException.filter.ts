@@ -1,5 +1,4 @@
 import {
-  ArgumentsHost,
   Catch,
   Logger,
   RequestTimeoutException,
@@ -11,21 +10,13 @@ import { SkillExceptionFilter } from './skillException.filter';
 export class TimeoutExceptionFilter
   extends SkillExceptionFilter<RequestTimeoutException>
 {
-
-  private readonly logger = new Logger(TimeoutExceptionFilter.name);
+  protected override readonly logger = new Logger(TimeoutExceptionFilter.name);
 
   constructor(
     skillResponseSrv: SkillResponseService
   ) {
     super(skillResponseSrv);
-  }
 
-  override catch(
-    exception: any,
-    host: ArgumentsHost
-  ) {
-    this.logError(exception, host, this.logger);
-    super.catch(exception, host);
+    this.logOn();
   }
-
 }

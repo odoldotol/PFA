@@ -41,12 +41,12 @@ class PropertiesDto
   @IsOptional()
   @IsString()
   @ApiProperty()
-  readonly appUserId!: string;
+  readonly appUserId?: string;
 
   @IsOptional()
   @IsBoolean()
   @ApiProperty()
-  readonly isFriend!: boolean;
+  readonly isFriend?: boolean;
 }
 
 class UserDto

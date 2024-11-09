@@ -78,6 +78,16 @@ export class SkillResponseService {
     });
   }
 
+  public notFriendError(
+    exception: any,
+    dataExtra?: Data
+  ): SkillResponse {
+    return this.singleSimpleText(this.textSrv.notFriendError(), {
+      exception,
+      ...dataExtra
+    });
+  }
+
   /**
    * @todo refac
    */
@@ -427,6 +437,27 @@ export class SkillResponseService {
     return SimpleTextFactory.createComponent(this.storebotSurveyText.enterDescription());
   }
 
+  public ss_isNotFriend(): SkillResponse {
+    return new SkillResponseBuilder()
+    .addTemplate(
+      new SkillTemplateBuilder()
+      .addComponent(this.ss_isNotFriendComponent())
+      .build()
+    )
+    .build();
+  }
+
+  public ss_isNotFriendComponent(): Component {
+    return new TextCardBuilder()
+    .setDescription(this.storebotSurveyText.isNotFriend())
+    .addButton(
+      "쿠키 받기",
+      ButtonAction.BLOCK,
+      this.kakaoChatbotConfigSrv.getBlockIdSurveyGetEventSerial(),
+    )
+    .buildComponent()
+  }
+
   public ss_noEventSerial(
     question: Question,
     isContinued: boolean
@@ -541,17 +572,25 @@ export class SkillResponseService {
 
   public ss_done(
     survey: StorebotSurvey,
-    surveyVersion: number
+    surveyVersion: number,
+    isFriend: boolean
   ): SkillResponse {
-    return new SkillResponseBuilder().addTemplate(
-      new SkillTemplateBuilder()
-      .addComponent(SimpleTextFactory.createComponent(this.storebotSurveyText.done()))
-      .addComponent(this.ss_eventSerialComponent(this.getEventSerial(
+    const templateBuilder
+    = new SkillTemplateBuilder()
+    .addComponent(SimpleTextFactory.createComponent(this.storebotSurveyText.done()))
+
+    if (isFriend) {
+      templateBuilder.addComponent(this.ss_eventSerialComponent(this.getEventSerial(
         survey,
         surveyVersion
-      )))
-      .build()
-    ).build();
+      )));
+    } else {
+      templateBuilder.addComponent(this.ss_isNotFriendComponent());
+    }
+
+    return new SkillResponseBuilder()
+    .addTemplate(templateBuilder.build())
+    .build();
   }
 
   public ss_invalidAnswer(): SkillResponse {

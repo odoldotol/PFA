@@ -54,7 +54,7 @@ export type Properties = {
   plusfriendUserKey: string;
   plusfriend_user_key?: string;
   appUserId?: string;
-  isFriend: boolean;
+  isFriend?: boolean;
   botUserKey?: string;
   bot_user_key?: string;
 };

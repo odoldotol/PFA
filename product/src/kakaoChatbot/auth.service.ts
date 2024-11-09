@@ -16,7 +16,7 @@ export class AuthService {
   public async getUser(
     skillPayload: SkillPayloadDto
   ): Promise<User> {
-    const botUserKey = skillPayload.userRequest.user.properties.botUserKey;
+    const botUserKey = this.getBotUserKey(skillPayload);
     const user = await this.userSrv.readOneByBotUserKey(botUserKey);
     if (user !== null) {
       return user;
@@ -28,13 +28,25 @@ export class AuthService {
   public async getUserId(
     skillPayload: SkillPayloadDto
   ): Promise<User['id']> {
-    const botUserKey = skillPayload.userRequest.user.properties.botUserKey;
+    const botUserKey = this.getBotUserKey(skillPayload);
     const userId = await this.userSrv.readOneIdByBotUserKey(botUserKey);
     if (userId !== null) {
       return userId;
     } else {
       return (await this.userSrv.createOneByBotUserKey(botUserKey)).id;
     }
+  }
+
+  public isFriend(
+    skillPayload: SkillPayloadDto
+  ): boolean {
+    return skillPayload.userRequest.user.properties.isFriend === true;
+  }
+
+  private getBotUserKey(
+    skillPayload: SkillPayloadDto
+  ): string {
+    return skillPayload.userRequest.user.properties.botUserKey;
   }
 
 }

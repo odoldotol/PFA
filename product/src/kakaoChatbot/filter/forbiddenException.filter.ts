@@ -1,5 +1,4 @@
 import {
-  ArgumentsHost,
   Catch,
   ForbiddenException,
   Logger
@@ -11,20 +10,13 @@ import { SkillExceptionFilter } from './skillException.filter';
 export class ForbiddenExceptionFilter
   extends SkillExceptionFilter<ForbiddenException>
 {
-  private readonly logger = new Logger(ForbiddenExceptionFilter.name);
+  protected override readonly logger = new Logger(ForbiddenExceptionFilter.name);
 
   constructor(
     skillResponseSrv: SkillResponseService
   ) {
     super(skillResponseSrv);
-  }
 
-  override catch(
-    exception: any,
-    host: ArgumentsHost
-  ) {
-    this.logError(exception, host, this.logger);
-    super.catch(exception, host);
+    this.logOn();
   }
-
 }

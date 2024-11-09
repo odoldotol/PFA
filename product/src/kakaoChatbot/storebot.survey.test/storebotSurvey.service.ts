@@ -50,10 +50,14 @@ export class StorebotSurveyTestService {
     let survey = await this.getSurvey(skillPayload);
     const lastComplete = this.findLastComplete(survey);
     if (lastComplete !== undefined) {
-      return this.skillResponseSrv.ss_showEventSerial(
-        survey,
-        lastComplete.surveyVersion
-      );
+      if (this.authSrv.isFriend(skillPayload)) {
+        return this.skillResponseSrv.ss_showEventSerial(
+          survey,
+          lastComplete.surveyVersion
+        );
+      } else {
+        return this.skillResponseSrv.ss_isNotFriend();
+      }
     } else {
       const {
         nextQuestion,
@@ -240,7 +244,8 @@ export class StorebotSurveyTestService {
       if (this.isAnswerSheetComplete(lastAnswerSheet)) {
         return this.skillResponseSrv.ss_done(
           survey,
-          lastAnswerSheet.surveyVersion
+          lastAnswerSheet.surveyVersion,
+          this.authSrv.isFriend(skillPayload)
         );
       } else {
         const nextQuestion = this.getNextQuestion(survey);

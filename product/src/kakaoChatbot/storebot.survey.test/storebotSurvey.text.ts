@@ -44,4 +44,11 @@ export class StorebotSurveyText {
     return `죄송해요. 제가 답변을 이해할 수 없었어요. 설문조사에 참여하고 싶으신 거죠?`;
   }
 
+  public isNotFriend(): string {
+    return `저를 카카오톡 친구로 추가해주세요!
+
+오른쪽 위에 집모양 아이콘을 누르면 "채널 친구 추가하기" 버튼이 있어요.
+저를 친구로 추가하고 아래 "쿠키받기" 버튼을 눌러주세요!`;
+  }
+
 }

@@ -9,3 +9,5 @@ sh scripts/pfa:build:nginx:prod
 sh scripts/pfa:up:prod
 
 docker rmi $(docker images -f "dangling=true" -q)
+
+sh scripts/cwagent:restart

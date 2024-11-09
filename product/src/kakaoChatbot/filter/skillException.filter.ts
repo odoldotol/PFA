@@ -2,86 +2,81 @@ import {
   ArgumentsHost,
   Catch,
   ExceptionFilter,
-  HttpException,
   HttpStatus,
   Logger,
 } from "@nestjs/common";
 import { SkillResponseService } from "../skillResponse.service";
 import { Response } from 'express';
-import { InvalidTickerException } from "src/common/exception";
+import { SkillResponse } from "../skillResponse/v2";
+import * as F from '@fxts/core';
 
 @Catch()
 export abstract class SkillExceptionFilter<T = any>
   implements ExceptionFilter<T>
 {
+  protected readonly logger = new Logger(SkillExceptionFilter.name);
+  private logFlag = false;
+
   constructor(
-    private readonly skillResponseSrv: SkillResponseService,
+    protected readonly skillResponseSrv: SkillResponseService,
   ) {}
 
   catch(
     exception: T,
     host: ArgumentsHost
-  ) {
-    this.respondUnexpected(
-      host.switchToHttp().getResponse<Response>(),
-      exception
+  ): void {
+    const request = host.switchToHttp().getRequest<Request>();
+    const response = host.switchToHttp().getResponse<Response>();
+
+    this.log(exception, request);
+
+    F.pipe(
+      response,
+      this.everythingIsOk,
+      this.sendSkillResponse.bind(this, exception)
     );
   }
 
-  protected logError(
+  protected logOn(): void {
+    this.logFlag = true;
+  }
+
+  protected getBody(
+    exception: T,
+  ): SkillResponse {
+    return this.skillResponseSrv.unexpectedError(exception);
+  }
+
+  private log(
     exception: any,
-    host: ArgumentsHost,
-    logger: Logger
-  ) {
-    if (process.env["NODE_ENV"] !== "test") { // jest set 'NODE_ENV' to 'test' if it's not already set to something else.
-      logger.error(
+    request: Request,
+  ): void {
+    if (
+      this.logFlag === true &&
+      process.env["NODE_ENV"] !== "test" // jest set 'NODE_ENV' to 'test' if it's not already set to something else.
+    ) {
+      this.logger.error(
         exception.message,
         exception.stack,
-        `SkillPayload: ${JSON.stringify(host.switchToHttp().getRequest<Request>().body)}\nExceptionStatus: ${exception["status"]}`
+        `SkillPayload: ${JSON.stringify(request.body)}\nExceptionStatus: ${exception["status"]}\nExceptionResponse: ${JSON.stringify(exception["response"])}`
       );
-      exception.response && logger.verbose(`Exception Rsponse: ${JSON.stringify(exception.response)}`);
     }
   }
 
-  protected respondUnexpected(
-    res: Response,
-    exception: T
-  ): Response {
-    return this.everythingIsOk(res)
-    .json(this.skillResponseSrv.unexpectedError(exception));
-  }
-
-  protected respondTimeout(
-    res: Response,
-    exception: T
-  ): Response {
-    return this.everythingIsOk(res)
-    .json(this.skillResponseSrv.timeoutError(exception));
-  }
-
-  protected respondInvalidTicker(
-    res: Response,
-    exception: InvalidTickerException
-  ): Response {
-    return this.everythingIsOk(res)
-    .json(this.skillResponseSrv.invalidTickerError(exception));
-  }
-
-  // Todo: Refac
-  protected respondNotFoundTickerAssetInquiry(
-    res: Response,
-    exception: HttpException // Todo: custom(NotFoundTickerException)
-  ): Response {
-    return this.everythingIsOk(res)
-    .json(this.skillResponseSrv.notFoundTickerAssetInquiry(
-      (exception.getResponse() as any).ticker, // Todo: 리팩터링 after 리팩터링(market - product 로 이어지는 부분)
-      exception
-    ));
-  }
-
+  /**
+   * 200 번대 이어야 카카오톡 챗봇 응답이 정상출력됨.
+   */
   private everythingIsOk(
     res: Response
   ): Response {
     return res.status(HttpStatus.OK)
   }
+
+  private sendSkillResponse(
+    exception: T,
+    res: Response
+  ): void {
+    res.json(this.getBody(exception));
+  }
+
 }

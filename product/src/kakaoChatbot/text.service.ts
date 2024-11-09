@@ -33,6 +33,10 @@ export class TextService {
     return "올바르지 않은 티커 같아요.\n다시 확인해 주세요.";
   }
 
+  public notFriendError(): string {
+    return "저와 친구가 아니내요...\n친구추가 후에 이용해 주세요.";
+  }
+
   public notFoundTickerAssetInquiryCard(
     ticker: Ticker
   ) {

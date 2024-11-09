@@ -1,5 +1,4 @@
 import {
-  ArgumentsHost,
   Catch,
   Logger
 } from "@nestjs/common";
@@ -10,20 +9,13 @@ import { SkillExceptionFilter } from "./skillException.filter";
 export class UnexpectedExceptionFilter
   extends SkillExceptionFilter
 {
-  private readonly logger = new Logger(UnexpectedExceptionFilter.name);
+  protected override readonly logger = new Logger(UnexpectedExceptionFilter.name);
 
   constructor(
     skillResponseSrv: SkillResponseService,
   ) {
     super(skillResponseSrv);
-  }
 
-  override catch(
-    exception: any,
-    host: ArgumentsHost
-  ) {
-    this.logError(exception, host, this.logger);
-    super.catch(exception, host);
+    this.logOn();
   }
-
 }

@@ -20,6 +20,7 @@ import {
 } from '@nestjs/swagger';
 import { KakaoChatbotService } from './kakaoChatbot.service';
 import {
+  FriendOnlyGuard,
   KakaoChatbotGuard,
   KakaoChatbotThrottlerGuard
 } from './guard';
@@ -31,6 +32,7 @@ import {
   InvalidTickerExceptionFilter,
   NotFoundExceptionFilter,
   ForbiddenExceptionFilter,
+  NotFriendExceptionFilter,
 } from './filter';
 import {
   AssetSubscriptionDto,
@@ -115,6 +117,8 @@ export class KakaoChatbotController {
 
   @Post(apiMetadata.routes.inquireSubscribedAsset.path)
   @HttpCode(HttpStatus.OK)
+  @UseGuards(FriendOnlyGuard)
+  @UseFilters(NotFriendExceptionFilter)
   @ApiOperation({ summary: '카카오챗봇스킬: asset/subscriptions/inquire' })
   public inquireSubscribedAsset(
     @Body() body: SkillPayloadDto

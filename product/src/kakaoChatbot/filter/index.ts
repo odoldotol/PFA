@@ -4,3 +4,4 @@ export * from './badRequestException.filter';
 export * from './invalidTickerException.filter';
 export * from './notFoundException.filter';
 export * from './forbiddenException.filter';
+export * from './notFriendException.filter';
