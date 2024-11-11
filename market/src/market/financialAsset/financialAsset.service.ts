@@ -3,7 +3,10 @@ import {
   InternalServerErrorException,
   Logger
 } from '@nestjs/common';
-import { ChildApiConfigService } from 'src/config';
+import {
+  ChildApiConfigService,
+  YAHOO_FINANCE_CCC_EXCHANGE_ISO_CODE
+} from 'src/config';
 import {
   ConnectionService,
   YfinanceApiService
@@ -159,31 +162,44 @@ export class Market_FinancialAssetService {
   // todo: yf 엔티티 리팩터링
   private fulfillYfPrice(
     exchange: Market_Exchange | null,
-    {
-      symbol, 
-      regularMarketPreviousClose,
-      regularMarketPrice
-    }: YfPrice
+    yfPrice: YfPrice
   ): Either<any, FulfilledYfPrice> {
-    const price = exchange?.isMarketOpen() ? {
-      liveMarketPrice: regularMarketPrice,
-      regularMarketLastClose: regularMarketPreviousClose,
-      regularMarketPreviousClose: null
-    } : {
-      liveMarketPrice: null,
-      regularMarketLastClose: regularMarketPrice,
-      regularMarketPreviousClose
+    let liveMarketPrice: number | null = null;
+    let regularMarketLastClose: number | null = null;
+    let regularMarketPreviousClose: number | null = null;
+
+    const isMarketOpen = (() => {
+      if (exchange === null) {
+        // Todo: yahoofinance 에서 metadata 로 currentTradingPeriod 를 제공하기때문에 이를 이용하면 지금 마켓상태를 알 수 있음.
+        return false;
+      }
+
+      // 항상 open 인 exchange 를 알수있는 인터페이스를 exchange 가 제공할 필요가 있음. 
+      if (exchange.isoCode === YAHOO_FINANCE_CCC_EXCHANGE_ISO_CODE) {
+        // Todo: 업데이트 기준으로는 항상 닫힌것처럼 처리하는게 타당함. 하지만 이는 24시간 운영하는 마켓의 특징을 반영한 옳바른 처리가 아님.
+        return false;
+      }
+
+      return exchange.isMarketOpen();
+    })();
+
+    if (isMarketOpen) {
+      liveMarketPrice = yfPrice.regularMarketPrice;
+      regularMarketLastClose = yfPrice.regularMarketPreviousClose;
+    } else {
+      regularMarketLastClose = yfPrice.regularMarketPrice;
+      regularMarketPreviousClose = yfPrice.regularMarketPreviousClose;
     }
 
-    if (price.regularMarketLastClose === null) {
+    if (regularMarketLastClose === null) {
       return Either.left(new Error('regularMarketLastClose is null')); // temp
     }
 
     return Either.right({
-      symbol,
-      liveMarketPrice: price.liveMarketPrice,
-      regularMarketLastClose: price.regularMarketLastClose,
-      regularMarketPreviousClose: price.regularMarketPreviousClose
+      symbol: yfPrice.symbol,
+      liveMarketPrice,
+      regularMarketLastClose,
+      regularMarketPreviousClose
     });
   }
 
