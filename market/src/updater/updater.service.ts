@@ -61,40 +61,42 @@ export class UpdaterService
     exchange: Market_Exchange
   ): Promise<Either<any, FulfilledYfPrice>[]> {
     const { isoCode } = exchange;
-    this.logger.log(`${isoCode} : Update Run!!!`);
+    this.logger.log(`${isoCode} : Update Run`);
     const startTime = new Date();
     
     const updateEitherArr
     = await this.accessorSrv.fetchFulfilledYfPricesOfSubscribedAssets(isoCode);
 
-    if (0 < updateEitherArr.length) {
-      const updateResult = await this.database_updaterSrv.update(
-        updateEitherArr,
-        exchange,
-      ).then(res => (this.logger.log(`${isoCode} : Update End!!!`), res));
+    return this.database_updaterSrv.update(
+      updateEitherArr,
+      exchange,
+    ).then(res => {
+      this.logger.log(`${isoCode} : Update End`);
+
+      const success = E.getRightArray(res);
 
       // Todo: Refac ------------------------------------------
-      let endTime: Date;
-      const newLogDoc: Log_priceUpdate = {
-        launcher,
-        isStandard: true,
-        key: exchange.isoCode,
-        success: E.getRightArray(updateResult),
-        failure: E.getLeftArray(updateResult),
-        startTime: startTime.toISOString(),
-        endTime: (endTime = new Date()).toISOString(),
-        duration: endTime.getTime() - startTime.getTime()
-      };
-
-      this.database_updaterSrv.createLog(newLogDoc);
+      if (0 < res.length) {
+        let endTime: Date;
+        const newLogDoc: Log_priceUpdate = {
+          launcher,
+          isStandard: true,
+          key: exchange.isoCode,
+          success,
+          failure: E.getLeftArray(res),
+          startTime: startTime.toISOString(),
+          endTime: (endTime = new Date()).toISOString(),
+          duration: endTime.getTime() - startTime.getTime()
+        };
+  
+        this.database_updaterSrv.createLog(newLogDoc);
+      }
       // ------------------------------------------------------
 
-      this.productApiSrv.renewFinancialAssetExchange(exchange, newLogDoc.success);
+      this.productApiSrv.renewFinancialAssetExchange(exchange, success);
 
-      return updateResult;
-    } else {
-      this.logger.log(`${isoCode} : Update End (No Assets to Update)!!!`);
-      return [];
-    }
+      return res
+    });
   }
+
 }
