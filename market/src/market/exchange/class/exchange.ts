@@ -161,6 +161,7 @@ export class Market_Exchange
   private async marketOpenHandler() {
     try {
       await this.session.updateSession();
+      this.calculateMarketDate(); // 24시간 열리는 마켓의 경우에만 필요해서 임시로 추가.
       this.emit(MarketEvent.OPEN, this.subscribe());
     } catch (e) {
       this.emit("error", e);
