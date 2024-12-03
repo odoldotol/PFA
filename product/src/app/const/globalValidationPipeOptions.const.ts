@@ -5,6 +5,5 @@ export const globalValidationPipeOptions
 = {
   transform: true,
   whitelist: true,
-  forbidNonWhitelisted: true,
   strictGroups: true,
 };

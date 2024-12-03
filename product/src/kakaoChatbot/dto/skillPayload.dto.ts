@@ -41,7 +41,4 @@ export class SkillPayloadDto
   @ApiProperty({ type: [Object] })
   readonly contexts!: Context[];
 
-  @IsObject()
-  @ApiProperty()
-  readonly flow!: any;
 }
