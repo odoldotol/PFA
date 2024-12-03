@@ -34,7 +34,7 @@ export class TextService {
   }
 
   public notFriendError(): string {
-    return "저와 친구가 아니내요...\n친구추가 후에 이용해 주세요.";
+    return "저와 친구가 아니네요...\n친구추가 후에 이용해 주세요.";
   }
 
   public notFoundTickerAssetInquiryCard(
