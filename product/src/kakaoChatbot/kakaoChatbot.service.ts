@@ -16,6 +16,7 @@ import {
 } from './dto';
 import { SkillResponse } from './skillResponse/v2';
 import { FinancialAssetCore, Ticker } from 'src/common/interface';
+import { chatbotListMenuButtons } from './const';
 import * as F from '@fxts/core';
 
 @Injectable()
@@ -35,6 +36,14 @@ export class KakaoChatbotService {
   ): Promise<SkillResponse> {
     const userId = await this.authSrv.getUserId(skillPayload);
     const ticker = this.getTickerToInqire(skillPayload);
+
+    // 티커를 입력하지않고 메뉴 버튼을 클릭하는 경우가 많아서 이를 처리하는 부분. (inquireAsset 버튼을 다시 누르는 경우의 처리는 구조적으로 복잡하여 처리하지 않고 있음)
+    switch (ticker) {
+      case chatbotListMenuButtons.inquireSubscribedAsset.title:
+        return this.inquireSubscribedAsset(skillPayload, userId);
+      case chatbotListMenuButtons.more.title:
+        return this.skillResponseSrv.more();
+    }
 
     // Todo: failedTicker 재시도시 응답.
 
@@ -114,9 +123,10 @@ export class KakaoChatbotService {
   }
 
   public async inquireSubscribedAsset(
-    skillPayload: SkillPayloadDto
+    skillPayload: SkillPayloadDto,
+    givenUserId?: number
   ): Promise<SkillResponse> {
-    const userId = await this.authSrv.getUserId(skillPayload);
+    const userId = givenUserId || await this.authSrv.getUserId(skillPayload);
 
     let { assets, cursor } = this.getAssetsFromClientExtra(skillPayload);
     if (assets === undefined) {

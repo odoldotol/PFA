@@ -4,6 +4,7 @@ import {
   ValidationDecoratorOptions,
   ValidationArguments
 } from 'class-validator';
+import { chatbotListMenuButtons } from '../../const';
 
 /**
  * - is string
@@ -37,6 +38,16 @@ export function IsYahooFinanceTicker(
           value: any,
           _args: ValidationArguments
         ): boolean {
+
+          // 티커를 입력하지않고 메뉴 버튼을 클릭하는 경우가 많아서 이를 처리하기 위해 허락하는 부분.
+          if (
+            Object.values(chatbotListMenuButtons)
+            .map(button => button.title)
+            .includes(value)
+          ) {
+            return true;
+          }
+
           return typeof value === 'string' &&
           0 < value.length &&
           !/[\u3131-\uD79D]/.test(value);

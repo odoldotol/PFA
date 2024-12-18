@@ -8,7 +8,10 @@ import {
   DEFAULT_KAKAO_CHATBOT_BLOCK_ID_CANCEL_ASSET_SUBSCRIPTION,
   DEFAULT_KAKAO_CHATBOT_ID_STOREBOT,
   DEFAULT_KAKAO_CHATBOT_BLOCK_ID_INQUIRE_SUBSCRIBED_ASSET,
-  DEFAULT_KAKAO_CHATBOT_BLOCK_ID_INQUIRE_ASSET_NO_INPUT
+  DEFAULT_KAKAO_CHATBOT_BLOCK_ID_INQUIRE_ASSET_NO_INPUT,
+  DEFAULT_KAKAO_CHATBOT_BLOCK_ID_HELP,
+  DEFAULT_KAKAO_CHATBOT_BLOCK_ID_INTRODUCE,
+  DEFAULT_KAKAO_CHATBOT_BLOCK_ID_SPONSOR,
 } from "../const";
 import { KakaoChatbotEnvKey } from "../enum";
 import { KakaoChatbotEnvironmentVariables } from "../interface";
@@ -25,6 +28,9 @@ export class KakaoChatbotConfigService {
   private readonly BLOCK_ID_CANCEL_ASSET_SUBSCRIPTION: string;
   private readonly BLOCK_ID_INQUIRE_SUBSCRIBED_ASSET: string;
   private readonly BLOCK_ID_INQUIRE_ASSET_NO_INPUT: string;
+  private readonly BLOCK_ID_HELP: string;
+  private readonly BLOCK_ID_INTRODUCE: string;
+  private readonly BLOCK_ID_SPONSOR: string
 
   // survey test
   private readonly ID_STOREBOT: string;
@@ -46,6 +52,9 @@ export class KakaoChatbotConfigService {
     const blockIdCancelAssetSubscription = this.readBlockIdCancelAssetSubscription();
     const blockIdInquireSubscribedAsset = this.readBlockIdInquireSubscribedAsset();
     const blockIdInquireAssetNoInput = this.readBlockIdInquireAssetNoInput();
+    const blockIdHelp = this.readBlockIdHelp();
+    const blockIdIntroduce = this.readBlockIdIntroduce();
+    const blockIdSponsor = this.readBlockIdSponsor();
 
     // survey test
     const id_storebot = this.readIdStorebot();
@@ -70,6 +79,9 @@ export class KakaoChatbotConfigService {
         blockIdCancelAssetSubscription === undefined ||
         blockIdInquireSubscribedAsset === undefined ||
         blockIdInquireAssetNoInput === undefined ||
+        blockIdHelp === undefined ||
+        blockIdIntroduce === undefined ||
+        blockIdSponsor === undefined ||
 
         // survey test
         blockIdSurveyStart === undefined ||
@@ -95,6 +107,12 @@ export class KakaoChatbotConfigService {
       DEFAULT_KAKAO_CHATBOT_BLOCK_ID_INQUIRE_SUBSCRIBED_ASSET;
     this.BLOCK_ID_INQUIRE_ASSET_NO_INPUT = blockIdInquireAssetNoInput ||
       DEFAULT_KAKAO_CHATBOT_BLOCK_ID_INQUIRE_ASSET_NO_INPUT;
+    this.BLOCK_ID_HELP = blockIdHelp ||
+      DEFAULT_KAKAO_CHATBOT_BLOCK_ID_HELP;
+    this.BLOCK_ID_INTRODUCE = blockIdIntroduce ||
+      DEFAULT_KAKAO_CHATBOT_BLOCK_ID_INTRODUCE;
+    this.BLOCK_ID_SPONSOR = blockIdSponsor ||
+      DEFAULT_KAKAO_CHATBOT_BLOCK_ID_SPONSOR;
 
     // survey test
     this.ID_STOREBOT = id_storebot || DEFAULT_KAKAO_CHATBOT_ID_STOREBOT;
@@ -132,8 +150,16 @@ export class KakaoChatbotConfigService {
     return this.BLOCK_ID_INQUIRE_ASSET_NO_INPUT;
   }
 
-  public getUrlTaeyCoffeeRoastersCookiesImage(): string {
-    return this.URL_TAEYCOFFEROASTERS_COOKIES_IMAGE;
+  public getBlockIdHelp(): string {
+    return this.BLOCK_ID_HELP;
+  }
+
+  public getBlockIdIntroduce(): string {
+    return this.BLOCK_ID_INTRODUCE;
+  }
+
+  public getBlockIdSponsor(): string {
+    return this.BLOCK_ID_SPONSOR;
   }
 
   private readId(): string | undefined {
@@ -185,6 +211,27 @@ export class KakaoChatbotConfigService {
     );
   }
 
+  private readBlockIdHelp(): string | undefined {
+    return this.configSrv.get(
+      KakaoChatbotEnvKey.BLOCK_ID_HELP,
+      { infer: true }
+    );
+  }
+
+  private readBlockIdIntroduce(): string | undefined {
+    return this.configSrv.get(
+      KakaoChatbotEnvKey.BLOCK_ID_INTRODUCE,
+      { infer: true }
+    );
+  }
+
+  private readBlockIdSponsor(): string | undefined {
+    return this.configSrv.get(
+      KakaoChatbotEnvKey.BLOCK_ID_SPONSOR,
+      { infer: true }
+    );
+  }
+
   /*
    * survey test
    */
@@ -203,6 +250,10 @@ export class KakaoChatbotConfigService {
 
   public getBlockIdSurveyGetEventSerial(): string {
     return this.BLOCK_ID_SURVEY_GET_EVENT_SERIAL;
+  }
+
+  public getUrlTaeyCoffeeRoastersCookiesImage(): string {
+    return this.URL_TAEYCOFFEROASTERS_COOKIES_IMAGE;
   }
 
   private readIdStorebot(): string | undefined {

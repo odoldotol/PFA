@@ -399,6 +399,29 @@ export class SkillResponseService {
     .build();
   }
 
+  public more(): SkillResponse {
+    return new SkillResponseBuilder()
+    .addTemplate(
+      new SkillTemplateBuilder()
+      .addComponent(
+        new ListCardBuilder("More")
+        .addItem(
+          new ListItemBuilder("도움말")
+          .setBlockAction(this.kakaoChatbotConfigSrv.getBlockIdHelp())
+          .build()
+        ).addItem(
+          new ListItemBuilder("챗봇 소개")
+          .setBlockAction(this.kakaoChatbotConfigSrv.getBlockIdIntroduce())
+          .build()
+        ).addItem(
+          new ListItemBuilder("스폰서 문의")
+          .setBlockAction(this.kakaoChatbotConfigSrv.getBlockIdSponsor())
+          .build()
+        ).buildComponent()
+      ).build()
+    ).build();
+  }
+
   ////////////////////////// Storebot Survey Test //////////////////////////
 
   private readonly COOKIE_IMAGE_URL = this.kakaoChatbotConfigSrv.getUrlTaeyCoffeeRoastersCookiesImage();

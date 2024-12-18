@@ -6,7 +6,7 @@ import {
   IsUppercase,
   ValidateNested
 } from "class-validator";
-import { IsYahooFinanceTicker } from "src/common/decorator/validation";
+import { IsYahooFinanceTicker } from "../decorator/validation";
 import { SkillPayloadDto } from "./skillPayload.dto";
 import { ActionDto } from "./action.dto";
 import { ClientExtra } from "../interface/skillPayload.interface";
