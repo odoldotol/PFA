@@ -12,10 +12,14 @@ export type ExchangeIsoCode = string;
  * - 너무 많은 타입집합은 ide 를 느리게 할 수 있음.
  * @todo npm
  */
-export type MarketDate = ISOYmd | typeof MARKET_DATE_DEFAULT;
+export type MarketDate
+= ISOYmd
+| typeof MARKET_DATE_DEFAULT
+| typeof MARKET_DATE_UPTODATE;
 // export type MarketDate = `${MarketDateYear}-${Month}-${Day}` | typeof MARKET_DATE_DEFAULT;
 
 export const MARKET_DATE_DEFAULT = '0000-00-00';
+export const MARKET_DATE_UPTODATE = '9999-99-99';
 
 export interface ExchangeIso {
   readonly isoCode: ExchangeIsoCode;

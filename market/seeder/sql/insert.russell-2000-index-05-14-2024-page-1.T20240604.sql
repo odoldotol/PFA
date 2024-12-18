@@ -6,7 +6,8 @@ INSERT INTO financial_assets
     long_name,
     currency,
     regular_market_last_close,
-    exchange
+    exchange,
+    market_date
   )
   VALUES
     (
@@ -16,7 +17,8 @@ INSERT INTO financial_assets
       'Super Micro Computer, Inc.',
       'USD',
       784.510009765625,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'CVNA',
       'EQUITY',
@@ -24,7 +26,8 @@ INSERT INTO financial_assets
       'Carvana Co.',
       'USD',
       99.9800033569336,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'MSTR',
       'EQUITY',
@@ -32,7 +35,8 @@ INSERT INTO financial_assets
       'MicroStrategy Incorporated',
       'USD',
       1524.489990234375,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'PR',
       'EQUITY',
@@ -40,7 +44,8 @@ INSERT INTO financial_assets
       'Permian Resources Corporation',
       'USD',
       16.389999389648438,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'FIX',
       'EQUITY',
@@ -48,7 +53,8 @@ INSERT INTO financial_assets
       'Comfort Systems USA, Inc.',
       'USD',
       327.3399963378906,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'PSN',
       'EQUITY',
@@ -56,7 +62,8 @@ INSERT INTO financial_assets
       'Parsons Corporation',
       'USD',
       76.1500015258789,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'ONTO',
       'EQUITY',
@@ -64,7 +71,8 @@ INSERT INTO financial_assets
       'Onto Innovation Inc.',
       'USD',
       216.6999969482422,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'APG',
       'EQUITY',
@@ -72,7 +80,8 @@ INSERT INTO financial_assets
       'APi Group Corporation',
       'USD',
       35.63999938964844,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'APPF',
       'EQUITY',
@@ -80,7 +89,8 @@ INSERT INTO financial_assets
       'AppFolio, Inc.',
       'USD',
       228.32000732421875,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'WFRD',
       'EQUITY',
@@ -88,7 +98,8 @@ INSERT INTO financial_assets
       'Weatherford International plc',
       'USD',
       120.33999633789062,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'ELF',
       'EQUITY',
@@ -96,7 +107,8 @@ INSERT INTO financial_assets
       'e.l.f. Beauty, Inc.',
       'USD',
       186.91000366210938,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'COKE',
       'EQUITY',
@@ -104,7 +116,8 @@ INSERT INTO financial_assets
       'Coca-Cola Consolidated, Inc.',
       'USD',
       981.0399780273438,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'LNW',
       'EQUITY',
@@ -112,7 +125,8 @@ INSERT INTO financial_assets
       'Light & Wonder, Inc.',
       'USD',
       95.4800033569336,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'AMKR',
       'EQUITY',
@@ -120,7 +134,8 @@ INSERT INTO financial_assets
       'Amkor Technology, Inc.',
       'USD',
       32.59000015258789,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'VKTX',
       'EQUITY',
@@ -128,7 +143,8 @@ INSERT INTO financial_assets
       'Viking Therapeutics, Inc.',
       'USD',
       62.2599983215332,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'FN',
       'EQUITY',
@@ -136,7 +152,8 @@ INSERT INTO financial_assets
       'Fabrinet',
       'USD',
       239.52999877929688,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'MTDR',
       'EQUITY',
@@ -144,7 +161,8 @@ INSERT INTO financial_assets
       'Matador Resources Company',
       'USD',
       63.45000076293945,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'BRBR',
       'EQUITY',
@@ -152,7 +170,8 @@ INSERT INTO financial_assets
       'BellRing Brands, Inc.',
       'USD',
       58.16999816894531,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'DUOL',
       'EQUITY',
@@ -160,7 +179,8 @@ INSERT INTO financial_assets
       'Duolingo, Inc.',
       'USD',
       191.39999389648438,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'FTAI',
       'EQUITY',
@@ -168,7 +188,8 @@ INSERT INTO financial_assets
       'FTAI Aviation Ltd.',
       'USD',
       84.31999969482422,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'SFM',
       'EQUITY',
@@ -176,7 +197,8 @@ INSERT INTO financial_assets
       'Sprouts Farmers Market, Inc.',
       'USD',
       78.9800033569336,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'CERE',
       'EQUITY',
@@ -184,7 +206,8 @@ INSERT INTO financial_assets
       'Cerevel Therapeutics Holdings, Inc.',
       'USD',
       40.7400016784668,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'CIVI',
       'EQUITY',
@@ -192,7 +215,8 @@ INSERT INTO financial_assets
       'Civitas Resources, Inc.',
       'USD',
       73.55999755859375,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'CHRD',
       'EQUITY',
@@ -200,7 +224,8 @@ INSERT INTO financial_assets
       'Chord Energy Corporation',
       'USD',
       185.41000366210938,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'AIT',
       'EQUITY',
@@ -208,7 +233,8 @@ INSERT INTO financial_assets
       'Applied Industrial Technologies, Inc.',
       'USD',
       193,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'ATI',
       'EQUITY',
@@ -216,7 +242,8 @@ INSERT INTO financial_assets
       'ATI Inc.',
       'USD',
       61.34000015258789,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'MTSI',
       'EQUITY',
@@ -224,7 +251,8 @@ INSERT INTO financial_assets
       'MACOM Technology Solutions Holdings, Inc.',
       'USD',
       101.13999938964844,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'SSD',
       'EQUITY',
@@ -232,7 +260,8 @@ INSERT INTO financial_assets
       'Simpson Manufacturing Co., Inc.',
       'USD',
       165.9199981689453,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'UFPI',
       'EQUITY',
@@ -240,7 +269,8 @@ INSERT INTO financial_assets
       'UFP Industries, Inc.',
       'USD',
       119.4800033569336,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'DDS',
       'EQUITY',
@@ -248,7 +278,8 @@ INSERT INTO financial_assets
       'Dillard''s, Inc.',
       'USD',
       447.3500061035156,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'PCVX',
       'EQUITY',
@@ -256,7 +287,8 @@ INSERT INTO financial_assets
       'Vaxcyte, Inc.',
       'USD',
       70.2699966430664,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'SPSC',
       'EQUITY',
@@ -264,7 +296,8 @@ INSERT INTO financial_assets
       'SPS Commerce, Inc.',
       'USD',
       188.08999633789062,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'WTS',
       'EQUITY',
@@ -272,7 +305,8 @@ INSERT INTO financial_assets
       'Watts Water Technologies, Inc.',
       'USD',
       199.1300048828125,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'ALTR',
       'EQUITY',
@@ -280,7 +314,8 @@ INSERT INTO financial_assets
       'Altair Engineering Inc.',
       'USD',
       87.33000183105469,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'SUM',
       'EQUITY',
@@ -288,7 +323,8 @@ INSERT INTO financial_assets
       'Summit Materials, Inc.',
       'USD',
       38.63999938964844,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'ITCI',
       'EQUITY',
@@ -296,7 +332,8 @@ INSERT INTO financial_assets
       'Intra-Cellular Therapies, Inc.',
       'USD',
       67.23999786376953,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'ANF',
       'EQUITY',
@@ -304,7 +341,8 @@ INSERT INTO financial_assets
       'Abercrombie & Fitch Co.',
       'USD',
       172.8699951171875,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'ENSG',
       'EQUITY',
@@ -312,7 +350,8 @@ INSERT INTO financial_assets
       'The Ensign Group, Inc.',
       'USD',
       121.23999786376953,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'MUR',
       'EQUITY',
@@ -320,7 +359,8 @@ INSERT INTO financial_assets
       'Murphy Oil Corporation',
       'USD',
       42.790000915527344,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'NE',
       'EQUITY',
@@ -328,7 +368,8 @@ INSERT INTO financial_assets
       'Noble Corporation plc',
       'USD',
       46.459999084472656,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'CMC',
       'EQUITY',
@@ -336,7 +377,8 @@ INSERT INTO financial_assets
       'Commercial Metals Company',
       'USD',
       56.31999969482422,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'HQY',
       'EQUITY',
@@ -344,7 +386,8 @@ INSERT INTO financial_assets
       'HealthEquity, Inc.',
       'USD',
       81.68000030517578,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'FLR',
       'EQUITY',
@@ -352,7 +395,8 @@ INSERT INTO financial_assets
       'Fluor Corporation',
       'USD',
       43.400001525878906,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'NSIT',
       'EQUITY',
@@ -360,7 +404,8 @@ INSERT INTO financial_assets
       'Insight Enterprises, Inc.',
       'USD',
       195.5,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'MLI',
       'EQUITY',
@@ -368,7 +413,8 @@ INSERT INTO financial_assets
       'Mueller Industries, Inc.',
       'USD',
       58.90999984741211,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'BPMC',
       'EQUITY',
@@ -376,7 +422,8 @@ INSERT INTO financial_assets
       'Blueprint Medicines Corporation',
       'USD',
       105.55999755859375,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'GTLS',
       'EQUITY',
@@ -384,7 +431,8 @@ INSERT INTO financial_assets
       'Chart Industries, Inc.',
       'USD',
       157.02999877929688,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'CHX',
       'EQUITY',
@@ -392,7 +440,8 @@ INSERT INTO financial_assets
       'ChampionX Corporation',
       'USD',
       32.619998931884766,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'MTH',
       'EQUITY',
@@ -400,7 +449,8 @@ INSERT INTO financial_assets
       'Meritage Homes Corporation',
       'USD',
       176.35000610351562,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'IBP',
       'EQUITY',
@@ -408,7 +458,8 @@ INSERT INTO financial_assets
       'Installed Building Products, Inc.',
       'USD',
       211.83999633789062,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'SPXC',
       'EQUITY',
@@ -416,7 +467,8 @@ INSERT INTO financial_assets
       'SPX Technologies, Inc.',
       'USD',
       139.4199981689453,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'RHP',
       'EQUITY',
@@ -424,7 +476,8 @@ INSERT INTO financial_assets
       'Ryman Hospitality Properties, Inc.',
       'USD',
       105.06999969482422,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'TMHC',
       'EQUITY',
@@ -432,7 +485,8 @@ INSERT INTO financial_assets
       'Taylor Morrison Home Corporation',
       'USD',
       57.83000183105469,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'AAON',
       'EQUITY',
@@ -440,7 +494,8 @@ INSERT INTO financial_assets
       'AAON, Inc.',
       'USD',
       75.05000305175781,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'HLNE',
       'EQUITY',
@@ -448,7 +503,8 @@ INSERT INTO financial_assets
       'Hamilton Lane Incorporated',
       'USD',
       125.48999786376953,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'RMBS',
       'EQUITY',
@@ -456,7 +512,8 @@ INSERT INTO financial_assets
       'Rambus Inc.',
       'USD',
       55.2599983215332,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'RVMD',
       'EQUITY',
@@ -464,7 +521,8 @@ INSERT INTO financial_assets
       'Revolution Medicines, Inc.',
       'USD',
       38.33000183105469,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'KNTK',
       'EQUITY',
@@ -472,7 +530,8 @@ INSERT INTO financial_assets
       'Kinetik Holdings Inc.',
       'USD',
       40.9900016784668,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'SSB',
       'EQUITY',
@@ -480,7 +539,8 @@ INSERT INTO financial_assets
       'SouthState Corporation',
       'USD',
       77.30999755859375,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'ESNT',
       'EQUITY',
@@ -488,7 +548,8 @@ INSERT INTO financial_assets
       'Essent Group Ltd.',
       'USD',
       56.70000076293945,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'DRS',
       'EQUITY',
@@ -496,7 +557,8 @@ INSERT INTO financial_assets
       'Leonardo DRS, Inc.',
       'USD',
       23.549999237060547,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'IBRX',
       'EQUITY',
@@ -504,7 +566,8 @@ INSERT INTO financial_assets
       'ImmunityBio, Inc.',
       'USD',
       6.420000076293945,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'CYTK',
       'EQUITY',
@@ -512,7 +575,8 @@ INSERT INTO financial_assets
       'Cytokinetics, Incorporated',
       'USD',
       48.5099983215332,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'BECN',
       'EQUITY',
@@ -520,7 +584,8 @@ INSERT INTO financial_assets
       'Beacon Roofing Supply, Inc.',
       'USD',
       97.05999755859375,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'SQSP',
       'EQUITY',
@@ -528,7 +593,8 @@ INSERT INTO financial_assets
       'Squarespace, Inc.',
       'USD',
       44,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'SIGI',
       'EQUITY',
@@ -536,7 +602,8 @@ INSERT INTO financial_assets
       'Selective Insurance Group, Inc.',
       'USD',
       97.61000061035156,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'NXT',
       'EQUITY',
@@ -544,7 +611,8 @@ INSERT INTO financial_assets
       'Nextracker Inc.',
       'USD',
       55.16999816894531,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'NOVT',
       'EQUITY',
@@ -552,7 +620,8 @@ INSERT INTO financial_assets
       'Novanta Inc.',
       'USD',
       162.16000366210938,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'JXN',
       'EQUITY',
@@ -560,7 +629,8 @@ INSERT INTO financial_assets
       'Jackson Financial Inc.',
       'USD',
       76.01000213623047,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'ETRN',
       'EQUITY',
@@ -568,7 +638,8 @@ INSERT INTO financial_assets
       'Equitrans Midstream Corporation',
       'USD',
       14.279999732971191,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'BMI',
       'EQUITY',
@@ -576,7 +647,8 @@ INSERT INTO financial_assets
       'Badger Meter, Inc.',
       'USD',
       192.9600067138672,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'PBF',
       'EQUITY',
@@ -584,7 +656,8 @@ INSERT INTO financial_assets
       'PBF Energy Inc.',
       'USD',
       46.33000183105469,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'ATKR',
       'EQUITY',
@@ -592,7 +665,8 @@ INSERT INTO financial_assets
       'Atkore Inc.',
       'USD',
       152.14999389648438,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'CBT',
       'EQUITY',
@@ -600,7 +674,8 @@ INSERT INTO financial_assets
       'Cabot Corporation',
       'USD',
       102.30000305175781,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'SM',
       'EQUITY',
@@ -608,7 +683,8 @@ INSERT INTO financial_assets
       'SM Energy Company',
       'USD',
       50.43000030517578,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'ZWS',
       'EQUITY',
@@ -616,7 +692,8 @@ INSERT INTO financial_assets
       'Zurn Elkay Water Solutions Corporation',
       'USD',
       31.309999465942383,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'CWST',
       'EQUITY',
@@ -624,7 +701,8 @@ INSERT INTO financial_assets
       'Casella Waste Systems, Inc.',
       'USD',
       100.58999633789062,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'HALO',
       'EQUITY',
@@ -632,7 +710,8 @@ INSERT INTO financial_assets
       'Halozyme Therapeutics, Inc.',
       'USD',
       44.290000915527344,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'ONB',
       'EQUITY',
@@ -640,7 +719,8 @@ INSERT INTO financial_assets
       'Old National Bancorp',
       'USD',
       17.09000015258789,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'QLYS',
       'EQUITY',
@@ -648,7 +728,8 @@ INSERT INTO financial_assets
       'Qualys, Inc.',
       'USD',
       140.6199951171875,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'GKOS',
       'EQUITY',
@@ -656,7 +737,8 @@ INSERT INTO financial_assets
       'Glaukos Corporation',
       'USD',
       112.72000122070312,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'TDW',
       'EQUITY',
@@ -664,7 +746,8 @@ INSERT INTO financial_assets
       'Tidewater Inc.',
       'USD',
       103.33000183105469,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'SWX',
       'EQUITY',
@@ -672,7 +755,8 @@ INSERT INTO financial_assets
       'Southwest Gas Holdings, Inc.',
       'USD',
       77.58999633789062,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'MOG-A',
       'EQUITY',
@@ -680,7 +764,8 @@ INSERT INTO financial_assets
       'Moog Inc.',
       'USD',
       169.42999267578125,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'LNTH',
       'EQUITY',
@@ -688,7 +773,8 @@ INSERT INTO financial_assets
       'Lantheus Holdings, Inc.',
       'USD',
       81.83000183105469,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'FCFS',
       'EQUITY',
@@ -696,7 +782,8 @@ INSERT INTO financial_assets
       'FirstCash Holdings, Inc.',
       'USD',
       117.91999816894531,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'LANC',
       'EQUITY',
@@ -704,7 +791,8 @@ INSERT INTO financial_assets
       'Lancaster Colony Corporation',
       'USD',
       185.5,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'VAL',
       'EQUITY',
@@ -712,7 +800,8 @@ INSERT INTO financial_assets
       'Valaris Limited',
       'USD',
       77.4000015258789,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'BCC',
       'EQUITY',
@@ -720,7 +809,8 @@ INSERT INTO financial_assets
       'Boise Cascade Company',
       'USD',
       137.2899932861328,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'TENB',
       'EQUITY',
@@ -728,7 +818,8 @@ INSERT INTO financial_assets
       'Tenable Holdings, Inc.',
       'USD',
       42.189998626708984,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'BBIO',
       'EQUITY',
@@ -736,7 +827,8 @@ INSERT INTO financial_assets
       'BridgeBio Pharma, Inc.',
       'USD',
       28.010000228881836,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'KBH',
       'EQUITY',
@@ -744,7 +836,8 @@ INSERT INTO financial_assets
       'KB Home',
       'USD',
       70.5999984741211,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'TRNO',
       'EQUITY',
@@ -752,7 +845,8 @@ INSERT INTO financial_assets
       'Terreno Realty Corporation',
       'USD',
       56.58000183105469,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'RRR',
       'EQUITY',
@@ -760,7 +854,8 @@ INSERT INTO financial_assets
       'Red Rock Resorts, Inc.',
       'USD',
       51.25,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'MOD',
       'EQUITY',
@@ -768,7 +863,8 @@ INSERT INTO financial_assets
       'Modine Manufacturing Company',
       'USD',
       100.91999816894531,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'MGY',
       'EQUITY',
@@ -776,7 +872,8 @@ INSERT INTO financial_assets
       'Magnolia Oil & Gas Corporation',
       'USD',
       25.950000762939453,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'FSS',
       'EQUITY',
@@ -784,7 +881,8 @@ INSERT INTO financial_assets
       'Federal Signal Corporation',
       'USD',
       92.0199966430664,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'AVAV',
       'EQUITY',
@@ -792,7 +890,8 @@ INSERT INTO financial_assets
       'AeroVironment, Inc.',
       'USD',
       202.14999389648438,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'CADE',
       'EQUITY',
@@ -800,7 +899,8 @@ INSERT INTO financial_assets
       'Cadence Bank',
       'USD',
       28.549999237060547,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'COOP',
       'EQUITY',
@@ -808,7 +908,8 @@ INSERT INTO financial_assets
       'Mr. Cooper Group Inc.',
       'USD',
       83.4000015258789,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'STNE',
       'EQUITY',
@@ -816,7 +917,8 @@ INSERT INTO financial_assets
       'StoneCo Ltd.',
       'USD',
       13.84000015258789,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'OPCH',
       'EQUITY',
@@ -824,7 +926,8 @@ INSERT INTO financial_assets
       'Option Care Health, Inc.',
       'USD',
       29.81999969482422,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'MMS',
       'EQUITY',
@@ -832,7 +935,8 @@ INSERT INTO financial_assets
       'Maximus, Inc.',
       'USD',
       86.0999984741211,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'TNET',
       'EQUITY',
@@ -840,7 +944,8 @@ INSERT INTO financial_assets
       'TriNet Group, Inc.',
       'USD',
       103.97000122070312,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'CRS',
       'EQUITY',
@@ -848,7 +953,8 @@ INSERT INTO financial_assets
       'Carpenter Technology Corporation',
       'USD',
       110.87000274658203,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'OSCR',
       'EQUITY',
@@ -856,7 +962,8 @@ INSERT INTO financial_assets
       'Oscar Health, Inc.',
       'USD',
       19.959999084472656,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'BCPC',
       'EQUITY',
@@ -864,7 +971,8 @@ INSERT INTO financial_assets
       'Balchem Corporation',
       'USD',
       153.60000610351562,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'ALTM',
       'EQUITY',
@@ -872,7 +980,8 @@ INSERT INTO financial_assets
       'Arcadium Lithium plc',
       'USD',
       4.429999828338623,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'ACT',
       'EQUITY',
@@ -880,7 +989,8 @@ INSERT INTO financial_assets
       'Enact Holdings, Inc.',
       'USD',
       30.709999084472656,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'HOMB',
       'EQUITY',
@@ -888,7 +998,8 @@ INSERT INTO financial_assets
       'Home Bancshares, Inc. (Conway, AR)',
       'USD',
       23.520000457763672,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'EXLS',
       'EQUITY',
@@ -896,7 +1007,8 @@ INSERT INTO financial_assets
       'ExlService Holdings, Inc.',
       'USD',
       29.860000610351562,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'VRNS',
       'EQUITY',
@@ -904,7 +1016,8 @@ INSERT INTO financial_assets
       'Varonis Systems, Inc.',
       'USD',
       42.959999084472656,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'HAE',
       'EQUITY',
@@ -912,7 +1025,8 @@ INSERT INTO financial_assets
       'Haemonetics Corporation',
       'USD',
       84.08000183105469,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'FG',
       'EQUITY',
@@ -920,7 +1034,8 @@ INSERT INTO financial_assets
       'F&G Annuities & Life, Inc.',
       'USD',
       40.40999984741211,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'ITRI',
       'EQUITY',
@@ -928,7 +1043,8 @@ INSERT INTO financial_assets
       'Itron, Inc.',
       'USD',
       107.55000305175781,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'GATX',
       'EQUITY',
@@ -936,7 +1052,8 @@ INSERT INTO financial_assets
       'GATX Corporation',
       'USD',
       137.9600067138672,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'EXPO',
       'EQUITY',
@@ -944,7 +1061,8 @@ INSERT INTO financial_assets
       'Exponent, Inc.',
       'USD',
       95.12000274658203,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'AEO',
       'EQUITY',
@@ -952,7 +1070,8 @@ INSERT INTO financial_assets
       'American Eagle Outfitters, Inc.',
       'USD',
       21.969999313354492,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'EPRT',
       'EQUITY',
@@ -960,7 +1079,8 @@ INSERT INTO financial_assets
       'Essential Properties Realty Trust, Inc.',
       'USD',
       26.780000686645508,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'ABG',
       'EQUITY',
@@ -968,7 +1088,8 @@ INSERT INTO financial_assets
       'Asbury Automotive Group, Inc.',
       'USD',
       235.07000732421875,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'RDN',
       'EQUITY',
@@ -976,7 +1097,8 @@ INSERT INTO financial_assets
       'Radian Group Inc.',
       'USD',
       31.239999771118164,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'CVLT',
       'EQUITY',
@@ -984,7 +1106,8 @@ INSERT INTO financial_assets
       'Commvault Systems, Inc.',
       'USD',
       107.58999633789062,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'MARA',
       'EQUITY',
@@ -992,7 +1115,8 @@ INSERT INTO financial_assets
       'Marathon Digital Holdings, Inc.',
       'USD',
       19.520000457763672,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'MMSI',
       'EQUITY',
@@ -1000,7 +1124,8 @@ INSERT INTO financial_assets
       'Merit Medical Systems, Inc.',
       'USD',
       81.1500015258789,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'FELE',
       'EQUITY',
@@ -1008,7 +1133,8 @@ INSERT INTO financial_assets
       'Franklin Electric Co., Inc.',
       'USD',
       99.4800033569336,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'ESGR',
       'EQUITY',
@@ -1016,7 +1142,8 @@ INSERT INTO financial_assets
       'Enstar Group Limited',
       'USD',
       313.1400146484375,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'AUR',
       'EQUITY',
@@ -1024,7 +1151,8 @@ INSERT INTO financial_assets
       'Aurora Innovation, Inc.',
       'USD',
       2.390000104904175,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'UBSI',
       'EQUITY',
@@ -1032,7 +1160,8 @@ INSERT INTO financial_assets
       'United Bankshares, Inc.',
       'USD',
       32.439998626708984,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'POR',
       'EQUITY',
@@ -1040,7 +1169,8 @@ INSERT INTO financial_assets
       'Portland General Electric Company',
       'USD',
       44.560001373291016,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'KRG',
       'EQUITY',
@@ -1048,7 +1178,8 @@ INSERT INTO financial_assets
       'Kite Realty Group Trust',
       'USD',
       21.920000076293945,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'PFSI',
       'EQUITY',
@@ -1056,7 +1187,8 @@ INSERT INTO financial_assets
       'PennyMac Financial Services, Inc.',
       'USD',
       90.6500015258789,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'SKY',
       'EQUITY',
@@ -1064,7 +1196,8 @@ INSERT INTO financial_assets
       'Skyline Champion Corporation',
       'USD',
       69.61000061035156,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'WK',
       'EQUITY',
@@ -1072,7 +1205,8 @@ INSERT INTO financial_assets
       'Workiva Inc.',
       'USD',
       76.97000122070312,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'ASGN',
       'EQUITY',
@@ -1080,7 +1214,8 @@ INSERT INTO financial_assets
       'ASGN Incorporated',
       'USD',
       93.91000366210938,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'BIPC',
       'EQUITY',
@@ -1088,7 +1223,8 @@ INSERT INTO financial_assets
       'Brookfield Infrastructure Corporation',
       'USD',
       34.45000076293945,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'FIZZ',
       'EQUITY',
@@ -1096,7 +1232,8 @@ INSERT INTO financial_assets
       'National Beverage Corp.',
       'USD',
       46.20000076293945,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'VRRM',
       'EQUITY',
@@ -1104,7 +1241,8 @@ INSERT INTO financial_assets
       'Verra Mobility Corporation',
       'USD',
       26.639999389648438,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'MDGL',
       'EQUITY',
@@ -1112,7 +1250,8 @@ INSERT INTO financial_assets
       'Madrigal Pharmaceuticals, Inc.',
       'USD',
       236.16000366210938,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'HRI',
       'EQUITY',
@@ -1120,7 +1259,8 @@ INSERT INTO financial_assets
       'Herc Holdings Inc.',
       'USD',
       145.07000732421875,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'CRVL',
       'EQUITY',
@@ -1128,7 +1268,8 @@ INSERT INTO financial_assets
       'CorVel Corporation',
       'USD',
       239.85000610351562,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'FFIN',
       'EQUITY',
@@ -1136,7 +1277,8 @@ INSERT INTO financial_assets
       'First Financial Bankshares, Inc.',
       'USD',
       29.979999542236328,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'PI',
       'EQUITY',
@@ -1144,7 +1286,8 @@ INSERT INTO financial_assets
       'Impinj, Inc.',
       'USD',
       163.6699981689453,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'WIRE',
       'EQUITY',
@@ -1152,7 +1295,8 @@ INSERT INTO financial_assets
       'Encore Wire Corporation',
       'USD',
       288.7300109863281,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'SIG',
       'EQUITY',
@@ -1160,7 +1304,8 @@ INSERT INTO financial_assets
       'Signet Jewelers Limited',
       'USD',
       109.48999786376953,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'KRYS',
       'EQUITY',
@@ -1168,7 +1313,8 @@ INSERT INTO financial_assets
       'Krystal Biotech, Inc.',
       'USD',
       160.0500030517578,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'PTEN',
       'EQUITY',
@@ -1176,7 +1322,8 @@ INSERT INTO financial_assets
       'Patterson-UTI Energy, Inc.',
       'USD',
       11.020000457763672,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'GBCI',
       'EQUITY',
@@ -1184,7 +1331,8 @@ INSERT INTO financial_assets
       'Glacier Bancorp, Inc.',
       'USD',
       37.380001068115234,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'SEM',
       'EQUITY',
@@ -1192,7 +1340,8 @@ INSERT INTO financial_assets
       'Select Medical Holdings Corporation',
       'USD',
       34.54999923706055,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'KNF',
       'EQUITY',
@@ -1200,7 +1349,8 @@ INSERT INTO financial_assets
       'Knife River Corporation',
       'USD',
       70.70999908447266,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'NJR',
       'EQUITY',
@@ -1208,7 +1358,8 @@ INSERT INTO financial_assets
       'New Jersey Resources Corporation',
       'USD',
       43.459999084472656,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'DY',
       'EQUITY',
@@ -1216,7 +1367,8 @@ INSERT INTO financial_assets
       'Dycom Industries, Inc.',
       'USD',
       179.9600067138672,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'POWI',
       'EQUITY',
@@ -1224,7 +1376,8 @@ INSERT INTO financial_assets
       'Power Integrations, Inc.',
       'USD',
       76.01000213623047,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'TMDX',
       'EQUITY',
@@ -1232,7 +1385,8 @@ INSERT INTO financial_assets
       'TransMedics Group, Inc.',
       'USD',
       136.39999389648438,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'IMVT',
       'EQUITY',
@@ -1240,7 +1394,8 @@ INSERT INTO financial_assets
       'Immunovant, Inc.',
       'USD',
       25.389999389648438,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'HGV',
       'EQUITY',
@@ -1248,7 +1403,8 @@ INSERT INTO financial_assets
       'Hilton Grand Vacations Inc.',
       'USD',
       41.33000183105469,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'FUL',
       'EQUITY',
@@ -1256,7 +1412,8 @@ INSERT INTO financial_assets
       'H.B. Fuller Company',
       'USD',
       79.62999725341797,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'BCO',
       'EQUITY',
@@ -1264,7 +1421,8 @@ INSERT INTO financial_assets
       'The Brink''s Company',
       'USD',
       103.23999786376953,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'SHAK',
       'EQUITY',
@@ -1272,7 +1430,8 @@ INSERT INTO financial_assets
       'Shake Shack Inc.',
       'USD',
       94.88999938964844,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'SATS',
       'EQUITY',
@@ -1280,7 +1439,8 @@ INSERT INTO financial_assets
       'EchoStar Corporation',
       'USD',
       19.200000762939453,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'FORM',
       'EQUITY',
@@ -1288,7 +1448,8 @@ INSERT INTO financial_assets
       'FormFactor, Inc.',
       'USD',
       54.720001220703125,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'ORA',
       'EQUITY',
@@ -1296,7 +1457,8 @@ INSERT INTO financial_assets
       'Ormat Technologies, Inc.',
       'USD',
       75.4000015258789,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'ACA',
       'EQUITY',
@@ -1304,7 +1466,8 @@ INSERT INTO financial_assets
       'Arcosa, Inc.',
       'USD',
       87.91000366210938,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'BGC',
       'EQUITY',
@@ -1312,7 +1475,8 @@ INSERT INTO financial_assets
       'BGC Group, Inc.',
       'USD',
       8.670000076293945,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'GPI',
       'EQUITY',
@@ -1320,7 +1484,8 @@ INSERT INTO financial_assets
       'Group 1 Automotive, Inc.',
       'USD',
       310.9800109863281,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'NUVL',
       'EQUITY',
@@ -1328,7 +1493,8 @@ INSERT INTO financial_assets
       'Nuvalent, Inc.',
       'USD',
       65.62000274658203,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'STNG',
       'EQUITY',
@@ -1336,7 +1502,8 @@ INSERT INTO financial_assets
       'Scorpio Tankers Inc.',
       'USD',
       82.06999969482422,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'BRZE',
       'EQUITY',
@@ -1344,7 +1511,8 @@ INSERT INTO financial_assets
       'Braze, Inc.',
       'USD',
       37.650001525878906,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'STEP',
       'EQUITY',
@@ -1352,7 +1520,8 @@ INSERT INTO financial_assets
       'StepStone Group LP',
       'USD',
       42.939998626708984,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'ALIT',
       'EQUITY',
@@ -1360,7 +1529,8 @@ INSERT INTO financial_assets
       'Alight, Inc.',
       'USD',
       7.75,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'ALKS',
       'EQUITY',
@@ -1368,7 +1538,8 @@ INSERT INTO financial_assets
       'Alkermes plc',
       'USD',
       23.399999618530273,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'PAGS',
       'EQUITY',
@@ -1376,7 +1547,8 @@ INSERT INTO financial_assets
       'PagSeguro Digital Ltd.',
       'USD',
       12.25,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'TEX',
       'EQUITY',
@@ -1384,7 +1556,8 @@ INSERT INTO financial_assets
       'Terex Corporation',
       'USD',
       59.66999816894531,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'ASO',
       'EQUITY',
@@ -1392,7 +1565,8 @@ INSERT INTO financial_assets
       'Academy Sports and Outdoors, Inc.',
       'USD',
       57.689998626708984,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'AVNT',
       'EQUITY',
@@ -1400,7 +1574,8 @@ INSERT INTO financial_assets
       'Avient Corporation',
       'USD',
       44.68000030517578,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'RDNT',
       'EQUITY',
@@ -1408,7 +1583,8 @@ INSERT INTO financial_assets
       'RadNet, Inc.',
       'USD',
       58.63999938964844,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'MC',
       'EQUITY',
@@ -1416,7 +1592,8 @@ INSERT INTO financial_assets
       'Moelis & Company',
       'USD',
       56.61000061035156,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'HWC',
       'EQUITY',
@@ -1424,7 +1601,8 @@ INSERT INTO financial_assets
       'Hancock Whitney Corporation',
       'USD',
       46.72999954223633,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'FRSH',
       'EQUITY',
@@ -1432,7 +1610,8 @@ INSERT INTO financial_assets
       'Freshworks Inc.',
       'USD',
       12.880000114440918,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'UMBF',
       'EQUITY',
@@ -1440,7 +1619,8 @@ INSERT INTO financial_assets
       'UMB Financial Corporation',
       'USD',
       82.44000244140625,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'SLAB',
       'EQUITY',
@@ -1448,7 +1628,8 @@ INSERT INTO financial_assets
       'Silicon Laboratories Inc.',
       'USD',
       126.16999816894531,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'WHD',
       'EQUITY',
@@ -1456,7 +1637,8 @@ INSERT INTO financial_assets
       'Cactus, Inc.',
       'USD',
       51.349998474121094,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'PECO',
       'EQUITY',
@@ -1464,7 +1646,8 @@ INSERT INTO financial_assets
       'Phillips Edison & Company, Inc.',
       'USD',
       31.940000534057617,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'NOG',
       'EQUITY',
@@ -1472,7 +1655,8 @@ INSERT INTO financial_assets
       'Northern Oil and Gas, Inc.',
       'USD',
       40.93000030517578,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'BLKB',
       'EQUITY',
@@ -1480,7 +1664,8 @@ INSERT INTO financial_assets
       'Blackbaud, Inc.',
       'USD',
       77.94000244140625,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'GOLF',
       'EQUITY',
@@ -1488,7 +1673,8 @@ INSERT INTO financial_assets
       'Acushnet Holdings Corp.',
       'USD',
       65.9000015258789,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'VLY',
       'EQUITY',
@@ -1496,7 +1682,8 @@ INSERT INTO financial_assets
       'Valley National Bancorp',
       'USD',
       7.130000114440918,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'IGT',
       'EQUITY',
@@ -1504,7 +1691,8 @@ INSERT INTO financial_assets
       'International Game Technology PLC',
       'USD',
       19.739999771118164,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'MATX',
       'EQUITY',
@@ -1512,7 +1700,8 @@ INSERT INTO financial_assets
       'Matson, Inc.',
       'USD',
       128.1999969482422,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'STRL',
       'EQUITY',
@@ -1520,7 +1709,8 @@ INSERT INTO financial_assets
       'Sterling Infrastructure, Inc.',
       'USD',
       122.87000274658203,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'NSP',
       'EQUITY',
@@ -1528,7 +1718,8 @@ INSERT INTO financial_assets
       'Insperity, Inc.',
       'USD',
       94.72000122070312,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'BKH',
       'EQUITY',
@@ -1536,7 +1727,8 @@ INSERT INTO financial_assets
       'Black Hills Corporation',
       'USD',
       56.45000076293945,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'ENS',
       'EQUITY',
@@ -1544,7 +1736,8 @@ INSERT INTO financial_assets
       'EnerSys',
       'USD',
       107.83999633789062,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'URBN',
       'EQUITY',
@@ -1552,7 +1745,8 @@ INSERT INTO financial_assets
       'Urban Outfitters, Inc.',
       'USD',
       41.709999084472656,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'ACIW',
       'EQUITY',
@@ -1560,7 +1754,8 @@ INSERT INTO financial_assets
       'ACI Worldwide, Inc.',
       'USD',
       36.0099983215332,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'OTTR',
       'EQUITY',
@@ -1568,7 +1763,8 @@ INSERT INTO financial_assets
       'Otter Tail Corporation',
       'USD',
       90.47000122070312,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'CBZ',
       'EQUITY',
@@ -1576,7 +1772,8 @@ INSERT INTO financial_assets
       'CBIZ, Inc.',
       'USD',
       75.81999969482422,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'IPAR',
       'EQUITY',
@@ -1584,7 +1781,8 @@ INSERT INTO financial_assets
       'Inter Parfums, Inc.',
       'USD',
       119.77999877929688,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'INSM',
       'EQUITY',
@@ -1592,7 +1790,8 @@ INSERT INTO financial_assets
       'Insmed Incorporated',
       'USD',
       55.04999923706055,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'KTB',
       'EQUITY',
@@ -1600,7 +1799,8 @@ INSERT INTO financial_assets
       'Kontoor Brands, Inc.',
       'USD',
       73.33999633789062,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'BOX',
       'EQUITY',
@@ -1608,7 +1808,8 @@ INSERT INTO financial_assets
       'Box, Inc.',
       'USD',
       27.25,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'NNI',
       'EQUITY',
@@ -1616,7 +1817,8 @@ INSERT INTO financial_assets
       'Nelnet, Inc.',
       'USD',
       103.66000366210938,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'HP',
       'EQUITY',
@@ -1624,7 +1826,8 @@ INSERT INTO financial_assets
       'Helmerich & Payne, Inc.',
       'USD',
       38.060001373291016,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'AEIS',
       'EQUITY',
@@ -1632,7 +1835,8 @@ INSERT INTO financial_assets
       'Advanced Energy Industries, Inc.',
       'USD',
       107.43000030517578,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'SMPL',
       'EQUITY',
@@ -1640,7 +1844,8 @@ INSERT INTO financial_assets
       'The Simply Good Foods Company',
       'USD',
       38.4900016784668,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'IRT',
       'EQUITY',
@@ -1648,7 +1853,8 @@ INSERT INTO financial_assets
       'Independence Realty Trust, Inc.',
       'USD',
       16.700000762939453,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'AMR',
       'EQUITY',
@@ -1656,7 +1862,8 @@ INSERT INTO financial_assets
       'Alpha Metallurgical Resources, Inc.',
       'USD',
       315.4100036621094,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'CRNX',
       'EQUITY',
@@ -1664,7 +1871,8 @@ INSERT INTO financial_assets
       'Crinetics Pharmaceuticals, Inc.',
       'USD',
       44.40999984741211,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'ITGR',
       'EQUITY',
@@ -1672,7 +1880,8 @@ INSERT INTO financial_assets
       'Integer Holdings Corporation',
       'USD',
       121.23999786376953,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'CSWI',
       'EQUITY',
@@ -1680,7 +1889,8 @@ INSERT INTO financial_assets
       'CSW Industrials, Inc.',
       'USD',
       254.25999450683594,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'LBRT',
       'EQUITY',
@@ -1688,7 +1898,8 @@ INSERT INTO financial_assets
       'Liberty Energy Inc.',
       'USD',
       24.690000534057617,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'TPH',
       'EQUITY',
@@ -1696,7 +1907,8 @@ INSERT INTO financial_assets
       'Tri Pointe Homes, Inc.',
       'USD',
       38.72999954223633,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'GMS',
       'EQUITY',
@@ -1704,7 +1916,8 @@ INSERT INTO financial_assets
       'GMS Inc.',
       'USD',
       93.95999908447266,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'BDC',
       'EQUITY',
@@ -1712,7 +1925,8 @@ INSERT INTO financial_assets
       'Belden Inc.',
       'USD',
       95.69000244140625,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'SDRL',
       'EQUITY',
@@ -1720,7 +1934,8 @@ INSERT INTO financial_assets
       'Seadrill Limited',
       'USD',
       51.869998931884766,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'STR',
       'EQUITY',
@@ -1728,7 +1943,8 @@ INSERT INTO financial_assets
       'Sitio Royalties Corp.',
       'USD',
       23.43000030517578,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'PIPR',
       'EQUITY',
@@ -1736,7 +1952,8 @@ INSERT INTO financial_assets
       'Piper Sandler Companies',
       'USD',
       211.77999877929688,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'IBOC',
       'EQUITY',
@@ -1744,7 +1961,8 @@ INSERT INTO financial_assets
       'International Bancshares Corporation',
       'USD',
       56.83000183105469,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'GT',
       'EQUITY',
@@ -1752,7 +1970,8 @@ INSERT INTO financial_assets
       'The Goodyear Tire & Rubber Company',
       'USD',
       12.3100004196167,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'QTWO',
       'EQUITY',
@@ -1760,7 +1979,8 @@ INSERT INTO financial_assets
       'Q2 Holdings, Inc.',
       'USD',
       60.81999969482422,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'ALE',
       'EQUITY',
@@ -1768,7 +1988,8 @@ INSERT INTO financial_assets
       'ALLETE, Inc.',
       'USD',
       63.150001525878906,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'SG',
       'EQUITY',
@@ -1776,7 +1997,8 @@ INSERT INTO financial_assets
       'Sweetgreen, Inc.',
       'USD',
       30.75,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'HASI',
       'EQUITY',
@@ -1784,7 +2006,8 @@ INSERT INTO financial_assets
       'Hannon Armstrong Sustainable Infrastructure Capital, Inc.',
       'USD',
       33.290000915527344,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'ACLS',
       'EQUITY',
@@ -1792,7 +2015,8 @@ INSERT INTO financial_assets
       'Axcelis Technologies, Inc.',
       'USD',
       112.48999786376953,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'PWSC',
       'EQUITY',
@@ -1800,7 +2024,8 @@ INSERT INTO financial_assets
       'PowerSchool Holdings, Inc.',
       'USD',
       21.440000534057617,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'ENV',
       'EQUITY',
@@ -1808,7 +2033,8 @@ INSERT INTO financial_assets
       'Envestnet, Inc.',
       'USD',
       65.51000213623047,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'OGS',
       'EQUITY',
@@ -1816,7 +2042,8 @@ INSERT INTO financial_assets
       'ONE Gas, Inc.',
       'USD',
       61.630001068115234,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'APLE',
       'EQUITY',
@@ -1824,7 +2051,8 @@ INSERT INTO financial_assets
       'Apple Hospitality REIT, Inc.',
       'USD',
       14.4399995803833,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'APAM',
       'EQUITY',
@@ -1832,7 +2060,8 @@ INSERT INTO financial_assets
       'Artisan Partners Asset Management Inc.',
       'USD',
       44.029998779296875,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'SANM',
       'EQUITY',
@@ -1840,7 +2069,8 @@ INSERT INTO financial_assets
       'Sanmina Corporation',
       'USD',
       68.54000091552734,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'CNX',
       'EQUITY',
@@ -1848,7 +2078,8 @@ INSERT INTO financial_assets
       'CNX Resources Corporation',
       'USD',
       26.299999237060547,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'AXSM',
       'EQUITY',
@@ -1856,7 +2087,8 @@ INSERT INTO financial_assets
       'Axsome Therapeutics, Inc.',
       'USD',
       73.43000030517578,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'SR',
       'EQUITY',
@@ -1864,7 +2096,8 @@ INSERT INTO financial_assets
       'Spire Inc.',
       'USD',
       61.290000915527344,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'BL',
       'EQUITY',
@@ -1872,7 +2105,8 @@ INSERT INTO financial_assets
       'BlackLine, Inc.',
       'USD',
       47.720001220703125,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'RUSHA',
       'EQUITY',
@@ -1880,7 +2114,8 @@ INSERT INTO financial_assets
       'Rush Enterprises, Inc.',
       'USD',
       45.130001068115234,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'CNS',
       'EQUITY',
@@ -1888,7 +2123,8 @@ INSERT INTO financial_assets
       'Cohen & Steers, Inc.',
       'USD',
       70.29000091552734,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'JOBY',
       'EQUITY',
@@ -1896,7 +2132,8 @@ INSERT INTO financial_assets
       'Joby Aviation, Inc.',
       'USD',
       4.869999885559082,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'CLSK',
       'EQUITY',
@@ -1904,7 +2141,8 @@ INSERT INTO financial_assets
       'CleanSpark, Inc.',
       'USD',
       16.06999969482422,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'SFBS',
       'EQUITY',
@@ -1912,7 +2150,8 @@ INSERT INTO financial_assets
       'ServisFirst Bancshares, Inc.',
       'USD',
       61.79999923706055,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'CTRE',
       'EQUITY',
@@ -1920,7 +2159,8 @@ INSERT INTO financial_assets
       'CareTrust REIT, Inc.',
       'USD',
       25.56999969482422,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'BRP',
       'EQUITY',
@@ -1928,7 +2168,8 @@ INSERT INTO financial_assets
       'The Baldwin Insurance Group, Inc.',
       'USD',
       34.40999984741211,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'PCH',
       'EQUITY',
@@ -1936,7 +2177,8 @@ INSERT INTO financial_assets
       'PotlatchDeltic Corporation',
       'USD',
       42.72999954223633,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'PBH',
       'EQUITY',
@@ -1944,7 +2186,8 @@ INSERT INTO financial_assets
       'Prestige Consumer Healthcare Inc.',
       'USD',
       64.30999755859375,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'SYNA',
       'EQUITY',
@@ -1952,7 +2195,8 @@ INSERT INTO financial_assets
       'Synaptics Incorporated',
       'USD',
       93.70999908447266,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'SLG',
       'EQUITY',
@@ -1960,7 +2204,8 @@ INSERT INTO financial_assets
       'SL Green Realty Corp.',
       'USD',
       52.970001220703125,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'ASAN',
       'EQUITY',
@@ -1968,7 +2213,8 @@ INSERT INTO financial_assets
       'Asana, Inc.',
       'USD',
       13.050000190734863,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'AX',
       'EQUITY',
@@ -1976,7 +2222,8 @@ INSERT INTO financial_assets
       'Axos Financial, Inc.',
       'USD',
       53.869998931884766,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'ZETA',
       'EQUITY',
@@ -1984,7 +2231,8 @@ INSERT INTO financial_assets
       'Zeta Global Holdings Corp.',
       'USD',
       16.329999923706055,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'DOCN',
       'EQUITY',
@@ -1992,7 +2240,8 @@ INSERT INTO financial_assets
       'DigitalOcean Holdings, Inc.',
       'USD',
       37.04999923706055,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'AXNX',
       'EQUITY',
@@ -2000,7 +2249,8 @@ INSERT INTO financial_assets
       'Axonics, Inc.',
       'USD',
       67.08999633789062,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'GFF',
       'EQUITY',
@@ -2008,7 +2258,8 @@ INSERT INTO financial_assets
       'Griffon Corporation',
       'USD',
       67.54000091552734,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'ABCB',
       'EQUITY',
@@ -2016,7 +2267,8 @@ INSERT INTO financial_assets
       'Ameris Bancorp',
       'USD',
       49.95000076293945,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'PNM',
       'EQUITY',
@@ -2024,7 +2276,8 @@ INSERT INTO financial_assets
       'PNM Resources, Inc.',
       'USD',
       38.34000015258789,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'MHO',
       'EQUITY',
@@ -2032,7 +2285,8 @@ INSERT INTO financial_assets
       'M/I Homes, Inc.',
       'USD',
       124.91999816894531,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'ALRM',
       'EQUITY',
@@ -2040,7 +2294,8 @@ INSERT INTO financial_assets
       'Alarm.com Holdings, Inc.',
       'USD',
       65.41000366210938,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'KFY',
       'EQUITY',
@@ -2048,7 +2303,8 @@ INSERT INTO financial_assets
       'Korn Ferry',
       'USD',
       65.94000244140625,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'JOE',
       'EQUITY',
@@ -2056,7 +2312,8 @@ INSERT INTO financial_assets
       'The St. Joe Company',
       'USD',
       56.599998474121094,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'GHC',
       'EQUITY',
@@ -2064,7 +2321,8 @@ INSERT INTO financial_assets
       'Graham Holdings Company',
       'USD',
       752.4299926757812,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'PRMW',
       'EQUITY',
@@ -2072,7 +2330,8 @@ INSERT INTO financial_assets
       'Primo Water Corporation',
       'USD',
       22.559999465942383,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'SMMT',
       'EQUITY',
@@ -2080,7 +2339,8 @@ INSERT INTO financial_assets
       'Summit Therapeutics Inc.',
       'USD',
       8.6850004196167,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'PRKS',
       'EQUITY',
@@ -2088,7 +2348,8 @@ INSERT INTO financial_assets
       'United Parks & Resorts Inc.',
       'USD',
       52.290000915527344,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'SBRA',
       'EQUITY',
@@ -2096,7 +2357,8 @@ INSERT INTO financial_assets
       'Sabra Health Care REIT, Inc.',
       'USD',
       14.579999923706055,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'MAC',
       'EQUITY',
@@ -2104,7 +2366,8 @@ INSERT INTO financial_assets
       'The Macerich Company',
       'USD',
       15.119999885559082,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'ASB',
       'EQUITY',
@@ -2112,7 +2375,8 @@ INSERT INTO financial_assets
       'Associated Banc-Corp',
       'USD',
       21.420000076293945,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'HCC',
       'EQUITY',
@@ -2120,7 +2384,8 @@ INSERT INTO financial_assets
       'Warrior Met Coal, Inc.',
       'USD',
       68.43000030517578,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'CXM',
       'EQUITY',
@@ -2128,7 +2393,8 @@ INSERT INTO financial_assets
       'Sprinklr, Inc.',
       'USD',
       11.210000038146973,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'RUSHB',
       'EQUITY',
@@ -2136,7 +2402,8 @@ INSERT INTO financial_assets
       'Rush Enterprises, Inc.',
       'USD',
       42.27000045776367,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'KAI',
       'EQUITY',
@@ -2144,7 +2411,8 @@ INSERT INTO financial_assets
       'Kadant Inc.',
       'USD',
       286.010009765625,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'LIVN',
       'EQUITY',
@@ -2152,7 +2420,8 @@ INSERT INTO financial_assets
       'LivaNova PLC',
       'USD',
       61.06999969482422,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'WD',
       'EQUITY',
@@ -2160,7 +2429,8 @@ INSERT INTO financial_assets
       'Walker & Dunlop, Inc.',
       'USD',
       95.98999786376953,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'CRC',
       'EQUITY',
@@ -2168,7 +2438,8 @@ INSERT INTO financial_assets
       'California Resources Corporation',
       'USD',
       47.349998474121094,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'IESC',
       'EQUITY',
@@ -2176,7 +2447,8 @@ INSERT INTO financial_assets
       'IES Holdings, Inc.',
       'USD',
       152.4499969482422,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'KWR',
       'EQUITY',
@@ -2184,7 +2456,8 @@ INSERT INTO financial_assets
       'Quaker Chemical Corporation',
       'USD',
       181.35000610351562,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'SGRY',
       'EQUITY',
@@ -2192,7 +2465,8 @@ INSERT INTO financial_assets
       'Surgery Partners, Inc.',
       'USD',
       27.600000381469727,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'HL',
       'EQUITY',
@@ -2200,7 +2474,8 @@ INSERT INTO financial_assets
       'Hecla Mining Company',
       'USD',
       5.889999866485596,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'DIOD',
       'EQUITY',
@@ -2208,7 +2483,8 @@ INSERT INTO financial_assets
       'Diodes Incorporated',
       'USD',
       74.12999725341797,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'VCTR',
       'EQUITY',
@@ -2216,7 +2492,8 @@ INSERT INTO financial_assets
       'Victory Capital Holdings, Inc.',
       'USD',
       52.029998779296875,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'PRCT',
       'EQUITY',
@@ -2224,7 +2501,8 @@ INSERT INTO financial_assets
       'PROCEPT BioRobotics Corporation',
       'USD',
       66.4000015258789,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'BOOT',
       'EQUITY',
@@ -2232,7 +2510,8 @@ INSERT INTO financial_assets
       'Boot Barn Holdings, Inc.',
       'USD',
       118.93000030517578,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'IOSP',
       'EQUITY',
@@ -2240,7 +2519,8 @@ INSERT INTO financial_assets
       'Innospec Inc.',
       'USD',
       130.8000030517578,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'SXT',
       'EQUITY',
@@ -2248,7 +2528,8 @@ INSERT INTO financial_assets
       'Sensient Technologies Corporation',
       'USD',
       77.66999816894531,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'REZI',
       'EQUITY',
@@ -2256,7 +2537,8 @@ INSERT INTO financial_assets
       'Resideo Technologies, Inc.',
       'USD',
       21.600000381469727,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'NWE',
       'EQUITY',
@@ -2264,7 +2546,8 @@ INSERT INTO financial_assets
       'NorthWestern Energy Group, Inc.',
       'USD',
       51.959999084472656,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'VC',
       'EQUITY',
@@ -2272,7 +2555,8 @@ INSERT INTO financial_assets
       'Visteon Corporation',
       'USD',
       111.37000274658203,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'JJSF',
       'EQUITY',
@@ -2280,7 +2564,8 @@ INSERT INTO financial_assets
       'J&J Snack Foods Corp.',
       'USD',
       162.7100067138672,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'BXMT',
       'EQUITY',
@@ -2288,7 +2573,8 @@ INSERT INTO financial_assets
       'Blackstone Mortgage Trust, Inc.',
       'USD',
       17.440000534057617,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'WDFC',
       'EQUITY',
@@ -2296,7 +2582,8 @@ INSERT INTO financial_assets
       'WD-40 Company',
       'USD',
       224.69000244140625,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'UCBI',
       'EQUITY',
@@ -2304,7 +2591,8 @@ INSERT INTO financial_assets
       'United Community Banks, Inc.',
       'USD',
       25.65999984741211,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'MCY',
       'EQUITY',
@@ -2312,7 +2600,8 @@ INSERT INTO financial_assets
       'Mercury General Corporation',
       'USD',
       55.83000183105469,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'FULT',
       'EQUITY',
@@ -2320,7 +2609,8 @@ INSERT INTO financial_assets
       'Fulton Financial Corporation',
       'USD',
       16.84000015258789,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'CENT',
       'EQUITY',
@@ -2328,7 +2618,8 @@ INSERT INTO financial_assets
       'Central Garden & Pet Company',
       'USD',
       43.45000076293945,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'VSH',
       'EQUITY',
@@ -2336,7 +2627,8 @@ INSERT INTO financial_assets
       'Vishay Intertechnology, Inc.',
       'USD',
       23.6299991607666,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'FLNC',
       'EQUITY',
@@ -2344,7 +2636,8 @@ INSERT INTO financial_assets
       'Fluence Energy, Inc.',
       'USD',
       25.1299991607666,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'IDYA',
       'EQUITY',
@@ -2352,7 +2645,8 @@ INSERT INTO financial_assets
       'IDEAYA Biosciences, Inc.',
       'USD',
       36.54999923706055,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'CVCO',
       'EQUITY',
@@ -2360,7 +2654,8 @@ INSERT INTO financial_assets
       'Cavco Industries, Inc.',
       'USD',
       357.20001220703125,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'AROC',
       'EQUITY',
@@ -2368,7 +2663,8 @@ INSERT INTO financial_assets
       'Archrock, Inc.',
       'USD',
       20.239999771118164,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'NPO',
       'EQUITY',
@@ -2376,7 +2672,8 @@ INSERT INTO financial_assets
       'Enpro Inc.',
       'USD',
       153.25999450683594,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'UNF',
       'EQUITY',
@@ -2384,7 +2681,8 @@ INSERT INTO financial_assets
       'UniFirst Corporation',
       'USD',
       158.60000610351562,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'SHOO',
       'EQUITY',
@@ -2392,7 +2690,8 @@ INSERT INTO financial_assets
       'Steven Madden, Ltd.',
       'USD',
       44.45000076293945,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'HI',
       'EQUITY',
@@ -2400,7 +2699,8 @@ INSERT INTO financial_assets
       'Hillenbrand, Inc.',
       'USD',
       46.4900016784668,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'IRTC',
       'EQUITY',
@@ -2408,7 +2708,8 @@ INSERT INTO financial_assets
       'iRhythm Technologies, Inc.',
       'USD',
       88.20999908447266,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'SWTX',
       'EQUITY',
@@ -2416,7 +2717,8 @@ INSERT INTO financial_assets
       'SpringWorks Therapeutics, Inc.',
       'USD',
       41.459999084472656,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'SKYW',
       'EQUITY',
@@ -2424,7 +2726,8 @@ INSERT INTO financial_assets
       'SkyWest, Inc.',
       'USD',
       74.66999816894531,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'LRN',
       'EQUITY',
@@ -2432,7 +2735,8 @@ INSERT INTO financial_assets
       'Stride, Inc.',
       'USD',
       68.66000366210938,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'FBP',
       'EQUITY',
@@ -2440,7 +2744,8 @@ INSERT INTO financial_assets
       'First BanCorp.',
       'USD',
       17.729999542236328,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'GEF-B',
       'EQUITY',
@@ -2448,7 +2753,8 @@ INSERT INTO financial_assets
       'Greif, Inc.',
       'USD',
       65.25,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'CNO',
       'EQUITY',
@@ -2456,7 +2762,8 @@ INSERT INTO financial_assets
       'CNO Financial Group, Inc.',
       'USD',
       28.690000534057617,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'INSW',
       'EQUITY',
@@ -2464,7 +2771,8 @@ INSERT INTO financial_assets
       'International Seaways, Inc.',
       'USD',
       64.41999816894531,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'AI',
       'EQUITY',
@@ -2472,7 +2780,8 @@ INSERT INTO financial_assets
       'C3.ai, Inc.',
       'USD',
       29.56999969482422,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'IOVA',
       'EQUITY',
@@ -2480,7 +2789,8 @@ INSERT INTO financial_assets
       'Iovance Biotherapeutics, Inc.',
       'USD',
       8.880000114440918,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'SKT',
       'EQUITY',
@@ -2488,7 +2798,8 @@ INSERT INTO financial_assets
       'Tanger Inc.',
       'USD',
       27.75,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'CWT',
       'EQUITY',
@@ -2496,7 +2807,8 @@ INSERT INTO financial_assets
       'California Water Service Group',
       'USD',
       49.88999938964844,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'TROX',
       'EQUITY',
@@ -2504,7 +2816,8 @@ INSERT INTO financial_assets
       'Tronox Holdings plc',
       'USD',
       19.809999465942383,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'CRK',
       'EQUITY',
@@ -2512,7 +2825,8 @@ INSERT INTO financial_assets
       'Comstock Resources, Inc.',
       'USD',
       11.710000038146973,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'GEF',
       'EQUITY',
@@ -2520,7 +2834,8 @@ INSERT INTO financial_assets
       'Greif, Inc.',
       'USD',
       64.94000244140625,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'AUB',
       'EQUITY',
@@ -2528,7 +2843,8 @@ INSERT INTO financial_assets
       'Atlantic Union Bankshares Corporation',
       'USD',
       32.630001068115234,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'AVA',
       'EQUITY',
@@ -2536,7 +2852,8 @@ INSERT INTO financial_assets
       'Avista Corporation',
       'USD',
       36.97999954223633,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'BANF',
       'EQUITY',
@@ -2544,7 +2861,8 @@ INSERT INTO financial_assets
       'BancFirst Corporation',
       'USD',
       86.1500015258789,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'IIPR',
       'EQUITY',
@@ -2552,7 +2870,8 @@ INSERT INTO financial_assets
       'Innovative Industrial Properties, Inc.',
       'USD',
       107.77999877929688,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'BHVN',
       'EQUITY',
@@ -2560,7 +2879,8 @@ INSERT INTO financial_assets
       'Biohaven Ltd.',
       'USD',
       35.099998474121094,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'MWA',
       'EQUITY',
@@ -2568,7 +2888,8 @@ INSERT INTO financial_assets
       'Mueller Water Products, Inc.',
       'USD',
       18.559999465942383,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'GOGL',
       'EQUITY',
@@ -2576,7 +2897,8 @@ INSERT INTO financial_assets
       'Golden Ocean Group Limited',
       'USD',
       14.390000343322754,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'STRA',
       'EQUITY',
@@ -2584,7 +2906,8 @@ INSERT INTO financial_assets
       'Strategic Education, Inc.',
       'USD',
       113.41999816894531,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'JBT',
       'EQUITY',
@@ -2592,7 +2915,8 @@ INSERT INTO financial_assets
       'John Bean Technologies Corporation',
       'USD',
       95.52999877929688,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'WOR',
       'EQUITY',
@@ -2600,7 +2924,8 @@ INSERT INTO financial_assets
       'Worthington Enterprises, Inc.',
       'USD',
       57.029998779296875,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'MGEE',
       'EQUITY',
@@ -2608,7 +2933,8 @@ INSERT INTO financial_assets
       'MGE Energy, Inc.',
       'USD',
       80.12999725341797,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'LCII',
       'EQUITY',
@@ -2616,7 +2942,8 @@ INSERT INTO financial_assets
       'LCI Industries',
       'USD',
       109.87999725341797,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'PLXS',
       'EQUITY',
@@ -2624,7 +2951,8 @@ INSERT INTO financial_assets
       'Plexus Corp.',
       'USD',
       110.13999938964844,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'GH',
       'EQUITY',
@@ -2632,7 +2960,8 @@ INSERT INTO financial_assets
       'Guardant Health, Inc.',
       'USD',
       27.100000381469727,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'KTOS',
       'EQUITY',
@@ -2640,7 +2969,8 @@ INSERT INTO financial_assets
       'Kratos Defense & Security Solutions, Inc.',
       'USD',
       21.739999771118164,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'LTH',
       'EQUITY',
@@ -2648,7 +2978,8 @@ INSERT INTO financial_assets
       'Life Time Group Holdings, Inc.',
       'USD',
       16.780000686645508,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'CSTM',
       'EQUITY',
@@ -2656,7 +2987,8 @@ INSERT INTO financial_assets
       'Constellium SE',
       'USD',
       21.670000076293945,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'SITC',
       'EQUITY',
@@ -2664,7 +2996,8 @@ INSERT INTO financial_assets
       'SITE Centers Corp.',
       'USD',
       14.420000076293945,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'ARCH',
       'EQUITY',
@@ -2672,7 +3005,8 @@ INSERT INTO financial_assets
       'Arch Resources, Inc.',
       'USD',
       173.92999267578125,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'AWR',
       'EQUITY',
@@ -2680,7 +3014,8 @@ INSERT INTO financial_assets
       'American States Water Company',
       'USD',
       73.58999633789062,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'CRDO',
       'EQUITY',
@@ -2688,7 +3023,8 @@ INSERT INTO financial_assets
       'Credo Technology Group Holding Ltd',
       'USD',
       26.06999969482422,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'ABM',
       'EQUITY',
@@ -2696,7 +3032,8 @@ INSERT INTO financial_assets
       'ABM Industries Incorporated',
       'USD',
       47.27000045776367,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'ROAD',
       'EQUITY',
@@ -2704,7 +3041,8 @@ INSERT INTO financial_assets
       'Construction Partners, Inc.',
       'USD',
       58.209999084472656,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'DORM',
       'EQUITY',
@@ -2712,7 +3050,8 @@ INSERT INTO financial_assets
       'Dorman Products, Inc.',
       'USD',
       91.97000122070312,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'BNL',
       'EQUITY',
@@ -2720,7 +3059,8 @@ INSERT INTO financial_assets
       'Broadstone Net Lease, Inc.',
       'USD',
       15.350000381469727,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'MQ',
       'EQUITY',
@@ -2728,7 +3068,8 @@ INSERT INTO financial_assets
       'Marqeta, Inc.',
       'USD',
       5.320000171661377,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'INST',
       'EQUITY',
@@ -2736,7 +3077,8 @@ INSERT INTO financial_assets
       'Instructure Holdings, Inc.',
       'USD',
       22.149999618530273,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'FIBK',
       'EQUITY',
@@ -2744,7 +3086,8 @@ INSERT INTO financial_assets
       'First Interstate BancSystem, Inc.',
       'USD',
       26.540000915527344,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'CVI',
       'EQUITY',
@@ -2752,7 +3095,8 @@ INSERT INTO financial_assets
       'CVR Energy, Inc.',
       'USD',
       27.860000610351562,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'TCBI',
       'EQUITY',
@@ -2760,7 +3104,8 @@ INSERT INTO financial_assets
       'Texas Capital Bancshares, Inc.',
       'USD',
       60.279998779296875,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'GNW',
       'EQUITY',
@@ -2768,7 +3113,8 @@ INSERT INTO financial_assets
       'Genworth Financial, Inc.',
       'USD',
       6.289999961853027,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'CORT',
       'EQUITY',
@@ -2776,7 +3122,8 @@ INSERT INTO financial_assets
       'Corcept Therapeutics Incorporated',
       'USD',
       30.170000076293945,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'NHI',
       'EQUITY',
@@ -2784,7 +3131,8 @@ INSERT INTO financial_assets
       'National Health Investors, Inc.',
       'USD',
       66.08000183105469,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'ACVA',
       'EQUITY',
@@ -2792,7 +3140,8 @@ INSERT INTO financial_assets
       'ACV Auctions Inc.',
       'USD',
       17.850000381469727,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'BTU',
       'EQUITY',
@@ -2800,7 +3149,8 @@ INSERT INTO financial_assets
       'Peabody Energy Corporation',
       'USD',
       24.780000686645508,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'SITM',
       'EQUITY',
@@ -2808,7 +3158,8 @@ INSERT INTO financial_assets
       'SiTime Corporation',
       'USD',
       121.81999969482422,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'KOS',
       'EQUITY',
@@ -2816,7 +3167,8 @@ INSERT INTO financial_assets
       'Kosmos Energy Ltd.',
       'USD',
       6.099999904632568,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'FTDR',
       'EQUITY',
@@ -2824,7 +3176,8 @@ INSERT INTO financial_assets
       'Frontdoor, Inc.',
       'USD',
       35.369998931884766,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'SLVM',
       'EQUITY',
@@ -2832,7 +3185,8 @@ INSERT INTO financial_assets
       'Sylvamo Corporation',
       'USD',
       71.31999969482422,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'CALM',
       'EQUITY',
@@ -2840,7 +3194,8 @@ INSERT INTO financial_assets
       'Cal-Maine Foods, Inc.',
       'USD',
       61.66999816894531,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'YOU',
       'EQUITY',
@@ -2848,7 +3203,8 @@ INSERT INTO financial_assets
       'Clear Secure, Inc.',
       'USD',
       16.889999389648438,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'DFH',
       'EQUITY',
@@ -2856,7 +3212,8 @@ INSERT INTO financial_assets
       'Dream Finders Homes, Inc.',
       'USD',
       28.40999984741211,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'MODG',
       'EQUITY',
@@ -2864,7 +3221,8 @@ INSERT INTO financial_assets
       'Topgolf Callaway Brands Corp.',
       'USD',
       15.649999618530273,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'CCOI',
       'EQUITY',
@@ -2872,7 +3230,8 @@ INSERT INTO financial_assets
       'Cogent Communications Holdings, Inc.',
       'USD',
       59.220001220703125,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'AIN',
       'EQUITY',
@@ -2880,7 +3239,8 @@ INSERT INTO financial_assets
       'Albany International Corp.',
       'USD',
       87.72000122070312,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'UEC',
       'EQUITY',
@@ -2888,7 +3248,8 @@ INSERT INTO financial_assets
       'Uranium Energy Corp.',
       'USD',
       7.139999866485596,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'NEOG',
       'EQUITY',
@@ -2896,7 +3257,8 @@ INSERT INTO financial_assets
       'Neogen Corporation',
       'USD',
       13.149999618530273,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'GBTG',
       'EQUITY',
@@ -2904,7 +3266,8 @@ INSERT INTO financial_assets
       'Global Business Travel Group, Inc.',
       'USD',
       6.070000171661377,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'ICFI',
       'EQUITY',
@@ -2912,7 +3275,8 @@ INSERT INTO financial_assets
       'ICF International, Inc.',
       'USD',
       142.75,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'HIMS',
       'EQUITY',
@@ -2920,7 +3284,8 @@ INSERT INTO financial_assets
       'Hims & Hers Health, Inc.',
       'USD',
       19.420000076293945,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'GVA',
       'EQUITY',
@@ -2928,7 +3293,8 @@ INSERT INTO financial_assets
       'Granite Construction Incorporated',
       'USD',
       62.290000915527344,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'TWST',
       'EQUITY',
@@ -2936,7 +3302,8 @@ INSERT INTO financial_assets
       'Twist Bioscience Corporation',
       'USD',
       41.900001525878906,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'CDP',
       'EQUITY',
@@ -2944,7 +3311,8 @@ INSERT INTO financial_assets
       'COPT Defense Properties',
       'USD',
       24.670000076293945,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'WSFS',
       'EQUITY',
@@ -2952,7 +3320,8 @@ INSERT INTO financial_assets
       'WSFS Financial Corporation',
       'USD',
       44.060001373291016,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'DNLI',
       'EQUITY',
@@ -2960,7 +3329,8 @@ INSERT INTO financial_assets
       'Denali Therapeutics Inc.',
       'USD',
       18.559999465942383,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'RELY',
       'EQUITY',
@@ -2968,7 +3338,8 @@ INSERT INTO financial_assets
       'Remitly Global, Inc.',
       'USD',
       12.994999885559082,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'GLNG',
       'EQUITY',
@@ -2976,7 +3347,8 @@ INSERT INTO financial_assets
       'Golar LNG Limited',
       'USD',
       26.290000915527344,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'RIOT',
       'EQUITY',
@@ -2984,7 +3356,8 @@ INSERT INTO financial_assets
       'Riot Platforms, Inc.',
       'USD',
       9.739999771118164,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'EVH',
       'EQUITY',
@@ -2992,7 +3365,8 @@ INSERT INTO financial_assets
       'Evolent Health, Inc.',
       'USD',
       21.190000534057617,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'LFST',
       'EQUITY',
@@ -3000,7 +3374,8 @@ INSERT INTO financial_assets
       'LifeStance Health Group, Inc.',
       'USD',
       5.570000171661377,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'ARCB',
       'EQUITY',
@@ -3008,7 +3383,8 @@ INSERT INTO financial_assets
       'ArcBest Corporation',
       'USD',
       105.5199966430664,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'ARWR',
       'EQUITY',
@@ -3016,7 +3392,8 @@ INSERT INTO financial_assets
       'Arrowhead Pharmaceuticals, Inc.',
       'USD',
       22.950000762939453,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'HUBG',
       'EQUITY',
@@ -3024,7 +3401,8 @@ INSERT INTO financial_assets
       'Hub Group, Inc.',
       'USD',
       43.150001525878906,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'CATY',
       'EQUITY',
@@ -3032,7 +3410,8 @@ INSERT INTO financial_assets
       'Cathay General Bancorp',
       'USD',
       36.84000015258789,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'EAT',
       'EQUITY',
@@ -3040,7 +3419,8 @@ INSERT INTO financial_assets
       'Brinker International, Inc.',
       'USD',
       70.62999725341797,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'ESE',
       'EQUITY',
@@ -3048,7 +3428,8 @@ INSERT INTO financial_assets
       'ESCO Technologies Inc.',
       'USD',
       109.12999725341797,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'GPOR',
       'EQUITY',
@@ -3056,7 +3437,8 @@ INSERT INTO financial_assets
       'Gulfport Energy Corporation',
       'USD',
       161.80999755859375,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'CENTA',
       'EQUITY',
@@ -3064,7 +3446,8 @@ INSERT INTO financial_assets
       'Central Garden & Pet Company',
       'USD',
       37.349998474121094,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'INTA',
       'EQUITY',
@@ -3072,7 +3455,8 @@ INSERT INTO financial_assets
       'Intapp, Inc.',
       'USD',
       35.900001525878906,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'NMIH',
       'EQUITY',
@@ -3080,7 +3464,8 @@ INSERT INTO financial_assets
       'NMI Holdings, Inc.',
       'USD',
       33.18000030517578,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'IDCC',
       'EQUITY',
@@ -3088,7 +3473,8 @@ INSERT INTO financial_assets
       'InterDigital, Inc.',
       'USD',
       113.87000274658203,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'CCS',
       'EQUITY',
@@ -3096,7 +3482,8 @@ INSERT INTO financial_assets
       'Century Communities, Inc.',
       'USD',
       84.41000366210938,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'FOLD',
       'EQUITY',
@@ -3104,7 +3491,8 @@ INSERT INTO financial_assets
       'Amicus Therapeutics, Inc.',
       'USD',
       9.800000190734863,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'TGTX',
       'EQUITY',
@@ -3112,7 +3500,8 @@ INSERT INTO financial_assets
       'TG Therapeutics, Inc.',
       'USD',
       16.299999237060547,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'ACLX',
       'EQUITY',
@@ -3120,7 +3509,8 @@ INSERT INTO financial_assets
       'Arcellx, Inc.',
       'USD',
       52,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'KLIC',
       'EQUITY',
@@ -3128,7 +3518,8 @@ INSERT INTO financial_assets
       'Kulicke and Soffa Industries, Inc.',
       'USD',
       45.66999816894531,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'MGRC',
       'EQUITY',
@@ -3136,7 +3527,8 @@ INSERT INTO financial_assets
       'McGrath RentCorp',
       'USD',
       108.9800033569336,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'NARI',
       'EQUITY',
@@ -3144,7 +3536,8 @@ INSERT INTO financial_assets
       'Inari Medical, Inc.',
       'USD',
       50,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'ADNT',
       'EQUITY',
@@ -3152,7 +3545,8 @@ INSERT INTO financial_assets
       'Adient plc',
       'USD',
       28.239999771118164,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'PRIM',
       'EQUITY',
@@ -3160,7 +3554,8 @@ INSERT INTO financial_assets
       'Primoris Services Corporation',
       'USD',
       54.7599983215332,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'CLDX',
       'EQUITY',
@@ -3168,7 +3563,8 @@ INSERT INTO financial_assets
       'Celldex Therapeutics, Inc.',
       'USD',
       33.29999923706055,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'PGNY',
       'EQUITY',
@@ -3176,7 +3572,8 @@ INSERT INTO financial_assets
       'Progyny, Inc.',
       'USD',
       26.950000762939453,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'TGNA',
       'EQUITY',
@@ -3184,7 +3581,8 @@ INSERT INTO financial_assets
       'TEGNA Inc.',
       'USD',
       14.90999984741211,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'JAMF',
       'EQUITY',
@@ -3192,7 +3590,8 @@ INSERT INTO financial_assets
       'Jamf Holding Corp.',
       'USD',
       15.920000076293945,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'PSMT',
       'EQUITY',
@@ -3200,7 +3599,8 @@ INSERT INTO financial_assets
       'PriceSmart, Inc.',
       'USD',
       84.1500015258789,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'BE',
       'EQUITY',
@@ -3208,7 +3608,8 @@ INSERT INTO financial_assets
       'Bloom Energy Corporation',
       'USD',
       16.31999969482422,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'YELP',
       'EQUITY',
@@ -3216,7 +3617,8 @@ INSERT INTO financial_assets
       'Yelp Inc.',
       'USD',
       36.970001220703125,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'JANX',
       'EQUITY',
@@ -3224,7 +3626,8 @@ INSERT INTO financial_assets
       'Janux Therapeutics, Inc.',
       'USD',
       53.5,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'LXP',
       'EQUITY',
@@ -3232,7 +3635,8 @@ INSERT INTO financial_assets
       'LXP Industrial Trust',
       'USD',
       8.5,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'UTZ',
       'EQUITY',
@@ -3240,7 +3644,8 @@ INSERT INTO financial_assets
       'Utz Brands, Inc.',
       'USD',
       18.540000915527344,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'CARG',
       'EQUITY',
@@ -3248,7 +3653,8 @@ INSERT INTO financial_assets
       'CarGurus, Inc.',
       'USD',
       24.209999084472656,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'PRFT',
       'EQUITY',
@@ -3256,7 +3662,8 @@ INSERT INTO financial_assets
       'Perficient, Inc.',
       'USD',
       74.1500015258789,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'ABR',
       'EQUITY',
@@ -3264,7 +3671,8 @@ INSERT INTO financial_assets
       'Arbor Realty Trust, Inc.',
       'USD',
       13.680000305175781,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'MTX',
       'EQUITY',
@@ -3272,7 +3680,8 @@ INSERT INTO financial_assets
       'Minerals Technologies Inc.',
       'USD',
       86.75,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'MYRG',
       'EQUITY',
@@ -3280,7 +3689,8 @@ INSERT INTO financial_assets
       'MYR Group Inc.',
       'USD',
       155.05999755859375,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'ZD',
       'EQUITY',
@@ -3288,7 +3698,8 @@ INSERT INTO financial_assets
       'Ziff Davis, Inc.',
       'USD',
       57.61000061035156,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'CEIX',
       'EQUITY',
@@ -3296,7 +3707,8 @@ INSERT INTO financial_assets
       'CONSOL Energy Inc.',
       'USD',
       103.66999816894531,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'ATMU',
       'EQUITY',
@@ -3304,7 +3716,8 @@ INSERT INTO financial_assets
       'Atmus Filtration Technologies Inc.',
       'USD',
       30.84000015258789,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'DBRG',
       'EQUITY',
@@ -3312,7 +3725,8 @@ INSERT INTO financial_assets
       'DigitalBridge Group, Inc.',
       'USD',
       13.640000343322754,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'LAUR',
       'EQUITY',
@@ -3320,7 +3734,8 @@ INSERT INTO financial_assets
       'Laureate Education, Inc.',
       'USD',
       15.65999984741211,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'AIR',
       'EQUITY',
@@ -3328,7 +3743,8 @@ INSERT INTO financial_assets
       'AAR Corp.',
       'USD',
       70.98999786376953,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'TRN',
       'EQUITY',
@@ -3336,7 +3752,8 @@ INSERT INTO financial_assets
       'Trinity Industries, Inc.',
       'USD',
       31.450000762939453,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'HELE',
       'EQUITY',
@@ -3344,7 +3761,8 @@ INSERT INTO financial_assets
       'Helen of Troy Limited',
       'USD',
       106.87999725341797,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'PATK',
       'EQUITY',
@@ -3352,7 +3770,8 @@ INSERT INTO financial_assets
       'Patrick Industries, Inc.',
       'USD',
       114.5999984741211,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'AMK',
       'EQUITY',
@@ -3360,7 +3779,8 @@ INSERT INTO financial_assets
       'AssetMark Financial Holdings, Inc.',
       'USD',
       34.38999938964844,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'BATRA',
       'EQUITY',
@@ -3368,7 +3788,8 @@ INSERT INTO financial_assets
       'Atlanta Braves Holdings, Inc.',
       'USD',
       42.029998779296875,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'ACAD',
       'EQUITY',
@@ -3376,7 +3797,8 @@ INSERT INTO financial_assets
       'ACADIA Pharmaceuticals Inc.',
       'USD',
       15.100000381469727,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'LGF-A',
       'EQUITY',
@@ -3384,7 +3806,8 @@ INSERT INTO financial_assets
       'Lions Gate Entertainment Corp.',
       'USD',
       8.3100004196167,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'OUT',
       'EQUITY',
@@ -3392,7 +3815,8 @@ INSERT INTO financial_assets
       'OUTFRONT Media Inc.',
       'USD',
       14.449999809265137,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'SMTC',
       'EQUITY',
@@ -3400,7 +3824,8 @@ INSERT INTO financial_assets
       'Semtech Corporation',
       'USD',
       38.88999938964844,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'RNA',
       'EQUITY',
@@ -3408,7 +3833,8 @@ INSERT INTO financial_assets
       'Avidity Biosciences, Inc.',
       'USD',
       26.860000610351562,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'GRBK',
       'EQUITY',
@@ -3416,7 +3842,8 @@ INSERT INTO financial_assets
       'Green Brick Partners, Inc.',
       'USD',
       54.599998474121094,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'CBU',
       'EQUITY',
@@ -3424,7 +3851,8 @@ INSERT INTO financial_assets
       'Community Financial System, Inc.',
       'USD',
       45.459999084472656,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'ALKT',
       'EQUITY',
@@ -3432,7 +3860,8 @@ INSERT INTO financial_assets
       'Alkami Technology, Inc.',
       'USD',
       27.43000030517578,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'RXO',
       'EQUITY',
@@ -3440,7 +3869,8 @@ INSERT INTO financial_assets
       'RXO, Inc.',
       'USD',
       20.40999984741211,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'CPK',
       'EQUITY',
@@ -3448,7 +3878,8 @@ INSERT INTO financial_assets
       'Chesapeake Utilities Corporation',
       'USD',
       112.01000213623047,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'NTLA',
       'EQUITY',
@@ -3456,7 +3887,8 @@ INSERT INTO financial_assets
       'Intellia Therapeutics, Inc.',
       'USD',
       21.3799991607666,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'RYTM',
       'EQUITY',
@@ -3464,7 +3896,8 @@ INSERT INTO financial_assets
       'Rhythm Pharmaceuticals, Inc.',
       'USD',
       35.68000030517578,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'ATGE',
       'EQUITY',
@@ -3472,7 +3905,8 @@ INSERT INTO financial_assets
       'Adtalem Global Education Inc.',
       'USD',
       64.38999938964844,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'EBC',
       'EQUITY',
@@ -3480,7 +3914,8 @@ INSERT INTO financial_assets
       'Eastern Bankshares, Inc.',
       'USD',
       13.699999809265137,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'PTCT',
       'EQUITY',
@@ -3488,7 +3923,8 @@ INSERT INTO financial_assets
       'PTC Therapeutics, Inc.',
       'USD',
       36.36000061035156,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'PJT',
       'EQUITY',
@@ -3496,7 +3932,8 @@ INSERT INTO financial_assets
       'PJT Partners Inc.',
       'USD',
       106.66999816894531,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'CWK',
       'EQUITY',
@@ -3504,7 +3941,8 @@ INSERT INTO financial_assets
       'Cushman & Wakefield plc',
       'USD',
       11.109999656677246,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'DEI',
       'EQUITY',
@@ -3512,7 +3950,8 @@ INSERT INTO financial_assets
       'Douglas Emmett, Inc.',
       'USD',
       13.949999809265137,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'UPST',
       'EQUITY',
@@ -3520,7 +3959,8 @@ INSERT INTO financial_assets
       'Upstart Holdings, Inc.',
       'USD',
       24.719999313354492,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'APPN',
       'EQUITY',
@@ -3528,7 +3968,8 @@ INSERT INTO financial_assets
       'Appian Corporation',
       'USD',
       28.389999389648438,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'EVTC',
       'EQUITY',
@@ -3536,7 +3977,8 @@ INSERT INTO financial_assets
       'EVERTEC, Inc.',
       'USD',
       34.970001220703125,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'MIR',
       'EQUITY',
@@ -3544,7 +3986,8 @@ INSERT INTO financial_assets
       'Mirion Technologies, Inc.',
       'USD',
       10.859999656677246,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'SNEX',
       'EQUITY',
@@ -3552,7 +3995,8 @@ INSERT INTO financial_assets
       'StoneX Group Inc.',
       'USD',
       75.06999969482422,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'PTVE',
       'EQUITY',
@@ -3560,7 +4004,8 @@ INSERT INTO financial_assets
       'Pactiv Evergreen Inc.',
       'USD',
       12.359999656677246,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'WERN',
       'EQUITY',
@@ -3568,7 +4013,8 @@ INSERT INTO financial_assets
       'Werner Enterprises, Inc.',
       'USD',
       37.56999969482422,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'CVBF',
       'EQUITY',
@@ -3576,7 +4022,8 @@ INSERT INTO financial_assets
       'CVB Financial Corp.',
       'USD',
       16.540000915527344,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'TDS',
       'EQUITY',
@@ -3584,7 +4031,8 @@ INSERT INTO financial_assets
       'Telephone and Data Systems, Inc.',
       'USD',
       19.889999389648438,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'ALG',
       'EQUITY',
@@ -3592,7 +4040,8 @@ INSERT INTO financial_assets
       'Alamo Group Inc.',
       'USD',
       189.99000549316406,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'LGIH',
       'EQUITY',
@@ -3600,7 +4049,8 @@ INSERT INTO financial_assets
       'LGI Homes, Inc.',
       'USD',
       96,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'OII',
       'EQUITY',
@@ -3608,7 +4058,8 @@ INSERT INTO financial_assets
       'Oceaneering International, Inc.',
       'USD',
       23.68000030517578,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'VCEL',
       'EQUITY',
@@ -3616,7 +4067,8 @@ INSERT INTO financial_assets
       'Vericel Corporation',
       'USD',
       47.70000076293945,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'BOH',
       'EQUITY',
@@ -3624,7 +4076,8 @@ INSERT INTO financial_assets
       'Bank of Hawaii Corporation',
       'USD',
       57.7400016784668,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'KYMR',
       'EQUITY',
@@ -3632,7 +4085,8 @@ INSERT INTO financial_assets
       'Kymera Therapeutics, Inc.',
       'USD',
       32.11000061035156,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'TNK',
       'EQUITY',
@@ -3640,7 +4094,8 @@ INSERT INTO financial_assets
       'Teekay Tankers Ltd.',
       'USD',
       72.83000183105469,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'LGF-B',
       'EQUITY',
@@ -3648,7 +4103,8 @@ INSERT INTO financial_assets
       'Lions Gate Entertainment Corp.',
       'USD',
       7.71999979019165,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'DYN',
       'EQUITY',
@@ -3656,7 +4112,8 @@ INSERT INTO financial_assets
       'Dyne Therapeutics, Inc.',
       'USD',
       31.8799991607666,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'MTRN',
       'EQUITY',
@@ -3664,7 +4121,8 @@ INSERT INTO financial_assets
       'Materion Corporation',
       'USD',
       114.37999725341797,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'OSIS',
       'EQUITY',
@@ -3672,7 +4130,8 @@ INSERT INTO financial_assets
       'OSI Systems, Inc.',
       'USD',
       143.74000549316406,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'WAFD',
       'EQUITY',
@@ -3680,7 +4139,8 @@ INSERT INTO financial_assets
       'WaFd, Inc',
       'USD',
       28.010000228881836,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'AVDX',
       'EQUITY',
@@ -3688,7 +4148,8 @@ INSERT INTO financial_assets
       'AvidXchange Holdings, Inc.',
       'USD',
       10.59000015258789,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'RPD',
       'EQUITY',
@@ -3696,7 +4157,8 @@ INSERT INTO financial_assets
       'Rapid7, Inc.',
       'USD',
       36.13999938964844,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'NABL',
       'EQUITY',
@@ -3704,7 +4166,8 @@ INSERT INTO financial_assets
       'N-able, Inc.',
       'USD',
       13.350000381469727,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'FA',
       'EQUITY',
@@ -3712,7 +4175,8 @@ INSERT INTO financial_assets
       'First Advantage Corporation',
       'USD',
       16.059999465942383,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'GSHD',
       'EQUITY',
@@ -3720,7 +4184,8 @@ INSERT INTO financial_assets
       'Goosehead Insurance, Inc',
       'USD',
       64.5,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'PDCO',
       'EQUITY',
@@ -3728,7 +4193,8 @@ INSERT INTO financial_assets
       'Patterson Companies, Inc.',
       'USD',
       24.59000015258789,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'KGS',
       'EQUITY',
@@ -3736,7 +4202,8 @@ INSERT INTO financial_assets
       'Kodiak Gas Services, Inc.',
       'USD',
       27.549999237060547,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'TALO',
       'EQUITY',
@@ -3744,7 +4211,8 @@ INSERT INTO financial_assets
       'Talos Energy Inc.',
       'USD',
       12.010000228881836,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'AZZ',
       'EQUITY',
@@ -3752,7 +4220,8 @@ INSERT INTO financial_assets
       'AZZ Inc.',
       'USD',
       83.87999725341797,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'FCPT',
       'EQUITY',
@@ -3760,7 +4229,8 @@ INSERT INTO financial_assets
       'Four Corners Property Trust, Inc.',
       'USD',
       24.40999984741211,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'SIX',
       'EQUITY',
@@ -3768,7 +4238,8 @@ INSERT INTO financial_assets
       'Six Flags Entertainment Corporation',
       'USD',
       25.450000762939453,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'APGE',
       'EQUITY',
@@ -3776,7 +4247,8 @@ INSERT INTO financial_assets
       'Apogee Therapeutics, Inc.',
       'USD',
       45.63999938964844,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'ROCK',
       'EQUITY',
@@ -3784,7 +4256,8 @@ INSERT INTO financial_assets
       'Gibraltar Industries, Inc.',
       'USD',
       75.45999908447266,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'AESI',
       'EQUITY',
@@ -3792,7 +4265,8 @@ INSERT INTO financial_assets
       'Atlas Energy Solutions Inc.',
       'USD',
       24.219999313354492,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'FFBC',
       'EQUITY',
@@ -3800,7 +4274,8 @@ INSERT INTO financial_assets
       'First Financial Bancorp.',
       'USD',
       22.299999237060547,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'MYGN',
       'EQUITY',
@@ -3808,7 +4283,8 @@ INSERT INTO financial_assets
       'Myriad Genetics, Inc.',
       'USD',
       22.760000228881836,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'SFNC',
       'EQUITY',
@@ -3816,7 +4292,8 @@ INSERT INTO financial_assets
       'Simmons First National Corporation',
       'USD',
       17.3799991607666,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'CNMD',
       'EQUITY',
@@ -3824,7 +4301,8 @@ INSERT INTO financial_assets
       'CONMED Corporation',
       'USD',
       76.44000244140625,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'ROG',
       'EQUITY',
@@ -3832,7 +4310,8 @@ INSERT INTO financial_assets
       'Rogers Corporation',
       'USD',
       118,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'AMN',
       'EQUITY',
@@ -3840,7 +4319,8 @@ INSERT INTO financial_assets
       'AMN Healthcare Services, Inc.',
       'USD',
       55.939998626708984,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'PLAY',
       'EQUITY',
@@ -3848,7 +4328,8 @@ INSERT INTO financial_assets
       'Dave & Buster''s Entertainment, Inc.',
       'USD',
       51.09000015258789,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'XPRO',
       'EQUITY',
@@ -3856,7 +4337,8 @@ INSERT INTO financial_assets
       'Expro Group Holdings N.V.',
       'USD',
       21.950000762939453,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'PRK',
       'EQUITY',
@@ -3864,7 +4346,8 @@ INSERT INTO financial_assets
       'Park National Corporation',
       'USD',
       137.4600067138672,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'SEMR',
       'EQUITY',
@@ -3872,7 +4355,8 @@ INSERT INTO financial_assets
       'Semrush Holdings, Inc.',
       'USD',
       15.260000228881836,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'RXRX',
       'EQUITY',
@@ -3880,7 +4364,8 @@ INSERT INTO financial_assets
       'Recursion Pharmaceuticals, Inc.',
       'USD',
       8.279999732971191,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'GSAT',
       'EQUITY',
@@ -3888,7 +4373,8 @@ INSERT INTO financial_assets
       'Globalstar, Inc.',
       'USD',
       1.090000033378601,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'VERA',
       'EQUITY',
@@ -3896,7 +4382,8 @@ INSERT INTO financial_assets
       'Vera Therapeutics, Inc.',
       'USD',
       37.9900016784668,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'GERN',
       'EQUITY',
@@ -3904,7 +4391,8 @@ INSERT INTO financial_assets
       'Geron Corporation',
       'USD',
       3.549999952316284,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'PPBI',
       'EQUITY',
@@ -3912,7 +4400,8 @@ INSERT INTO financial_assets
       'Pacific Premier Bancorp, Inc.',
       'USD',
       22.239999771118164,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'INDB',
       'EQUITY',
@@ -3920,7 +4409,8 @@ INSERT INTO financial_assets
       'Independent Bank Corp.',
       'USD',
       50.790000915527344,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'CNK',
       'EQUITY',
@@ -3928,7 +4418,8 @@ INSERT INTO financial_assets
       'Cinemark Holdings, Inc.',
       'USD',
       17.270000457763672,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'PRGS',
       'EQUITY',
@@ -3936,7 +4427,8 @@ INSERT INTO financial_assets
       'Progress Software Corporation',
       'USD',
       50.650001525878906,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'AGYS',
       'EQUITY',
@@ -3944,7 +4436,8 @@ INSERT INTO financial_assets
       'Agilysys, Inc.',
       'USD',
       95.47000122070312,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'ASTH',
       'EQUITY',
@@ -3952,7 +4445,8 @@ INSERT INTO financial_assets
       'Astrana Health, Inc.',
       'USD',
       41.43000030517578,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'CRGY',
       'EQUITY',
@@ -3960,7 +4454,8 @@ INSERT INTO financial_assets
       'Crescent Energy Company',
       'USD',
       12.600000381469727,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'CMPR',
       'EQUITY',
@@ -3968,7 +4463,8 @@ INSERT INTO financial_assets
       'Cimpress plc',
       'USD',
       82.51000213623047,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'RXST',
       'EQUITY',
@@ -3976,7 +4472,8 @@ INSERT INTO financial_assets
       'RxSight, Inc.',
       'USD',
       58.470001220703125,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'SVV',
       'EQUITY',
@@ -3984,7 +4481,8 @@ INSERT INTO financial_assets
       'Savers Value Village, Inc.',
       'USD',
       13.5600004196167,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'MBC',
       'EQUITY',
@@ -3992,7 +4490,8 @@ INSERT INTO financial_assets
       'MasterBrand, Inc.',
       'USD',
       16.709999084472656,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'HNI',
       'EQUITY',
@@ -4000,7 +4499,8 @@ INSERT INTO financial_assets
       'HNI Corporation',
       'USD',
       47.04999923706055,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'ARVN',
       'EQUITY',
@@ -4008,7 +4508,8 @@ INSERT INTO financial_assets
       'Arvinas, Inc.',
       'USD',
       33.13999938964844,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'ENR',
       'EQUITY',
@@ -4016,7 +4517,8 @@ INSERT INTO financial_assets
       'Energizer Holdings, Inc.',
       'USD',
       28.6200008392334,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'BKU',
       'EQUITY',
@@ -4024,7 +4526,8 @@ INSERT INTO financial_assets
       'BankUnited, Inc.',
       'USD',
       28.690000534057617,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'FL',
       'EQUITY',
@@ -4032,7 +4535,8 @@ INSERT INTO financial_assets
       'Foot Locker, Inc.',
       'USD',
       27.729999542236328,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'PRVA',
       'EQUITY',
@@ -4040,7 +4544,8 @@ INSERT INTO financial_assets
       'Privia Health Group, Inc.',
       'USD',
       17.3700008392334,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'STAA',
       'EQUITY',
@@ -4048,7 +4553,8 @@ INSERT INTO financial_assets
       'STAAR Surgical Company',
       'USD',
       41.529998779296875,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'PLUS',
       'EQUITY',
@@ -4056,7 +4562,8 @@ INSERT INTO financial_assets
       'ePlus inc.',
       'USD',
       74.83999633789062,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'VECO',
       'EQUITY',
@@ -4064,7 +4571,8 @@ INSERT INTO financial_assets
       'Veeco Instruments Inc.',
       'USD',
       40.650001525878906,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'SPNT',
       'EQUITY',
@@ -4072,7 +4580,8 @@ INSERT INTO financial_assets
       'SiriusPoint Ltd.',
       'USD',
       13.149999618530273,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'BANC',
       'EQUITY',
@@ -4080,7 +4589,8 @@ INSERT INTO financial_assets
       'Banc of California, Inc.',
       'USD',
       13.859999656677246,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'RAMP',
       'EQUITY',
@@ -4088,7 +4598,8 @@ INSERT INTO financial_assets
       'LiveRamp Holdings, Inc.',
       'USD',
       31.290000915527344,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'OI',
       'EQUITY',
@@ -4096,7 +4607,8 @@ INSERT INTO financial_assets
       'O-I Glass, Inc.',
       'USD',
       12.6899995803833,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'PAYO',
       'EQUITY',
@@ -4104,7 +4616,8 @@ INSERT INTO financial_assets
       'Payoneer Global Inc.',
       'USD',
       5.989999771118164,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'SONO',
       'EQUITY',
@@ -4112,7 +4625,8 @@ INSERT INTO financial_assets
       'Sonos, Inc.',
       'USD',
       15.800000190734863,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'FIHL',
       'EQUITY',
@@ -4120,7 +4634,8 @@ INSERT INTO financial_assets
       'Fidelis Insurance Holdings Limited',
       'USD',
       16.579999923706055,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'FLYW',
       'EQUITY',
@@ -4128,7 +4643,8 @@ INSERT INTO financial_assets
       'Flywire Corporation',
       'USD',
       17.149999618530273,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'USLM',
       'EQUITY',
@@ -4136,7 +4652,8 @@ INSERT INTO financial_assets
       'United States Lime & Minerals, Inc.',
       'USD',
       342.739990234375,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'RCKT',
       'EQUITY',
@@ -4144,7 +4661,8 @@ INSERT INTO financial_assets
       'Rocket Pharmaceuticals, Inc.',
       'USD',
       21.31999969482422,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'WLY',
       'EQUITY',
@@ -4152,7 +4670,8 @@ INSERT INTO financial_assets
       'John Wiley & Sons, Inc.',
       'USD',
       36.45000076293945,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'DCPH',
       'EQUITY',
@@ -4160,7 +4679,8 @@ INSERT INTO financial_assets
       'Deciphera Pharmaceuticals, Inc.',
       'USD',
       25.540000915527344,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'SHO',
       'EQUITY',
@@ -4168,7 +4688,8 @@ INSERT INTO financial_assets
       'Sunstone Hotel Investors, Inc.',
       'USD',
       10.279999732971191,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'ASPN',
       'EQUITY',
@@ -4176,7 +4697,8 @@ INSERT INTO financial_assets
       'Aspen Aerogels, Inc.',
       'USD',
       29.920000076293945,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'DNUT',
       'EQUITY',
@@ -4184,7 +4706,8 @@ INSERT INTO financial_assets
       'Krispy Kreme, Inc.',
       'USD',
       10.460000038146973,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'FRME',
       'EQUITY',
@@ -4192,7 +4715,8 @@ INSERT INTO financial_assets
       'First Merchants Corporation',
       'USD',
       33.04999923706055,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'CDE',
       'EQUITY',
@@ -4200,7 +4724,8 @@ INSERT INTO financial_assets
       'Coeur Mining, Inc.',
       'USD',
       5.75,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'PLMR',
       'EQUITY',
@@ -4208,7 +4733,8 @@ INSERT INTO financial_assets
       'Palomar Holdings, Inc.',
       'USD',
       84.83999633789062,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'EQC',
       'EQUITY',
@@ -4216,7 +4742,8 @@ INSERT INTO financial_assets
       'Equity Commonwealth',
       'USD',
       19.309999465942383,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'MBIN',
       'EQUITY',
@@ -4224,7 +4751,8 @@ INSERT INTO financial_assets
       'Merchants Bancorp',
       'USD',
       40.04999923706055,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'VZIO',
       'EQUITY',
@@ -4232,7 +4760,8 @@ INSERT INTO financial_assets
       'VIZIO Holding Corp.',
       'USD',
       10.739999771118164,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'AMRX',
       'EQUITY',
@@ -4240,7 +4769,8 @@ INSERT INTO financial_assets
       'Amneal Pharmaceuticals, Inc.',
       'USD',
       6.679999828338623,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'BFH',
       'EQUITY',
@@ -4248,7 +4778,8 @@ INSERT INTO financial_assets
       'Bread Financial Holdings, Inc.',
       'USD',
       41.7599983215332,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'SXI',
       'EQUITY',
@@ -4256,7 +4787,8 @@ INSERT INTO financial_assets
       'Standex International Corporation',
       'USD',
       168.2100067138672,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'UE',
       'EQUITY',
@@ -4264,7 +4796,8 @@ INSERT INTO financial_assets
       'Urban Edge Properties',
       'USD',
       17.729999542236328,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'JBLU',
       'EQUITY',
@@ -4272,7 +4805,8 @@ INSERT INTO financial_assets
       'JetBlue Airways Corporation',
       'USD',
       5.590000152587891,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'HTH',
       'EQUITY',
@@ -4280,7 +4814,8 @@ INSERT INTO financial_assets
       'Hilltop Holdings Inc.',
       'USD',
       30.59000015258789,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'RKLB',
       'EQUITY',
@@ -4288,7 +4823,8 @@ INSERT INTO financial_assets
       'Rocket Lab USA, Inc.',
       'USD',
       4.369999885559082,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'SBCF',
       'EQUITY',
@@ -4296,7 +4832,8 @@ INSERT INTO financial_assets
       'Seacoast Banking Corporation of Florida',
       'USD',
       23.670000076293945,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'KMT',
       'EQUITY',
@@ -4304,7 +4841,8 @@ INSERT INTO financial_assets
       'Kennametal Inc.',
       'USD',
       25.75,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'EE',
       'EQUITY',
@@ -4312,7 +4850,8 @@ INSERT INTO financial_assets
       'Excelerate Energy, Inc.',
       'USD',
       17.809999465942383,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'BLMN',
       'EQUITY',
@@ -4320,7 +4859,8 @@ INSERT INTO financial_assets
       'Bloomin'' Brands, Inc.',
       'USD',
       21.799999237060547,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'EPAC',
       'EQUITY',
@@ -4328,7 +4868,8 @@ INSERT INTO financial_assets
       'Enerpac Tool Group Corp.',
       'USD',
       39.31999969482422,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'AMPH',
       'EQUITY',
@@ -4336,7 +4877,8 @@ INSERT INTO financial_assets
       'Amphastar Pharmaceuticals, Inc.',
       'USD',
       42.33000183105469,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'JBI',
       'EQUITY',
@@ -4344,7 +4886,8 @@ INSERT INTO financial_assets
       'Janus International Group, Inc.',
       'USD',
       13.880000114440918,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'COMP',
       'EQUITY',
@@ -4352,7 +4895,8 @@ INSERT INTO financial_assets
       'Compass, Inc.',
       'USD',
       3.75,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'EPC',
       'EQUITY',
@@ -4360,7 +4904,8 @@ INSERT INTO financial_assets
       'Edgewell Personal Care Company',
       'USD',
       38.58000183105469,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'ADMA',
       'EQUITY',
@@ -4368,7 +4913,8 @@ INSERT INTO financial_assets
       'ADMA Biologics, Inc.',
       'USD',
       9.550000190734863,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'VSTO',
       'EQUITY',
@@ -4376,7 +4922,8 @@ INSERT INTO financial_assets
       'Vista Outdoor Inc.',
       'USD',
       34.880001068115234,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'TNC',
       'EQUITY',
@@ -4384,7 +4931,8 @@ INSERT INTO financial_assets
       'Tennant Company',
       'USD',
       102.66000366210938,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'CALX',
       'EQUITY',
@@ -4392,7 +4940,8 @@ INSERT INTO financial_assets
       'Calix, Inc.',
       'USD',
       35.70000076293945,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'NEO',
       'EQUITY',
@@ -4400,7 +4949,8 @@ INSERT INTO financial_assets
       'NeoGenomics, Inc.',
       'USD',
       13.710000038146973,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'CAKE',
       'EQUITY',
@@ -4408,7 +4958,8 @@ INSERT INTO financial_assets
       'The Cheesecake Factory Incorporated',
       'USD',
       38.47999954223633,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'FOXF',
       'EQUITY',
@@ -4416,7 +4967,8 @@ INSERT INTO financial_assets
       'Fox Factory Holding Corp.',
       'USD',
       46.619998931884766,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'UFPT',
       'EQUITY',
@@ -4424,7 +4976,8 @@ INSERT INTO financial_assets
       'UFP Technologies, Inc.',
       'USD',
       260.3599853515625,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'SFL',
       'EQUITY',
@@ -4432,7 +4985,8 @@ INSERT INTO financial_assets
       'SFL Corporation Ltd.',
       'USD',
       14.3100004196167,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'B',
       'EQUITY',
@@ -4440,7 +4994,8 @@ INSERT INTO financial_assets
       'Barnes Group Inc.',
       'USD',
       38.4900016784668,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'TOWN',
       'EQUITY',
@@ -4448,7 +5003,8 @@ INSERT INTO financial_assets
       'TowneBank',
       'USD',
       27.190000534057617,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'NGVT',
       'EQUITY',
@@ -4456,7 +5012,8 @@ INSERT INTO financial_assets
       'Ingevity Corporation',
       'USD',
       48.849998474121094,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'PD',
       'EQUITY',
@@ -4464,7 +5021,8 @@ INSERT INTO financial_assets
       'PagerDuty, Inc.',
       'USD',
       18.969999313354492,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'SCL',
       'EQUITY',
@@ -4472,7 +5030,8 @@ INSERT INTO financial_assets
       'Stepan Company',
       'USD',
       87.16999816894531,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'BKE',
       'EQUITY',
@@ -4480,7 +5039,8 @@ INSERT INTO financial_assets
       'The Buckle, Inc.',
       'USD',
       38.540000915527344,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'BEAM',
       'EQUITY',
@@ -4488,7 +5048,8 @@ INSERT INTO financial_assets
       'Beam Therapeutics Inc.',
       'USD',
       23.81999969482422,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'MLKN',
       'EQUITY',
@@ -4496,7 +5057,8 @@ INSERT INTO financial_assets
       'MillerKnoll, Inc.',
       'USD',
       27.579999923706055,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'SAH',
       'EQUITY',
@@ -4504,7 +5066,8 @@ INSERT INTO financial_assets
       'Sonic Automotive, Inc.',
       'USD',
       56.66999816894531,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'DAN',
       'EQUITY',
@@ -4512,7 +5075,8 @@ INSERT INTO financial_assets
       'Dana Incorporated',
       'USD',
       14.0600004196167,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'DHT',
       'EQUITY',
@@ -4520,7 +5084,8 @@ INSERT INTO financial_assets
       'DHT Holdings, Inc.',
       'USD',
       12.100000381469727,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'SWI',
       'EQUITY',
@@ -4528,7 +5093,8 @@ INSERT INTO financial_assets
       'SolarWinds Corporation',
       'USD',
       11.579999923706055,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'UCTT',
       'EQUITY',
@@ -4536,7 +5102,8 @@ INSERT INTO financial_assets
       'Ultra Clean Holdings, Inc.',
       'USD',
       46.380001068115234,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'VRNT',
       'EQUITY',
@@ -4544,7 +5111,8 @@ INSERT INTO financial_assets
       'Verint Systems Inc.',
       'USD',
       29.65999984741211,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'KROS',
       'EQUITY',
@@ -4552,7 +5120,8 @@ INSERT INTO financial_assets
       'Keros Therapeutics, Inc.',
       'USD',
       46.869998931884766,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'EXPI',
       'EQUITY',
@@ -4560,7 +5129,8 @@ INSERT INTO financial_assets
       'eXp World Holdings, Inc.',
       'USD',
       11.210000038146973,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'RSI',
       'EQUITY',
@@ -4568,7 +5138,8 @@ INSERT INTO financial_assets
       'Rush Street Interactive, Inc.',
       'USD',
       8.949999809265137,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'KAR',
       'EQUITY',
@@ -4576,7 +5147,8 @@ INSERT INTO financial_assets
       'OPENLANE, Inc.',
       'USD',
       17.25,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'BTSG',
       'EQUITY',
@@ -4584,7 +5156,8 @@ INSERT INTO financial_assets
       'BrightSpring Health Services, Inc.',
       'USD',
       11.25,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'POWL',
       'EQUITY',
@@ -4592,7 +5165,8 @@ INSERT INTO financial_assets
       'Powell Industries, Inc.',
       'USD',
       179.86000061035156,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'ARRY',
       'EQUITY',
@@ -4600,7 +5174,8 @@ INSERT INTO financial_assets
       'Array Technologies, Inc.',
       'USD',
       14.180000305175781,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'AGM',
       'EQUITY',
@@ -4608,7 +5183,8 @@ INSERT INTO financial_assets
       'Federal Agricultural Mortgage Corporation',
       'USD',
       174.6699981689453,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'CPRX',
       'EQUITY',
@@ -4616,7 +5192,8 @@ INSERT INTO financial_assets
       'Catalyst Pharmaceuticals, Inc.',
       'USD',
       16.170000076293945,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'BATRK',
       'EQUITY',
@@ -4624,7 +5201,8 @@ INSERT INTO financial_assets
       'Atlanta Braves Holdings, Inc.',
       'USD',
       39.970001220703125,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'AGIO',
       'EQUITY',
@@ -4632,7 +5210,8 @@ INSERT INTO financial_assets
       'Agios Pharmaceuticals, Inc.',
       'USD',
       36.34000015258789,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'HTLF',
       'EQUITY',
@@ -4640,7 +5219,8 @@ INSERT INTO financial_assets
       'Heartland Financial USA, Inc.',
       'USD',
       43.959999084472656,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'WGO',
       'EQUITY',
@@ -4648,7 +5228,8 @@ INSERT INTO financial_assets
       'Winnebago Industries, Inc.',
       'USD',
       62.04999923706055,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'AMBA',
       'EQUITY',
@@ -4656,7 +5237,8 @@ INSERT INTO financial_assets
       'Ambarella, Inc.',
       'USD',
       58.2599983215332,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'STGW',
       'EQUITY',
@@ -4664,7 +5246,8 @@ INSERT INTO financial_assets
       'Stagwell Inc.',
       'USD',
       6.929999828338623,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'SJW',
       'EQUITY',
@@ -4672,7 +5255,8 @@ INSERT INTO financial_assets
       'SJW Group',
       'USD',
       54.709999084472656,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'CWH',
       'EQUITY',
@@ -4680,7 +5264,8 @@ INSERT INTO financial_assets
       'Camping World Holdings, Inc.',
       'USD',
       20.100000381469727,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'EVCM',
       'EQUITY',
@@ -4688,7 +5273,8 @@ INSERT INTO financial_assets
       'EverCommerce Inc.',
       'USD',
       9.59000015258789,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'ARDX',
       'EQUITY',
@@ -4696,7 +5282,8 @@ INSERT INTO financial_assets
       'Ardelyx, Inc.',
       'USD',
       6.860000133514404,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'HLMN',
       'EQUITY',
@@ -4704,7 +5291,8 @@ INSERT INTO financial_assets
       'Hillman Solutions Corp.',
       'USD',
       9.1899995803833,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'TRMK',
       'EQUITY',
@@ -4712,7 +5300,8 @@ INSERT INTO financial_assets
       'Trustmark Corporation',
       'USD',
       29.149999618530273,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'NVAX',
       'EQUITY',
@@ -4720,7 +5309,8 @@ INSERT INTO financial_assets
       'Novavax, Inc.',
       'USD',
       15.029999732971191,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'TTMI',
       'EQUITY',
@@ -4728,7 +5318,8 @@ INSERT INTO financial_assets
       'TTM Technologies, Inc.',
       'USD',
       18.600000381469727,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'THS',
       'EQUITY',
@@ -4736,7 +5327,8 @@ INSERT INTO financial_assets
       'TreeHouse Foods, Inc.',
       'USD',
       36.310001373291016,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'PLAB',
       'EQUITY',
@@ -4744,7 +5336,8 @@ INSERT INTO financial_assets
       'Photronics, Inc.',
       'USD',
       27.350000381469727,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'LZ',
       'EQUITY',
@@ -4752,7 +5345,8 @@ INSERT INTO financial_assets
       'LegalZoom.com, Inc.',
       'USD',
       8.779999732971191,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'SPNS',
       'EQUITY',
@@ -4760,7 +5354,8 @@ INSERT INTO financial_assets
       'Sapiens International Corporation N.V.',
       'USD',
       33.52000045776367,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'IONQ',
       'EQUITY',
@@ -4768,7 +5363,8 @@ INSERT INTO financial_assets
       'IonQ, Inc.',
       'USD',
       8.149999618530273,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'DFIN',
       'EQUITY',
@@ -4776,7 +5372,8 @@ INSERT INTO financial_assets
       'Donnelley Financial Solutions, Inc.',
       'USD',
       60.959999084472656,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'UPBD',
       'EQUITY',
@@ -4784,7 +5381,8 @@ INSERT INTO financial_assets
       'Upbound Group, Inc.',
       'USD',
       32.81999969482422,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'ADUS',
       'EQUITY',
@@ -4792,7 +5390,8 @@ INSERT INTO financial_assets
       'Addus HomeCare Corporation',
       'USD',
       114.80999755859375,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'MGPI',
       'EQUITY',
@@ -4800,7 +5399,8 @@ INSERT INTO financial_assets
       'MGP Ingredients, Inc.',
       'USD',
       77.62000274658203,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'FBK',
       'EQUITY',
@@ -4808,7 +5408,8 @@ INSERT INTO financial_assets
       'FB Financial Corporation',
       'USD',
       37,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'HEES',
       'EQUITY',
@@ -4816,7 +5417,8 @@ INSERT INTO financial_assets
       'H&E Equipment Services, Inc.',
       'USD',
       47.369998931884766,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'HPK',
       'EQUITY',
@@ -4824,7 +5426,8 @@ INSERT INTO financial_assets
       'HighPeak Energy, Inc.',
       'USD',
       15.779999732971191,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'GCMG',
       'EQUITY',
@@ -4832,7 +5435,8 @@ INSERT INTO financial_assets
       'GCM Grosvenor Inc.',
       'USD',
       10.050000190734863,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'INBX',
       'EQUITY',
@@ -4840,7 +5444,8 @@ INSERT INTO financial_assets
       'Inhibrx Biosciences, Inc.',
       'USD',
       16.25,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'NWLI',
       'EQUITY',
@@ -4848,7 +5453,8 @@ INSERT INTO financial_assets
       'National Western Life Group, Inc.',
       'USD',
       490.5,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'PEB',
       'EQUITY',
@@ -4856,7 +5462,8 @@ INSERT INTO financial_assets
       'Pebblebrook Hotel Trust',
       'USD',
       14.149999618530273,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'GEO',
       'EQUITY',
@@ -4864,7 +5471,8 @@ INSERT INTO financial_assets
       'The GEO Group, Inc.',
       'USD',
       14.539999961853027,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'SNDX',
       'EQUITY',
@@ -4872,7 +5480,8 @@ INSERT INTO financial_assets
       'Syndax Pharmaceuticals, Inc.',
       'USD',
       19.270000457763672,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'DRH',
       'EQUITY',
@@ -4880,7 +5489,8 @@ INSERT INTO financial_assets
       'DiamondRock Hospitality Company',
       'USD',
       8.470000267028809,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'HG',
       'EQUITY',
@@ -4888,7 +5498,8 @@ INSERT INTO financial_assets
       'Hamilton Insurance Group, Ltd.',
       'USD',
       17.25,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'NTB',
       'EQUITY',
@@ -4896,7 +5507,8 @@ INSERT INTO financial_assets
       'The Bank of N.T. Butterfield & Son Limited',
       'USD',
       34.06999969482422,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'ENVA',
       'EQUITY',
@@ -4904,7 +5516,8 @@ INSERT INTO financial_assets
       'Enova International, Inc.',
       'USD',
       61.650001525878906,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'VTLE',
       'EQUITY',
@@ -4912,7 +5525,8 @@ INSERT INTO financial_assets
       'Vital Energy, Inc.',
       'USD',
       48.849998474121094,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'ANDE',
       'EQUITY',
@@ -4920,7 +5534,8 @@ INSERT INTO financial_assets
       'The Andersons, Inc.',
       'USD',
       52.34000015258789,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'TBBK',
       'EQUITY',
@@ -4928,7 +5543,8 @@ INSERT INTO financial_assets
       'The Bancorp, Inc.',
       'USD',
       33.59000015258789,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'AKR',
       'EQUITY',
@@ -4936,7 +5552,8 @@ INSERT INTO financial_assets
       'Acadia Realty Trust',
       'USD',
       17.239999771118164,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'OFG',
       'EQUITY',
@@ -4944,7 +5561,8 @@ INSERT INTO financial_assets
       'OFG Bancorp',
       'USD',
       37.15999984741211,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'WMK',
       'EQUITY',
@@ -4952,7 +5570,8 @@ INSERT INTO financial_assets
       'Weis Markets, Inc.',
       'USD',
       65.55000305175781,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'NBTB',
       'EQUITY',
@@ -4960,7 +5579,8 @@ INSERT INTO financial_assets
       'NBT Bancorp Inc.',
       'USD',
       37.18000030517578,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'DK',
       'EQUITY',
@@ -4968,7 +5588,8 @@ INSERT INTO financial_assets
       'Delek US Holdings, Inc.',
       'USD',
       25.459999084472656,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'LPG',
       'EQUITY',
@@ -4976,7 +5597,8 @@ INSERT INTO financial_assets
       'Dorian LPG Ltd.',
       'USD',
       50.61000061035156,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'SANA',
       'EQUITY',
@@ -4984,7 +5606,8 @@ INSERT INTO financial_assets
       'Sana Biotechnology, Inc.',
       'USD',
       7.5,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'NAVI',
       'EQUITY',
@@ -4992,7 +5615,8 @@ INSERT INTO financial_assets
       'Navient Corporation',
       'USD',
       15.069999694824219,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'GRND',
       'EQUITY',
@@ -5000,7 +5624,8 @@ INSERT INTO financial_assets
       'Grindr Inc.',
       'USD',
       9.5,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'NMRK',
       'EQUITY',
@@ -5008,7 +5633,8 @@ INSERT INTO financial_assets
       'Newmark Group, Inc.',
       'USD',
       10.40999984741211,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'HBI',
       'EQUITY',
@@ -5016,7 +5642,8 @@ INSERT INTO financial_assets
       'Hanesbrands Inc.',
       'USD',
       5.119999885559082,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'GNL',
       'EQUITY',
@@ -5024,7 +5651,8 @@ INSERT INTO financial_assets
       'Global Net Lease, Inc.',
       'USD',
       7.480000019073486,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'HLX',
       'EQUITY',
@@ -5032,7 +5660,8 @@ INSERT INTO financial_assets
       'Helix Energy Solutions Group, Inc.',
       'USD',
       11.510000228881836,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'STC',
       'EQUITY',
@@ -5040,7 +5669,8 @@ INSERT INTO financial_assets
       'Stewart Information Services Corporation',
       'USD',
       63.310001373291016,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'VGR',
       'EQUITY',
@@ -5048,7 +5678,8 @@ INSERT INTO financial_assets
       'Vector Group Ltd.',
       'USD',
       10.970000267028809,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'BOWL',
       'EQUITY',
@@ -5056,7 +5687,8 @@ INSERT INTO financial_assets
       'Bowlero Corp.',
       'USD',
       12.449999809265137,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'RNST',
       'EQUITY',
@@ -5064,7 +5696,8 @@ INSERT INTO financial_assets
       'Renasant Corporation',
       'USD',
       30.1200008392334,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'TFIN',
       'EQUITY',
@@ -5072,7 +5705,8 @@ INSERT INTO financial_assets
       'Triumph Financial, Inc.',
       'USD',
       74.30000305175781,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'PZZA',
       'EQUITY',
@@ -5080,7 +5714,8 @@ INSERT INTO financial_assets
       'Papa John''s International, Inc.',
       'USD',
       46.459999084472656,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'CGON',
       'EQUITY',
@@ -5088,7 +5723,8 @@ INSERT INTO financial_assets
       'CG Oncology, Inc.',
       'USD',
       32.58000183105469,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'VCYT',
       'EQUITY',
@@ -5096,7 +5732,8 @@ INSERT INTO financial_assets
       'Veracyte, Inc.',
       'USD',
       20.75,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'PTGX',
       'EQUITY',
@@ -5104,7 +5741,8 @@ INSERT INTO financial_assets
       'Protagonist Therapeutics, Inc.',
       'USD',
       28.149999618530273,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'SGHC',
       'EQUITY',
@@ -5112,7 +5750,8 @@ INSERT INTO financial_assets
       'Super Group (SGHC) Limited',
       'USD',
       3.630000114440918,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'IBTX',
       'EQUITY',
@@ -5120,7 +5759,8 @@ INSERT INTO financial_assets
       'Independent Bank Group, Inc.',
       'USD',
       46.040000915527344,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'HRMY',
       'EQUITY',
@@ -5128,7 +5768,8 @@ INSERT INTO financial_assets
       'Harmony Biosciences Holdings, Inc.',
       'USD',
       29.399999618530273,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'CNXN',
       'EQUITY',
@@ -5136,7 +5777,8 @@ INSERT INTO financial_assets
       'PC Connection, Inc.',
       'USD',
       67.63999938964844,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'OPEN',
       'EQUITY',
@@ -5144,7 +5786,8 @@ INSERT INTO financial_assets
       'Opendoor Technologies Inc.',
       'USD',
       2.180000066757202,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'LILAK',
       'EQUITY',
@@ -5152,7 +5795,8 @@ INSERT INTO financial_assets
       'Liberty Latin America Ltd.',
       'USD',
       9.069999694824219,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'LMAT',
       'EQUITY',
@@ -5160,7 +5804,8 @@ INSERT INTO financial_assets
       'LeMaitre Vascular, Inc.',
       'USD',
       78.87999725341797,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'LILA',
       'EQUITY',
@@ -5168,7 +5813,8 @@ INSERT INTO financial_assets
       'Liberty Latin America Ltd.',
       'USD',
       9.069999694824219,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'FOR',
       'EQUITY',
@@ -5176,7 +5822,8 @@ INSERT INTO financial_assets
       'Forestar Group Inc.',
       'USD',
       34.0099983215332,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'SOUN',
       'EQUITY',
@@ -5184,7 +5831,8 @@ INSERT INTO financial_assets
       'SoundHound AI, Inc.',
       'USD',
       5.050000190734863,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'OXM',
       'EQUITY',
@@ -5192,7 +5840,8 @@ INSERT INTO financial_assets
       'Oxford Industries, Inc.',
       'USD',
       110.69000244140625,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'CXW',
       'EQUITY',
@@ -5200,7 +5849,8 @@ INSERT INTO financial_assets
       'CoreCivic, Inc.',
       'USD',
       16.049999237060547,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'HLIO',
       'EQUITY',
@@ -5208,7 +5858,8 @@ INSERT INTO financial_assets
       'Helios Technologies, Inc.',
       'USD',
       50.08000183105469,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'XRX',
       'EQUITY',
@@ -5216,7 +5867,8 @@ INSERT INTO financial_assets
       'Xerox Holdings Corporation',
       'USD',
       14.0600004196167,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'IVT',
       'EQUITY',
@@ -5224,7 +5876,8 @@ INSERT INTO financial_assets
       'InvenTrust Properties Corp.',
       'USD',
       24.770000457763672,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'SDGR',
       'EQUITY',
@@ -5232,7 +5885,8 @@ INSERT INTO financial_assets
       'Schrödinger, Inc.',
       'USD',
       21.520000457763672,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'WSBC',
       'EQUITY',
@@ -5240,7 +5894,8 @@ INSERT INTO financial_assets
       'WesBanco, Inc.',
       'USD',
       27.600000381469727,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'NEXT',
       'EQUITY',
@@ -5248,7 +5903,8 @@ INSERT INTO financial_assets
       'NextDecade Corporation',
       'USD',
       7.159999847412109,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'PARR',
       'EQUITY',
@@ -5256,7 +5912,8 @@ INSERT INTO financial_assets
       'Par Pacific Holdings, Inc.',
       'USD',
       27.139999389648438,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'GBX',
       'EQUITY',
@@ -5264,7 +5921,8 @@ INSERT INTO financial_assets
       'The Greenbrier Companies, Inc.',
       'USD',
       55.25,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'ETWO',
       'EQUITY',
@@ -5272,7 +5930,8 @@ INSERT INTO financial_assets
       'E2open Parent Holdings, Inc.',
       'USD',
       4.659999847412109,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'CODI',
       'EQUITY',
@@ -5280,7 +5939,8 @@ INSERT INTO financial_assets
       'Compass Diversified',
       'USD',
       22.760000228881836,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'CLBK',
       'EQUITY',
@@ -5288,7 +5948,8 @@ INSERT INTO financial_assets
       'Columbia Financial, Inc.',
       'USD',
       14.5,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'CENX',
       'EQUITY',
@@ -5296,7 +5957,8 @@ INSERT INTO financial_assets
       'Century Aluminum Company',
       'USD',
       18.329999923706055,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'VRTS',
       'EQUITY',
@@ -5304,7 +5966,8 @@ INSERT INTO financial_assets
       'Virtus Investment Partners, Inc.',
       'USD',
       228.58999633789062,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'VIAV',
       'EQUITY',
@@ -5312,7 +5975,8 @@ INSERT INTO financial_assets
       'Viavi Solutions Inc.',
       'USD',
       7.519999980926514,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'NSSC',
       'EQUITY',
@@ -5320,7 +5984,8 @@ INSERT INTO financial_assets
       'Napco Security Technologies, Inc.',
       'USD',
       49.650001525878906,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'EWTX',
       'EQUITY',
@@ -5328,7 +5993,8 @@ INSERT INTO financial_assets
       'Edgewise Therapeutics, Inc.',
       'USD',
       17.1299991607666,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'SUPN',
       'EQUITY',
@@ -5336,7 +6002,8 @@ INSERT INTO financial_assets
       'Supernus Pharmaceuticals, Inc.',
       'USD',
       27.1200008392334,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'HWKN',
       'EQUITY',
@@ -5344,7 +6011,8 @@ INSERT INTO financial_assets
       'Hawkins, Inc.',
       'USD',
       87.31999969482422,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'RLJ',
       'EQUITY',
@@ -5352,7 +6020,8 @@ INSERT INTO financial_assets
       'RLJ Lodging Trust',
       'USD',
       9.979999542236328,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'KALU',
       'EQUITY',
@@ -5360,7 +6029,8 @@ INSERT INTO financial_assets
       'Kaiser Aluminum Corporation',
       'USD',
       97.80000305175781,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'BANR',
       'EQUITY',
@@ -5368,7 +6038,8 @@ INSERT INTO financial_assets
       'Banner Corporation',
       'USD',
       46.83000183105469,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'UPWK',
       'EQUITY',
@@ -5376,7 +6047,8 @@ INSERT INTO financial_assets
       'Upwork Inc.',
       'USD',
       10.569999694824219,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'THRM',
       'EQUITY',
@@ -5384,7 +6056,8 @@ INSERT INTO financial_assets
       'Gentherm Incorporated',
       'USD',
       53.939998626708984,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'WS',
       'EQUITY',
@@ -5392,7 +6065,8 @@ INSERT INTO financial_assets
       'Worthington Steel, Inc.',
       'USD',
       32.9900016784668,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'ESRT',
       'EQUITY',
@@ -5400,7 +6074,8 @@ INSERT INTO financial_assets
       'Empire State Realty Trust, Inc.',
       'USD',
       9.529999732971191,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'DSGR',
       'EQUITY',
@@ -5408,7 +6083,8 @@ INSERT INTO financial_assets
       'Distribution Solutions Group, Inc.',
       'USD',
       33.380001068115234,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'SPT',
       'EQUITY',
@@ -5416,7 +6092,8 @@ INSERT INTO financial_assets
       'Sprout Social, Inc.',
       'USD',
       32.650001525878906,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'ROIC',
       'EQUITY',
@@ -5424,7 +6101,8 @@ INSERT INTO financial_assets
       'Retail Opportunity Investments Corp.',
       'USD',
       12.520000457763672,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'TARO',
       'EQUITY',
@@ -5432,7 +6110,8 @@ INSERT INTO financial_assets
       'Taro Pharmaceutical Industries Ltd.',
       'USD',
       42.81999969482422,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'CTS',
       'EQUITY',
@@ -5440,7 +6119,8 @@ INSERT INTO financial_assets
       'CTS Corporation',
       'USD',
       52.95000076293945,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'USPH',
       'EQUITY',
@@ -5448,7 +6128,8 @@ INSERT INTO financial_assets
       'U.S. Physical Therapy, Inc.',
       'USD',
       102.56999969482422,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'BLBD',
       'EQUITY',
@@ -5456,7 +6137,8 @@ INSERT INTO financial_assets
       'Blue Bird Corporation',
       'USD',
       57.0099983215332,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'LKFN',
       'EQUITY',
@@ -5464,7 +6146,8 @@ INSERT INTO financial_assets
       'Lakeland Financial Corporation',
       'USD',
       62.029998779296875,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'HURN',
       'EQUITY',
@@ -5472,7 +6155,8 @@ INSERT INTO financial_assets
       'Huron Consulting Group Inc.',
       'USD',
       88.30999755859375,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'CMRE',
       'EQUITY',
@@ -5480,7 +6164,8 @@ INSERT INTO financial_assets
       'Costamare Inc.',
       'USD',
       16.010000228881836,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'KN',
       'EQUITY',
@@ -5488,7 +6173,8 @@ INSERT INTO financial_assets
       'Knowles Corporation',
       'USD',
       17.520000457763672,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'KURA',
       'EQUITY',
@@ -5496,7 +6182,8 @@ INSERT INTO financial_assets
       'Kura Oncology, Inc.',
       'USD',
       20.610000610351562,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'LOB',
       'EQUITY',
@@ -5504,7 +6191,8 @@ INSERT INTO financial_assets
       'Live Oak Bancshares, Inc.',
       'USD',
       34.47999954223633,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'COCO',
       'EQUITY',
@@ -5512,7 +6200,8 @@ INSERT INTO financial_assets
       'The Vita Coco Company, Inc.',
       'USD',
       29.110000610351562,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'PRDO',
       'EQUITY',
@@ -5520,7 +6209,8 @@ INSERT INTO financial_assets
       'Perdoceo Education Corporation',
       'USD',
       22.5,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'RCUS',
       'EQUITY',
@@ -5528,7 +6218,8 @@ INSERT INTO financial_assets
       'Arcus Biosciences, Inc.',
       'USD',
       15.069999694824219,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'IAS',
       'EQUITY',
@@ -5536,7 +6227,8 @@ INSERT INTO financial_assets
       'Integral Ad Science Holding Corp.',
       'USD',
       9.260000228881836,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'ATEC',
       'EQUITY',
@@ -5544,7 +6236,8 @@ INSERT INTO financial_assets
       'Alphatec Holdings, Inc.',
       'USD',
       9.710000038146973,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'MXL',
       'EQUITY',
@@ -5552,7 +6245,8 @@ INSERT INTO financial_assets
       'MaxLinear, Inc.',
       'USD',
       17.770000457763672,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'CRCT',
       'EQUITY',
@@ -5560,7 +6254,8 @@ INSERT INTO financial_assets
       'Cricut, Inc.',
       'USD',
       6.230000019073486,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'INMD',
       'EQUITY',
@@ -5568,7 +6263,8 @@ INSERT INTO financial_assets
       'InMode Ltd.',
       'USD',
       19.1299991607666,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'CHCO',
       'EQUITY',
@@ -5576,7 +6272,8 @@ INSERT INTO financial_assets
       'City Holding Company',
       'USD',
       102.22000122070312,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'RVLV',
       'EQUITY',
@@ -5584,7 +6281,8 @@ INSERT INTO financial_assets
       'Revolve Group, Inc.',
       'USD',
       19.079999923706055,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'CUBI',
       'EQUITY',
@@ -5592,7 +6290,8 @@ INSERT INTO financial_assets
       'Customers Bancorp, Inc.',
       'USD',
       45.29999923706055,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'NVEE',
       'EQUITY',
@@ -5600,7 +6299,8 @@ INSERT INTO financial_assets
       'NV5 Global, Inc.',
       'USD',
       93.9800033569336,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'WRBY',
       'EQUITY',
@@ -5608,7 +6308,8 @@ INSERT INTO financial_assets
       'Warby Parker Inc.',
       'USD',
       17.709999084472656,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'PRG',
       'EQUITY',
@@ -5616,7 +6317,8 @@ INSERT INTO financial_assets
       'PROG Holdings, Inc.',
       'USD',
       37.790000915527344,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'AVPT',
       'EQUITY',
@@ -5624,7 +6326,8 @@ INSERT INTO financial_assets
       'AvePoint, Inc.',
       'USD',
       9.020000457763672,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'CHEF',
       'EQUITY',
@@ -5632,7 +6335,8 @@ INSERT INTO financial_assets
       'The Chefs'' Warehouse, Inc.',
       'USD',
       39.41999816894531,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'FLNG',
       'EQUITY',
@@ -5640,7 +6344,8 @@ INSERT INTO financial_assets
       'FLEX LNG Ltd.',
       'USD',
       28.739999771118164,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'LZB',
       'EQUITY',
@@ -5648,7 +6353,8 @@ INSERT INTO financial_assets
       'La-Z-Boy Incorporated',
       'USD',
       37.52000045776367,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'XHR',
       'EQUITY',
@@ -5656,7 +6362,8 @@ INSERT INTO financial_assets
       'Xenia Hotels & Resorts, Inc.',
       'USD',
       14.489999771118164,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'LGND',
       'EQUITY',
@@ -5664,7 +6371,8 @@ INSERT INTO financial_assets
       'Ligand Pharmaceuticals Incorporated',
       'USD',
       85.05000305175781,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'SCS',
       'EQUITY',
@@ -5672,7 +6380,8 @@ INSERT INTO financial_assets
       'Steelcase Inc.',
       'USD',
       13.65999984741211,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'GTY',
       'EQUITY',
@@ -5680,7 +6389,8 @@ INSERT INTO financial_assets
       'Getty Realty Corp.',
       'USD',
       27.610000610351562,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'AMWD',
       'EQUITY',
@@ -5688,7 +6398,8 @@ INSERT INTO financial_assets
       'American Woodmark Corporation',
       'USD',
       86.11000061035156,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'MEG',
       'EQUITY',
@@ -5696,7 +6407,8 @@ INSERT INTO financial_assets
       'Montrose Environmental Group, Inc.',
       'USD',
       47.0099983215332,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'VITL',
       'EQUITY',
@@ -5704,7 +6416,8 @@ INSERT INTO financial_assets
       'Vital Farms, Inc.',
       'USD',
       41.380001068115234,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'DNOW',
       'EQUITY',
@@ -5712,7 +6425,8 @@ INSERT INTO financial_assets
       'DNOW Inc.',
       'USD',
       14.59000015258789,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'MSGE',
       'EQUITY',
@@ -5720,7 +6434,8 @@ INSERT INTO financial_assets
       'Madison Square Garden Entertainment Corp.',
       'USD',
       35.540000915527344,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'ODP',
       'EQUITY',
@@ -5728,7 +6443,8 @@ INSERT INTO financial_assets
       'The ODP Corporation',
       'USD',
       39.15999984741211,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'WKC',
       'EQUITY',
@@ -5736,7 +6452,8 @@ INSERT INTO financial_assets
       'World Kinect Corporation',
       'USD',
       26.34000015258789,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'SSTK',
       'EQUITY',
@@ -5744,7 +6461,8 @@ INSERT INTO financial_assets
       'Shutterstock, Inc.',
       'USD',
       40.630001068115234,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'SMR',
       'EQUITY',
@@ -5752,7 +6470,8 @@ INSERT INTO financial_assets
       'NuScale Power Corporation',
       'USD',
       8.729999542236328,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'EFSC',
       'EQUITY',
@@ -5760,7 +6479,8 @@ INSERT INTO financial_assets
       'Enterprise Financial Services Corp',
       'USD',
       38.689998626708984,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'STER',
       'EQUITY',
@@ -5768,7 +6488,8 @@ INSERT INTO financial_assets
       'Sterling Check Corp.',
       'USD',
       15.380000114440918,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'AMRC',
       'EQUITY',
@@ -5776,7 +6497,8 @@ INSERT INTO financial_assets
       'Ameresco, Inc.',
       'USD',
       36.52000045776367,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'ENVX',
       'EQUITY',
@@ -5784,7 +6506,8 @@ INSERT INTO financial_assets
       'Enovix Corporation',
       'USD',
       10.619999885559082,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'NHC',
       'EQUITY',
@@ -5792,7 +6515,8 @@ INSERT INTO financial_assets
       'National HealthCare Corporation',
       'USD',
       105.75,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'UDMY',
       'EQUITY',
@@ -5800,7 +6524,8 @@ INSERT INTO financial_assets
       'Udemy, Inc.',
       'USD',
       8.84000015258789,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'BMBL',
       'EQUITY',
@@ -5808,7 +6533,8 @@ INSERT INTO financial_assets
       'Bumble Inc.',
       'USD',
       11.699999809265137,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'LTC',
       'EQUITY',
@@ -5816,7 +6542,8 @@ INSERT INTO financial_assets
       'LTC Properties, Inc.',
       'USD',
       34.400001525878906,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'ZUO',
       'EQUITY',
@@ -5824,7 +6551,8 @@ INSERT INTO financial_assets
       'Zuora, Inc.',
       'USD',
       10.149999618530273,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'VICR',
       'EQUITY',
@@ -5832,7 +6560,8 @@ INSERT INTO financial_assets
       'Vicor Corporation',
       'USD',
       34.9900016784668,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'VVX',
       'EQUITY',
@@ -5840,7 +6569,8 @@ INSERT INTO financial_assets
       'V2X, Inc.',
       'USD',
       48.11000061035156,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'OSW',
       'EQUITY',
@@ -5848,7 +6578,8 @@ INSERT INTO financial_assets
       'OneSpaWorld Holdings Limited',
       'USD',
       15.550000190734863,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'DO',
       'EQUITY',
@@ -5856,7 +6587,8 @@ INSERT INTO financial_assets
       'Diamond Offshore Drilling, Inc.',
       'USD',
       15.180000305175781,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'OEC',
       'EQUITY',
@@ -5864,7 +6596,8 @@ INSERT INTO financial_assets
       'Orion S.A.',
       'USD',
       24.8700008392334,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'MRTN',
       'EQUITY',
@@ -5872,7 +6605,8 @@ INSERT INTO financial_assets
       'Marten Transport, Ltd.',
       'USD',
       17.700000762939453,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'NWN',
       'EQUITY',
@@ -5880,7 +6614,8 @@ INSERT INTO financial_assets
       'Northwest Natural Holding Company',
       'USD',
       37.41999816894531,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'APOG',
       'EQUITY',
@@ -5888,7 +6623,8 @@ INSERT INTO financial_assets
       'Apogee Enterprises, Inc.',
       'USD',
       64.97000122070312,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'SKWD',
       'EQUITY',
@@ -5896,7 +6632,8 @@ INSERT INTO financial_assets
       'Skyward Specialty Insurance Group, Inc.',
       'USD',
       37.31999969482422,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'IE',
       'EQUITY',
@@ -5904,7 +6641,8 @@ INSERT INTO financial_assets
       'Ivanhoe Electric Inc.',
       'USD',
       11.369999885559082,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'TARS',
       'EQUITY',
@@ -5912,7 +6650,8 @@ INSERT INTO financial_assets
       'Tarsus Pharmaceuticals, Inc.',
       'USD',
       32.959999084472656,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'RES',
       'EQUITY',
@@ -5920,7 +6659,8 @@ INSERT INTO financial_assets
       'RPC, Inc.',
       'USD',
       6.829999923706055,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'RC',
       'EQUITY',
@@ -5928,7 +6668,8 @@ INSERT INTO financial_assets
       'Ready Capital Corporation',
       'USD',
       8.300000190734863,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'NTCT',
       'EQUITY',
@@ -5936,7 +6677,8 @@ INSERT INTO financial_assets
       'NetScout Systems, Inc.',
       'USD',
       20.540000915527344,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'KW',
       'EQUITY',
@@ -5944,7 +6686,8 @@ INSERT INTO financial_assets
       'Kennedy-Wilson Holdings, Inc.',
       'USD',
       10.220000267028809,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'BHE',
       'EQUITY',
@@ -5952,7 +6695,8 @@ INSERT INTO financial_assets
       'Benchmark Electronics, Inc.',
       'USD',
       43.06999969482422,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'EVBG',
       'EQUITY',
@@ -5960,7 +6704,8 @@ INSERT INTO financial_assets
       'Everbridge, Inc.',
       'USD',
       34.7599983215332,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'DVAX',
       'EQUITY',
@@ -5968,7 +6713,8 @@ INSERT INTO financial_assets
       'Dynavax Technologies Corporation',
       'USD',
       11.989999771118164,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'VRE',
       'EQUITY',
@@ -5976,7 +6722,8 @@ INSERT INTO financial_assets
       'Veris Residential, Inc.',
       'USD',
       15.289999961853027,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'PRO',
       'EQUITY',
@@ -5984,7 +6731,8 @@ INSERT INTO financial_assets
       'PROS Holdings, Inc.',
       'USD',
       29.479999542236328,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'KRO',
       'EQUITY',
@@ -5992,7 +6740,8 @@ INSERT INTO financial_assets
       'Kronos Worldwide, Inc.',
       'USD',
       14.210000038146973,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'MORF',
       'EQUITY',
@@ -6000,7 +6749,8 @@ INSERT INTO financial_assets
       'Morphic Holding, Inc.',
       'USD',
       30.3700008392334,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'HMN',
       'EQUITY',
@@ -6008,7 +6758,8 @@ INSERT INTO financial_assets
       'Horace Mann Educators Corporation',
       'USD',
       34.16999816894531,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'ARI',
       'EQUITY',
@@ -6016,7 +6767,8 @@ INSERT INTO financial_assets
       'Apollo Commercial Real Estate Finance, Inc.',
       'USD',
       10.100000381469727,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'OMI',
       'EQUITY',
@@ -6024,7 +6776,8 @@ INSERT INTO financial_assets
       'Owens & Minor, Inc.',
       'USD',
       17.43000030517578,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'EVEX',
       'EQUITY',
@@ -6032,7 +6785,8 @@ INSERT INTO financial_assets
       'Eve Holding, Inc.',
       'USD',
       4.929999828338623,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'GES',
       'EQUITY',
@@ -6040,7 +6794,8 @@ INSERT INTO financial_assets
       'Guess?, Inc.',
       'USD',
       23.270000457763672,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'NMRA',
       'EQUITY',
@@ -6048,7 +6803,8 @@ INSERT INTO financial_assets
       'Neumora Therapeutics, Inc.',
       'USD',
       9.899999618530273,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'AKRO',
       'EQUITY',
@@ -6056,7 +6812,8 @@ INSERT INTO financial_assets
       'Akero Therapeutics, Inc.',
       'USD',
       18.81999969482422,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'NWBI',
       'EQUITY',
@@ -6064,7 +6821,8 @@ INSERT INTO financial_assets
       'Northwest Bancshares, Inc.',
       'USD',
       10.949999809265137,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'SAFE',
       'EQUITY',
@@ -6072,7 +6830,8 @@ INSERT INTO financial_assets
       'Safehold Inc.',
       'USD',
       19.280000686645508,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'ANIP',
       'EQUITY',
@@ -6080,7 +6839,8 @@ INSERT INTO financial_assets
       'ANI Pharmaceuticals, Inc.',
       'USD',
       64.9000015258789,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'LADR',
       'EQUITY',
@@ -6088,7 +6848,8 @@ INSERT INTO financial_assets
       'Ladder Capital Corp',
       'USD',
       11.180000305175781,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'FCF',
       'EQUITY',
@@ -6096,7 +6857,8 @@ INSERT INTO financial_assets
       'First Commonwealth Financial Corporation',
       'USD',
       13.510000228881836,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'OMCL',
       'EQUITY',
@@ -6104,7 +6866,8 @@ INSERT INTO financial_assets
       'Omnicell, Inc.',
       'USD',
       32.59000015258789,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'PCRX',
       'EQUITY',
@@ -6112,7 +6875,8 @@ INSERT INTO financial_assets
       'Pacira BioSciences, Inc.',
       'USD',
       30.329999923706055,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'PWP',
       'EQUITY',
@@ -6120,7 +6884,8 @@ INSERT INTO financial_assets
       'Perella Weinberg Partners',
       'USD',
       15.4399995803833,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'PAR',
       'EQUITY',
@@ -6128,7 +6893,8 @@ INSERT INTO financial_assets
       'PAR Technology Corporation',
       'USD',
       44.619998931884766,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'MTTR',
       'EQUITY',
@@ -6136,7 +6902,8 @@ INSERT INTO financial_assets
       'Matterport, Inc.',
       'USD',
       4.400000095367432,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'DAWN',
       'EQUITY',
@@ -6144,7 +6911,8 @@ INSERT INTO financial_assets
       'Day One Biopharmaceuticals, Inc.',
       'USD',
       13.270000457763672,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'IMKTA',
       'EQUITY',
@@ -6152,7 +6920,8 @@ INSERT INTO financial_assets
       'Ingles Markets, Incorporated',
       'USD',
       73.13999938964844,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'SYBT',
       'EQUITY',
@@ -6160,7 +6929,8 @@ INSERT INTO financial_assets
       'Stock Yards Bancorp, Inc.',
       'USD',
       46.849998474121094,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'EXTR',
       'EQUITY',
@@ -6168,7 +6938,8 @@ INSERT INTO financial_assets
       'Extreme Networks, Inc.',
       'USD',
       11.149999618530273,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'KNSA',
       'EQUITY',
@@ -6176,7 +6947,8 @@ INSERT INTO financial_assets
       'Kiniksa Pharmaceuticals, Ltd.',
       'USD',
       19.010000228881836,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'ELME',
       'EQUITY',
@@ -6184,7 +6956,8 @@ INSERT INTO financial_assets
       'Elme Communities',
       'USD',
       15.40999984741211,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'COHU',
       'EQUITY',
@@ -6192,7 +6965,8 @@ INSERT INTO financial_assets
       'Cohu, Inc.',
       'USD',
       32.2400016784668,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'WT',
       'EQUITY',
@@ -6200,7 +6974,8 @@ INSERT INTO financial_assets
       'WisdomTree, Inc.',
       'USD',
       9.970000267028809,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'ULCC',
       'EQUITY',
@@ -6208,7 +6983,8 @@ INSERT INTO financial_assets
       'Frontier Group Holdings, Inc.',
       'USD',
       5.46999979019165,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'CASH',
       'EQUITY',
@@ -6216,7 +6992,8 @@ INSERT INTO financial_assets
       'Pathward Financial, Inc.',
       'USD',
       53.310001373291016,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'LVWR',
       'EQUITY',
@@ -6224,7 +7001,8 @@ INSERT INTO financial_assets
       'LiveWire Group, Inc.',
       'USD',
       6.489999771118164,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'COUR',
       'EQUITY',
@@ -6232,7 +7010,8 @@ INSERT INTO financial_assets
       'Coursera, Inc.',
       'USD',
       7.599999904632568,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'AAT',
       'EQUITY',
@@ -6240,7 +7019,8 @@ INSERT INTO financial_assets
       'American Assets Trust, Inc.',
       'USD',
       21.75,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'SPHR',
       'EQUITY',
@@ -6248,7 +7028,8 @@ INSERT INTO financial_assets
       'Sphere Entertainment Co.',
       'USD',
       36.5,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'BKD',
       'EQUITY',
@@ -6256,7 +7037,8 @@ INSERT INTO financial_assets
       'Brookdale Senior Living Inc.',
       'USD',
       6.710000038146973,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'NBHC',
       'EQUITY',
@@ -6264,7 +7046,8 @@ INSERT INTO financial_assets
       'National Bank Holdings Corporation',
       'USD',
       36.470001220703125,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'CAL',
       'EQUITY',
@@ -6272,7 +7055,8 @@ INSERT INTO financial_assets
       'Caleres, Inc.',
       'USD',
       34.68000030517578,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'JBGS',
       'EQUITY',
@@ -6280,7 +7064,8 @@ INSERT INTO financial_assets
       'JBG SMITH Properties',
       'USD',
       14.399999618530273,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'BUSE',
       'EQUITY',
@@ -6288,7 +7073,8 @@ INSERT INTO financial_assets
       'First Busey Corporation',
       'USD',
       22.610000610351562,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'VIR',
       'EQUITY',
@@ -6296,7 +7082,8 @@ INSERT INTO financial_assets
       'Vir Biotechnology, Inc.',
       'USD',
       10.270000457763672,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'GIC',
       'EQUITY',
@@ -6304,7 +7091,8 @@ INSERT INTO financial_assets
       'Global Industrial Company',
       'USD',
       34.61000061035156,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'WABC',
       'EQUITY',
@@ -6312,7 +7100,8 @@ INSERT INTO financial_assets
       'Westamerica Bancorporation',
       'USD',
       48.81999969482422,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'ALHC',
       'EQUITY',
@@ -6320,7 +7109,8 @@ INSERT INTO financial_assets
       'Alignment Healthcare, Inc.',
       'USD',
       7.880000114440918,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'FDMT',
       'EQUITY',
@@ -6328,7 +7118,8 @@ INSERT INTO financial_assets
       '4D Molecular Therapeutics, Inc.',
       'USD',
       23.969999313354492,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'TWO',
       'EQUITY',
@@ -6336,7 +7127,8 @@ INSERT INTO financial_assets
       'Two Harbors Investment Corp.',
       'USD',
       12.850000381469727,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'UVV',
       'EQUITY',
@@ -6344,7 +7136,8 @@ INSERT INTO financial_assets
       'Universal Corporation',
       'USD',
       47.959999084472656,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'XNCR',
       'EQUITY',
@@ -6352,7 +7145,8 @@ INSERT INTO financial_assets
       'Xencor, Inc.',
       'USD',
       23.760000228881836,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'LMND',
       'EQUITY',
@@ -6360,7 +7154,8 @@ INSERT INTO financial_assets
       'Lemonade, Inc.',
       'USD',
       16.510000228881836,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'LNN',
       'EQUITY',
@@ -6368,7 +7163,8 @@ INSERT INTO financial_assets
       'Lindsay Corporation',
       'USD',
       114.81999969482422,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'ACMR',
       'EQUITY',
@@ -6376,7 +7172,8 @@ INSERT INTO financial_assets
       'ACM Research, Inc.',
       'USD',
       21.600000381469727,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'WINA',
       'EQUITY',
@@ -6384,7 +7181,8 @@ INSERT INTO financial_assets
       'Winmark Corporation',
       'USD',
       355.8999938964844,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'BASE',
       'EQUITY',
@@ -6392,7 +7190,8 @@ INSERT INTO financial_assets
       'Couchbase, Inc.',
       'USD',
       22.670000076293945,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'FBNC',
       'EQUITY',
@@ -6400,7 +7199,8 @@ INSERT INTO financial_assets
       'First Bancorp',
       'USD',
       31.549999237060547,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'REVG',
       'EQUITY',
@@ -6408,7 +7208,8 @@ INSERT INTO financial_assets
       'REV Group, Inc.',
       'USD',
       27.40999984741211,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'HOPE',
       'EQUITY',
@@ -6416,7 +7217,8 @@ INSERT INTO financial_assets
       'Hope Bancorp, Inc.',
       'USD',
       10.529999732971191,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'MMI',
       'EQUITY',
@@ -6424,7 +7226,8 @@ INSERT INTO financial_assets
       'Marcus & Millichap, Inc.',
       'USD',
       32.33000183105469,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'CNNE',
       'EQUITY',
@@ -6432,7 +7235,8 @@ INSERT INTO financial_assets
       'Cannae Holdings, Inc.',
       'USD',
       18.18000030517578,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'NTST',
       'EQUITY',
@@ -6440,7 +7244,8 @@ INSERT INTO financial_assets
       'NETSTREIT Corp.',
       'USD',
       17.350000381469727,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'PDFS',
       'EQUITY',
@@ -6448,7 +7253,8 @@ INSERT INTO financial_assets
       'PDF Solutions, Inc.',
       'USD',
       35.02000045776367,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'TRUP',
       'EQUITY',
@@ -6456,7 +7262,8 @@ INSERT INTO financial_assets
       'Trupanion, Inc.',
       'USD',
       29.8700008392334,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'HY',
       'EQUITY',
@@ -6464,7 +7271,8 @@ INSERT INTO financial_assets
       'Hyster-Yale Materials Handling, Inc.',
       'USD',
       72.58999633789062,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'GOGO',
       'EQUITY',
@@ -6472,7 +7280,8 @@ INSERT INTO financial_assets
       'Gogo Inc.',
       'USD',
       10.585000038146973,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'CSGS',
       'EQUITY',
@@ -6480,7 +7289,8 @@ INSERT INTO financial_assets
       'CSG Systems International, Inc.',
       'USD',
       43.150001525878906,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'MLNK',
       'EQUITY',
@@ -6488,7 +7298,8 @@ INSERT INTO financial_assets
       'MeridianLink, Inc.',
       'USD',
       18.56999969482422,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'MAX',
       'EQUITY',
@@ -6496,7 +7307,8 @@ INSERT INTO financial_assets
       'MediaAlpha, Inc.',
       'USD',
       17.780000686645508,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'MGNI',
       'EQUITY',
@@ -6504,7 +7316,8 @@ INSERT INTO financial_assets
       'Magnite, Inc.',
       'USD',
       12.34000015258789,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'GPRE',
       'EQUITY',
@@ -6512,7 +7325,8 @@ INSERT INTO financial_assets
       'Green Plains Inc.',
       'USD',
       17.170000076293945,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'GIII',
       'EQUITY',
@@ -6520,7 +7334,8 @@ INSERT INTO financial_assets
       'G-III Apparel Group, Ltd.',
       'USD',
       30.059999465942383,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'HLIT',
       'EQUITY',
@@ -6528,7 +7343,8 @@ INSERT INTO financial_assets
       'Harmonic Inc.',
       'USD',
       12.229999542236328,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'JELD',
       'EQUITY',
@@ -6536,7 +7352,8 @@ INSERT INTO financial_assets
       'JELD-WEN Holding, Inc.',
       'USD',
       15.510000228881836,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'PMT',
       'EQUITY',
@@ -6544,7 +7361,8 @@ INSERT INTO financial_assets
       'PennyMac Mortgage Investment Trust',
       'USD',
       13.680000305175781,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'SRCE',
       'EQUITY',
@@ -6552,7 +7370,8 @@ INSERT INTO financial_assets
       '1st Source Corporation',
       'USD',
       51.41999816894531,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'CMCO',
       'EQUITY',
@@ -6560,7 +7379,8 @@ INSERT INTO financial_assets
       'Columbus McKinnon Corporation',
       'USD',
       39.099998474121094,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'LUMN',
       'EQUITY',
@@ -6568,7 +7388,8 @@ INSERT INTO financial_assets
       'Lumen Technologies, Inc.',
       'USD',
       1.2899999618530273,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'CBRL',
       'EQUITY',
@@ -6576,7 +7397,8 @@ INSERT INTO financial_assets
       'Cracker Barrel Old Country Store, Inc.',
       'USD',
       48.779998779296875,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'ACDC',
       'EQUITY',
@@ -6584,7 +7406,8 @@ INSERT INTO financial_assets
       'ProFrac Holding Corp.',
       'USD',
       9.619999885559082,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'AHCO',
       'EQUITY',
@@ -6592,7 +7415,8 @@ INSERT INTO financial_assets
       'AdaptHealth Corp.',
       'USD',
       9.479999542236328,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'MCRI',
       'EQUITY',
@@ -6600,7 +7424,8 @@ INSERT INTO financial_assets
       'Monarch Casino & Resort, Inc.',
       'USD',
       66.97000122070312,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'ULH',
       'EQUITY',
@@ -6608,7 +7433,8 @@ INSERT INTO financial_assets
       'Universal Logistics Holdings, Inc.',
       'USD',
       43.75,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'ICHR',
       'EQUITY',
@@ -6616,7 +7442,8 @@ INSERT INTO financial_assets
       'Ichor Holdings, Ltd.',
       'USD',
       37.9900016784668,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'KFRC',
       'EQUITY',
@@ -6624,7 +7451,8 @@ INSERT INTO financial_assets
       'Kforce Inc.',
       'USD',
       61.810001373291016,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'TCBK',
       'EQUITY',
@@ -6632,7 +7460,8 @@ INSERT INTO financial_assets
       'TriCo Bancshares',
       'USD',
       38.08000183105469,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'DEA',
       'EQUITY',
@@ -6640,7 +7469,8 @@ INSERT INTO financial_assets
       'Easterly Government Properties, Inc.',
       'USD',
       11.84000015258789,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'PHR',
       'EQUITY',
@@ -6648,7 +7478,8 @@ INSERT INTO financial_assets
       'Phreesia, Inc.',
       'USD',
       18.920000076293945,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'ALEX',
       'EQUITY',
@@ -6656,7 +7487,8 @@ INSERT INTO financial_assets
       'Alexander & Baldwin, Inc.',
       'USD',
       16.799999237060547,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'CDRE',
       'EQUITY',
@@ -6664,7 +7496,8 @@ INSERT INTO financial_assets
       'Cadre Holdings, Inc.',
       'USD',
       32.84000015258789,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'STEL',
       'EQUITY',
@@ -6672,7 +7505,8 @@ INSERT INTO financial_assets
       'Stellar Bancorp, Inc.',
       'USD',
       22.59000015258789,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'STBA',
       'EQUITY',
@@ -6680,7 +7514,8 @@ INSERT INTO financial_assets
       'S&T Bancorp, Inc.',
       'USD',
       31.90999984741211,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'SHLS',
       'EQUITY',
@@ -6688,7 +7523,8 @@ INSERT INTO financial_assets
       'Shoals Technologies Group, Inc.',
       'USD',
       7.869999885559082,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'SLCA',
       'EQUITY',
@@ -6696,7 +7532,8 @@ INSERT INTO financial_assets
       'U.S. Silica Holdings, Inc.',
       'USD',
       15.489999771118164,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'SAFT',
       'EQUITY',
@@ -6704,7 +7541,8 @@ INSERT INTO financial_assets
       'Safety Insurance Group, Inc.',
       'USD',
       77.3499984741211,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'NIC',
       'EQUITY',
@@ -6712,7 +7550,8 @@ INSERT INTO financial_assets
       'Nicolet Bankshares, Inc.',
       'USD',
       80.52999877929688,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'VSEC',
       'EQUITY',
@@ -6720,7 +7559,8 @@ INSERT INTO financial_assets
       'VSE Corporation',
       'USD',
       81.86000061035156,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'ADEA',
       'EQUITY',
@@ -6728,7 +7568,8 @@ INSERT INTO financial_assets
       'Adeia Inc.',
       'USD',
       11.835000038146973,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'PFS',
       'EQUITY',
@@ -6736,7 +7577,8 @@ INSERT INTO financial_assets
       'Provident Financial Services, Inc.',
       'USD',
       14.399999618530273,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'MNKD',
       'EQUITY',
@@ -6744,7 +7586,8 @@ INSERT INTO financial_assets
       'MannKind Corporation',
       'USD',
       4.670000076293945,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'JBSS',
       'EQUITY',
@@ -6752,7 +7595,8 @@ INSERT INTO financial_assets
       'John B. Sanfilippo & Son, Inc.',
       'USD',
       100.83000183105469,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'KRUS',
       'EQUITY',
@@ -6760,7 +7604,8 @@ INSERT INTO financial_assets
       'Kura Sushi USA, Inc.',
       'USD',
       99.91000366210938,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'FSLY',
       'EQUITY',
@@ -6768,7 +7613,8 @@ INSERT INTO financial_assets
       'Fastly, Inc.',
       'USD',
       7.840000152587891,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'FWRG',
       'EQUITY',
@@ -6776,7 +7622,8 @@ INSERT INTO financial_assets
       'First Watch Restaurant Group, Inc.',
       'USD',
       19.68000030517578,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'BV',
       'EQUITY',
@@ -6784,7 +7631,8 @@ INSERT INTO financial_assets
       'BrightView Holdings, Inc.',
       'USD',
       13.8100004196167,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'MRC',
       'EQUITY',
@@ -6792,7 +7640,8 @@ INSERT INTO financial_assets
       'MRC Global Inc.',
       'USD',
       13.289999961853027,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'CARS',
       'EQUITY',
@@ -6800,7 +7649,8 @@ INSERT INTO financial_assets
       'Cars.com Inc.',
       'USD',
       20.229999542236328,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'AIV',
       'EQUITY',
@@ -6808,7 +7658,8 @@ INSERT INTO financial_assets
       'Apartment Investment and Management Company',
       'USD',
       7.889999866485596,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'EYE',
       'EQUITY',
@@ -6816,7 +7667,8 @@ INSERT INTO financial_assets
       'National Vision Holdings, Inc.',
       'USD',
       15.09000015258789,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'MODN',
       'EQUITY',
@@ -6824,7 +7676,8 @@ INSERT INTO financial_assets
       'Model N, Inc.',
       'USD',
       29.889999389648438,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'FDP',
       'EQUITY',
@@ -6832,7 +7685,8 @@ INSERT INTO financial_assets
       'Fresh Del Monte Produce Inc.',
       'USD',
       23.360000610351562,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'WTTR',
       'EQUITY',
@@ -6840,7 +7694,8 @@ INSERT INTO financial_assets
       'Select Water Solutions, Inc.',
       'USD',
       10.930000305175781,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'ENFN',
       'EQUITY',
@@ -6848,7 +7703,8 @@ INSERT INTO financial_assets
       'Enfusion, Inc.',
       'USD',
       9.40999984741211,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'ATEN',
       'EQUITY',
@@ -6856,7 +7712,8 @@ INSERT INTO financial_assets
       'A10 Networks, Inc.',
       'USD',
       15.149999618530273,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'MIRM',
       'EQUITY',
@@ -6864,7 +7721,8 @@ INSERT INTO financial_assets
       'Mirum Pharmaceuticals, Inc.',
       'USD',
       24.030000686645508,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'MDXG',
       'EQUITY',
@@ -6872,7 +7730,8 @@ INSERT INTO financial_assets
       'MiMedx Group, Inc.',
       'USD',
       7.150000095367432,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'ACHR',
       'EQUITY',
@@ -6880,7 +7739,8 @@ INSERT INTO financial_assets
       'Archer Aviation Inc.',
       'USD',
       3.2699999809265137,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'SBH',
       'EQUITY',
@@ -6888,7 +7748,8 @@ INSERT INTO financial_assets
       'Sally Beauty Holdings, Inc.',
       'USD',
       12.180000305175781,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'TH',
       'EQUITY',
@@ -6896,7 +7757,8 @@ INSERT INTO financial_assets
       'Target Hospitality Corp.',
       'USD',
       11.359999656677246,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'BCRX',
       'EQUITY',
@@ -6904,7 +7766,8 @@ INSERT INTO financial_assets
       'BioCryst Pharmaceuticals, Inc.',
       'USD',
       6.460000038146973,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'DOLE',
       'EQUITY',
@@ -6912,7 +7775,8 @@ INSERT INTO financial_assets
       'Dole plc',
       'USD',
       12.369999885559082,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'INFN',
       'EQUITY',
@@ -6920,7 +7784,8 @@ INSERT INTO financial_assets
       'Infinera Corporation',
       'USD',
       5.71999979019165,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'SCSC',
       'EQUITY',
@@ -6928,7 +7793,8 @@ INSERT INTO financial_assets
       'ScanSource, Inc.',
       'USD',
       47.43000030517578,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'SABR',
       'EQUITY',
@@ -6936,7 +7802,8 @@ INSERT INTO financial_assets
       'Sabre Corporation',
       'USD',
       3.130000114440918,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'CIFR',
       'EQUITY',
@@ -6944,7 +7811,8 @@ INSERT INTO financial_assets
       'Cipher Mining Inc.',
       'USD',
       3.7100000381469727,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'THR',
       'EQUITY',
@@ -6952,7 +7820,8 @@ INSERT INTO financial_assets
       'Thermon Group Holdings, Inc.',
       'USD',
       33.7599983215332,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'CMTG',
       'EQUITY',
@@ -6960,7 +7829,8 @@ INSERT INTO financial_assets
       'Claros Mortgage Trust, Inc.',
       'USD',
       7.889999866485596,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'ELVN',
       'EQUITY',
@@ -6968,7 +7838,8 @@ INSERT INTO financial_assets
       'Enliven Therapeutics, Inc.',
       'USD',
       22.56999969482422,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'SEAT',
       'EQUITY',
@@ -6976,7 +7847,8 @@ INSERT INTO financial_assets
       'Vivid Seats Inc.',
       'USD',
       5.050000190734863,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'NX',
       'EQUITY',
@@ -6984,7 +7856,8 @@ INSERT INTO financial_assets
       'Quanex Building Products Corporation',
       'USD',
       32.959999084472656,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'CRAI',
       'EQUITY',
@@ -6992,7 +7865,8 @@ INSERT INTO financial_assets
       'CRA International, Inc.',
       'USD',
       175.97000122070312,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'PUBM',
       'EQUITY',
@@ -7000,7 +7874,8 @@ INSERT INTO financial_assets
       'PubMatic, Inc.',
       'USD',
       21.899999618530273,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'ECVT',
       'EQUITY',
@@ -7008,7 +7883,8 @@ INSERT INTO financial_assets
       'Ecovyst Inc.',
       'USD',
       9.300000190734863,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'PFBC',
       'EQUITY',
@@ -7016,7 +7892,8 @@ INSERT INTO financial_assets
       'Preferred Bank',
       'USD',
       74.72000122070312,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'PRM',
       'EQUITY',
@@ -7024,7 +7901,8 @@ INSERT INTO financial_assets
       'Perimeter Solutions, SA',
       'USD',
       7.599999904632568,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'TGI',
       'EQUITY',
@@ -7032,7 +7910,8 @@ INSERT INTO financial_assets
       'Triumph Group, Inc.',
       'USD',
       14.109999656677246,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'CGEM',
       'EQUITY',
@@ -7040,7 +7919,8 @@ INSERT INTO financial_assets
       'Cullinan Therapeutics, Inc.',
       'USD',
       23.5,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'VBTX',
       'EQUITY',
@@ -7048,7 +7928,8 @@ INSERT INTO financial_assets
       'Veritex Holdings, Inc.',
       'USD',
       20.399999618530273,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'CRSR',
       'EQUITY',
@@ -7056,7 +7937,8 @@ INSERT INTO financial_assets
       'Corsair Gaming, Inc.',
       'USD',
       11.59000015258789,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'WWW',
       'EQUITY',
@@ -7064,7 +7946,8 @@ INSERT INTO financial_assets
       'Wolverine World Wide, Inc.',
       'USD',
       13.619999885559082,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'ECPG',
       'EQUITY',
@@ -7072,7 +7955,8 @@ INSERT INTO financial_assets
       'Encore Capital Group, Inc.',
       'USD',
       44.2400016784668,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'ALX',
       'EQUITY',
@@ -7080,7 +7964,8 @@ INSERT INTO financial_assets
       'Alexander''s, Inc.',
       'USD',
       212.1999969482422,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'PRTA',
       'EQUITY',
@@ -7088,7 +7973,8 @@ INSERT INTO financial_assets
       'Prothena Corporation plc',
       'USD',
       20.809999465942383,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'TRS',
       'EQUITY',
@@ -7096,7 +7982,8 @@ INSERT INTO financial_assets
       'TriMas Corporation',
       'USD',
       26.6200008392334,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'UMH',
       'EQUITY',
@@ -7104,7 +7991,8 @@ INSERT INTO financial_assets
       'UMH Properties, Inc.',
       'USD',
       15.119999885559082,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'ARLO',
       'EQUITY',
@@ -7112,7 +8000,8 @@ INSERT INTO financial_assets
       'Arlo Technologies, Inc.',
       'USD',
       14.210000038146973,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'MFA',
       'EQUITY',
@@ -7120,7 +8009,8 @@ INSERT INTO financial_assets
       'MFA Financial, Inc.',
       'USD',
       10.699999809265137,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'EIG',
       'EQUITY',
@@ -7128,7 +8018,8 @@ INSERT INTO financial_assets
       'Employers Holdings, Inc.',
       'USD',
       42.18000030517578,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'CTOS',
       'EQUITY',
@@ -7136,7 +8027,8 @@ INSERT INTO financial_assets
       'Custom Truck One Source, Inc.',
       'USD',
       4.769999980926514,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'BLX',
       'EQUITY',
@@ -7144,7 +8036,8 @@ INSERT INTO financial_assets
       'Banco Latinoamericano de Comercio Exterior, S. A.',
       'USD',
       30.010000228881836,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'ADV',
       'EQUITY',
@@ -7152,7 +8045,8 @@ INSERT INTO financial_assets
       'Advantage Solutions Inc.',
       'USD',
       3.440000057220459,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'SRRK',
       'EQUITY',
@@ -7160,7 +8054,8 @@ INSERT INTO financial_assets
       'Scholar Rock Holding Corporation',
       'USD',
       9.390000343322754,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'HLF',
       'EQUITY',
@@ -7168,7 +8063,8 @@ INSERT INTO financial_assets
       'Herbalife Ltd.',
       'USD',
       10.300000190734863,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'AMPL',
       'EQUITY',
@@ -7176,7 +8072,8 @@ INSERT INTO financial_assets
       'Amplitude, Inc.',
       'USD',
       8.920000076293945,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'HCI',
       'EQUITY',
@@ -7184,7 +8081,8 @@ INSERT INTO financial_assets
       'HCI Group, Inc.',
       'USD',
       95.87999725341797,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'PEBO',
       'EQUITY',
@@ -7192,7 +8090,8 @@ INSERT INTO financial_assets
       'Peoples Bancorp Inc.',
       'USD',
       29.149999618530273,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'ATRC',
       'EQUITY',
@@ -7200,7 +8099,8 @@ INSERT INTO financial_assets
       'AtriCure, Inc.',
       'USD',
       22.540000915527344,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'BRCC',
       'EQUITY',
@@ -7208,7 +8108,8 @@ INSERT INTO financial_assets
       'BRC Inc.',
       'USD',
       5.800000190734863,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'FBRT',
       'EQUITY',
@@ -7216,7 +8117,8 @@ INSERT INTO financial_assets
       'Franklin BSP Realty Trust, Inc.',
       'USD',
       12.739999771118164,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'NRDS',
       'EQUITY',
@@ -7224,7 +8126,8 @@ INSERT INTO financial_assets
       'NerdWallet, Inc.',
       'USD',
       13.949999809265137,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'PGRE',
       'EQUITY',
@@ -7232,7 +8135,8 @@ INSERT INTO financial_assets
       'Paramount Group, Inc.',
       'USD',
       4.550000190734863,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'RILY',
       'EQUITY',
@@ -7240,7 +8144,8 @@ INSERT INTO financial_assets
       'B. Riley Financial, Inc.',
       'USD',
       23.959999084472656,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'PRAA',
       'EQUITY',
@@ -7248,7 +8153,8 @@ INSERT INTO financial_assets
       'PRA Group, Inc.',
       'USD',
       21.579999923706055,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'CIM',
       'EQUITY',
@@ -7256,7 +8162,8 @@ INSERT INTO financial_assets
       'Chimera Investment Corporation',
       'USD',
       11.899999618530273,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'COLL',
       'EQUITY',
@@ -7264,7 +8171,8 @@ INSERT INTO financial_assets
       'Collegium Pharmaceutical, Inc.',
       'USD',
       33.13999938964844,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'RPAY',
       'EQUITY',
@@ -7272,7 +8180,8 @@ INSERT INTO financial_assets
       'Repay Holdings Corporation',
       'USD',
       9.739999771118164,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'ALGT',
       'EQUITY',
@@ -7280,7 +8189,8 @@ INSERT INTO financial_assets
       'Allegiant Travel Company',
       'USD',
       53.20000076293945,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'IRWD',
       'EQUITY',
@@ -7288,7 +8198,8 @@ INSERT INTO financial_assets
       'Ironwood Pharmaceuticals, Inc.',
       'USD',
       6.300000190734863,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'JACK',
       'EQUITY',
@@ -7296,7 +8207,8 @@ INSERT INTO financial_assets
       'Jack in the Box Inc.',
       'USD',
       55.36000061035156,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'TRNS',
       'EQUITY',
@@ -7304,7 +8216,8 @@ INSERT INTO financial_assets
       'Transcat, Inc.',
       'USD',
       127.4000015258789,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'CSR',
       'EQUITY',
@@ -7312,7 +8225,8 @@ INSERT INTO financial_assets
       'Centerspace',
       'USD',
       68.26000213623047,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'WNC',
       'EQUITY',
@@ -7320,7 +8234,8 @@ INSERT INTO financial_assets
       'Wabash National Corporation',
       'USD',
       22.610000610351562,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'INDI',
       'EQUITY',
@@ -7328,7 +8243,8 @@ INSERT INTO financial_assets
       'indie Semiconductor, Inc.',
       'USD',
       6.670000076293945,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'OBK',
       'EQUITY',
@@ -7336,7 +8252,8 @@ INSERT INTO financial_assets
       'Origin Bancorp, Inc.',
       'USD',
       31.270000457763672,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'MSEX',
       'EQUITY',
@@ -7344,7 +8261,8 @@ INSERT INTO financial_assets
       'Middlesex Water Company',
       'USD',
       53.880001068115234,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'SCHL',
       'EQUITY',
@@ -7352,7 +8270,8 @@ INSERT INTO financial_assets
       'Scholastic Corporation',
       'USD',
       36.279998779296875,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'RBCAA',
       'EQUITY',
@@ -7360,7 +8279,8 @@ INSERT INTO financial_assets
       'Republic Bancorp, Inc.',
       'USD',
       51.790000915527344,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'HOV',
       'EQUITY',
@@ -7368,7 +8288,8 @@ INSERT INTO financial_assets
       'Hovnanian Enterprises, Inc.',
       'USD',
       143.77999877929688,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'BY',
       'EQUITY',
@@ -7376,7 +8297,8 @@ INSERT INTO financial_assets
       'Byline Bancorp, Inc.',
       'USD',
       23.100000381469727,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'SASR',
       'EQUITY',
@@ -7384,7 +8306,8 @@ INSERT INTO financial_assets
       'Sandy Spring Bancorp, Inc.',
       'USD',
       23.440000534057617,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'PUMP',
       'EQUITY',
@@ -7392,7 +8315,8 @@ INSERT INTO financial_assets
       'ProPetro Holding Corp.',
       'USD',
       9.579999923706055,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'HIBB',
       'EQUITY',
@@ -7400,7 +8324,8 @@ INSERT INTO financial_assets
       'Hibbett, Inc.',
       'USD',
       86.58000183105469,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'INVA',
       'EQUITY',
@@ -7408,7 +8333,8 @@ INSERT INTO financial_assets
       'Innoviva, Inc.',
       'USD',
       15.789999961853027,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'AHH',
       'EQUITY',
@@ -7416,7 +8342,8 @@ INSERT INTO financial_assets
       'Armada Hoffler Properties, Inc.',
       'USD',
       11.34000015258789,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'LC',
       'EQUITY',
@@ -7424,7 +8351,8 @@ INSERT INTO financial_assets
       'LendingClub Corporation',
       'USD',
       8.920000076293945,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'REX',
       'EQUITY',
@@ -7432,7 +8360,8 @@ INSERT INTO financial_assets
       'REX American Resources Corporation',
       'USD',
       49.9900016784668,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'DLX',
       'EQUITY',
@@ -7440,7 +8369,8 @@ INSERT INTO financial_assets
       'Deluxe Corporation',
       'USD',
       22.729999542236328,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'SGH',
       'EQUITY',
@@ -7448,7 +8378,8 @@ INSERT INTO financial_assets
       'SMART Global Holdings, Inc.',
       'USD',
       20.579999923706055,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'BHLB',
       'EQUITY',
@@ -7456,7 +8387,8 @@ INSERT INTO financial_assets
       'Berkshire Hills Bancorp, Inc.',
       'USD',
       22.229999542236328,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'EFC',
       'EQUITY',
@@ -7464,7 +8396,8 @@ INSERT INTO financial_assets
       'Ellington Financial Inc.',
       'USD',
       12.119999885559082,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'QNST',
       'EQUITY',
@@ -7472,7 +8405,8 @@ INSERT INTO financial_assets
       'QuinStreet, Inc.',
       'USD',
       17.610000610351562,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'UUUU',
       'EQUITY',
@@ -7480,7 +8414,8 @@ INSERT INTO financial_assets
       'Energy Fuels Inc.',
       'USD',
       7,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'DGII',
       'EQUITY',
@@ -7488,7 +8423,8 @@ INSERT INTO financial_assets
       'Digi International Inc.',
       'USD',
       24.360000610351562,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'TPC',
       'EQUITY',
@@ -7496,7 +8432,8 @@ INSERT INTO financial_assets
       'Tutor Perini Corporation',
       'USD',
       22.059999465942383,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'LESL',
       'EQUITY',
@@ -7504,7 +8441,8 @@ INSERT INTO financial_assets
       'Leslie''s, Inc.',
       'USD',
       5.71999979019165,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'GNK',
       'EQUITY',
@@ -7512,7 +8450,8 @@ INSERT INTO financial_assets
       'Genco Shipping & Trading Limited',
       'USD',
       22.520000457763672,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'QCRH',
       'EQUITY',
@@ -7520,7 +8459,8 @@ INSERT INTO financial_assets
       'QCR Holdings, Inc.',
       'USD',
       56.66999816894531,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'XPEL',
       'EQUITY',
@@ -7528,7 +8468,8 @@ INSERT INTO financial_assets
       'XPEL, Inc.',
       'USD',
       38,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'VTOL',
       'EQUITY',
@@ -7536,7 +8477,8 @@ INSERT INTO financial_assets
       'Bristow Group Inc.',
       'USD',
       35.90999984741211,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'FIGS',
       'EQUITY',
@@ -7544,7 +8486,8 @@ INSERT INTO financial_assets
       'FIGS, Inc.',
       'USD',
       5.300000190734863,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'SLP',
       'EQUITY',
@@ -7552,7 +8495,8 @@ INSERT INTO financial_assets
       'Simulations Plus, Inc.',
       'USD',
       48.2400016784668,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'IDT',
       'EQUITY',
@@ -7560,7 +8504,8 @@ INSERT INTO financial_assets
       'IDT Corporation',
       'USD',
       40.529998779296875,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'MTUS',
       'EQUITY',
@@ -7568,7 +8513,8 @@ INSERT INTO financial_assets
       'Metallus Inc.',
       'USD',
       24.010000228881836,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'TYRA',
       'EQUITY',
@@ -7576,7 +8522,8 @@ INSERT INTO financial_assets
       'Tyra Biosciences, Inc.',
       'USD',
       16.219999313354492,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'ZIP',
       'EQUITY',
@@ -7584,7 +8531,8 @@ INSERT INTO financial_assets
       'ZipRecruiter, Inc.',
       'USD',
       10.109999656677246,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'AORT',
       'EQUITY',
@@ -7592,7 +8540,8 @@ INSERT INTO financial_assets
       'Artivion, Inc.',
       'USD',
       23.600000381469727,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'SCVL',
       'EQUITY',
@@ -7600,7 +8549,8 @@ INSERT INTO financial_assets
       'Shoe Carnival, Inc.',
       'USD',
       37.75,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'PX',
       'EQUITY',
@@ -7608,7 +8558,8 @@ INSERT INTO financial_assets
       'P10, Inc.',
       'USD',
       8.079999923706055,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'NG',
       'EQUITY',
@@ -7616,7 +8567,8 @@ INSERT INTO financial_assets
       'NovaGold Resources Inc.',
       'USD',
       3.930000066757202,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'TWKS',
       'EQUITY',
@@ -7624,7 +8576,8 @@ INSERT INTO financial_assets
       'Thoughtworks Holding, Inc.',
       'USD',
       2.759999990463257,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'GABC',
       'EQUITY',
@@ -7632,7 +8585,8 @@ INSERT INTO financial_assets
       'German American Bancorp, Inc.',
       'USD',
       31.649999618530273,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'SBGI',
       'EQUITY',
@@ -7640,7 +8594,8 @@ INSERT INTO financial_assets
       'Sinclair, Inc.',
       'USD',
       14.199999809265137,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'RDFN',
       'EQUITY',
@@ -7648,7 +8603,8 @@ INSERT INTO financial_assets
       'Redfin Corporation',
       'USD',
       6.440000057220459,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'SVC',
       'EQUITY',
@@ -7656,7 +8612,8 @@ INSERT INTO financial_assets
       'Service Properties Trust',
       'USD',
       5.380000114440918,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'PSFE',
       'EQUITY',
@@ -7664,7 +8621,8 @@ INSERT INTO financial_assets
       'Paysafe Limited',
       'USD',
       18.18000030517578,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'ATSG',
       'EQUITY',
@@ -7672,7 +8630,8 @@ INSERT INTO financial_assets
       'Air Transport Services Group, Inc.',
       'USD',
       13.5,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'ARIS',
       'EQUITY',
@@ -7680,7 +8639,8 @@ INSERT INTO financial_assets
       'Aris Water Solutions, Inc.',
       'USD',
       15.369999885559082,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'PLYM',
       'EQUITY',
@@ -7688,7 +8648,8 @@ INSERT INTO financial_assets
       'Plymouth Industrial REIT, Inc.',
       'USD',
       20.860000610351562,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'WEST',
       'EQUITY',
@@ -7696,7 +8657,8 @@ INSERT INTO financial_assets
       'Westrock Coffee Company',
       'USD',
       10.380000114440918,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'ARR',
       'EQUITY',
@@ -7704,7 +8666,8 @@ INSERT INTO financial_assets
       'ARMOUR Residential REIT, Inc.',
       'USD',
       19.34000015258789,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'BLFS',
       'EQUITY',
@@ -7712,7 +8675,8 @@ INSERT INTO financial_assets
       'BioLife Solutions, Inc.',
       'USD',
       21.479999542236328,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'PBI',
       'EQUITY',
@@ -7720,7 +8684,8 @@ INSERT INTO financial_assets
       'Pitney Bowes Inc.',
       'USD',
       5.420000076293945,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'NAPA',
       'EQUITY',
@@ -7728,7 +8693,8 @@ INSERT INTO financial_assets
       'The Duckhorn Portfolio, Inc.',
       'USD',
       8.069999694824219,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'SHEN',
       'EQUITY',
@@ -7736,7 +8702,8 @@ INSERT INTO financial_assets
       'Shenandoah Telecommunications Company',
       'USD',
       18.809999465942383,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'TILE',
       'EQUITY',
@@ -7744,7 +8711,8 @@ INSERT INTO financial_assets
       'Interface, Inc.',
       'USD',
       16.110000610351562,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'LQDA',
       'EQUITY',
@@ -7752,7 +8720,8 @@ INSERT INTO financial_assets
       'Liquidia Corporation',
       'USD',
       12.869999885559082,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'MATV',
       'EQUITY',
@@ -7760,7 +8729,8 @@ INSERT INTO financial_assets
       'Mativ Holdings, Inc.',
       'USD',
       17.969999313354492,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'ARQT',
       'EQUITY',
@@ -7768,7 +8738,8 @@ INSERT INTO financial_assets
       'Arcutis Biotherapeutics, Inc.',
       'USD',
       8.359999656677246,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'IMAX',
       'EQUITY',
@@ -7776,7 +8747,8 @@ INSERT INTO financial_assets
       'IMAX Corporation',
       'USD',
       16.440000534057617,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'KIND',
       'EQUITY',
@@ -7784,7 +8756,8 @@ INSERT INTO financial_assets
       'Nextdoor Holdings, Inc.',
       'USD',
       2.4200000762939453,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'UNIT',
       'EQUITY',
@@ -7792,7 +8765,8 @@ INSERT INTO financial_assets
       'Uniti Group Inc.',
       'USD',
       3.1600000858306885,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'KOP',
       'EQUITY',
@@ -7800,7 +8774,8 @@ INSERT INTO financial_assets
       'Koppers Holdings Inc.',
       'USD',
       44.33000183105469,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'NXRT',
       'EQUITY',
@@ -7808,7 +8783,8 @@ INSERT INTO financial_assets
       'NexPoint Residential Trust, Inc.',
       'USD',
       36.66999816894531,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'HTLD',
       'EQUITY',
@@ -7816,7 +8792,8 @@ INSERT INTO financial_assets
       'Heartland Express, Inc.',
       'USD',
       11.319999694824219,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'VRDN',
       'EQUITY',
@@ -7824,7 +8801,8 @@ INSERT INTO financial_assets
       'Viridian Therapeutics, Inc.',
       'USD',
       11.949999809265137,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'OCFC',
       'EQUITY',
@@ -7832,7 +8810,8 @@ INSERT INTO financial_assets
       'OceanFirst Financial Corp.',
       'USD',
       15.050000190734863,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'GDEN',
       'EQUITY',
@@ -7840,7 +8819,8 @@ INSERT INTO financial_assets
       'Golden Entertainment, Inc.',
       'USD',
       30.270000457763672,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'AVNS',
       'EQUITY',
@@ -7848,7 +8828,8 @@ INSERT INTO financial_assets
       'Avanos Medical, Inc.',
       'USD',
       19.90999984741211,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'BYON',
       'EQUITY',
@@ -7856,7 +8837,8 @@ INSERT INTO financial_assets
       'Beyond, Inc.',
       'USD',
       15.130000114440918,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'AXL',
       'EQUITY',
@@ -7864,7 +8846,8 @@ INSERT INTO financial_assets
       'American Axle & Manufacturing Holdings, Inc.',
       'USD',
       7.639999866485596,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'USNA',
       'EQUITY',
@@ -7872,7 +8855,8 @@ INSERT INTO financial_assets
       'USANA Health Sciences, Inc.',
       'USD',
       47.599998474121094,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'NN',
       'EQUITY',
@@ -7880,7 +8864,8 @@ INSERT INTO financial_assets
       'NextNav Inc.',
       'USD',
       7.894999980926514,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'BXC',
       'EQUITY',
@@ -7888,7 +8873,8 @@ INSERT INTO financial_assets
       'BlueLinx Holdings Inc.',
       'USD',
       102.88999938964844,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'BZH',
       'EQUITY',
@@ -7896,7 +8882,8 @@ INSERT INTO financial_assets
       'Beazer Homes USA, Inc.',
       'USD',
       28.719999313354492,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'SAVA',
       'EQUITY',
@@ -7904,7 +8891,8 @@ INSERT INTO financial_assets
       'Cassava Sciences, Inc.',
       'USD',
       22.030000686645508,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'AMSF',
       'EQUITY',
@@ -7912,7 +8900,8 @@ INSERT INTO financial_assets
       'AMERISAFE, Inc.',
       'USD',
       43.83000183105469,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'AGX',
       'EQUITY',
@@ -7920,7 +8909,8 @@ INSERT INTO financial_assets
       'Argan, Inc.',
       'USD',
       70.62999725341797,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'MATW',
       'EQUITY',
@@ -7928,7 +8918,8 @@ INSERT INTO financial_assets
       'Matthews International Corporation',
       'USD',
       28.329999923706055,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'BORR',
       'EQUITY',
@@ -7936,7 +8927,8 @@ INSERT INTO financial_assets
       'Borr Drilling Limited',
       'USD',
       6.889999866485596,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'BFS',
       'EQUITY',
@@ -7944,7 +8936,8 @@ INSERT INTO financial_assets
       'Saul Centers, Inc.',
       'USD',
       36.38999938964844,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'OPK',
       'EQUITY',
@@ -7952,7 +8945,8 @@ INSERT INTO financial_assets
       'OPKO Health, Inc.',
       'USD',
       1.3700000047683716,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'AVO',
       'EQUITY',
@@ -7960,7 +8954,8 @@ INSERT INTO financial_assets
       'Mission Produce, Inc.',
       'USD',
       11.850000381469727,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'OCUL',
       'EQUITY',
@@ -7968,7 +8963,8 @@ INSERT INTO financial_assets
       'Ocular Therapeutix, Inc.',
       'USD',
       5.699999809265137,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'UTL',
       'EQUITY',
@@ -7976,7 +8972,8 @@ INSERT INTO financial_assets
       'Unitil Corporation',
       'USD',
       53.4900016784668,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     ),(
       'SXC',
       'EQUITY',
@@ -7984,5 +8981,6 @@ INSERT INTO financial_assets
       'SunCoke Energy, Inc.',
       'USD',
       10.550000190734863,
-      'XNYS'
+      'XNYS',
+      '9999-99-99'
     )

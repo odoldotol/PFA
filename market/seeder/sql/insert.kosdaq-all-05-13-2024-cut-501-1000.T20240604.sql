@@ -6,7 +6,8 @@ INSERT INTO financial_assets
     long_name,
     currency,
     regular_market_last_close,
-    exchange
+    exchange,
+    market_date
   )
   VALUES
     (
@@ -16,7 +17,8 @@ INSERT INTO financial_assets
       'REFINE Co., Ltd.',
       'KRW',
       11220,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '461030.KQ',
       'EQUITY',
@@ -24,7 +26,8 @@ INSERT INTO financial_assets
       NULL,
       'KRW',
       13580,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '006620.KQ',
       'EQUITY',
@@ -32,7 +35,8 @@ INSERT INTO financial_assets
       'DongKoo Bio & Pharma Co., Ltd.',
       'KRW',
       6830,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '168360.KQ',
       'EQUITY',
@@ -40,7 +44,8 @@ INSERT INTO financial_assets
       'PEMTRON Corporation',
       'KRW',
       7120,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '408900.KQ',
       'EQUITY',
@@ -48,7 +53,8 @@ INSERT INTO financial_assets
       'Studio Mir Co., LTD',
       'KRW',
       4275,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '042420.KQ',
       'EQUITY',
@@ -56,7 +62,8 @@ INSERT INTO financial_assets
       'NEOWIZ HOLDINGS Corporation',
       'KRW',
       19530,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '262260.KQ',
       'EQUITY',
@@ -64,7 +71,8 @@ INSERT INTO financial_assets
       'APRO Co., Ltd',
       'KRW',
       10880,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '084730.KQ',
       'EQUITY',
@@ -72,7 +80,8 @@ INSERT INTO financial_assets
       'THINKWARE Corporation',
       'KRW',
       13400,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '136540.KQ',
       'EQUITY',
@@ -80,7 +89,8 @@ INSERT INTO financial_assets
       'WINS Co., Ltd',
       'KRW',
       13130,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '382900.KQ',
       'EQUITY',
@@ -88,7 +98,8 @@ INSERT INTO financial_assets
       'Bumhan Fuel Cell Co., Ltd.',
       'KRW',
       24600,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '191420.KQ',
       'EQUITY',
@@ -96,7 +107,8 @@ INSERT INTO financial_assets
       'TegoScience Inc.',
       'KRW',
       17500,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '125210.KQ',
       'EQUITY',
@@ -104,7 +116,8 @@ INSERT INTO financial_assets
       'Amogreentech Co.,Ltd',
       'KRW',
       11530,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '033290.KQ',
       'EQUITY',
@@ -112,7 +125,8 @@ INSERT INTO financial_assets
       'COWELL FASHION Co.,Ltd',
       'KRW',
       2915,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '073570.KQ',
       'EQUITY',
@@ -120,7 +134,8 @@ INSERT INTO financial_assets
       'Urban Lithium Inc',
       'KRW',
       4470,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '080420.KQ',
       'EQUITY',
@@ -128,7 +143,8 @@ INSERT INTO financial_assets
       'Moda-InnoChips Co., Ltd.',
       'KRW',
       2170,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '411080.KQ',
       'EQUITY',
@@ -136,7 +152,8 @@ INSERT INTO financial_assets
       'SANDS LAB Inc.',
       'KRW',
       9990,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '088390.KQ',
       'EQUITY',
@@ -144,7 +161,8 @@ INSERT INTO financial_assets
       'Innox Corporation',
       'KRW',
       19220,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '025950.KQ',
       'EQUITY',
@@ -152,7 +170,8 @@ INSERT INTO financial_assets
       'Dongsin Engineering & Construction',
       'KRW',
       24650,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '023910.KQ',
       'EQUITY',
@@ -160,7 +179,8 @@ INSERT INTO financial_assets
       'Daihan Pharmaceutical Co.,Ltd.',
       'KRW',
       29000,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '067000.KQ',
       'EQUITY',
@@ -168,7 +188,8 @@ INSERT INTO financial_assets
       'JOYCITY Corporation',
       'KRW',
       2440,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '418420.KQ',
       'EQUITY',
@@ -176,7 +197,8 @@ INSERT INTO financial_assets
       'RAONTECH Inc.',
       'KRW',
       5810,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '220260.KQ',
       'EQUITY',
@@ -184,7 +206,8 @@ INSERT INTO financial_assets
       'Chemtros Co., Ltd.',
       'KRW',
       6390,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '419050.KQ',
       'EQUITY',
@@ -192,7 +215,8 @@ INSERT INTO financial_assets
       'Samkee EV Corp.',
       'KRW',
       2760,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '138610.KQ',
       'EQUITY',
@@ -200,7 +224,8 @@ INSERT INTO financial_assets
       'NIBEC Co., Ltd.',
       'KRW',
       16160,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '042520.KQ',
       'EQUITY',
@@ -208,7 +233,8 @@ INSERT INTO financial_assets
       'HansBiomed Corporation',
       'KRW',
       12850,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '119830.KQ',
       'EQUITY',
@@ -216,7 +242,8 @@ INSERT INTO financial_assets
       'ITEK, Inc.',
       'KRW',
       7550,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '900250.KQ',
       'EQUITY',
@@ -224,7 +251,8 @@ INSERT INTO financial_assets
       'China Crystal New Material Holdings Co.,Ltd.',
       'KRW',
       1225,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '100130.KQ',
       'EQUITY',
@@ -232,7 +260,8 @@ INSERT INTO financial_assets
       'Dongkuk Structures & Construction Company Limited',
       'KRW',
       3255,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '239890.KQ',
       'EQUITY',
@@ -240,7 +269,8 @@ INSERT INTO financial_assets
       'P&H Tech Co., Ltd.',
       'KRW',
       18460,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '203650.KQ',
       'EQUITY',
@@ -248,7 +278,8 @@ INSERT INTO financial_assets
       'Dream Security co., Ltd.',
       'KRW',
       3280,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '036190.KQ',
       'EQUITY',
@@ -256,7 +287,8 @@ INSERT INTO financial_assets
       'Geumhwa Plant Service & Construction Co., Ltd.',
       'KRW',
       26850,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '018000.KQ',
       'EQUITY',
@@ -264,7 +296,8 @@ INSERT INTO financial_assets
       'Unison Co., Ltd.',
       'KRW',
       818,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '183490.KQ',
       'EQUITY',
@@ -272,7 +305,8 @@ INSERT INTO financial_assets
       'Enzychem Lifesciences Corporation',
       'KRW',
       1939,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '246710.KQ',
       'EQUITY',
@@ -280,7 +314,8 @@ INSERT INTO financial_assets
       'T&R Biofab Co., Ltd.',
       'KRW',
       6820,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '234690.KQ',
       'EQUITY',
@@ -288,7 +323,8 @@ INSERT INTO financial_assets
       'GREEN CROSS WellBeing Corporation',
       'KRW',
       9150,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '040910.KQ',
       'EQUITY',
@@ -296,7 +332,8 @@ INSERT INTO financial_assets
       'ICD Co., Ltd.',
       'KRW',
       9000,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '071280.KQ',
       'EQUITY',
@@ -304,7 +341,8 @@ INSERT INTO financial_assets
       'Rorze Systems Corporation',
       'KRW',
       12500,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '140670.KQ',
       'EQUITY',
@@ -312,7 +350,8 @@ INSERT INTO financial_assets
       'RS Automation Co.,Ltd.',
       'KRW',
       17850,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '014940.KQ',
       'EQUITY',
@@ -320,7 +359,8 @@ INSERT INTO financial_assets
       'Oriental Precision & Engineering Co.,Ltd.',
       'KRW',
       3535,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '389500.KQ',
       'EQUITY',
@@ -328,7 +368,8 @@ INSERT INTO financial_assets
       'Sbb Tech Co.,Ltd',
       'KRW',
       22100,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '023600.KQ',
       'EQUITY',
@@ -336,7 +377,8 @@ INSERT INTO financial_assets
       'Sambo Corrugated Board Co., Ltd.',
       'KRW',
       9880,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '091440.KQ',
       'EQUITY',
@@ -344,7 +386,8 @@ INSERT INTO financial_assets
       'HanWool Materials Science, Inc.',
       'KRW',
       10120,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '013990.KQ',
       'EQUITY',
@@ -352,7 +395,8 @@ INSERT INTO financial_assets
       'Agabang&Company',
       'KRW',
       5540,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '418470.KQ',
       'EQUITY',
@@ -360,7 +404,8 @@ INSERT INTO financial_assets
       'Millie Seojae.',
       'KRW',
       19670,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '040300.KQ',
       'EQUITY',
@@ -368,7 +413,8 @@ INSERT INTO financial_assets
       'YTN Co.,Ltd.',
       'KRW',
       3690,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '384470.KQ',
       'EQUITY',
@@ -376,7 +422,8 @@ INSERT INTO financial_assets
       'Coreline Soft, Co., Ltd.',
       'KRW',
       11530,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '382800.KQ',
       'EQUITY',
@@ -384,7 +431,8 @@ INSERT INTO financial_assets
       'GnBS eco Co.,Ltd',
       'KRW',
       5390,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '121440.KQ',
       'EQUITY',
@@ -392,7 +440,8 @@ INSERT INTO financial_assets
       'GOLFZON NEWDIN HOLDINGS Co., Ltd.',
       'KRW',
       3685,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '362320.KQ',
       'EQUITY',
@@ -400,7 +449,8 @@ INSERT INTO financial_assets
       'CHUNGDAMGLOBAL Co., Ltd.',
       'KRW',
       8730,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '357230.KQ',
       'EQUITY',
@@ -408,7 +458,8 @@ INSERT INTO financial_assets
       'H.PIO Co., Ltd.',
       'KRW',
       3650,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '046210.KQ',
       'EQUITY',
@@ -416,7 +467,8 @@ INSERT INTO financial_assets
       'Panagene Inc.',
       'KRW',
       3120,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '376190.KQ',
       'EQUITY',
@@ -424,7 +476,8 @@ INSERT INTO financial_assets
       'LB Lusem Co., Ltd.',
       'KRW',
       6240,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '044340.KQ',
       'EQUITY',
@@ -432,7 +485,8 @@ INSERT INTO financial_assets
       'Winix Inc.',
       'KRW',
       8430,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '030960.KQ',
       'EQUITY',
@@ -440,7 +494,8 @@ INSERT INTO financial_assets
       'Yangjisa Co., Ltd.',
       'KRW',
       9670,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '119850.KQ',
       'EQUITY',
@@ -448,7 +503,8 @@ INSERT INTO financial_assets
       'GnCenergy Co., Ltd',
       'KRW',
       7890,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '065510.KQ',
       'EQUITY',
@@ -456,7 +512,8 @@ INSERT INTO financial_assets
       'Huvitz Co., Ltd.',
       'KRW',
       14500,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '234340.KQ',
       'EQUITY',
@@ -464,7 +521,8 @@ INSERT INTO financial_assets
       'Hecto Financial Co., Ltd.',
       'KRW',
       16030,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '067990.KQ',
       'EQUITY',
@@ -472,7 +530,8 @@ INSERT INTO financial_assets
       'Deutsch Motors Inc.',
       'KRW',
       4905,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '356680.KQ',
       'EQUITY',
@@ -480,7 +539,8 @@ INSERT INTO financial_assets
       'Axgate Co., Ltd.',
       'KRW',
       4800,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '079960.KQ',
       'EQUITY',
@@ -488,7 +548,8 @@ INSERT INTO financial_assets
       'Dongyang E&P Inc.',
       'KRW',
       20050,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '072770.KQ',
       'EQUITY',
@@ -496,7 +557,8 @@ INSERT INTO financial_assets
       'Yulho Co., Ltd.',
       'KRW',
       2335,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '175140.KQ',
       'EQUITY',
@@ -504,7 +566,8 @@ INSERT INTO financial_assets
       'HUMAN TECHNOLOGY Co., Ltd',
       'KRW',
       7920,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '149980.KQ',
       'EQUITY',
@@ -512,7 +575,8 @@ INSERT INTO financial_assets
       'Hironic Co., Ltd.',
       'KRW',
       8160,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '396470.KQ',
       'EQUITY',
@@ -520,7 +584,8 @@ INSERT INTO financial_assets
       NULL,
       'KRW',
       11410,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '092130.KQ',
       'EQUITY',
@@ -528,7 +593,8 @@ INSERT INTO financial_assets
       'e-Credible Co., Ltd.',
       'KRW',
       13160,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '451250.KQ',
       'EQUITY',
@@ -536,7 +602,8 @@ INSERT INTO financial_assets
       'Bbia Co. Ltd',
       'KRW',
       19630,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '108380.KQ',
       'EQUITY',
@@ -544,7 +611,8 @@ INSERT INTO financial_assets
       'DAEYANG ELECTRIC.Co.,Ltd.',
       'KRW',
       16310,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '452400.KQ',
       'EQUITY',
@@ -552,7 +620,8 @@ INSERT INTO financial_assets
       NULL,
       'KRW',
       14620,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '063170.KQ',
       'EQUITY',
@@ -560,7 +629,8 @@ INSERT INTO financial_assets
       'Seoul Auction Co. Ltd.',
       'KRW',
       8350,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '417500.KQ',
       'EQUITY',
@@ -568,7 +638,8 @@ INSERT INTO financial_assets
       'JI-Tech Co., Ltd.',
       'KRW',
       4095,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '277880.KQ',
       'EQUITY',
@@ -576,7 +647,8 @@ INSERT INTO financial_assets
       'TSI Co., Ltd.',
       'KRW',
       8080,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '049720.KQ',
       'EQUITY',
@@ -584,7 +656,8 @@ INSERT INTO financial_assets
       'Koryo Credit Information Co., Ltd.',
       'KRW',
       11080,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '039560.KQ',
       'EQUITY',
@@ -592,7 +665,8 @@ INSERT INTO financial_assets
       'DASAN Networks, Inc.',
       'KRW',
       3735,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '317870.KQ',
       'EQUITY',
@@ -600,7 +674,8 @@ INSERT INTO financial_assets
       'ENVIONEER Co.,Ltd.',
       'KRW',
       16830,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '147830.KQ',
       'EQUITY',
@@ -608,7 +683,8 @@ INSERT INTO financial_assets
       'Cheryong Industrial Co.,Ltd.',
       'KRW',
       5620,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '418620.KQ',
       'EQUITY',
@@ -616,7 +692,8 @@ INSERT INTO financial_assets
       NULL,
       'KRW',
       14610,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '036010.KQ',
       'EQUITY',
@@ -624,7 +701,8 @@ INSERT INTO financial_assets
       'ABCO Electronics Co., Ltd.',
       'KRW',
       10900,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '099440.KQ',
       'EQUITY',
@@ -632,7 +710,8 @@ INSERT INTO financial_assets
       'Smec Co.,Ltd',
       'KRW',
       3830,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '162300.KQ',
       'EQUITY',
@@ -640,7 +719,8 @@ INSERT INTO financial_assets
       'Shin Steel Co.,Ltd.',
       'KRW',
       3650,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '092190.KQ',
       'EQUITY',
@@ -648,7 +728,8 @@ INSERT INTO financial_assets
       'Seoul Viosys Co., Ltd',
       'KRW',
       3145,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '452280.KQ',
       'EQUITY',
@@ -656,7 +737,8 @@ INSERT INTO financial_assets
       NULL,
       'KRW',
       11180,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '023900.KQ',
       'EQUITY',
@@ -664,7 +746,8 @@ INSERT INTO financial_assets
       'Pungguk Ethanol Co., Ltd',
       'KRW',
       12800,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '272110.KQ',
       'EQUITY',
@@ -672,7 +755,8 @@ INSERT INTO financial_assets
       'KNJ Co., Ltd.',
       'KRW',
       19640,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '013310.KQ',
       'EQUITY',
@@ -680,7 +764,8 @@ INSERT INTO financial_assets
       'A-Jin Industrial Co.,Ltd.',
       'KRW',
       3480,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '109740.KQ',
       'EQUITY',
@@ -688,7 +773,8 @@ INSERT INTO financial_assets
       'DSK Co., Ltd.',
       'KRW',
       6120,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '195990.KQ',
       'EQUITY',
@@ -696,7 +782,8 @@ INSERT INTO financial_assets
       'Abpro Bio Co., Ltd.',
       'KRW',
       503,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '068790.KQ',
       'EQUITY',
@@ -704,7 +791,8 @@ INSERT INTO financial_assets
       'DMS Co.,Ltd.',
       'KRW',
       6720,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '105550.KQ',
       'EQUITY',
@@ -712,7 +800,8 @@ INSERT INTO financial_assets
       'Truwin Company Limited',
       'KRW',
       2835,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '104480.KQ',
       'EQUITY',
@@ -720,7 +809,8 @@ INSERT INTO financial_assets
       'TK Chemical Corporation',
       'KRW',
       1766,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '255440.KQ',
       'EQUITY',
@@ -728,7 +818,8 @@ INSERT INTO financial_assets
       'YAS Co., Ltd.',
       'KRW',
       11450,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '451220.KQ',
       'EQUITY',
@@ -736,7 +827,8 @@ INSERT INTO financial_assets
       'IMT Co., Ltd.',
       'KRW',
       22550,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '065660.KQ',
       'EQUITY',
@@ -744,7 +836,8 @@ INSERT INTO financial_assets
       'Anterogen.Co.,Ltd.',
       'KRW',
       15550,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '439580.KQ',
       'EQUITY',
@@ -752,7 +845,8 @@ INSERT INTO financial_assets
       NULL,
       'KRW',
       13670,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '950190.KQ',
       'EQUITY',
@@ -760,7 +854,8 @@ INSERT INTO financial_assets
       'ME2ZEN Limited',
       'KRW',
       10660,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '090470.KQ',
       'EQUITY',
@@ -768,7 +863,8 @@ INSERT INTO financial_assets
       'JASTECH, Ltd.',
       'KRW',
       7870,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '226330.KQ',
       'EQUITY',
@@ -776,7 +872,8 @@ INSERT INTO financial_assets
       'SyntekaBio, Inc.',
       'KRW',
       8730,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '131400.KQ',
       'EQUITY',
@@ -784,7 +881,8 @@ INSERT INTO financial_assets
       'EV Advanced Material Co.,Ltd',
       'KRW',
       3015,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '086960.KQ',
       'EQUITY',
@@ -792,7 +890,8 @@ INSERT INTO financial_assets
       'MDS Tech Inc.',
       'KRW',
       1609,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '089850.KQ',
       'EQUITY',
@@ -800,7 +899,8 @@ INSERT INTO financial_assets
       'UBIVELOX Inc',
       'KRW',
       9040,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '274090.KQ',
       'EQUITY',
@@ -808,7 +908,8 @@ INSERT INTO financial_assets
       'Kencoa Aerospace Corporation',
       'KRW',
       11170,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '029480.KQ',
       'EQUITY',
@@ -816,7 +917,8 @@ INSERT INTO financial_assets
       'Kwangmu Co.,Ltd.',
       'KRW',
       5260,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '037460.KQ',
       'EQUITY',
@@ -824,7 +926,8 @@ INSERT INTO financial_assets
       'Samji Electronics Co., Ltd.',
       'KRW',
       8900,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '337930.KQ',
       'EQUITY',
@@ -832,7 +935,8 @@ INSERT INTO financial_assets
       'Brand X Co.,Ltd.',
       'KRW',
       5780,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '096630.KQ',
       'EQUITY',
@@ -840,7 +944,8 @@ INSERT INTO financial_assets
       'S Connect Co., LTD.',
       'KRW',
       1846,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '311320.KQ',
       'EQUITY',
@@ -848,7 +953,8 @@ INSERT INTO financial_assets
       'GO Element Co., Ltd.',
       'KRW',
       10380,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '159010.KQ',
       'EQUITY',
@@ -856,7 +962,8 @@ INSERT INTO financial_assets
       'ASFLOW Co., LTD.',
       'KRW',
       10090,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '033170.KQ',
       'EQUITY',
@@ -864,7 +971,8 @@ INSERT INTO financial_assets
       'Signetics Corporation',
       'KRW',
       1477,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '060560.KQ',
       'EQUITY',
@@ -872,7 +980,8 @@ INSERT INTO financial_assets
       'Home Center Holdings Co.,Ltd',
       'KRW',
       1107,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '226340.KQ',
       'EQUITY',
@@ -880,7 +989,8 @@ INSERT INTO financial_assets
       'Bonne Co., Ltd.',
       'KRW',
       4410,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '090850.KQ',
       'EQUITY',
@@ -888,7 +998,8 @@ INSERT INTO financial_assets
       'Hyundai Ezwel Co.,Ltd.',
       'KRW',
       6120,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '309960.KQ',
       'EQUITY',
@@ -896,7 +1007,8 @@ INSERT INTO financial_assets
       'LB Investment Inc.',
       'KRW',
       5020,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '086820.KQ',
       'EQUITY',
@@ -904,7 +1016,8 @@ INSERT INTO financial_assets
       'Biosolution Co.,Ltd.',
       'KRW',
       17490,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '264660.KQ',
       'EQUITY',
@@ -912,7 +1025,8 @@ INSERT INTO financial_assets
       'C&G Hi Tech Co., Ltd',
       'KRW',
       13960,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '273640.KQ',
       'EQUITY',
@@ -920,7 +1034,8 @@ INSERT INTO financial_assets
       'YM Tech Co., Ltd.',
       'KRW',
       13690,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '261200.KQ',
       'EQUITY',
@@ -928,7 +1043,8 @@ INSERT INTO financial_assets
       'Dentis Co.,Ltd',
       'KRW',
       9060,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '353810.KQ',
       'EQUITY',
@@ -936,7 +1052,8 @@ INSERT INTO financial_assets
       'EASY BIO,Inc.',
       'KRW',
       4280,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '228850.KQ',
       'EQUITY',
@@ -944,7 +1061,8 @@ INSERT INTO financial_assets
       'Rayence Co., Ltd.',
       'KRW',
       8240,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '332570.KQ',
       'EQUITY',
@@ -952,7 +1070,8 @@ INSERT INTO financial_assets
       'Wireless Power Amplifier Module Inc.',
       'KRW',
       3420,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '012860.KQ',
       'EQUITY',
@@ -960,7 +1079,8 @@ INSERT INTO financial_assets
       'Mobase Electronics Co.,Ltd.',
       'KRW',
       1918,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '348150.KQ',
       'EQUITY',
@@ -968,7 +1088,8 @@ INSERT INTO financial_assets
       'KoBioLabs, Inc',
       'KRW',
       7470,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '377480.KQ',
       'EQUITY',
@@ -976,7 +1097,8 @@ INSERT INTO financial_assets
       'Maum.AI, Inc.',
       'KRW',
       19450,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '391710.KQ',
       'EQUITY',
@@ -984,7 +1106,8 @@ INSERT INTO financial_assets
       'Kornic Automation Co., Ltd.',
       'KRW',
       2930,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '012700.KQ',
       'EQUITY',
@@ -992,7 +1115,8 @@ INSERT INTO financial_assets
       'The LEADCORP, Inc.',
       'KRW',
       5250,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '036630.KQ',
       'EQUITY',
@@ -1000,7 +1124,8 @@ INSERT INTO financial_assets
       'Sejong Telecom, Inc.',
       'KRW',
       602,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '007330.KQ',
       'EQUITY',
@@ -1008,7 +1133,8 @@ INSERT INTO financial_assets
       'Pureun Mutual Savings Bank Co., Ltd',
       'KRW',
       9210,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '019550.KQ',
       'EQUITY',
@@ -1016,7 +1142,8 @@ INSERT INTO financial_assets
       'SBI Investment Korea Co., Ltd.',
       'KRW',
       869,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '021080.KQ',
       'EQUITY',
@@ -1024,7 +1151,8 @@ INSERT INTO financial_assets
       'Atinum Investment Co., Ltd',
       'KRW',
       2970,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '368770.KQ',
       'EQUITY',
@@ -1032,7 +1160,8 @@ INSERT INTO financial_assets
       'Korea No.9 Special Purpose Acquisition Co., Ltd.',
       'KRW',
       4850,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '067900.KQ',
       'EQUITY',
@@ -1040,7 +1169,8 @@ INSERT INTO financial_assets
       'Y-Entec Co., Ltd.',
       'KRW',
       7620,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '039340.KQ',
       'EQUITY',
@@ -1048,7 +1178,8 @@ INSERT INTO financial_assets
       'Korea Business News Co., Ltd.',
       'KRW',
       5900,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '088800.KQ',
       'EQUITY',
@@ -1056,7 +1187,8 @@ INSERT INTO financial_assets
       'Ace Technologies Corp.',
       'KRW',
       1849,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '452190.KQ',
       'EQUITY',
@@ -1064,7 +1196,8 @@ INSERT INTO financial_assets
       'HBL Corporation',
       'KRW',
       5800,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '137950.KQ',
       'EQUITY',
@@ -1072,7 +1205,8 @@ INSERT INTO financial_assets
       'JC Chemical Co., Ltd.',
       'KRW',
       5590,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '217730.KQ',
       'EQUITY',
@@ -1080,7 +1214,8 @@ INSERT INTO financial_assets
       'Kangstem Biotech Co., Ltd.',
       'KRW',
       2965,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '393210.KQ',
       'EQUITY',
@@ -1088,7 +1223,8 @@ INSERT INTO financial_assets
       'TOMATOSYSTEM Co.,Ltd.',
       'KRW',
       9770,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '038390.KQ',
       'EQUITY',
@@ -1096,7 +1232,8 @@ INSERT INTO financial_assets
       'RedcapTour Co., Ltd.',
       'KRW',
       16490,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '419080.KQ',
       'EQUITY',
@@ -1104,7 +1241,8 @@ INSERT INTO financial_assets
       'Enjet Co., Ltd.',
       'KRW',
       12730,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '164060.KQ',
       'EQUITY',
@@ -1112,7 +1250,8 @@ INSERT INTO financial_assets
       'Ilooda Co., Ltd',
       'KRW',
       6970,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '082800.KQ',
       'EQUITY',
@@ -1120,7 +1259,8 @@ INSERT INTO financial_assets
       'Vivozon Pharmaceutical Co., Ltd.',
       'KRW',
       3145,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '042510.KQ',
       'EQUITY',
@@ -1128,7 +1268,8 @@ INSERT INTO financial_assets
       'Raonsecure Co., Ltd.',
       'KRW',
       2505,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '215360.KQ',
       'EQUITY',
@@ -1136,7 +1277,8 @@ INSERT INTO financial_assets
       'Woory Industrial Co., Ltd.',
       'KRW',
       15010,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '180400.KQ',
       'EQUITY',
@@ -1144,7 +1286,8 @@ INSERT INTO financial_assets
       'Cancer Rop Co., Ltd.',
       'KRW',
       2690,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '300120.KQ',
       'EQUITY',
@@ -1152,7 +1295,8 @@ INSERT INTO financial_assets
       'LAON PEOPLE Inc',
       'KRW',
       6390,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '051160.KQ',
       'EQUITY',
@@ -1160,7 +1304,8 @@ INSERT INTO financial_assets
       'GaeaSoft Corp.',
       'KRW',
       10590,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '140070.KQ',
       'EQUITY',
@@ -1168,7 +1313,8 @@ INSERT INTO financial_assets
       'SurplusGLOBAL, Inc.',
       'KRW',
       3445,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '124560.KQ',
       'EQUITY',
@@ -1176,7 +1322,8 @@ INSERT INTO financial_assets
       'Taewoong Logistics Co., Ltd.',
       'KRW',
       3855,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '170920.KQ',
       'EQUITY',
@@ -1184,7 +1331,8 @@ INSERT INTO financial_assets
       'LTC Co.,Ltd',
       'KRW',
       14180,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '072870.KQ',
       'EQUITY',
@@ -1192,7 +1340,8 @@ INSERT INTO financial_assets
       'MegaStudy Co., Ltd.',
       'KRW',
       11450,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '100700.KQ',
       'EQUITY',
@@ -1200,7 +1349,8 @@ INSERT INTO financial_assets
       'Sewoon Medical Co., Ltd',
       'KRW',
       2935,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '065450.KQ',
       'EQUITY',
@@ -1208,7 +1358,8 @@ INSERT INTO financial_assets
       'Victek Co., Ltd.',
       'KRW',
       4900,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '000440.KQ',
       'EQUITY',
@@ -1216,7 +1367,8 @@ INSERT INTO financial_assets
       'Joong Ang Enervis Co., Ltd',
       'KRW',
       24750,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '251630.KQ',
       'EQUITY',
@@ -1224,7 +1376,8 @@ INSERT INTO financial_assets
       'V-One Tech Co., Ltd.',
       'KRW',
       8340,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '042500.KQ',
       'EQUITY',
@@ -1232,7 +1385,8 @@ INSERT INTO financial_assets
       'RingNet Co., Ltd.',
       'KRW',
       6060,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '097800.KQ',
       'EQUITY',
@@ -1240,7 +1394,8 @@ INSERT INTO financial_assets
       'WINPAC Inc.',
       'KRW',
       991,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '305090.KQ',
       'EQUITY',
@@ -1248,7 +1403,8 @@ INSERT INTO financial_assets
       'Micro Digital Co., Ltd.',
       'KRW',
       8060,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '082850.KQ',
       'EQUITY',
@@ -1256,7 +1412,8 @@ INSERT INTO financial_assets
       'Wooree Bio Co.,Ltd',
       'KRW',
       2950,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '005710.KQ',
       'EQUITY',
@@ -1264,7 +1421,8 @@ INSERT INTO financial_assets
       'Daewon Sanup Co., Ltd',
       'KRW',
       6280,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '251120.KQ',
       'EQUITY',
@@ -1272,7 +1430,8 @@ INSERT INTO financial_assets
       'BIO-FD&C Co.,Ltd.',
       'KRW',
       14210,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '054620.KQ',
       'EQUITY',
@@ -1280,7 +1439,8 @@ INSERT INTO financial_assets
       'APS Inc.',
       'KRW',
       6570,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '049520.KQ',
       'EQUITY',
@@ -1288,7 +1448,8 @@ INSERT INTO financial_assets
       'UIL Co., Ltd.',
       'KRW',
       6510,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '255220.KQ',
       'EQUITY',
@@ -1296,7 +1457,8 @@ INSERT INTO financial_assets
       'SG Co.,Ltd',
       'KRW',
       1353,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '186230.KQ',
       'EQUITY',
@@ -1304,7 +1466,8 @@ INSERT INTO financial_assets
       'Green Plus Co., Ltd.',
       'KRW',
       12900,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '040350.KQ',
       'EQUITY',
@@ -1312,7 +1475,8 @@ INSERT INTO financial_assets
       'CreoSG Co.,Ltd.',
       'KRW',
       769,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '138080.KQ',
       'EQUITY',
@@ -1320,7 +1484,8 @@ INSERT INTO financial_assets
       'OE Solutions Co., Ltd.',
       'KRW',
       11600,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '035610.KQ',
       'EQUITY',
@@ -1328,7 +1493,8 @@ INSERT INTO financial_assets
       'Solborn, Inc.',
       'KRW',
       4475,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '338840.KQ',
       'EQUITY',
@@ -1336,7 +1502,8 @@ INSERT INTO financial_assets
       NULL,
       'KRW',
       8800,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '293780.KQ',
       'EQUITY',
@@ -1344,7 +1511,8 @@ INSERT INTO financial_assets
       'AptaBio Therapeutics Inc.',
       'KRW',
       5750,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '054050.KQ',
       'EQUITY',
@@ -1352,7 +1520,8 @@ INSERT INTO financial_assets
       'Nongwoobio Co., Ltd.',
       'KRW',
       8060,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '074430.KQ',
       'EQUITY',
@@ -1360,7 +1529,8 @@ INSERT INTO financial_assets
       'Aminologics Co.,Ltd.',
       'KRW',
       1463,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '261780.KQ',
       'EQUITY',
@@ -1368,7 +1538,8 @@ INSERT INTO financial_assets
       'CHA Vaccine Research Institute',
       'KRW',
       4660,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '054780.KQ',
       'EQUITY',
@@ -1376,7 +1547,8 @@ INSERT INTO financial_assets
       'KEYEAST.Co.,Ltd.',
       'KRW',
       6100,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '066700.KQ',
       'EQUITY',
@@ -1384,7 +1556,8 @@ INSERT INTO financial_assets
       'Theragen Etex Co.,Ltd.',
       'KRW',
       3890,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '263600.KQ',
       'EQUITY',
@@ -1392,7 +1565,8 @@ INSERT INTO financial_assets
       'Derkwoo Electronics Co., Ltd',
       'KRW',
       7950,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '267320.KQ',
       'EQUITY',
@@ -1400,7 +1574,8 @@ INSERT INTO financial_assets
       'Naintech CO.,LTD.',
       'KRW',
       2880,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '106190.KQ',
       'EQUITY',
@@ -1408,7 +1583,8 @@ INSERT INTO financial_assets
       'High Tech Pharm Co., Ltd.',
       'KRW',
       14900,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '027050.KQ',
       'EQUITY',
@@ -1416,7 +1592,8 @@ INSERT INTO financial_assets
       'Coreana Cosmetics Co.,Ltd.',
       'KRW',
       3590,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '061040.KQ',
       'EQUITY',
@@ -1424,7 +1601,8 @@ INSERT INTO financial_assets
       'RFTech Co., Ltd.',
       'KRW',
       4095,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '048910.KQ',
       'EQUITY',
@@ -1432,7 +1610,8 @@ INSERT INTO financial_assets
       'Daewon Media Co., Ltd.',
       'KRW',
       10070,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '310200.KQ',
       'EQUITY',
@@ -1440,7 +1619,8 @@ INSERT INTO financial_assets
       'Aniplus Inc.',
       'KRW',
       2845,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '033230.KQ',
       'EQUITY',
@@ -1448,7 +1628,8 @@ INSERT INTO financial_assets
       'Insung Information Co., Ltd',
       'KRW',
       2585,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '200350.KQ',
       'EQUITY',
@@ -1456,7 +1637,8 @@ INSERT INTO financial_assets
       'RaemongRaein Co., Ltd.',
       'KRW',
       12940,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '366030.KQ',
       'EQUITY',
@@ -1464,7 +1646,8 @@ INSERT INTO financial_assets
       '09WOMEN Co., Ltd.',
       'KRW',
       6570,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '432470.KQ',
       'EQUITY',
@@ -1472,7 +1655,8 @@ INSERT INTO financial_assets
       'Kns Co., Ltd',
       'KRW',
       32000,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '208370.KQ',
       'EQUITY',
@@ -1480,7 +1664,8 @@ INSERT INTO financial_assets
       'SELVAS Healthcare, Inc.',
       'KRW',
       4325,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '452160.KQ',
       'EQUITY',
@@ -1488,7 +1673,8 @@ INSERT INTO financial_assets
       'JNB Co., Ltd.',
       'KRW',
       10100,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '311690.KQ',
       'EQUITY',
@@ -1496,7 +1682,8 @@ INSERT INTO financial_assets
       'CJ Bioscience, Inc.',
       'KRW',
       14070,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '026150.KQ',
       'EQUITY',
@@ -1504,7 +1691,8 @@ INSERT INTO financial_assets
       'Tuksu Engineering & Construction,Ltd.',
       'KRW',
       7750,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '060310.KQ',
       'EQUITY',
@@ -1512,7 +1700,8 @@ INSERT INTO financial_assets
       '3S KOREA Co., Ltd.',
       'KRW',
       2955,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '071200.KQ',
       'EQUITY',
@@ -1520,7 +1709,8 @@ INSERT INTO financial_assets
       'INFINITT Healthcare Co., Ltd.',
       'KRW',
       5220,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '065650.KQ',
       'EQUITY',
@@ -1528,7 +1718,8 @@ INSERT INTO financial_assets
       'Hyper Corporation Inc.',
       'KRW',
       1430,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '038460.KQ',
       'EQUITY',
@@ -1536,7 +1727,8 @@ INSERT INTO financial_assets
       'BioSmart Co.,Ltd.',
       'KRW',
       5210,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '259630.KQ',
       'EQUITY',
@@ -1544,7 +1736,8 @@ INSERT INTO financial_assets
       'mPLUS Corp.',
       'KRW',
       10300,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '256940.KQ',
       'EQUITY',
@@ -1552,7 +1745,8 @@ INSERT INTO financial_assets
       'KPS Corporation',
       'KRW',
       6450,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '361390.KQ',
       'EQUITY',
@@ -1560,7 +1754,8 @@ INSERT INTO financial_assets
       'Genohco., Inc.',
       'KRW',
       15980,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '045660.KQ',
       'EQUITY',
@@ -1568,7 +1763,8 @@ INSERT INTO financial_assets
       'Atec Co. Ltd.',
       'KRW',
       17760,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '014470.KQ',
       'EQUITY',
@@ -1576,7 +1772,8 @@ INSERT INTO financial_assets
       'Bubang Co., Ltd.',
       'KRW',
       2240,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '347890.KQ',
       'EQUITY',
@@ -1584,7 +1781,8 @@ INSERT INTO financial_assets
       'M2I Corporation',
       'KRW',
       7210,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '053580.KQ',
       'EQUITY',
@@ -1592,7 +1790,8 @@ INSERT INTO financial_assets
       'WebCash Corporation',
       'KRW',
       8870,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '080580.KQ',
       'EQUITY',
@@ -1600,7 +1799,8 @@ INSERT INTO financial_assets
       'OKins Electronics Co.,Ltd.',
       'KRW',
       6820,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '105330.KQ',
       'EQUITY',
@@ -1608,7 +1808,8 @@ INSERT INTO financial_assets
       'KNW Co., Ltd.',
       'KRW',
       8050,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '041910.KQ',
       'EQUITY',
@@ -1616,7 +1817,8 @@ INSERT INTO financial_assets
       'Polaris AI Pharma Corp.',
       'KRW',
       8750,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '095190.KQ',
       'EQUITY',
@@ -1624,7 +1826,8 @@ INSERT INTO financial_assets
       'ENERGY&MACHINERY KOREA Co.,Ltd.',
       'KRW',
       3180,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '086670.KQ',
       'EQUITY',
@@ -1632,7 +1835,8 @@ INSERT INTO financial_assets
       'BMT Co., Ltd.',
       'KRW',
       13500,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '009300.KQ',
       'EQUITY',
@@ -1640,7 +1844,8 @@ INSERT INTO financial_assets
       'Sam-A Pharm. Co., Ltd',
       'KRW',
       20250,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '086710.KQ',
       'EQUITY',
@@ -1648,7 +1853,8 @@ INSERT INTO financial_assets
       'Sunjin Beauty Science Co.Ltd',
       'KRW',
       19040,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '306620.KQ',
       'EQUITY',
@@ -1656,7 +1862,8 @@ INSERT INTO financial_assets
       'Neontech Co.,Ltd.',
       'KRW',
       2805,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '294630.KQ',
       'EQUITY',
@@ -1664,7 +1871,8 @@ INSERT INTO financial_assets
       'SuNam Co., Ltd.',
       'KRW',
       4935,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '109670.KQ',
       'EQUITY',
@@ -1672,7 +1880,8 @@ INSERT INTO financial_assets
       'C-SITE Co., Ltd.',
       'KRW',
       28450,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '340930.KQ',
       'EQUITY',
@@ -1680,7 +1889,8 @@ INSERT INTO financial_assets
       'Youil Energy Tech Co.,Ltd.',
       'KRW',
       3575,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '148140.KQ',
       'EQUITY',
@@ -1688,7 +1898,8 @@ INSERT INTO financial_assets
       'BDI CO., LTD.',
       'KRW',
       173,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '214260.KQ',
       'EQUITY',
@@ -1696,7 +1907,8 @@ INSERT INTO financial_assets
       'Raphas Co., Ltd.',
       'KRW',
       12450,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '291230.KQ',
       'EQUITY',
@@ -1704,7 +1916,8 @@ INSERT INTO financial_assets
       'NP Inc.',
       'KRW',
       2545,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '120240.KQ',
       'EQUITY',
@@ -1712,7 +1925,8 @@ INSERT INTO financial_assets
       'Daejung Chemicals & Metals Co., Ltd.',
       'KRW',
       16600,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '038880.KQ',
       'EQUITY',
@@ -1720,7 +1934,8 @@ INSERT INTO financial_assets
       'iA, Inc.',
       'KRW',
       322,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '101930.KQ',
       'EQUITY',
@@ -1728,7 +1943,8 @@ INSERT INTO financial_assets
       'Inhwa Precision Co., Ltd',
       'KRW',
       12880,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '448710.KQ',
       'EQUITY',
@@ -1736,7 +1952,8 @@ INSERT INTO financial_assets
       'COTS Technology Co., Ltd.',
       'KRW',
       22350,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '036710.KQ',
       'EQUITY',
@@ -1744,7 +1961,8 @@ INSERT INTO financial_assets
       'Simmtech Holdings Co., Ltd.',
       'KRW',
       2510,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '052420.KQ',
       'EQUITY',
@@ -1752,7 +1970,8 @@ INSERT INTO financial_assets
       'Osung Advanced Materials Co., Ltd.',
       'KRW',
       1531,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '206400.KQ',
       'EQUITY',
@@ -1760,7 +1979,8 @@ INSERT INTO financial_assets
       'BENO TNR, Inc.',
       'KRW',
       3365,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '323280.KQ',
       'EQUITY',
@@ -1768,7 +1988,8 @@ INSERT INTO financial_assets
       'Taesung Co.,Ltd.',
       'KRW',
       7300,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '065130.KQ',
       'EQUITY',
@@ -1776,7 +1997,8 @@ INSERT INTO financial_assets
       'TOP Engineering Co., Ltd',
       'KRW',
       5880,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '128660.KQ',
       'EQUITY',
@@ -1784,7 +2006,8 @@ INSERT INTO financial_assets
       'PJ Metal Co., Ltd.',
       'KRW',
       4040,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '066980.KQ',
       'EQUITY',
@@ -1792,7 +2015,8 @@ INSERT INTO financial_assets
       'Hansung Cleantech Co., Ltd.',
       'KRW',
       2985,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '092460.KQ',
       'EQUITY',
@@ -1800,7 +2024,8 @@ INSERT INTO financial_assets
       'Hanla IMS Co., Ltd.',
       'KRW',
       6800,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '058400.KQ',
       'EQUITY',
@@ -1808,7 +2033,8 @@ INSERT INTO financial_assets
       'Korea New Network Co., Ltd.',
       'KRW',
       855,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '052330.KQ',
       'EQUITY',
@@ -1816,7 +2042,8 @@ INSERT INTO financial_assets
       'Kortek Corporation',
       'KRW',
       7700,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '082210.KQ',
       'EQUITY',
@@ -1824,7 +2051,8 @@ INSERT INTO financial_assets
       'Optrontec Inc.',
       'KRW',
       3700,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '250060.KQ',
       'EQUITY',
@@ -1832,7 +2060,8 @@ INSERT INTO financial_assets
       'Mobiis Co., Ltd.',
       'KRW',
       3775,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '284620.KQ',
       'EQUITY',
@@ -1840,7 +2069,8 @@ INSERT INTO financial_assets
       'Kainos Medicine, Inc.',
       'KRW',
       4280,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '159580.KQ',
       'EQUITY',
@@ -1848,7 +2078,8 @@ INSERT INTO financial_assets
       'Zero to Seven Inc.',
       'KRW',
       6250,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '187870.KQ',
       'EQUITY',
@@ -1856,7 +2087,8 @@ INSERT INTO financial_assets
       'Device ENG Co.,Ltd.',
       'KRW',
       15870,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '043260.KQ',
       'EQUITY',
@@ -1864,7 +2096,8 @@ INSERT INTO financial_assets
       'Sungho Electronics Corp.',
       'KRW',
       1799,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '003100.KQ',
       'EQUITY',
@@ -1872,7 +2105,8 @@ INSERT INTO financial_assets
       'SUN KWANG CO.,Ltd.',
       'KRW',
       17440,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '260930.KQ',
       'EQUITY',
@@ -1880,7 +2114,8 @@ INSERT INTO financial_assets
       'CTK Co., Ltd',
       'KRW',
       7020,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '049960.KQ',
       'EQUITY',
@@ -1888,7 +2123,8 @@ INSERT INTO financial_assets
       'Cell Biotech Co., Ltd.',
       'KRW',
       12000,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '104540.KQ',
       'EQUITY',
@@ -1896,7 +2132,8 @@ INSERT INTO financial_assets
       'Corentec Co., Ltd.',
       'KRW',
       8270,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '355390.KQ',
       'EQUITY',
@@ -1904,7 +2141,8 @@ INSERT INTO financial_assets
       'CrowdWorks, Inc.',
       'KRW',
       21450,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '053700.KQ',
       'EQUITY',
@@ -1912,7 +2150,8 @@ INSERT INTO financial_assets
       'Sambo Motors Co., Ltd',
       'KRW',
       5410,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '043220.KQ',
       'EQUITY',
@@ -1920,7 +2159,8 @@ INSERT INTO financial_assets
       'TS Nexgen Co., Ltd.',
       'KRW',
       806,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '104620.KQ',
       'EQUITY',
@@ -1928,7 +2168,8 @@ INSERT INTO financial_assets
       'Yellow Balloon Tour Co., Ltd.',
       'KRW',
       7610,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '420570.KQ',
       'EQUITY',
@@ -1936,7 +2177,8 @@ INSERT INTO financial_assets
       'J2KBIO Co., Ltd.',
       'KRW',
       31600,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '007820.KQ',
       'EQUITY',
@@ -1944,7 +2186,8 @@ INSERT INTO financial_assets
       'SMCore.Inc',
       'KRW',
       5280,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '430690.KQ',
       'EQUITY',
@@ -1952,7 +2195,8 @@ INSERT INTO financial_assets
       'Hanssak Co., Ltd.',
       'KRW',
       7650,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '041440.KQ',
       'EQUITY',
@@ -1960,7 +2204,8 @@ INSERT INTO financial_assets
       'Hyundai Everdigm Corp.',
       'KRW',
       6960,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '142210.KQ',
       'EQUITY',
@@ -1968,7 +2213,8 @@ INSERT INTO financial_assets
       'Unitrontech Co., Ltd.',
       'KRW',
       6730,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '115180.KQ',
       'EQUITY',
@@ -1976,7 +2222,8 @@ INSERT INTO financial_assets
       'Qurient Co., Ltd.',
       'KRW',
       4200,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '053280.KQ',
       'EQUITY',
@@ -1984,7 +2231,8 @@ INSERT INTO financial_assets
       'YES24 Co.,Ltd',
       'KRW',
       4730,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '041920.KQ',
       'EQUITY',
@@ -1992,7 +2240,8 @@ INSERT INTO financial_assets
       'MEDIANA Co.,Ltd',
       'KRW',
       6290,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '417790.KQ',
       'EQUITY',
@@ -2000,7 +2249,8 @@ INSERT INTO financial_assets
       'TRUEN Co., Ltd.',
       'KRW',
       10370,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '443250.KQ',
       'EQUITY',
@@ -2008,7 +2258,8 @@ INSERT INTO financial_assets
       'Revu Corporation',
       'KRW',
       11670,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '037950.KQ',
       'EQUITY',
@@ -2016,7 +2267,8 @@ INSERT INTO financial_assets
       'Elcomtec Co., Ltd',
       'KRW',
       1339,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '066590.KQ',
       'EQUITY',
@@ -2024,7 +2276,8 @@ INSERT INTO financial_assets
       'Woosu AMS Co.,Ltd.',
       'KRW',
       2870,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '357580.KQ',
       'EQUITY',
@@ -2032,7 +2285,8 @@ INSERT INTO financial_assets
       'Amosense Co.,Ltd.',
       'KRW',
       11450,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '053450.KQ',
       'EQUITY',
@@ -2040,7 +2294,8 @@ INSERT INTO financial_assets
       'SEKONIX Co., Ltd.',
       'KRW',
       7190,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '059120.KQ',
       'EQUITY',
@@ -2048,7 +2303,8 @@ INSERT INTO financial_assets
       'Ajinextek Co., Ltd.',
       'KRW',
       10170,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '241790.KQ',
       'EQUITY',
@@ -2056,7 +2312,8 @@ INSERT INTO financial_assets
       'TEMC CNS Co., Ltd.',
       'KRW',
       10830,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '052710.KQ',
       'EQUITY',
@@ -2064,7 +2321,8 @@ INSERT INTO financial_assets
       'Amotech Co., Ltd.',
       'KRW',
       7540,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '123420.KQ',
       'EQUITY',
@@ -2072,7 +2330,8 @@ INSERT INTO financial_assets
       'Wemade Play Co., Ltd.',
       'KRW',
       9660,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '054670.KQ',
       'EQUITY',
@@ -2080,7 +2339,8 @@ INSERT INTO financial_assets
       'Daehan New Pharm Co., Ltd.',
       'KRW',
       8280,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '340360.KQ',
       'EQUITY',
@@ -2088,7 +2348,8 @@ INSERT INTO financial_assets
       'DAVOLINK Inc.',
       'KRW',
       2415,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '041930.KQ',
       'EQUITY',
@@ -2096,7 +2357,8 @@ INSERT INTO financial_assets
       'Dong-A Hwa Sung Co.,Ltd.',
       'KRW',
       8330,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '216050.KQ',
       'EQUITY',
@@ -2104,7 +2366,8 @@ INSERT INTO financial_assets
       'Incross Co., Ltd.',
       'KRW',
       8090,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '102370.KQ',
       'EQUITY',
@@ -2112,7 +2375,8 @@ INSERT INTO financial_assets
       'K-Auction.Co.Ltd.',
       'KRW',
       3930,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '111710.KQ',
       'EQUITY',
@@ -2120,7 +2384,8 @@ INSERT INTO financial_assets
       'Namhwa Industrial Co., Ltd.',
       'KRW',
       5340,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '078140.KQ',
       'EQUITY',
@@ -2128,7 +2393,8 @@ INSERT INTO financial_assets
       'Daebongls.Co.,Ltd.',
       'KRW',
       10840,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '053050.KQ',
       'EQUITY',
@@ -2136,7 +2402,8 @@ INSERT INTO financial_assets
       'GSE Co., Ltd.',
       'KRW',
       4435,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '005990.KQ',
       'EQUITY',
@@ -2144,7 +2411,8 @@ INSERT INTO financial_assets
       'Maeil Holdings Co., Ltd.',
       'KRW',
       8190,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '302430.KQ',
       'EQUITY',
@@ -2152,7 +2420,8 @@ INSERT INTO financial_assets
       'Innometry Co., Ltd.',
       'KRW',
       10800,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '234300.KQ',
       'EQUITY',
@@ -2160,7 +2429,8 @@ INSERT INTO financial_assets
       'STraffic Co,. Ltd',
       'KRW',
       3950,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '263690.KQ',
       'EQUITY',
@@ -2168,7 +2438,8 @@ INSERT INTO financial_assets
       'DRGEM Corporation',
       'KRW',
       9100,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '382480.KQ',
       'EQUITY',
@@ -2176,7 +2447,8 @@ INSERT INTO financial_assets
       'G.I. Tech Co., Ltd.',
       'KRW',
       2655,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '124500.KQ',
       'EQUITY',
@@ -2184,7 +2456,8 @@ INSERT INTO financial_assets
       'Itcen Co., Ltd.',
       'KRW',
       4415,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '024840.KQ',
       'EQUITY',
@@ -2192,7 +2465,8 @@ INSERT INTO financial_assets
       'Kbi Metal Co., Ltd.',
       'KRW',
       3240,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '064480.KQ',
       'EQUITY',
@@ -2200,7 +2474,8 @@ INSERT INTO financial_assets
       'BRIDGETEC Corp.',
       'KRW',
       8830,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '199550.KQ',
       'EQUITY',
@@ -2208,7 +2483,8 @@ INSERT INTO financial_assets
       'Laseroptek Co., Ltd.',
       'KRW',
       9800,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '368600.KQ',
       'EQUITY',
@@ -2216,7 +2492,8 @@ INSERT INTO financial_assets
       'Ich Co.,Ltd.',
       'KRW',
       4620,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '419530.KQ',
       'EQUITY',
@@ -2224,7 +2501,8 @@ INSERT INTO financial_assets
       'SAMG Entertainment Co., Ltd.',
       'KRW',
       11370,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '066620.KQ',
       'EQUITY',
@@ -2232,7 +2510,8 @@ INSERT INTO financial_assets
       'Kukbo Design Co., Ltd.',
       'KRW',
       15930,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '263860.KQ',
       'EQUITY',
@@ -2240,7 +2519,8 @@ INSERT INTO financial_assets
       'Genians, Inc.',
       'KRW',
       10800,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '446540.KQ',
       'EQUITY',
@@ -2248,7 +2528,8 @@ INSERT INTO financial_assets
       NULL,
       'KRW',
       5510,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '038680.KQ',
       'EQUITY',
@@ -2256,7 +2537,8 @@ INSERT INTO financial_assets
       'Snet systems Inc',
       'KRW',
       5020,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '058630.KQ',
       'EQUITY',
@@ -2264,7 +2546,8 @@ INSERT INTO financial_assets
       'Mgame Corp.',
       'KRW',
       5640,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '170030.KQ',
       'EQUITY',
@@ -2272,7 +2555,8 @@ INSERT INTO financial_assets
       'Hyundai Industrial Co., Ltd.',
       'KRW',
       7300,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '256630.KQ',
       'EQUITY',
@@ -2280,7 +2564,8 @@ INSERT INTO financial_assets
       'POINT ENGINEERING Co.,Ltd.',
       'KRW',
       1750,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '099750.KQ',
       'EQUITY',
@@ -2288,7 +2573,8 @@ INSERT INTO financial_assets
       'ezCaretech Co., LTD',
       'KRW',
       16190,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '173130.KQ',
       'EQUITY',
@@ -2296,7 +2582,8 @@ INSERT INTO financial_assets
       'OPASNET co., Ltd.',
       'KRW',
       9320,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '403490.KQ',
       'EQUITY',
@@ -2304,7 +2591,8 @@ INSERT INTO financial_assets
       'WooDeumGee Farm Co., Ltd',
       'KRW',
       2560,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '203690.KQ',
       'EQUITY',
@@ -2312,7 +2600,8 @@ INSERT INTO financial_assets
       'Sphere Power Inc.',
       'KRW',
       8260,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '307930.KQ',
       'EQUITY',
@@ -2320,7 +2609,8 @@ INSERT INTO financial_assets
       'Company K Partners Limited',
       'KRW',
       6420,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '289080.KQ',
       'EQUITY',
@@ -2328,7 +2618,8 @@ INSERT INTO financial_assets
       'SV Investment Corporation',
       'KRW',
       2145,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '027830.KQ',
       'EQUITY',
@@ -2336,7 +2627,8 @@ INSERT INTO financial_assets
       'Daesung Private Equity, Inc.',
       'KRW',
       2735,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '033310.KQ',
       'EQUITY',
@@ -2344,7 +2636,8 @@ INSERT INTO financial_assets
       'M2N Co.,Ltd',
       'KRW',
       2720,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '099220.KQ',
       'EQUITY',
@@ -2352,7 +2645,8 @@ INSERT INTO financial_assets
       'SDN Company., Ltd.',
       'KRW',
       1760,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '218150.KQ',
       'EQUITY',
@@ -2360,7 +2654,8 @@ INSERT INTO financial_assets
       'Milae Bioresources Co., Ltd.',
       'KRW',
       5320,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '061250.KQ',
       'EQUITY',
@@ -2368,7 +2663,8 @@ INSERT INTO financial_assets
       'Hwail Pharmaceutical Co.,Ltd.',
       'KRW',
       1520,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '088130.KQ',
       'EQUITY',
@@ -2376,7 +2672,8 @@ INSERT INTO financial_assets
       'Dong A Eltek Co., Ltd.',
       'KRW',
       9580,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '348350.KQ',
       'EQUITY',
@@ -2384,7 +2681,8 @@ INSERT INTO financial_assets
       'WITHTECH Co., LTD.',
       'KRW',
       9910,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '383930.KQ',
       'EQUITY',
@@ -2392,7 +2690,8 @@ INSERT INTO financial_assets
       'DT&CRO CO., Ltd.',
       'KRW',
       8720,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '067570.KQ',
       'EQUITY',
@@ -2400,7 +2699,8 @@ INSERT INTO financial_assets
       'NVH Korea Inc.',
       'KRW',
       2645,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '330350.KQ',
       'EQUITY',
@@ -2408,7 +2708,8 @@ INSERT INTO financial_assets
       'WITHUS PHARMACEUTICAL Co.,LTD.',
       'KRW',
       8040,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '352090.KQ',
       'EQUITY',
@@ -2416,7 +2717,8 @@ INSERT INTO financial_assets
       NULL,
       'KRW',
       8160,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '314130.KQ',
       'EQUITY',
@@ -2424,7 +2726,8 @@ INSERT INTO financial_assets
       'Genome & Company',
       'KRW',
       11840,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '093920.KQ',
       'EQUITY',
@@ -2432,7 +2735,8 @@ INSERT INTO financial_assets
       'SEOWONINTECH. Co., Ltd.',
       'KRW',
       5690,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '105760.KQ',
       'EQUITY',
@@ -2440,7 +2744,8 @@ INSERT INTO financial_assets
       NULL,
       'KRW',
       10460,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '171120.KQ',
       'EQUITY',
@@ -2448,7 +2753,8 @@ INSERT INTO financial_assets
       'Lion Chemtech Co., Ltd.',
       'KRW',
       2825,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '302550.KQ',
       'EQUITY',
@@ -2456,7 +2762,8 @@ INSERT INTO financial_assets
       'Remed Co.,Ltd.',
       'KRW',
       3500,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '361570.KQ',
       'EQUITY',
@@ -2464,7 +2771,8 @@ INSERT INTO financial_assets
       'RBW, Inc.',
       'KRW',
       3675,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '141000.KQ',
       'EQUITY',
@@ -2472,7 +2780,8 @@ INSERT INTO financial_assets
       'Viatron Technologies, Inc.',
       'KRW',
       8610,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '094970.KQ',
       'EQUITY',
@@ -2480,7 +2789,8 @@ INSERT INTO financial_assets
       'JMT Co.,Ltd.',
       'KRW',
       6150,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '065710.KQ',
       'EQUITY',
@@ -2488,7 +2798,8 @@ INSERT INTO financial_assets
       'Seoho Electric Co.,Ltd',
       'KRW',
       19760,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '217190.KQ',
       'EQUITY',
@@ -2496,7 +2807,8 @@ INSERT INTO financial_assets
       'Genesem Inc.',
       'KRW',
       12650,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '054800.KQ',
       'EQUITY',
@@ -2504,7 +2816,8 @@ INSERT INTO financial_assets
       'IDIS Holdings Co., Ltd.',
       'KRW',
       9960,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '040420.KQ',
       'EQUITY',
@@ -2512,7 +2825,8 @@ INSERT INTO financial_assets
       'JLS Co.,Ltd.',
       'KRW',
       6680,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '363260.KQ',
       'EQUITY',
@@ -2520,7 +2834,8 @@ INSERT INTO financial_assets
       'Mobidays Inc.',
       'KRW',
       2550,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '241840.KQ',
       'EQUITY',
@@ -2528,7 +2843,8 @@ INSERT INTO financial_assets
       'ASTORY Co.,Ltd',
       'KRW',
       11170,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '407400.KQ',
       'EQUITY',
@@ -2536,7 +2852,8 @@ INSERT INTO financial_assets
       'GGUMBI Inc.',
       'KRW',
       9100,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '232680.KQ',
       'EQUITY',
@@ -2544,7 +2861,8 @@ INSERT INTO financial_assets
       'Raontec Inc.',
       'KRW',
       7810,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '263800.KQ',
       'EQUITY',
@@ -2552,7 +2870,8 @@ INSERT INTO financial_assets
       'Datasolution, Inc.',
       'KRW',
       5890,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '011560.KQ',
       'EQUITY',
@@ -2560,7 +2879,8 @@ INSERT INTO financial_assets
       'Sebo Manufacturing, Engineering & Construction Corp.',
       'KRW',
       13620,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '900340.KQ',
       'EQUITY',
@@ -2568,7 +2888,8 @@ INSERT INTO financial_assets
       'Wing Yip Food (China) Holdings Group Limited',
       'KRW',
       2015,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '052790.KQ',
       'EQUITY',
@@ -2576,7 +2897,8 @@ INSERT INTO financial_assets
       'Actoz Soft Co.,Ltd.',
       'KRW',
       9220,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '317770.KQ',
       'EQUITY',
@@ -2584,7 +2906,8 @@ INSERT INTO financial_assets
       'Suprema ID Inc.',
       'KRW',
       4730,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '408920.KQ',
       'EQUITY',
@@ -2592,7 +2915,8 @@ INSERT INTO financial_assets
       'SK Securities ACPC No.7 Special Purpose Acquisition Company',
       'KRW',
       2425,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '072020.KQ',
       'EQUITY',
@@ -2600,7 +2924,8 @@ INSERT INTO financial_assets
       'Choong Ang Vaccine Laboratory Co., Ltd.',
       'KRW',
       10700,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '054040.KQ',
       'EQUITY',
@@ -2608,7 +2933,8 @@ INSERT INTO financial_assets
       'Korea Computer Inc.',
       'KRW',
       5640,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '373200.KQ',
       'EQUITY',
@@ -2616,7 +2942,8 @@ INSERT INTO financial_assets
       'Xplus Inc.',
       'KRW',
       1598,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '050110.KQ',
       'EQUITY',
@@ -2624,7 +2951,8 @@ INSERT INTO financial_assets
       'CammSys Corp.',
       'KRW',
       1330,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '236810.KQ',
       'EQUITY',
@@ -2632,7 +2960,8 @@ INSERT INTO financial_assets
       'NBT inc.',
       'KRW',
       6920,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '208140.KQ',
       'EQUITY',
@@ -2640,7 +2969,8 @@ INSERT INTO financial_assets
       'JUNGDAWN Co., Ltd.',
       'KRW',
       2915,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '027580.KQ',
       'EQUITY',
@@ -2648,7 +2978,8 @@ INSERT INTO financial_assets
       'SANGBO Corp.',
       'KRW',
       1764,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '347000.KQ',
       'EQUITY',
@@ -2656,7 +2987,8 @@ INSERT INTO financial_assets
       'Senko Co., Ltd',
       'KRW',
       3095,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '241520.KQ',
       'EQUITY',
@@ -2664,7 +2996,8 @@ INSERT INTO financial_assets
       'DSC Investment Inc.',
       'KRW',
       3585,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '067370.KQ',
       'EQUITY',
@@ -2672,7 +3005,8 @@ INSERT INTO financial_assets
       'SunBio,Inc.',
       'KRW',
       8380,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '333430.KQ',
       'EQUITY',
@@ -2680,7 +3014,8 @@ INSERT INTO financial_assets
       'ILSEUNG Co., Ltd.',
       'KRW',
       3505,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '019010.KQ',
       'EQUITY',
@@ -2688,7 +3023,8 @@ INSERT INTO financial_assets
       'VenueG Co., Ltd.',
       'KRW',
       2060,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '389140.KQ',
       'EQUITY',
@@ -2696,7 +3032,8 @@ INSERT INTO financial_assets
       '4by4 Inc',
       'KRW',
       9690,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '064090.KQ',
       'EQUITY',
@@ -2704,7 +3041,8 @@ INSERT INTO financial_assets
       'Westrise Co., Ltd.',
       'KRW',
       2990,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '321370.KQ',
       'EQUITY',
@@ -2712,7 +3050,8 @@ INSERT INTO financial_assets
       'Sensorview Co., LTD',
       'KRW',
       3775,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '234100.KQ',
       'EQUITY',
@@ -2720,7 +3059,8 @@ INSERT INTO financial_assets
       'Sewon Co.,Ltd',
       'KRW',
       1828,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '115160.KQ',
       'EQUITY',
@@ -2728,7 +3068,8 @@ INSERT INTO financial_assets
       'Humax Co., Ltd.',
       'KRW',
       2300,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '094850.KQ',
       'EQUITY',
@@ -2736,7 +3077,8 @@ INSERT INTO financial_assets
       'Very Good Tour Co., Ltd.',
       'KRW',
       7030,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '053260.KQ',
       'EQUITY',
@@ -2744,7 +3086,8 @@ INSERT INTO financial_assets
       'Keum Kang Steel Co., Ltd.',
       'KRW',
       5620,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '073560.KQ',
       'EQUITY',
@@ -2752,7 +3095,8 @@ INSERT INTO financial_assets
       'Woorison F&G Co., Ltd.',
       'KRW',
       1470,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '127980.KQ',
       'EQUITY',
@@ -2760,7 +3104,8 @@ INSERT INTO financial_assets
       'Fine Circuit Co., Ltd.',
       'KRW',
       8160,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '241770.KQ',
       'EQUITY',
@@ -2768,7 +3113,8 @@ INSERT INTO financial_assets
       'Mecaro Co., Ltd.',
       'KRW',
       9750,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '093190.KQ',
       'EQUITY',
@@ -2776,7 +3122,8 @@ INSERT INTO financial_assets
       'Bixolon Co., Ltd',
       'KRW',
       4810,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '024880.KQ',
       'EQUITY',
@@ -2784,7 +3131,8 @@ INSERT INTO financial_assets
       'Korea Parts & Fasteners Co.,Ltd',
       'KRW',
       5370,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '017510.KQ',
       'EQUITY',
@@ -2792,7 +3140,8 @@ INSERT INTO financial_assets
       'Semyung Electric Machinery Co.,Ltd',
       'KRW',
       4645,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '223250.KQ',
       'EQUITY',
@@ -2800,7 +3149,8 @@ INSERT INTO financial_assets
       'DreamCIS, Inc.',
       'KRW',
       3325,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '351330.KQ',
       'EQUITY',
@@ -2808,7 +3158,8 @@ INSERT INTO financial_assets
       'ISAAC Engineering Co.,Ltd',
       'KRW',
       16990,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '065530.KQ',
       'EQUITY',
@@ -2816,7 +3167,8 @@ INSERT INTO financial_assets
       'Wiable Corp.',
       'KRW',
       1980,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '417840.KQ',
       'EQUITY',
@@ -2824,7 +3176,8 @@ INSERT INTO financial_assets
       'Justem Co., Ltd.',
       'KRW',
       11980,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '001540.KQ',
       'EQUITY',
@@ -2832,7 +3185,8 @@ INSERT INTO financial_assets
       'Ahn-Gook Pharmaceutical Co., Ltd.',
       'KRW',
       7600,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '158430.KQ',
       'EQUITY',
@@ -2840,7 +3194,8 @@ INSERT INTO financial_assets
       'ATON Inc.',
       'KRW',
       4170,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '424980.KQ',
       'EQUITY',
@@ -2848,7 +3203,8 @@ INSERT INTO financial_assets
       'MICRO2NANO, Inc.',
       'KRW',
       13850,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '153710.KQ',
       'EQUITY',
@@ -2856,7 +3212,8 @@ INSERT INTO financial_assets
       'Optipharm.CO.,LTD',
       'KRW',
       6690,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '238090.KQ',
       'EQUITY',
@@ -2864,7 +3221,8 @@ INSERT INTO financial_assets
       'NDFOS Co., Ltd.',
       'KRW',
       3930,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '131030.KQ',
       'EQUITY',
@@ -2872,7 +3230,8 @@ INSERT INTO financial_assets
       'DHP Korea Co., Ltd.',
       'KRW',
       6150,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '078890.KQ',
       'EQUITY',
@@ -2880,7 +3239,8 @@ INSERT INTO financial_assets
       'Kaonmedia Co, Ltd.',
       'KRW',
       5810,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '071670.KQ',
       'EQUITY',
@@ -2888,7 +3248,8 @@ INSERT INTO financial_assets
       'A-Tech Solution Co., Ltd.',
       'KRW',
       9370,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '226400.KQ',
       'EQUITY',
@@ -2896,7 +3257,8 @@ INSERT INTO financial_assets
       'OSTEONIC Co., Ltd.',
       'KRW',
       4390,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '288620.KQ',
       'EQUITY',
@@ -2904,7 +3266,8 @@ INSERT INTO financial_assets
       'S-Fuelcell co., Ltd.',
       'KRW',
       17210,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '369370.KQ',
       'EQUITY',
@@ -2912,7 +3275,8 @@ INSERT INTO financial_assets
       'Blitzway Studios Co.,LTD.',
       'KRW',
       1949,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '032850.KQ',
       'EQUITY',
@@ -2920,7 +3284,8 @@ INSERT INTO financial_assets
       'BIT Computer Co., Ltd',
       'KRW',
       5910,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '064240.KQ',
       'EQUITY',
@@ -2928,7 +3293,8 @@ INSERT INTO financial_assets
       'Homecast Co.,Ltd.',
       'KRW',
       2695,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '021320.KQ',
       'EQUITY',
@@ -2936,7 +3302,8 @@ INSERT INTO financial_assets
       'KCC Engineering & Construction Co., Ltd.',
       'KRW',
       4500,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '317830.KQ',
       'EQUITY',
@@ -2944,7 +3311,8 @@ INSERT INTO financial_assets
       'SP Systems Co.,Ltd.',
       'KRW',
       8910,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '126880.KQ',
       'EQUITY',
@@ -2952,7 +3320,8 @@ INSERT INTO financial_assets
       'JNK Global Co.,Ltd.',
       'KRW',
       4470,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '205500.KQ',
       'EQUITY',
@@ -2960,7 +3329,8 @@ INSERT INTO financial_assets
       'Action Square CO., LTD.',
       'KRW',
       1700,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '155650.KQ',
       'EQUITY',
@@ -2968,7 +3338,8 @@ INSERT INTO financial_assets
       'Ymc Co., Ltd.',
       'KRW',
       4780,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '010170.KQ',
       'EQUITY',
@@ -2976,7 +3347,8 @@ INSERT INTO financial_assets
       'Taihan Fiber Optics Co., Ltd',
       'KRW',
       1200,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '412350.KQ',
       'EQUITY',
@@ -2984,7 +3356,8 @@ INSERT INTO financial_assets
       'Laserssel Co. Ltd.',
       'KRW',
       10720,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '018120.KQ',
       'EQUITY',
@@ -2992,7 +3365,8 @@ INSERT INTO financial_assets
       'Jinro Distillers Co., Ltd.',
       'KRW',
       14940,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '271830.KQ',
       'EQUITY',
@@ -3000,7 +3374,8 @@ INSERT INTO financial_assets
       'Pamtek Co., Ltd.',
       'KRW',
       3075,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '260970.KQ',
       'EQUITY',
@@ -3008,7 +3383,8 @@ INSERT INTO financial_assets
       'S&D Co., Ltd',
       'KRW',
       32400,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '036120.KQ',
       'EQUITY',
@@ -3016,7 +3392,8 @@ INSERT INTO financial_assets
       'SCI Information Service Inc.',
       'KRW',
       2560,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '359090.KQ',
       'EQUITY',
@@ -3024,7 +3401,8 @@ INSERT INTO financial_assets
       'C&R Research Inc.',
       'KRW',
       1729,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '293580.KQ',
       'EQUITY',
@@ -3032,7 +3410,8 @@ INSERT INTO financial_assets
       'NAU IB Capital',
       'KRW',
       950,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '200230.KQ',
       'EQUITY',
@@ -3040,7 +3419,8 @@ INSERT INTO financial_assets
       'TELCON RF PHARMACEUTICAL. Inc.',
       'KRW',
       769,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '083500.KQ',
       'EQUITY',
@@ -3048,7 +3428,8 @@ INSERT INTO financial_assets
       'FNS TECH. Co., Ltd',
       'KRW',
       13550,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '043650.KQ',
       'EQUITY',
@@ -3056,7 +3437,8 @@ INSERT INTO financial_assets
       'Kook Soon Dang.Co.,Ltd.',
       'KRW',
       5400,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '234920.KQ',
       'EQUITY',
@@ -3064,7 +3446,8 @@ INSERT INTO financial_assets
       'Zaigle Co., Ltd.',
       'KRW',
       6690,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '396300.KQ',
       'EQUITY',
@@ -3072,7 +3455,8 @@ INSERT INTO financial_assets
       'SeA Mechanics Co., Ltd',
       'KRW',
       3565,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '196300.KQ',
       'EQUITY',
@@ -3080,7 +3464,8 @@ INSERT INTO financial_assets
       'Anygen Co., Ltd.',
       'KRW',
       14170,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '377030.KQ',
       'EQUITY',
@@ -3088,7 +3473,8 @@ INSERT INTO financial_assets
       'MAXST Co., Ltd.',
       'KRW',
       4570,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '059210.KQ',
       'EQUITY',
@@ -3096,7 +3482,8 @@ INSERT INTO financial_assets
       'Meta Biomed Co., Ltd.',
       'KRW',
       4915,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '006140.KQ',
       'EQUITY',
@@ -3104,7 +3491,8 @@ INSERT INTO financial_assets
       'PJ Electronics Co., Ltd.',
       'KRW',
       6510,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '069540.KQ',
       'EQUITY',
@@ -3112,7 +3500,8 @@ INSERT INTO financial_assets
       'Lightron Fiber-Optic Devices Inc.',
       'KRW',
       3435,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '122310.KQ',
       'EQUITY',
@@ -3120,7 +3509,8 @@ INSERT INTO financial_assets
       'Genoray Co., Ltd.',
       'KRW',
       6300,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '253840.KQ',
       'EQUITY',
@@ -3128,7 +3518,8 @@ INSERT INTO financial_assets
       'Sugentech Inc.',
       'KRW',
       5400,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '054920.KQ',
       'EQUITY',
@@ -3136,7 +3527,8 @@ INSERT INTO financial_assets
       'HancomWITH Inc.',
       'KRW',
       3285,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '241690.KQ',
       'EQUITY',
@@ -3144,7 +3536,8 @@ INSERT INTO financial_assets
       'UNITEKNO Co.,Ltd',
       'KRW',
       3545,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '192250.KQ',
       'EQUITY',
@@ -3152,7 +3545,8 @@ INSERT INTO financial_assets
       'KSIGN Co.,Ltd.',
       'KRW',
       1235,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '036640.KQ',
       'EQUITY',
@@ -3160,7 +3554,8 @@ INSERT INTO financial_assets
       'HRS Co., Ltd',
       'KRW',
       5740,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '008830.KQ',
       'EQUITY',
@@ -3168,7 +3563,8 @@ INSERT INTO financial_assets
       'Daedong Gear Co., Ltd.',
       'KRW',
       9460,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '225190.KQ',
       'EQUITY',
@@ -3176,7 +3572,8 @@ INSERT INTO financial_assets
       'LK Samyang Co., Ltd',
       'KRW',
       1794,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '024910.KQ',
       'EQUITY',
@@ -3184,7 +3581,8 @@ INSERT INTO financial_assets
       'Kyung Chang Industrial Co., Ltd.',
       'KRW',
       2600,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '009780.KQ',
       'EQUITY',
@@ -3192,7 +3590,8 @@ INSERT INTO financial_assets
       'MSC Co., Ltd.',
       'KRW',
       5290,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '222040.KQ',
       'EQUITY',
@@ -3200,7 +3599,8 @@ INSERT INTO financial_assets
       'Cosmax Nbt, Inc.',
       'KRW',
       3925,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '189980.KQ',
       'EQUITY',
@@ -3208,7 +3608,8 @@ INSERT INTO financial_assets
       'HYUNGKUK F&B Co., Ltd.',
       'KRW',
       2200,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '187420.KQ',
       'EQUITY',
@@ -3216,7 +3617,8 @@ INSERT INTO financial_assets
       'GenoFocus, Inc.',
       'KRW',
       4085,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '067290.KQ',
       'EQUITY',
@@ -3224,7 +3626,8 @@ INSERT INTO financial_assets
       'JW Shinyak Corporation',
       'KRW',
       1774,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '069510.KQ',
       'EQUITY',
@@ -3232,7 +3635,8 @@ INSERT INTO financial_assets
       'ESTec Corporation',
       'KRW',
       10230,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '417970.KQ',
       'EQUITY',
@@ -3240,7 +3644,8 @@ INSERT INTO financial_assets
       'Model Solution Co., Ltd.',
       'KRW',
       14060,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '010470.KQ',
       'EQUITY',
@@ -3248,7 +3653,8 @@ INSERT INTO financial_assets
       'Oricom Inc.',
       'KRW',
       7790,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '204840.KQ',
       'EQUITY',
@@ -3256,7 +3662,8 @@ INSERT INTO financial_assets
       'GL Pharm Tech Corp.',
       'KRW',
       1203,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '089790.KQ',
       'EQUITY',
@@ -3264,7 +3671,8 @@ INSERT INTO financial_assets
       'JT Corporation',
       'KRW',
       7990,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '087260.KQ',
       'EQUITY',
@@ -3272,7 +3680,8 @@ INSERT INTO financial_assets
       'Mobile Appliance, Inc.',
       'KRW',
       2845,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '265560.KQ',
       'EQUITY',
@@ -3280,7 +3689,8 @@ INSERT INTO financial_assets
       'YOUNGHWA TECH Co., Ltd.',
       'KRW',
       8960,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '066910.KQ',
       'EQUITY',
@@ -3288,7 +3698,8 @@ INSERT INTO financial_assets
       'SONOKONG Co., Ltd.',
       'KRW',
       2565,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '064850.KQ',
       'EQUITY',
@@ -3296,7 +3707,8 @@ INSERT INTO financial_assets
       'FnGuide Inc.',
       'KRW',
       7730,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '217500.KQ',
       'EQUITY',
@@ -3304,7 +3716,8 @@ INSERT INTO financial_assets
       'Russell Co., Ltd.',
       'KRW',
       2685,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '950200.KQ',
       'EQUITY',
@@ -3312,7 +3725,8 @@ INSERT INTO financial_assets
       'Psomagen, Inc.',
       'KRW',
       4790,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '277070.KQ',
       'EQUITY',
@@ -3320,7 +3734,8 @@ INSERT INTO financial_assets
       'Lindeman Asia Investment Co., Ltd.',
       'KRW',
       7160,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '160550.KQ',
       'EQUITY',
@@ -3328,7 +3743,8 @@ INSERT INTO financial_assets
       'Next Entertainment World Co., Ltd.',
       'KRW',
       3040,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '066670.KQ',
       'EQUITY',
@@ -3336,7 +3752,8 @@ INSERT INTO financial_assets
       'DTC Co., Ltd.',
       'KRW',
       4640,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '215100.KQ',
       'EQUITY',
@@ -3344,7 +3761,8 @@ INSERT INTO financial_assets
       'RoboRobo Co., Ltd.',
       'KRW',
       5290,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '105740.KQ',
       'EQUITY',
@@ -3352,7 +3770,8 @@ INSERT INTO financial_assets
       'DK-Lok Corporation',
       'KRW',
       10880,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '347770.KQ',
       'EQUITY',
@@ -3360,7 +3779,8 @@ INSERT INTO financial_assets
       'PIMS Inc.',
       'KRW',
       2830,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '123840.KQ',
       'EQUITY',
@@ -3368,7 +3788,8 @@ INSERT INTO financial_assets
       'Nuon Co., Ltd.',
       'KRW',
       303,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '352910.KQ',
       'EQUITY',
@@ -3376,7 +3797,8 @@ INSERT INTO financial_assets
       'Obigo, Inc.',
       'KRW',
       7080,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '130580.KQ',
       'EQUITY',
@@ -3384,7 +3806,8 @@ INSERT INTO financial_assets
       'Nice D&B Co., Ltd.',
       'KRW',
       5700,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '360350.KQ',
       'EQUITY',
@@ -3392,7 +3815,8 @@ INSERT INTO financial_assets
       NULL,
       'KRW',
       12890,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '339950.KQ',
       'EQUITY',
@@ -3400,7 +3824,8 @@ INSERT INTO financial_assets
       'Ibkimyoung Co., Ltd.',
       'KRW',
       1854,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '033830.KQ',
       'EQUITY',
@@ -3408,7 +3833,8 @@ INSERT INTO financial_assets
       'TBC',
       'KRW',
       870,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '039240.KQ',
       'EQUITY',
@@ -3416,7 +3842,8 @@ INSERT INTO financial_assets
       'Gyeongnam Steel Co., Ltd',
       'KRW',
       3125,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '048430.KQ',
       'EQUITY',
@@ -3424,7 +3851,8 @@ INSERT INTO financial_assets
       'Yura Tech. Co., Ltd.',
       'KRW',
       7800,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '011320.KQ',
       'EQUITY',
@@ -3432,7 +3860,8 @@ INSERT INTO financial_assets
       'Unick Corporation',
       'KRW',
       4830,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '355150.KQ',
       'EQUITY',
@@ -3440,7 +3869,8 @@ INSERT INTO financial_assets
       'Kyobo 10 Special Purpose Acquisition Company',
       'KRW',
       15320,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '352700.KQ',
       'EQUITY',
@@ -3448,7 +3878,8 @@ INSERT INTO financial_assets
       'CNTUS Co.,Ltd',
       'KRW',
       3025,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '037440.KQ',
       'EQUITY',
@@ -3456,7 +3887,8 @@ INSERT INTO financial_assets
       'Heerim Architects & Planners Co., Ltd.',
       'KRW',
       6280,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '219420.KQ',
       'EQUITY',
@@ -3464,7 +3896,8 @@ INSERT INTO financial_assets
       'Linkgenesis Co., Ltd.',
       'KRW',
       7230,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '086040.KQ',
       'EQUITY',
@@ -3472,7 +3905,8 @@ INSERT INTO financial_assets
       'Biotoxtech Co., Ltd.',
       'KRW',
       5470,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '087600.KQ',
       'EQUITY',
@@ -3480,7 +3914,8 @@ INSERT INTO financial_assets
       'Pixelplus. Co., Ltd.',
       'KRW',
       10130,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '080000.KQ',
       'EQUITY',
@@ -3488,7 +3923,8 @@ INSERT INTO financial_assets
       'SNU Precision Co., Ltd.',
       'KRW',
       2325,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '011370.KQ',
       'EQUITY',
@@ -3496,7 +3932,8 @@ INSERT INTO financial_assets
       'SEOHAN Const. & Eng.co.,Ltd',
       'KRW',
       839,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '389470.KQ',
       'EQUITY',
@@ -3504,7 +3941,8 @@ INSERT INTO financial_assets
       'Inventage Lab, Inc.',
       'KRW',
       10400,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '347740.KQ',
       'EQUITY',
@@ -3512,7 +3950,8 @@ INSERT INTO financial_assets
       'P&K Skin Research Center Co., Ltd.',
       'KRW',
       3010,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '237820.KQ',
       'EQUITY',
@@ -3520,7 +3959,8 @@ INSERT INTO financial_assets
       'PlayD Co., Ltd.',
       'KRW',
       6300,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '039860.KQ',
       'EQUITY',
@@ -3528,7 +3968,8 @@ INSERT INTO financial_assets
       'NanoEntek, Inc.',
       'KRW',
       3335,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '012790.KQ',
       'EQUITY',
@@ -3536,7 +3977,8 @@ INSERT INTO financial_assets
       'Sinil Pharmaceutical Co., Ltd.',
       'KRW',
       7520,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '053980.KQ',
       'EQUITY',
@@ -3544,7 +3986,8 @@ INSERT INTO financial_assets
       'Osangjaiel Co., Ltd.',
       'KRW',
       4335,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '333620.KQ',
       'EQUITY',
@@ -3552,7 +3995,8 @@ INSERT INTO financial_assets
       'Nsys Co., Ltd.',
       'KRW',
       8640,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '347860.KQ',
       'EQUITY',
@@ -3560,7 +4004,8 @@ INSERT INTO financial_assets
       'Alchera Inc.',
       'KRW',
       3560,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '036090.KQ',
       'EQUITY',
@@ -3568,7 +4013,8 @@ INSERT INTO financial_assets
       'WIZIT Co., Ltd.',
       'KRW',
       760,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '020710.KQ',
       'EQUITY',
@@ -3576,7 +4022,8 @@ INSERT INTO financial_assets
       'Sigong Tech Co., Ltd.',
       'KRW',
       4210,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '142280.KQ',
       'EQUITY',
@@ -3584,7 +4031,8 @@ INSERT INTO financial_assets
       'Green Cross Medical Science Corporation',
       'KRW',
       4080,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '066310.KQ',
       'EQUITY',
@@ -3592,7 +4040,8 @@ INSERT INTO financial_assets
       'Q.S.I Co., LTD.',
       'KRW',
       9000,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '288980.KQ',
       'EQUITY',
@@ -3600,7 +4049,8 @@ INSERT INTO financial_assets
       'Moadata Co., Ltd.',
       'KRW',
       2310,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '318020.KQ',
       'EQUITY',
@@ -3608,7 +4058,8 @@ INSERT INTO financial_assets
       'Point Mobile Co., Ltd.',
       'KRW',
       5660,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '142760.KQ',
       'EQUITY',
@@ -3616,7 +4067,8 @@ INSERT INTO financial_assets
       'MOA Life Plus Co. Ltd.',
       'KRW',
       2205,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '060230.KQ',
       'EQUITY',
@@ -3624,7 +4076,8 @@ INSERT INTO financial_assets
       'Sonid Inc.',
       'KRW',
       1710,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '043910.KQ',
       'EQUITY',
@@ -3632,7 +4085,8 @@ INSERT INTO financial_assets
       'Nature & Environment Co.,Ltd.',
       'KRW',
       948,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '376930.KQ',
       'EQUITY',
@@ -3640,7 +4094,8 @@ INSERT INTO financial_assets
       'Noul Co.,Ltd.',
       'KRW',
       2845,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '002800.KQ',
       'EQUITY',
@@ -3648,7 +4103,8 @@ INSERT INTO financial_assets
       'Sinsin Pharmaceutical Co., Ltd',
       'KRW',
       5380,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '033790.KQ',
       'EQUITY',
@@ -3656,7 +4112,8 @@ INSERT INTO financial_assets
       'Skymoons technology, Inc.',
       'KRW',
       8670,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '057680.KQ',
       'EQUITY',
@@ -3664,7 +4121,8 @@ INSERT INTO financial_assets
       'T Scientific Co.,Ltd.',
       'KRW',
       1302,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '140430.KQ',
       'EQUITY',
@@ -3672,7 +4130,8 @@ INSERT INTO financial_assets
       'Catis. Inc.',
       'KRW',
       4790,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '950110.KQ',
       'EQUITY',
@@ -3680,7 +4139,8 @@ INSERT INTO financial_assets
       'SBI FinTech Solutions Co., Ltd.',
       'KRW',
       3230,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '109860.KQ',
       'EQUITY',
@@ -3688,7 +4148,8 @@ INSERT INTO financial_assets
       'Dongil Metal Co., Ltd.',
       'KRW',
       9180,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '308080.KQ',
       'EQUITY',
@@ -3696,7 +4157,8 @@ INSERT INTO financial_assets
       'ViGenCell Inc.',
       'KRW',
       4350,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '041520.KQ',
       'EQUITY',
@@ -3704,7 +4166,8 @@ INSERT INTO financial_assets
       'ELC Co.,Ltd.',
       'KRW',
       6980,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '115500.KQ',
       'EQUITY',
@@ -3712,7 +4175,8 @@ INSERT INTO financial_assets
       'Korea Computer & Systems Inc.',
       'KRW',
       6590,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '025550.KQ',
       'EQUITY',
@@ -3720,7 +4184,8 @@ INSERT INTO financial_assets
       'Hankuk Steel Wire Co., Ltd.',
       'KRW',
       3635,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '330730.KQ',
       'EQUITY',
@@ -3728,7 +4193,8 @@ INSERT INTO financial_assets
       'Stonebridge Ventures Inc.',
       'KRW',
       4535,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '004650.KQ',
       'EQUITY',
@@ -3736,7 +4202,8 @@ INSERT INTO financial_assets
       'Changhae Ethanol Co., Ltd.',
       'KRW',
       9180,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '059270.KQ',
       'EQUITY',
@@ -3744,7 +4211,8 @@ INSERT INTO financial_assets
       'Haisung Aero-Robotics Co., Ltd.',
       'KRW',
       9040,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '049550.KQ',
       'EQUITY',
@@ -3752,7 +4220,8 @@ INSERT INTO financial_assets
       'InkTec Co., Ltd.',
       'KRW',
       4180,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '136410.KQ',
       'EQUITY',
@@ -3760,7 +4229,8 @@ INSERT INTO financial_assets
       'ASSEMS Inc.',
       'KRW',
       7160,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '046120.KQ',
       'EQUITY',
@@ -3768,7 +4238,8 @@ INSERT INTO financial_assets
       'Orbitech Co., Ltd.',
       'KRW',
       3190,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '056730.KQ',
       'EQUITY',
@@ -3776,7 +4247,8 @@ INSERT INTO financial_assets
       'CNT85 Inc.',
       'KRW',
       1008,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '054930.KQ',
       'EQUITY',
@@ -3784,7 +4256,8 @@ INSERT INTO financial_assets
       'Yooshin Engineering Corporation',
       'KRW',
       27850,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '123570.KQ',
       'EQUITY',
@@ -3792,7 +4265,8 @@ INSERT INTO financial_assets
       'eMnet Inc.',
       'KRW',
       3360,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '201490.KQ',
       'EQUITY',
@@ -3800,7 +4274,8 @@ INSERT INTO financial_assets
       'Me2on Co., Ltd.',
       'KRW',
       2520,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '037330.KQ',
       'EQUITY',
@@ -3808,7 +4283,8 @@ INSERT INTO financial_assets
       'Inzi Display Co.,Ltd',
       'KRW',
       1883,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '095270.KQ',
       'EQUITY',
@@ -3816,7 +4292,8 @@ INSERT INTO financial_assets
       'Wave Electronics Co., Ltd.',
       'KRW',
       5360,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '036670.KQ',
       'EQUITY',
@@ -3824,7 +4301,8 @@ INSERT INTO financial_assets
       'KCI Limited',
       'KRW',
       7540,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '083660.KQ',
       'EQUITY',
@@ -3832,7 +4310,8 @@ INSERT INTO financial_assets
       'Csa Cosmic Co., Ltd.',
       'KRW',
       1322,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '090410.KQ',
       'EQUITY',
@@ -3840,7 +4319,8 @@ INSERT INTO financial_assets
       'Dukshinepc Co., Ltd.',
       'KRW',
       1695,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '263050.KQ',
       'EQUITY',
@@ -3848,7 +4328,8 @@ INSERT INTO financial_assets
       'Eutilex.Co.,Ltd',
       'KRW',
       2200,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '303530.KQ',
       'EQUITY',
@@ -3856,7 +4337,8 @@ INSERT INTO financial_assets
       'Innodep Inc.',
       'KRW',
       10070,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     ),(
       '049180.KQ',
       'EQUITY',
@@ -3864,5 +4346,6 @@ INSERT INTO financial_assets
       'Cellumed Co.,Ltd.',
       'KRW',
       1506,
-      'XKRX'
+      'XKRX',
+      '9999-99-99'
     )

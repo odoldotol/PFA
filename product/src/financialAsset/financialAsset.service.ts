@@ -17,6 +17,7 @@ import {
   ExchangeCore,
   ExchangeIsoCode,
   FinancialAssetCore,
+  MARKET_DATE_UPTODATE,
   MarketDate,
   PriceTuple,
   Ticker
@@ -271,14 +272,20 @@ export class FinancialAssetService
   private async isUptodate(
     arg: ExchangeCore | FinancialAssetCore
   ): Promise<boolean> {
-    let marketDate: MarketDate;
-    let isoCode: ExchangeIsoCode | null;
+    let
+    marketDate: MarketDate,
+    isoCode: ExchangeIsoCode | null;
+
+    marketDate = arg.marketDate;
+    if (marketDate === MARKET_DATE_UPTODATE) {
+      return true;
+    }
+
     if ('exchange' in arg) {
       isoCode = arg.exchange;
     } else {
       isoCode = arg.isoCode;
     }
-    marketDate = arg.marketDate;
 
     if (isoCode === null) {
       return true;
