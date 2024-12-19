@@ -45,6 +45,10 @@ export class FinancialAssetController {
     return this.financialAssetSrv.inquire(ticker, id);
   }
 
+  /**
+   * 완전 초기실행시 모든 거래소에 대한 갱신이 필요할때 쓰로틀러가 방해가 될 수 있음.
+   * 하지만 일반적인 상황에서 쓰로틀러에 의해 429 에러가 발생할 만큼 요청을 보낼 일이 없기 때문에 무시했다.
+   */
   @Post('renew/:ISO_Code')
   @HttpCode(HttpStatus.OK)
   @UseGuards(TempKeyGuard)

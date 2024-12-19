@@ -5,3 +5,9 @@ MARKET_API_HOSTNAME 같은 컨테이너레벨에서 전역적인 환경변수를
 컨데이너 오케스트레이션 (쿠버네티스) -> 로드밸런싱, 확장성, 리로드
 
 Api Metadata 중앙화
+
+테스트환경에서 update 방지할 수 있도록 하기(market_date 가 9999-99-99 일때)
+  - product/ inquire [O]
+  - product/ redis renew []
+  - market/ inquire []
+  - market/ postgres renew []
