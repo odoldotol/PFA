@@ -22,14 +22,14 @@ const getTlsOptions = () => ({
 
 const dataSourceOptions: DataSourceOptions = {
   type: 'postgres',
-  host: process.env['PG_HOST'] || process.env["RACK_ENV"] === 'development' ? "product-postgres" : '127.0.0.1',
+  host: process.env['PG_HOST'] || (process.env["RACK_ENV"] === 'development' ? "product-postgres" : '127.0.0.1'),
   port:  process.env['RACK_ENV'] === undefined ? 5433 : 5432,
   username: process.env['PG_USERNAME'] || 'test',
   password: process.env['PG_PASSWORD'] || 'test',
   database: process.env['PG_DATABASE'] || 'test',
   synchronize: false,
   entities: ['src/database/*/*.entity.ts'],
-  migrations: ['src/migrations/postgres/*.ts'],
+  migrations: ['migrations/postgres/*.ts'],
   migrationsTableName: 'migrations',
 };
 
