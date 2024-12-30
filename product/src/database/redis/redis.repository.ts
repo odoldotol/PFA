@@ -122,7 +122,7 @@ export class RedisRepository<T>
     }
 
     // never
-    throw new Error("[Never]UpdateOne Error: Invalid value type");
+    // throw new Error("[Never]UpdateOne Error: Invalid value type");
   }
 
   private makeKey(

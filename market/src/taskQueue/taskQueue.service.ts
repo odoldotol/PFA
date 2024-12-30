@@ -189,7 +189,8 @@ export class TaskQueueService {
         // taskReturn 이 동기적인 Observable 이라도 외부애서 observerSubject 로 구독할 수 있어짐.
         setImmediate(() => (taskReturn as Observable<T>).subscribe(observerSubject)); // 타입 단언 없으면 jest 가 타입 유추를 못함, 해결하고 타입단언 지우기.
         await done;
-      } else { // never
+      } else {
+        taskReturn satisfies never;
         runTaskRejecter(new Error('Task must return a Promise or an Observable'));
       }
     };
