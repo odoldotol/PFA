@@ -1,12 +1,16 @@
 import {
   Injectable,
+  Logger,
 } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { ChildApiService } from './childApi.service';
 import {
   Ticker,
+  YfInfo,
+  YfPrice,
 } from 'src/common/interface';
 import {
+  ChildError,
   ChildResponseYfInfo,
   // ChildResponseYfInfos,
   ChildResponseYfPrice,
@@ -17,9 +21,17 @@ import {
   YFINANCE_PRICE_URN,
 } from './const';
 import { Observable } from 'rxjs';
+import * as X from 'rxjs';
+import Either, * as E from 'src/common/class/either';
+import {
+  isHttpResponse4XX,
+  retryUntilResolvedOrTimeout
+} from 'src/common/util';
 
 @Injectable()
 export class YfinanceApiService {
+
+  private readonly logger = new Logger(YfinanceApiService.name);
 
   constructor(
     private readonly httpService: HttpService,
@@ -28,12 +40,25 @@ export class YfinanceApiService {
 
   public fetchYfInfo(
     ticker: Ticker
-  ): Promise<Observable<ChildResponseYfInfo>> {
+  ): Promise<Observable<YfInfo>> {
     const req = () => this.httpService.post<ChildResponseYfInfo>(
       YFINANCE_INFO_URN + "/" + ticker
     );
 
-    return this.childApiSrv.withConcurrencyQueue(req);
+    return this.childApiSrv.withConcurrencyQueue(req)
+    .then(obx => obx.pipe(
+      X.map(this.getYfInfo.bind(this))
+    ));
+  }
+
+  public fetchYfInfoWithRetry(
+    ticker: Ticker,
+    timeout: number = 1000 * 60 * 3
+  ): Promise<Observable<YfInfo>> {
+    return this.withRetry(
+      () => this.fetchYfInfo(ticker),
+      timeout,
+    );
   }
 
   // /**
@@ -92,12 +117,25 @@ export class YfinanceApiService {
 
   public fetchYfPrice(
     ticker: Ticker
-  ): Promise<Observable<ChildResponseYfPrice>> {
+  ): Promise<Observable<YfPrice>> {
     const req = () => this.httpService.post<ChildResponseYfPrice>(
       YFINANCE_PRICE_URN + "/" + ticker
     );
 
-    return this.childApiSrv.withConcurrencyQueue(req);
+    return this.childApiSrv.withConcurrencyQueue(req)
+    .then(obx => obx.pipe(
+      X.map(this.getYfPrice.bind(this, ticker))
+    ));
+  }
+
+  public fetchYfPriceWithRetry(
+    ticker: Ticker,
+    timeout: number = 1000 * 60 * 3
+  ): Promise<Observable<YfPrice>> {
+    return this.withRetry(
+      () => this.fetchYfPrice(ticker),
+      timeout
+    );
   }
 
   /**
@@ -106,7 +144,7 @@ export class YfinanceApiService {
    */
   public async fetchYfPriceArr(
     tickerArr: readonly Ticker[]
-  ): Promise<Observable<ChildResponseYfPrices>> {
+  ): Promise<Observable<Either<ChildError, YfPrice>[]>> {
     const req = () => this.httpService.post<ChildResponseYfPrices>(
       YFINANCE_PRICE_URN,
       tickerArr
@@ -120,6 +158,73 @@ export class YfinanceApiService {
       complete: resumeConcurrencyQueue
     });
 
-    return result;
+    return result.pipe(
+      X.map(childYfPrices => childYfPrices.map((ele, idx) => E.wrap(this.getYfPrice.bind(this, tickerArr[idx]!))(ele))
+    ));
   }
+
+  private withRetry<T>(
+    task: () => Promise<T>,
+    timeout: number
+  ): Promise<T> {
+    return retryUntilResolvedOrTimeout(task, {
+      interval: 10,
+      timeout,
+      rejectCondition: isHttpResponse4XX
+    });
+  }
+
+  /**
+   * ChildResponseYfInfo -> YfInfo
+   * - currency 없는경우 처리
+   * 
+   * @todo Refac - 겹치는 키에 다른 데이터가 있음. assign 순서에 의존하는 방식은 맘에 들지 않음.
+   */
+  private getYfInfo(childYfInfo: ChildResponseYfInfo): YfInfo {
+    if (!childYfInfo.info) {
+      this.logger.warn(`${childYfInfo.metadata.symbol} : No info`); //
+    }
+
+    const result = Object.assign(
+      {},
+      childYfInfo.info,
+      childYfInfo.fastinfo,
+      childYfInfo.metadata,
+      childYfInfo.price
+    );
+
+    /*
+    Todo: currency 가 없는 경우가 있음. 이 경우 financialCurrency 를 사용하도록 하자.
+    코스닥의 경우 financialCurrency 이마저도 없는 경우가 있음.
+    아마 다른 시장에서도 있을텐데 일단은 아래처럼 간단하게 처리하고 넘어가고, Currency 와 Money 관련해서는 종확한 솔루션을 마련하는게 좋음.
+    */
+    if (!result.currency) {
+      if (result.financialCurrency) {
+        result.currency = result.financialCurrency;
+      } else {
+        if (result.exchangeTimezoneName === 'Asia/Seoul') {
+          result.currency = 'KRW';
+        } else {
+          result.currency = 'N/A';
+          this.logger.warn(`${result.symbol} : No currency`);
+        }
+      }
+    }
+    return result
+  }
+
+  private getYfPrice(
+    ticker: Ticker,
+    childYfPrice: ChildResponseYfPrice | ChildError // ChildError 가 여기까지 오는게 맞냐?
+  ): YfPrice {
+    if ('regularMarketPrice' in childYfPrice) {
+      return Object.assign(
+        childYfPrice,
+        { symbol: ticker }
+      );
+    } else {
+      throw new Error(`Invalid ChildResponseYfPrice: regularMarketPrice is not exist\nticker: ${ticker}\nchildYfPrice: ${JSON.stringify(childYfPrice)}`);
+    }
+  }
+
 }

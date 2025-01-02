@@ -1,7 +1,6 @@
 import {
   Injectable,
   InternalServerErrorException,
-  Logger
 } from '@nestjs/common';
 import {
   ChildApiConfigService,
@@ -21,23 +20,12 @@ import {
   YfInfo,
   YfPrice
 } from 'src/common/interface';
-import {
-  ChildError,
-  ChildResponseYfInfo,
-  ChildResponseYfPrice
-} from '../childApi/interface';
 import Either, * as E from 'src/common/class/either';
-import {
-  isHttpResponse4XX,
-  retryUntilResolvedOrTimeout
-} from 'src/common/util';
 import * as X from 'rxjs';
 import * as F from '@fxts/core';
 
 @Injectable()
 export class Market_FinancialAssetService {
-
-  private readonly logger = new Logger(Market_FinancialAssetService.name);
 
   constructor(
     private readonly childApiConnectionSrv: ConnectionService,
@@ -50,15 +38,15 @@ export class Market_FinancialAssetService {
     eitherTickerArr: readonly Either<any, Ticker>[]
   ): Promise<Either<any/* */, YfInfo>[]> {
 
-    const makeTask = (ticker: Ticker) =>
-      async () => X.lastValueFrom(await this.yfinanceApiSrv.fetchYfInfo(ticker));
+    const fetchYfInfo = async (ticker: Ticker) => {
+      return X.lastValueFrom(await this.yfinanceApiSrv.fetchYfInfoWithRetry(ticker));
+    };
 
     if (0 < eitherTickerArr.length) {
       return F.pipe(
-        eitherTickerArr, F.toAsync,
-        F.map(E.map(makeTask)),
-        F.map(E.flatMap(task => E.wrapPromise(this.warpRetry(task)))),
-        F.map(E.map(this.getYfInfo.bind(this))),
+        eitherTickerArr,
+        F.toAsync,
+        F.map(E.wrapAsyncFlatMap(fetchYfInfo)),
         F.concurrent(eitherTickerArr.length),
         F.toArray
       );
@@ -107,38 +95,37 @@ export class Market_FinancialAssetService {
   ): Promise<Either<any, FulfilledYfPrice>[]> {
     await this.childApiConnectionSrv.checkHealth();
 
-    const marketExchange = this.exchangeSrv.getOne(isoCode);
+    const fulfillYfPrice = this.fulfillYfPrice.bind(this, this.exchangeSrv.getOne(isoCode));
 
     if (this.childApiConfigSrv.isPriceRequestStrategySingle()) { // 티커당 1 요청
-      const makeTask = (ticker: Ticker) =>
-        async () => X.lastValueFrom(await this.yfinanceApiSrv.fetchYfPrice(ticker));
+
+      const fetchYfPrice = async (ticker: Ticker) => {
+        return X.lastValueFrom(await this.yfinanceApiSrv.fetchYfPrice(ticker));
+      };
 
       return F.pipe(
-        tickerArr, F.toAsync,
-        F.map(makeTask),
-        F.map(task => E.wrapPromise(this.warpRetry(task))),
-        F.map(E.map(this.getYfPrice.bind(this, isoCode))),
-        F.map(E.flatMap(this.fulfillYfPrice.bind(this, marketExchange))),
+        tickerArr,
+        F.toAsync,
+        F.map(E.wrapAsync(fetchYfPrice)),
+        F.map(E.wrapFlatMap(fulfillYfPrice)),
         F.concurrent(tickerArr.length),
         F.toArray
       );
+
     } else if (this.childApiConfigSrv.isPriceRequestStrategyMulti()) { // 1 요청 -> 차일드 서버의 능력에 맞춰 1개 내지 복수의 요청으로 해결
+
       const childResYfPrices
       = await X.lastValueFrom(await this.yfinanceApiSrv.fetchYfPriceArr(tickerArr))
       .catch(e => {
         throw new InternalServerErrorException(e);
       });
 
-      return Promise.all(childResYfPrices
-        .map((ele, idx): Either<ChildError, YfPrice> => { // ChildResponseYfPrices -> Either<ChildError, YfPrice>[]
-          if ('regularMarketPrice' in ele) {
-            return Either.right(this.getYfPrice(tickerArr[idx]!, ele));
-          } else {
-            return Either.left(ele);
-          }
-        })
-        .map(E.flatMap(this.fulfillYfPrice.bind(this, marketExchange)))); // Either<ChildError, YfPrice>[] -> Either<any, FulfilledYfPrice>[]
+      return childResYfPrices
+      .map(E.wrapFlatMap(fulfillYfPrice));
+
     } else { // never
+      // Todo: TS 가 never 추론할 수 있도록 PriceRequestStrategy 를 다시 정의하자.
+      // priceRequestStrategy satisfies never; ??
       throw new Error('[Never] Invalid PriceRequestStrategy');
     }
   }
@@ -146,24 +133,22 @@ export class Market_FinancialAssetService {
   // todo: yf 엔티티 리팩터링
   public fulfillYfInfo(
     yfInfo: YfInfo
-  ): Promise<Either<any, FulfilledYfInfo>> {
+  ): FulfilledYfInfo {
     const marketExchange = this.exchangeSrv.findOneByYfInfo(yfInfo);
+    const fulfillYfPrice = this.fulfillYfPrice.bind(this, marketExchange);
 
-    return this.fulfillYfPrice(
-      marketExchange,
-      yfInfo
-    ).map(fulfilledYfPrice => Object.assign(
+    return Object.assign(
       yfInfo,
       { marketExchange },
-      fulfilledYfPrice
-    ));
+      fulfillYfPrice(yfInfo)
+    );
   }
 
   // todo: yf 엔티티 리팩터링
   private fulfillYfPrice(
     exchange: Market_Exchange | null,
     yfPrice: YfPrice
-  ): Either<any, FulfilledYfPrice> {
+  ): FulfilledYfPrice {
     let liveMarketPrice: number | null = null;
     let regularMarketLastClose: number | null = null;
     let regularMarketPreviousClose: number | null = null;
@@ -192,72 +177,15 @@ export class Market_FinancialAssetService {
     }
 
     if (regularMarketLastClose === null) {
-      return Either.left(new Error('regularMarketLastClose is null')); // temp
+      throw new Error('regularMarketLastClose is null'); // temp, never?
     }
 
-    return Either.right({
+    return {
       symbol: yfPrice.symbol,
       liveMarketPrice,
       regularMarketLastClose,
       regularMarketPreviousClose
-    });
-  }
-
-  /**
-   * ChildResponseYfInfo -> YfInfo
-   * - currency 없는경우 처리
-   * 
-   * @todo Refac - 겹치는 키에 다른 데이터가 있음. assign 순서에 의존하는 방식은 맘에 들지 않음.
-   */
-  private getYfInfo(childYfInfo: ChildResponseYfInfo): YfInfo {
-    if (!childYfInfo.info) {
-      this.logger.warn(`${childYfInfo.metadata.symbol} : No info`); //
-    }
-
-    const result = Object.assign(
-      {},
-      childYfInfo.info,
-      childYfInfo.fastinfo,
-      childYfInfo.metadata,
-      childYfInfo.price
-    );
-
-    /*
-    Todo: currency 가 없는 경우가 있음. 이 경우 financialCurrency 를 사용하도록 하자.
-    코스닥의 경우 financialCurrency 이마저도 없는 경우가 있음.
-    아마 다른 시장에서도 있을텐데 일단은 아래처럼 간단하게 처리하고 넘어가고, Currency 와 Money 관련해서는 종확한 솔루션을 마련하는게 좋음.
-    */
-    if (!result.currency) {
-      if (result.financialCurrency) {
-        result.currency = result.financialCurrency;
-      } else {
-        if (result.exchangeTimezoneName === 'Asia/Seoul') {
-          result.currency = 'KRW';
-        } else {
-          result.currency = 'N/A';
-          this.logger.warn(`${result.symbol} : No currency`);
-        }
-      }
-    }
-    return result
-  }
-
-  private getYfPrice(
-    ticker: Ticker,
-    childYfPrice: ChildResponseYfPrice
-  ): YfPrice {
-    return Object.assign(
-      childYfPrice,
-      { symbol: ticker }
-    );
-  }
-
-  private warpRetry<T>(task: () => Promise<T>) {
-    return retryUntilResolvedOrTimeout(task, {
-      interval: 10,
-      timeout: 1000 * 180,
-      rejectCondition: isHttpResponse4XX
-    });
+    };
   }
 
 }

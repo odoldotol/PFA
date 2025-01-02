@@ -120,6 +120,9 @@ type RetryOptions = {
   retryErrorHandler?: (err: any) => void;
 };
 
+/**
+ * @todo 여기 있을 코드 맞아?
+ */
 export const isHttpResponse4XX = (err: any): boolean => {
   let statusCode: any;
   if (typeof (statusCode = err?.response?.status) === 'number') {} // axios

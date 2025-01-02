@@ -47,7 +47,7 @@ export class SubscriberService {
     const yfInfoArr = E.getRightArray(eitherYfInfoArr);
     const yfInfoCreationRes = await this.yfinanceInfoSrv.insertMany(yfInfoArr);
 
-    const fulfilledYfInfoArr = await Promise.all(yfInfoArr.map(this.market_financialAssetSrv.fulfillYfInfo.bind(this.market_financialAssetSrv)));
+    const fulfilledYfInfoArr = yfInfoArr.map(E.wrap(this.market_financialAssetSrv.fulfillYfInfo.bind(this.market_financialAssetSrv)));
 
     const financialAssetCreationRes = await this.createFinancialAssets(E.getRightArray(fulfilledYfInfoArr));
 
@@ -67,17 +67,19 @@ export class SubscriberService {
     return F.pipe(
       tickerArr,
       dedupStrIter, F.toAsync,
-      F.map(this.getEitherTickerWhetherSubscribed.bind(this)),
+      F.map(E.wrapAsync(this.getTickerWhetherSubscribed.bind(this))),
       F.toArray,
     );
   }
 
-  private async getEitherTickerWhetherSubscribed(
+  private async getTickerWhetherSubscribed(
     ticker: Ticker
-  ): Promise<Either<any, Ticker>> {
-    return (await this.database_financialAssetSrv.existByPk(ticker)) ?
-      Either.left({ msg: "Already exists", ticker }) :
-      Either.right(ticker);
+  ): Promise<Ticker> {
+    if (await this.database_financialAssetSrv.existByPk(ticker)) {
+      throw { msg: "Already exists", ticker };
+    } else {
+      return ticker;
+    }
   }
 
   private async createFinancialAssets(
