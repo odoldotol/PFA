@@ -12,7 +12,7 @@ export const completeAssign = (
   options?: CompleteAssignOptions,
 ) => {
   const setDescriptor = (
-    descripers: PropertyDescriptorMap,
+    descriptors: PropertyDescriptorMap,
     key: PropertyKey,
     descriptor: PropertyDescriptor,
   ) => {
@@ -27,7 +27,7 @@ export const completeAssign = (
       return;
     }
 
-    descripers[key] = descriptor;
+    descriptors[key] = descriptor;
   };
 
   sources.forEach((source) => {

@@ -166,12 +166,12 @@ describe('TaskQueueService', () => {
           if (i === pauseNum2 - 1) {
             await new Promise(resolve => setTimeout(resolve, maxTaskDuration * pauseTestNum / TEST_CONCURRENCY));
             expect(done).toBe(pauseNum1);
-            resume2 = await taskQueueService.pause();
+            resume2 = taskQueueService.pause();
           }
 
           taskQueueService.runTask(async () => {
             if (i === pauseNum1 - 1) {
-              resume1 = await taskQueueService.pause();
+              resume1 = taskQueueService.pause();
             }
             return pauseTestTask();
           });

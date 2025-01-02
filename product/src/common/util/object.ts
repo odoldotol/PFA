@@ -12,7 +12,7 @@ export const completeAssign = (
   options?: CompleteAssignOptions,
 ) => {
   const setDescriptor = (
-    descripers: PropertyDescriptorMap,
+    descriptors: PropertyDescriptorMap,
     key: PropertyKey,
     descriptor: PropertyDescriptor,
   ) => {
@@ -27,7 +27,7 @@ export const completeAssign = (
       return;
     }
 
-    descripers[key] = descriptor;
+    descriptors[key] = descriptor;
   };
 
   sources.forEach((source) => {
@@ -40,7 +40,7 @@ export const completeAssign = (
 
     if (options?.symbolProperties !== false) {
       Object.getOwnPropertySymbols(source).forEach((sym) => {
-        let descriptor = Object.getOwnPropertyDescriptor(source, sym)!;
+        const descriptor = Object.getOwnPropertyDescriptor(source, sym)!;
         setDescriptor(completeDescriptors, sym, descriptor);
       });
     }
