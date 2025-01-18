@@ -253,16 +253,16 @@ def get_info_by_ticker(ticker: str) -> Info:
   response_model=List[PriceOrError]
 )
 async def get_price_by_tickers(tickers: List[str]) -> List[PriceOrError]:
-    async def fetch_price(ticker):
-        try:
-            return await get_price_by_ticker(ticker)
-        except HTTPException as e:
-            return e.detail
+  async def fetch_price(ticker):
+    try:
+        return await get_price_by_ticker(ticker)
+    except HTTPException as e:
+        return e.detail
 
-    tasks = [fetch_price(ticker) for ticker in tickers]
-    results = await asyncio.gather(*tasks)
+  tasks = [fetch_price(ticker) for ticker in tickers]
+  results = await asyncio.gather(*tasks)
 
-    return results
+  return results
 
 @app.post(
   "/yf/price/{ticker}",

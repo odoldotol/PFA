@@ -114,14 +114,14 @@ export class Market_FinancialAssetService {
 
     } else if (this.childApiConfigSrv.isPriceRequestStrategyMulti()) { // 1 요청 -> 차일드 서버의 능력에 맞춰 1개 내지 복수의 요청으로 해결
 
-      const childResYfPrices
-      = await X.lastValueFrom(await this.yfinanceApiSrv.fetchYfPriceArr(tickerArr))
-      .catch(e => {
+      return X.lastValueFrom(
+        (await this.yfinanceApiSrv.fetchYfPriceArr(tickerArr))
+        .pipe(
+          X.map(yfPriceEitherArr => yfPriceEitherArr.map(E.wrapFlatMap(fulfillYfPrice)))
+        )
+      ).catch(e => {
         throw new InternalServerErrorException(e);
       });
-
-      return childResYfPrices
-      .map(E.wrapFlatMap(fulfillYfPrice));
 
     } else { // never
       // Todo: TS 가 never 추론할 수 있도록 PriceRequestStrategy 를 다시 정의하자.

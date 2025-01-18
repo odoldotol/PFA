@@ -136,13 +136,11 @@ export const wrap = <S extends ReturnType<F>, T = any, F extends ((...args: any[
   fn: F
 ): ((...args: Parameters<F>) => Either<T, S>) => {
   return (...args: Parameters<F>) => {
-    let result: S;
     try {
-      result = fn(...args);
+      return Either.right<S, T>(fn(...args));
     } catch (e) {
       return Either.left<T, S>(e as T);
     }
-    return Either.right<S, T>(result);
   };
 };
 
