@@ -1,3 +1,9 @@
+sh scripts/check_node_version
+
+if [ $? -ne 0 ]; then
+  exit 1
+fi
+
 sh scripts/pfa:stop:all
 
 echo "\n\n------------------ Market ------------------------------------------------------\n"

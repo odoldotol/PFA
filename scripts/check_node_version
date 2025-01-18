@@ -1,0 +1,17 @@
+TARGET_VERSION="18.12.1"
+CURRENT_VERSION=$(node -v 2>/dev/null)
+
+if [ $? -ne 0 ]; then
+  echo "Node.js is not installed. Please install Node.js."
+  exit 1
+fi
+
+CURRENT_VERSION=${CURRENT_VERSION#v}
+
+if [ "$CURRENT_VERSION" = "$TARGET_VERSION" ]; then
+  echo "Node.js version is $TARGET_VERSION."
+  exit 0
+else
+  echo "Node.js version is not $TARGET_VERSION. Current version: $CURRENT_VERSION"
+  exit 1
+fi
