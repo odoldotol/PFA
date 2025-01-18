@@ -9,6 +9,9 @@ import {
   Subject
 } from 'rxjs';
 
+/**
+ * @todo 컨슈머의 수를 동적으로 조절할 수 있도록 하기.
+ */
 export class TaskQueueService {
 
   private readonly logger = new Logger(TaskQueueService.name);

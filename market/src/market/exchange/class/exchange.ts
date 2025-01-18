@@ -20,6 +20,9 @@ import {
   getLogStyleStr
 } from "src/common/util";
 
+/**
+ * @todo 닫지 않는 마켓의 경우, 단순하게 업데이트 이벤트만 정해진 시간에 방출하자
+ */
 export class Market_Exchange
   extends EventEmitter
   implements OnApplicationBootstrap, ExchangeCore

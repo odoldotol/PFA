@@ -11,7 +11,7 @@
 <br>
 
 ### APIs
-- Product https://product.lapiki-invest.com/docs
+- Product https://product.lapiki-invest.com/docs (work)
 - Market https://market.lapiki-invest.com/docs (documents only)
 - Market-Child https://child.lapiki-invest.com/docs (documents only)
 
@@ -23,17 +23,17 @@
 
 ## Stack
 NodeJS (18.12.1) / Typescript / NestJS <br>
-PostgreSQL / typeorm <br>
+PostgreSQL (RDS, 15.*) / typeorm <br>
 MongoDB Atlas / mongoose <br>
-~~cache-manager~~ / Redis / node-redis <br>
+~~cache-manager~~ / Redis (7.2) / node-redis <br>
 fxts / rxjs <br>
 jest <br>
 ~~child_process~~ / ~~cron~~ <br>
 
-AWS EC2 / Nginx <br>
+AWS EC2 / Nginx (1.24.0) <br>
 Docker / pm2 (will be deprecated) <br>
 
-Python (3.8) / Fastapi / uvicorn <br>
+Python (3.8) / Fastapi (0.111.0) / uvicorn <br>
 yfinance / exchange_calendars <br>
 
 ---
@@ -79,9 +79,9 @@ The Market server focuses on updating and managing market data. <br>
 The Product server directly serves data. <br>
 The Market-Child is just a server dependent on the market server. <br>
 
-- #### Product http://localhost:7001/docs
-- #### Market http://localhost:6001/docs
-- #### Market-Child http://localhost:8001/docs
+- #### Product http://localhost:7001/docs or http://product.localhost/docs
+- #### Market http://localhost:6001/docs or http://market.localhost/docs
+- #### Market-Child http://localhost:8001/docs or http://market-child.localhost/docs
 ---
 <br>
 
