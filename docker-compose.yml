@@ -8,7 +8,7 @@ services:
       - default
     ports:
       - "8001:8001"
-    restart: always
+    restart: unless-stopped
     profiles:
       - pfa
       - market
@@ -33,7 +33,7 @@ services:
       market-child:
         condition: service_started
         restart: false
-    restart: always
+    restart: unless-stopped
     profiles:
       - pfa
       - market
@@ -43,7 +43,7 @@ services:
     image: mongo:latest
     networks:
       - market
-    restart: always
+    restart: unless-stopped
     profiles:
       - pfa
       - market
@@ -53,7 +53,7 @@ services:
     image: postgres:latest
     networks:
       - market
-    restart: always
+    restart: unless-stopped
     environment:
       POSTGRES_USER: test
       POSTGRES_PASSWORD: test
@@ -79,7 +79,7 @@ services:
       market:
         condition: service_started
         restart: false
-    restart: always
+    restart: unless-stopped
     profiles:
       - pfa
       - product
@@ -89,7 +89,7 @@ services:
     image: pfa-product-redis:latest
     networks:
       - product
-    restart: always
+    restart: unless-stopped
     profiles:
       - pfa
       - product
@@ -99,7 +99,7 @@ services:
     image: postgres:latest
     networks:
       - product
-    restart: always
+    restart: unless-stopped
     environment:
       POSTGRES_USER: test
       POSTGRES_PASSWORD: test
@@ -125,7 +125,7 @@ services:
       market-child:
         condition: service_started
         restart: false
-    restart: always
+    restart: unless-stopped
     profiles:
       - pfa
 

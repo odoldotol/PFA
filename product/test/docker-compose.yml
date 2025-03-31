@@ -8,7 +8,7 @@ services:
       - "6379:6379"
     expose:
       - "6379"
-    restart: always
+    restart: unless-stopped
     profiles:
       - test
 
@@ -21,7 +21,7 @@ services:
       - "5433:5432"
     expose:
       - "5432"
-    restart: always
+    restart: unless-stopped
     environment:
       POSTGRES_USER: test
       POSTGRES_PASSWORD: test
