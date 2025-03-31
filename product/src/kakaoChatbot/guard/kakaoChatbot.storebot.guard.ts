@@ -27,6 +27,6 @@ export class KakaoChatbotStorebotGuard
     .getRequest()
     .body.bot?.id; //
 
-    return botIdFromSkillPayload === this.kakaoChatbotConfigSrv.getIdStorebot();
+    return this.kakaoChatbotConfigSrv.getIdStorebotFam().includes(botIdFromSkillPayload);
   }
 }

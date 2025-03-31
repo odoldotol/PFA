@@ -12,6 +12,7 @@ import {
   DEFAULT_KAKAO_CHATBOT_BLOCK_ID_HELP,
   DEFAULT_KAKAO_CHATBOT_BLOCK_ID_INTRODUCE,
   DEFAULT_KAKAO_CHATBOT_BLOCK_ID_SPONSOR,
+  DEFAULT_KAKAO_CHATBOT_ID_STOREBOT_ORDER,
 } from "../const";
 import { KakaoChatbotEnvKey } from "../enum";
 import { KakaoChatbotEnvironmentVariables } from "../interface";
@@ -31,6 +32,8 @@ export class KakaoChatbotConfigService {
   private readonly BLOCK_ID_HELP: string;
   private readonly BLOCK_ID_INTRODUCE: string;
   private readonly BLOCK_ID_SPONSOR: string
+
+  private readonly ID_STOREBOT_ORDER: string;
 
   // survey test
   private readonly ID_STOREBOT: string;
@@ -56,6 +59,8 @@ export class KakaoChatbotConfigService {
     const blockIdIntroduce = this.readBlockIdIntroduce();
     const blockIdSponsor = this.readBlockIdSponsor();
 
+    const id_storebot_order = this.readIdStorebotOrder();
+
     // survey test
     const id_storebot = this.readIdStorebot();
     const blockIdSurveyStart = this.readBlockIdSurveyStart();
@@ -66,60 +71,54 @@ export class KakaoChatbotConfigService {
 
     if (this.appConfigSrv.isProduction()) {
       if (
-        id === undefined ||
-        id_storebot === undefined
+        id == undefined ||
+        id_storebot == undefined ||
+        id_storebot_order == undefined
       ) {
         throw new Error('KAKAO_CHATBOT_ID is not defined!');
       }
       
       if (
-        blockIdInquireAsset === undefined ||
-        blockIdReport === undefined ||
-        blockIdSubscribeAsset === undefined ||
-        blockIdCancelAssetSubscription === undefined ||
-        blockIdInquireSubscribedAsset === undefined ||
-        blockIdInquireAssetNoInput === undefined ||
-        blockIdHelp === undefined ||
-        blockIdIntroduce === undefined ||
-        blockIdSponsor === undefined ||
+        blockIdInquireAsset == undefined ||
+        blockIdReport == undefined ||
+        blockIdSubscribeAsset == undefined ||
+        blockIdCancelAssetSubscription == undefined ||
+        blockIdInquireSubscribedAsset == undefined ||
+        blockIdInquireAssetNoInput == undefined ||
+        blockIdHelp == undefined ||
+        blockIdIntroduce == undefined ||
+        blockIdSponsor == undefined ||
 
         // survey test
-        blockIdSurveyStart === undefined ||
-        blockIdSurveyAnswer === undefined ||
-        blockIdSurveyGetEventSerial === undefined ||
-        urlTaeyCoffeeRoastersCookiesImage === undefined
+        blockIdSurveyStart == undefined ||
+        blockIdSurveyAnswer == undefined ||
+        blockIdSurveyGetEventSerial == undefined ||
+        urlTaeyCoffeeRoastersCookiesImage == undefined
       ) {
         throw new Error('KakaoChatbot block ids are not defined!');
       }
     }
 
-    this.ID = id || DEFAULT_KAKAO_CHATBOT_ID;
+    this.ID = id ?? DEFAULT_KAKAO_CHATBOT_ID;
 
-    this.BLOCK_ID_INQUIRE_ASSET = blockIdInquireAsset ||
-      DEFAULT_KAKAO_CHATBOT_BLOCK_ID_INQUIRE_ASSET;
-    this.BLOCK_ID_REPORT = blockIdReport ||
-      DEFAULT_KAKAO_CHATBOT_BLOCK_ID_REPORT;
-    this.BLOCK_ID_SUBSCRIBE_ASSET = blockIdSubscribeAsset ||
-      DEFAULT_KAKAO_CHATBOT_BLOCK_ID_SUBSCRIBE_ASSET;
-    this.BLOCK_ID_CANCEL_ASSET_SUBSCRIPTION = blockIdCancelAssetSubscription ||
-      DEFAULT_KAKAO_CHATBOT_BLOCK_ID_CANCEL_ASSET_SUBSCRIPTION;
-    this.BLOCK_ID_INQUIRE_SUBSCRIBED_ASSET = blockIdInquireSubscribedAsset ||
-      DEFAULT_KAKAO_CHATBOT_BLOCK_ID_INQUIRE_SUBSCRIBED_ASSET;
-    this.BLOCK_ID_INQUIRE_ASSET_NO_INPUT = blockIdInquireAssetNoInput ||
-      DEFAULT_KAKAO_CHATBOT_BLOCK_ID_INQUIRE_ASSET_NO_INPUT;
-    this.BLOCK_ID_HELP = blockIdHelp ||
-      DEFAULT_KAKAO_CHATBOT_BLOCK_ID_HELP;
-    this.BLOCK_ID_INTRODUCE = blockIdIntroduce ||
-      DEFAULT_KAKAO_CHATBOT_BLOCK_ID_INTRODUCE;
-    this.BLOCK_ID_SPONSOR = blockIdSponsor ||
-      DEFAULT_KAKAO_CHATBOT_BLOCK_ID_SPONSOR;
+    this.BLOCK_ID_INQUIRE_ASSET = blockIdInquireAsset ?? DEFAULT_KAKAO_CHATBOT_BLOCK_ID_INQUIRE_ASSET;
+    this.BLOCK_ID_REPORT = blockIdReport ?? DEFAULT_KAKAO_CHATBOT_BLOCK_ID_REPORT;
+    this.BLOCK_ID_SUBSCRIBE_ASSET = blockIdSubscribeAsset ?? DEFAULT_KAKAO_CHATBOT_BLOCK_ID_SUBSCRIBE_ASSET;
+    this.BLOCK_ID_CANCEL_ASSET_SUBSCRIPTION = blockIdCancelAssetSubscription ?? DEFAULT_KAKAO_CHATBOT_BLOCK_ID_CANCEL_ASSET_SUBSCRIPTION;
+    this.BLOCK_ID_INQUIRE_SUBSCRIBED_ASSET = blockIdInquireSubscribedAsset ?? DEFAULT_KAKAO_CHATBOT_BLOCK_ID_INQUIRE_SUBSCRIBED_ASSET;
+    this.BLOCK_ID_INQUIRE_ASSET_NO_INPUT = blockIdInquireAssetNoInput ?? DEFAULT_KAKAO_CHATBOT_BLOCK_ID_INQUIRE_ASSET_NO_INPUT;
+    this.BLOCK_ID_HELP = blockIdHelp ?? DEFAULT_KAKAO_CHATBOT_BLOCK_ID_HELP;
+    this.BLOCK_ID_INTRODUCE = blockIdIntroduce ?? DEFAULT_KAKAO_CHATBOT_BLOCK_ID_INTRODUCE;
+    this.BLOCK_ID_SPONSOR = blockIdSponsor ?? DEFAULT_KAKAO_CHATBOT_BLOCK_ID_SPONSOR;
+
+    this.ID_STOREBOT_ORDER = id_storebot_order ?? DEFAULT_KAKAO_CHATBOT_ID_STOREBOT_ORDER;
 
     // survey test
-    this.ID_STOREBOT = id_storebot || DEFAULT_KAKAO_CHATBOT_ID_STOREBOT;
-    this.BLOCK_ID_SURVEY_START = blockIdSurveyStart || '';
-    this.BLOCK_ID_SURVEY_ANSWER = blockIdSurveyAnswer || '';
-    this.BLOCK_ID_SURVEY_GET_EVENT_SERIAL = blockIdSurveyGetEventSerial || '';
-    this.URL_TAEYCOFFEROASTERS_COOKIES_IMAGE = urlTaeyCoffeeRoastersCookiesImage || '';
+    this.ID_STOREBOT = id_storebot ?? DEFAULT_KAKAO_CHATBOT_ID_STOREBOT;
+    this.BLOCK_ID_SURVEY_START = blockIdSurveyStart ?? '';
+    this.BLOCK_ID_SURVEY_ANSWER = blockIdSurveyAnswer ?? '';
+    this.BLOCK_ID_SURVEY_GET_EVENT_SERIAL = blockIdSurveyGetEventSerial ?? '';
+    this.URL_TAEYCOFFEROASTERS_COOKIES_IMAGE = urlTaeyCoffeeRoastersCookiesImage ?? '';
   }
 
   public getId(): string {
@@ -232,6 +231,13 @@ export class KakaoChatbotConfigService {
     );
   }
 
+  public getIdStorebotFam(): string[] {
+    return [
+      this.ID_STOREBOT,
+      this.ID_STOREBOT_ORDER,
+    ];
+  }
+
   /*
    * survey test
    */
@@ -254,6 +260,13 @@ export class KakaoChatbotConfigService {
 
   public getUrlTaeyCoffeeRoastersCookiesImage(): string {
     return this.URL_TAEYCOFFEROASTERS_COOKIES_IMAGE;
+  }
+
+  private readIdStorebotOrder(): string | undefined {
+    return this.configSrv.get(
+      KakaoChatbotEnvKey.ID_STOREBOT_ORDER,
+      { infer: true }
+    );
   }
 
   private readIdStorebot(): string | undefined {
