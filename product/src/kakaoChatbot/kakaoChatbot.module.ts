@@ -19,12 +19,21 @@ import {
   StorebotSurveyRepository,
   StorebotSurveyText,
 } from "./storebot.survey.test";
+import {
+  StorebotController,
+  StorebotService,
+  StorebotTextService
+} from "./storebot";
 import { AuthService } from "./auth.service";
 import { MongooseModule } from "@nestjs/mongoose";
 import {
   StorebotSurvey,
   StorebotSurveySchema
 } from "./storebot.survey.test/storebotSurvey.schema";
+import {
+  LaunchAlarm,
+  LaunchAlarmSchema
+} from "./storebot/launchAlarm.schema";
 import { MaintenanceMiddleware } from "./middleware";
 
 @Module({
@@ -34,12 +43,14 @@ import { MaintenanceMiddleware } from "./middleware";
     UserModule,
     AssetSubscriptionModule,
     MongooseModule.forFeature([
-      { name: StorebotSurvey.name, schema: StorebotSurveySchema},
+      { name: StorebotSurvey.name, schema: StorebotSurveySchema },
+      { name: LaunchAlarm.name, schema: LaunchAlarmSchema },
     ])
   ],
   controllers: [
     KakaoChatbotController,
     StorebotSurveyTestController,
+    StorebotController,
   ],
   providers: [
     AuthService,
@@ -49,6 +60,8 @@ import { MaintenanceMiddleware } from "./middleware";
     StorebotSurveyTestService,
     StorebotSurveyRepository,
     StorebotSurveyText,
+    StorebotService,
+    StorebotTextService,
   ]
 })
 export class KakaoChatbotModule

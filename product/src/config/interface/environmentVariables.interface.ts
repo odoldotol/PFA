@@ -43,6 +43,7 @@ export interface KakaoChatbotEnvironmentVariables {
   [KakaoChatbotEnvKey.BLOCK_ID_SPONSOR]: string;
 
   [KakaoChatbotEnvKey.ID_STOREBOT_ORDER]: string;
+  [KakaoChatbotEnvKey.BLOCK_ID_SCHEDULE_LAUNCH_ALARM]: string;
 
   // survey test
   [KakaoChatbotEnvKey.ID_STOREBOT]: string;

@@ -26,11 +26,15 @@ import {
 } from "src/common/interface";
 import { StorebotSurvey } from "./storebot.survey.test/storebotSurvey.schema"; // type
 import { StorebotSurveyText } from "./storebot.survey.test/storebotSurvey.text"; // 의존성 해결때 꼬이지 않게 인덱스에 접근하면 안됨
+import { StorebotTextService } from "./storebot/text.service";
 import {
   isChoiceQuestion,
   Question
 } from "./storebot.survey.test/question.const";
-import { getMoneyStr, joinBlank } from "src/common/util";
+import {
+  getMoneyStr,
+  joinBlank
+} from "src/common/util";
 
 @Injectable()
 export class SkillResponseService {
@@ -39,6 +43,7 @@ export class SkillResponseService {
     private readonly kakaoChatbotConfigSrv: KakaoChatbotConfigService,
     private readonly textSrv: TextService,
     private readonly storebotSurveyText: StorebotSurveyText,
+    private readonly storebotTextSrv: StorebotTextService,
   ) {}
 
   public underMaintenance(): SkillResponse {
@@ -417,6 +422,32 @@ export class SkillResponseService {
           new ListItemBuilder("스폰서 문의")
           .setBlockAction(this.kakaoChatbotConfigSrv.getBlockIdSponsor())
           .build()
+        ).buildComponent()
+      ).build()
+    ).build();
+  }
+
+  public sb_launchAlarmScheduled(): SkillResponse {
+    return new SkillResponseBuilder()
+    .addTemplate(
+      new SkillTemplateBuilder()
+      .addComponent(SimpleTextFactory.createComponent(this.storebotTextSrv.launchAlarmScheduled()))
+      .build()
+    ).build();
+  }
+
+  public sb_retryScheduleLaunchAlarmAfterAddFriend(): SkillResponse {
+    return new SkillResponseBuilder()
+    .addTemplate(
+      new SkillTemplateBuilder()
+      .addComponent(
+        new TextCardBuilder()
+        .setTitle(this.storebotTextSrv.retryScheduleLaunchAlarmAfterAddFriend())
+        .setDescription(this.storebotTextSrv.noPersonalInfosNoAds())
+        .addButton(
+          "알람 받기",
+          ButtonAction.BLOCK,
+          this.kakaoChatbotConfigSrv.getBlockIdScheduleLaunchAlarm(),
         ).buildComponent()
       ).build()
     ).build();

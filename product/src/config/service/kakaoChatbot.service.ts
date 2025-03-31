@@ -34,6 +34,7 @@ export class KakaoChatbotConfigService {
   private readonly BLOCK_ID_SPONSOR: string
 
   private readonly ID_STOREBOT_ORDER: string;
+  private readonly BLOCK_ID_SCHEDULE_LAUNCH_ALARM: string;
 
   // survey test
   private readonly ID_STOREBOT: string;
@@ -60,6 +61,7 @@ export class KakaoChatbotConfigService {
     const blockIdSponsor = this.readBlockIdSponsor();
 
     const id_storebot_order = this.readIdStorebotOrder();
+    const blockIdScheduleLaunchAlarm = this.readBlockIdScheduleLaunchAlarm();
 
     // survey test
     const id_storebot = this.readIdStorebot();
@@ -112,6 +114,7 @@ export class KakaoChatbotConfigService {
     this.BLOCK_ID_SPONSOR = blockIdSponsor ?? DEFAULT_KAKAO_CHATBOT_BLOCK_ID_SPONSOR;
 
     this.ID_STOREBOT_ORDER = id_storebot_order ?? DEFAULT_KAKAO_CHATBOT_ID_STOREBOT_ORDER;
+    this.BLOCK_ID_SCHEDULE_LAUNCH_ALARM = blockIdScheduleLaunchAlarm ?? '';
 
     // survey test
     this.ID_STOREBOT = id_storebot ?? DEFAULT_KAKAO_CHATBOT_ID_STOREBOT;
@@ -238,6 +241,10 @@ export class KakaoChatbotConfigService {
     ];
   }
 
+  public getBlockIdScheduleLaunchAlarm(): string {
+    return this.BLOCK_ID_SCHEDULE_LAUNCH_ALARM;
+  }
+
   /*
    * survey test
    */
@@ -265,6 +272,13 @@ export class KakaoChatbotConfigService {
   private readIdStorebotOrder(): string | undefined {
     return this.configSrv.get(
       KakaoChatbotEnvKey.ID_STOREBOT_ORDER,
+      { infer: true }
+    );
+  }
+
+  private readBlockIdScheduleLaunchAlarm(): string | undefined {
+    return this.configSrv.get(
+      KakaoChatbotEnvKey.BLOCK_ID_SCHEDULE_LAUNCH_ALARM,
       { infer: true }
     );
   }
