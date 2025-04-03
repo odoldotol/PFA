@@ -50,6 +50,14 @@ export class StorebotController {
     private readonly storebotSrv: StorebotService,
   ) {}
 
+  @Post("alarm/welcome")
+  @HttpCode(HttpStatus.OK)
+  public welcomeAlarm(
+    @Body() body: SkillPayloadDto,
+  ): Promise<SkillResponse> {
+    return this.storebotSrv.welcomeAlarm(body);
+  }
+
   @Post("alarm/schedule/launch")
   @HttpCode(HttpStatus.OK)
   public scheduleLaunchAlarm(

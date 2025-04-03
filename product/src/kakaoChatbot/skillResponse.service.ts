@@ -427,6 +427,25 @@ export class SkillResponseService {
     ).build();
   }
 
+  ////////////////////////// Storebot //////////////////////////
+
+  public sb_welcomeAlarm(): SkillResponse {
+    return new SkillResponseBuilder()
+    .addTemplate(
+      new SkillTemplateBuilder()
+      .addComponent(
+        new TextCardBuilder()
+        .setTitle("소갯말")
+        .setDescription("...아래버튼으로...")
+        .addButton(
+          "알람 받기",
+          ButtonAction.BLOCK,
+          this.kakaoChatbotConfigSrv.getBlockIdScheduleLaunchAlarm(),
+        ).buildComponent()
+      ).build()
+    ).build();
+  }
+
   public sb_launchAlarmScheduled(): SkillResponse {
     return new SkillResponseBuilder()
     .addTemplate(
