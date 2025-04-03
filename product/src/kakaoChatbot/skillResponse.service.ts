@@ -435,10 +435,10 @@ export class SkillResponseService {
       new SkillTemplateBuilder()
       .addComponent(
         new TextCardBuilder()
-        .setTitle("소갯말")
-        .setDescription("...아래버튼으로...")
+        .setTitle(this.storebotTextSrv.introduction())
+        .setDescription(this.storebotTextSrv.introductionDetail())
         .addButton(
-          "알람 받기",
+          "카톡 받기",
           ButtonAction.BLOCK,
           this.kakaoChatbotConfigSrv.getBlockIdScheduleLaunchAlarm(),
         ).buildComponent()
@@ -461,10 +461,10 @@ export class SkillResponseService {
       new SkillTemplateBuilder()
       .addComponent(
         new TextCardBuilder()
-        .setTitle(this.storebotTextSrv.retryScheduleLaunchAlarmAfterAddFriend())
-        .setDescription(this.storebotTextSrv.noPersonalInfosNoAds())
+        .setTitle(this.storebotTextSrv.needToAddFriend())
+        .setDescription(this.storebotTextSrv.retryScheduleLaunchAlarmAfterAddFriend())
         .addButton(
-          "알람 받기",
+          "카톡 받기",
           ButtonAction.BLOCK,
           this.kakaoChatbotConfigSrv.getBlockIdScheduleLaunchAlarm(),
         ).buildComponent()
