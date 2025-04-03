@@ -4,8 +4,15 @@ import { Injectable } from "@nestjs/common";
 export class StorebotTextService {
 
   public introduction(): string {
-    return `간편주문은 언제 어디서든 원하는 매장의 주문을 카카오톡으로 10초 만에 가능하게 해요!
-아래 버튼으로 예약해 주시면 기능 및 매장 안내드려요!`;
+    return `간편주문
+언제 어디서든
+원하는 매장의 주문을
+카카오톡으로 10초 만에
+내 손안에서 결제까지 안전하게!`;
+  }
+
+  public scheduleAlarm(): string {
+    return `아래 버튼으로 예약해 주시면 기능 및 매장 안내드려요!`;
   }
 
   public introductionDetail(): string {
@@ -36,7 +43,7 @@ export class StorebotTextService {
   }
 
   private noPersonalInfosNoAds(): string {
-    return `이 채널은 어떠한 개인정보도 요구하거나 수집하지 않아요.
+    return `이 채널은 개인정보를 요구하거나 수집하지 않아요.
 어떠한 광고도 하지 않아요.`;
   }
 

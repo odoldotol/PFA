@@ -433,9 +433,10 @@ export class SkillResponseService {
     return new SkillResponseBuilder()
     .addTemplate(
       new SkillTemplateBuilder()
+      .addComponent(SimpleTextFactory.createComponent(this.storebotTextSrv.introduction()))
       .addComponent(
         new TextCardBuilder()
-        .setTitle(this.storebotTextSrv.introduction())
+        .setTitle(this.storebotTextSrv.scheduleAlarm())
         .setDescription(this.storebotTextSrv.introductionDetail())
         .addButton(
           "카톡 받기",
