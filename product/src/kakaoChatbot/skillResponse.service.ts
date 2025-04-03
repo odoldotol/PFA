@@ -433,7 +433,11 @@ export class SkillResponseService {
     return new SkillResponseBuilder()
     .addTemplate(
       new SkillTemplateBuilder()
-      .addComponent(SimpleTextFactory.createComponent(this.storebotTextSrv.introduction()))
+      .addComponent(
+        new TextCardBuilder()
+        .setDescription(this.storebotTextSrv.introduction())
+        .buildComponent()
+      )
       .addComponent(
         new TextCardBuilder()
         .setTitle(this.storebotTextSrv.scheduleAlarm())
