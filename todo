@@ -1,3 +1,5 @@
+전체적인 에러 포멧과 처리 통일하기
+
 Asynchronous context tracking
 
 MARKET_API_HOSTNAME 같은 컨테이너레벨에서 전역적인 환경변수를 한곳에서 관리하기

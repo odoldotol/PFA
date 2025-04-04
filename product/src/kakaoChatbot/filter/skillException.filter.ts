@@ -55,10 +55,35 @@ export abstract class SkillExceptionFilter<T = any>
       this.logFlag === true &&
       process.env["NODE_ENV"] !== "test" // jest set 'NODE_ENV' to 'test' if it's not already set to something else.
     ) {
+      let
+      skillPayload,
+      exceptionStatus,
+      exceptionResponse;
+
+      try {
+        skillPayload = JSON.stringify(request.body);
+      } catch (e) {
+        skillPayload = request.body;
+      }
+
+      try {
+        exceptionStatus = exception["status"];
+      } catch (e) {
+        exceptionStatus = null;
+      }
+
+      try {
+        exceptionResponse = JSON.stringify(exception["response"]);
+      } catch (e) {
+        exceptionResponse = exception["response"];
+      }
+
       this.logger.error(
         exception.message,
         exception.stack,
-        `SkillPayload: ${JSON.stringify(request.body)}\nExceptionStatus: ${exception["status"]}\nExceptionResponse: ${JSON.stringify(exception["response"])}`
+        `SkillPayload: ${skillPayload}
+ExceptionStatus: ${exceptionStatus}
+ExceptionResponse: ${exceptionResponse}`
       );
     }
   }

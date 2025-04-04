@@ -1,6 +1,11 @@
-import { Injectable } from '@nestjs/common';
+import {
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException
+} from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import {
+  catchError,
   firstValueFrom,
   map
 } from 'rxjs';
@@ -40,6 +45,7 @@ export class MarketApiService {
 
   /**
    * - 배치 프로세싱
+   * @todo 프로젝트 전체 에러 처리 리팩터링
    */
   public fetchFinancialAsset(ticker: Ticker): Promise<FinancialAssetCore> {
     if (this.runningFetchFinancialAsset.has(ticker)) {
@@ -48,7 +54,21 @@ export class MarketApiService {
 
     const fetchFinancialAsset = firstValueFrom(
       this.httpService.post<FinancialAssetCore>(joinSlash(INQUIRE_ASSET_PATH, ticker))
-      .pipe(map(res => res.data))
+      .pipe(
+        catchError(err => {
+          if (err.response === undefined) {
+            throw err;
+          } else {
+            switch (err.response.status) {
+              case 404:
+                throw new NotFoundException(err.response.data);
+              default:
+                throw new InternalServerErrorException(err.response.data);
+            }
+          }
+        }),
+        map(res => res.data)
+      )
     ).finally(() => this.runningFetchFinancialAsset.delete(ticker));
 
     this.runningFetchFinancialAsset.set(ticker, fetchFinancialAsset);
