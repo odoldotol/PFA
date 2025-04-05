@@ -15,6 +15,7 @@ import {
   Ticker
 } from "src/common/interface";
 import Either from "src/common/class/either";
+import * as F from "@fxts/core";
 
 @Injectable()
 export class AccessorService {
@@ -35,28 +36,45 @@ export class AccessorService {
   }
 
   /**
-   * @todo refac Error handling
+   * @todo 에러처리 프로젝트 전체 리팩
    */
   public async subscribeAssetAndGet(
     ticker: Ticker
   ): Promise<FinancialAssetCore> {
-    const subscribeAssetsRes
-    = await this.subscriberSrv.subscribeAssetsFromFilteredTickers([
-      Either.right(ticker)
-    ]);
-    if (subscribeAssetsRes.assets[0] === undefined) {
-      const failure = subscribeAssetsRes.failure.general[0];
-      if (failure.statusCode === HttpStatus.NOT_FOUND) {
-        throw new NotFoundException(
-          failure,
-          `Could not find Ticker: ${failure.ticker}`
-        );
+    const onFulfilled = (subscribeAssetsRes: Awaited<typeof subscribeAssetsPm>) => {
+      if (subscribeAssetsRes.assets[0] === undefined) {
+        const failure = subscribeAssetsRes.failure.general[0];
+        if (failure.statusCode === HttpStatus.NOT_FOUND) {
+          throw new NotFoundException(
+            failure,
+            `Could not find Ticker: ${failure.ticker}`
+          );
+        } else {
+          throw new InternalServerErrorException(subscribeAssetsRes);
+        }
       } else {
-        throw new InternalServerErrorException(subscribeAssetsRes);
+        return subscribeAssetsRes.assets[0];
       }
-    } else {
-      return subscribeAssetsRes.assets[0];
+    };
+
+    const existsPm = this.market_financialAssetSrv.exists(ticker).catch(F.noop);
+    const subscribeAssetsPm = this.subscriberSrv.subscribeAssetsFromFilteredTickers([ Either.right(ticker) ]);
+
+    try {
+      const race = await Promise.race([existsPm, subscribeAssetsPm]);
+      if (race === false) {
+        throw new NotFoundException(
+          { ticker },
+          `Could not find Ticker: ${ticker}`
+        );
+      } else if (typeof race === "object") {
+        return onFulfilled(race);
+      }
+    } catch (e) {
+      throw new InternalServerErrorException(e);
     }
+
+    return onFulfilled(await subscribeAssetsPm);
   }
 
   /**

@@ -223,7 +223,7 @@ item E
 
 ## 개발
 
-[] Market - inquire asset, price 요청으로 NotFound 빨리 응답하기  
+[V] Market - inquire asset, price 요청으로 NotFound 빨리 응답하기  
 [] Inquire V2 구성  
 [] OpenAI Api 구성 및 연동  
 
