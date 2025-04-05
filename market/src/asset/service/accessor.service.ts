@@ -60,18 +60,14 @@ export class AccessorService {
     const existsPm = this.market_financialAssetSrv.exists(ticker).catch(F.noop);
     const subscribeAssetsPm = this.subscriberSrv.subscribeAssetsFromFilteredTickers([ Either.right(ticker) ]);
 
-    try {
-      const race = await Promise.race([existsPm, subscribeAssetsPm]);
-      if (race === false) {
-        throw new NotFoundException(
-          { ticker },
-          `Could not find Ticker: ${ticker}`
-        );
-      } else if (typeof race === "object") {
-        return onFulfilled(race);
-      }
-    } catch (e) {
-      throw new InternalServerErrorException(e);
+    const race = await Promise.race([existsPm, subscribeAssetsPm]);
+    if (race === false) {
+      throw new NotFoundException(
+        { ticker },
+        `Could not find Ticker: ${ticker}`
+      );
+    } else if (typeof race === "object") {
+      return onFulfilled(race);
     }
 
     return onFulfilled(await subscribeAssetsPm);

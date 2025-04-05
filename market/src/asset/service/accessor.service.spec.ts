@@ -16,6 +16,7 @@ import { mockApple, mockSamsungElec } from "src/mock";
 describe('AccessorService', () => {
   let service: AccessorService;
   let database_financialAssetSrv: Database_FinancialAssetService;
+  let market_financialAssetSrv: Market_FinancialAssetService;
   let subscriberSrv: SubscriberService;
 
   beforeAll(async () => {
@@ -30,6 +31,7 @@ describe('AccessorService', () => {
 
     service = module.get(AccessorService);
     database_financialAssetSrv = module.get(Database_FinancialAssetService);
+    market_financialAssetSrv = module.get(Market_FinancialAssetService);
     subscriberSrv = module.get(SubscriberService);
   });
 
@@ -73,6 +75,12 @@ describe('AccessorService', () => {
             ticker: eitherTickerArr[0]!.right
           }], Either.right([]), Either.right([]));
         }
+      });
+
+      market_financialAssetSrv.exists = jest.fn()
+      .mockImplementation((ticker: Ticker) => {
+        if (ticker === mockSamsungElec.symbol) return Promise.resolve(true);
+        else return Promise.resolve(false);
       });
     });
 
