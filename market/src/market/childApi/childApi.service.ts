@@ -45,6 +45,8 @@ export class ChildApiService {
   }
 
   /**
+   * @todo 에러처리 전체 리팩터링
+   * 
    * Axios 응답 Observable 에 차일드 API 에 알맞는 일차적 파이프 처리.
    * 
    * - Axios 응답에서 data 를 꺼냄

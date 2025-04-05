@@ -34,6 +34,24 @@ export class Market_FinancialAssetService {
     private readonly exchangeSrv: Market_ExchangeService,
   ) {}
 
+  /**
+   * 에러 뜨면 무시할것
+   */
+  public async exists(
+    ticker: Ticker
+  ): Promise<boolean> {
+    try {
+      await X.lastValueFrom(await this.yfinanceApiSrv.fetchYfPrice(ticker));
+      return true;
+    } catch (e: any) {
+      if (e.statusCode === 404) {
+        return false;
+      } else {
+        throw e;
+      }
+    }
+  }
+
   public fetchYfInfosByEitherTickerArr(
     eitherTickerArr: readonly Either<any, Ticker>[]
   ): Promise<Either<any/* */, YfInfo>[]> {
