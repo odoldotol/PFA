@@ -22,9 +22,19 @@ export class ThrottlerConfigService
           limit: this.throttleConfigSrv.getLimitGlobalShort(),
         },
         {
+          name: 'medium',
+          ttl: this.throttleConfigSrv.getTtlGlobalMedium(),
+          limit: this.throttleConfigSrv.getLimitGlobalMedium(),
+        },
+        {
           name: 'long',
           ttl: this.throttleConfigSrv.getTtlGlobalLong(),
           limit: this.throttleConfigSrv.getLimitGlobalLong(),
+        },
+        {
+          name: 'cut',
+          ttl: this.throttleConfigSrv.getTtlGlobalCut(),
+          limit: this.throttleConfigSrv.getLimitGlobalCut(),
         },
       ],
     };

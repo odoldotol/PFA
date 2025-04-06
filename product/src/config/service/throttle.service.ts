@@ -3,9 +3,13 @@ import { ConfigService } from "@nestjs/config";
 import { ThrottleEnvironmentVariables } from "../interface";
 import { ThrottleEnvKey } from "../enum";
 import {
+  DEFAULT_THROTTLE_LIMIT_CUT,
   DEFAULT_THROTTLE_LIMIT_LONG,
+  DEFAULT_THROTTLE_LIMIT_MEDIUM,
   DEFAULT_THROTTLE_LIMIT_SHORT,
+  DEFAULT_THROTTLE_TTL_CUT,
   DEFAULT_THROTTLE_TTL_LONG,
+  DEFAULT_THROTTLE_TTL_MEDIUM,
   DEFAULT_THROTTLE_TTL_SHORT
 } from "../const";
 
@@ -32,6 +36,22 @@ export class ThrottleConfigService {
     );
   }
 
+  public getTtlGlobalMedium(): number {
+    return this.configSrv.get(
+      ThrottleEnvKey.TTL_GLOBAL_MEDIUM,
+      DEFAULT_THROTTLE_TTL_MEDIUM,
+      { infer: true }
+    );
+  }
+
+  public getLimitGlobalMedium(): number {
+    return this.configSrv.get(
+      ThrottleEnvKey.LIMIT_GLOBAL_MEDIUM,
+      DEFAULT_THROTTLE_LIMIT_MEDIUM,
+      { infer: true }
+    );
+  }
+
   public getTtlGlobalLong(): number {
     return this.configSrv.get(
       ThrottleEnvKey.TTL_GLOBAL_LONG,
@@ -44,6 +64,22 @@ export class ThrottleConfigService {
     return this.configSrv.get(
       ThrottleEnvKey.LIMIT_GLOBAL_LONG,
       DEFAULT_THROTTLE_LIMIT_LONG,
+      { infer: true }
+    );
+  }
+
+  public getTtlGlobalCut(): number {
+    return this.configSrv.get(
+      ThrottleEnvKey.TTL_GLOBAL_CUT,
+      DEFAULT_THROTTLE_TTL_CUT,
+      { infer: true }
+    );
+  }
+
+  public getLimitGlobalCut(): number {
+    return this.configSrv.get(
+      ThrottleEnvKey.LIMIT_GLOBAL_CUT,
+      DEFAULT_THROTTLE_LIMIT_CUT,
       { infer: true }
     );
   }

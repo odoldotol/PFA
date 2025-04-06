@@ -1,5 +1,4 @@
 export * from './api';
-export * from './throttleOptions';
 
 /**
  *  카카오챗봇 관련 정적 데이터(텍스트, 버튼, 블록 등등)를 분리하기전까지만 임시로 사용.

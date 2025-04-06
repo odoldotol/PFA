@@ -31,6 +31,12 @@ export class KakaoChatbotService {
     private readonly skillResponseSrv: SkillResponseService,
   ) {}
 
+  public async inquireAsset_v2(
+    skillPayload: InquireAssetDto
+  ): Promise<SkillResponse> {
+    return this.inquireAsset(skillPayload);
+  }
+
   public async inquireAsset(
     skillPayload: InquireAssetDto
   ): Promise<SkillResponse> {

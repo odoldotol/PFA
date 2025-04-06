@@ -6,7 +6,10 @@ import {
   Logger,
 } from "@nestjs/common";
 import { SkillResponseService } from "../skillResponse.service";
-import { Response } from 'express';
+import {
+  Response,
+  Request,
+} from 'express';
 import { SkillResponse } from "../skillResponse/v2";
 import * as F from '@fxts/core';
 
@@ -33,7 +36,7 @@ export abstract class SkillExceptionFilter<T = any>
     F.pipe(
       response,
       this.everythingIsOk,
-      this.sendSkillResponse.bind(this, exception)
+      this.sendSkillResponse.bind(this, exception, request),
     );
   }
 
@@ -43,6 +46,7 @@ export abstract class SkillExceptionFilter<T = any>
 
   protected getBody(
     exception: T,
+    _request?: Request,
   ): SkillResponse {
     return this.skillResponseSrv.unexpectedError(exception);
   }
@@ -61,7 +65,7 @@ export abstract class SkillExceptionFilter<T = any>
       exceptionResponse;
 
       try {
-        skillPayload = JSON.stringify(request.body);
+        skillPayload = JSON.stringify(request.body, null, 2);
       } catch (e) {
         skillPayload = request.body;
       }
@@ -73,7 +77,7 @@ export abstract class SkillExceptionFilter<T = any>
       }
 
       try {
-        exceptionResponse = JSON.stringify(exception["response"]);
+        exceptionResponse = JSON.stringify(exception["response"], null, 2);
       } catch (e) {
         exceptionResponse = exception["response"];
       }
@@ -99,9 +103,10 @@ ExceptionResponse: ${exceptionResponse}`
 
   private sendSkillResponse(
     exception: T,
+    req: Request,
     res: Response
   ): void {
-    res.json(this.getBody(exception));
+    res.json(this.getBody(exception, req));
   }
 
 }

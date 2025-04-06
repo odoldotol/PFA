@@ -4,6 +4,9 @@ import { RouteName } from "../kakaoChatbot.controller";
 export const apiMetadata: Router<RouteName> = {
   prefix: 'kakao-chatbot',
   routes: {
+    inquireAsset_v2: {
+      path: 'asset/inquire',
+    },
     inquireAsset: {
       path: 'asset/inquire',
     },

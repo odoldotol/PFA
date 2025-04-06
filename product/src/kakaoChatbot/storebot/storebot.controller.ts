@@ -27,10 +27,10 @@ import {
 import { StorebotService } from './storebot.service';
 import { SkillResponse } from '../skillResponse/v2';
 import { SkillPayloadDto } from '../dto';
-import { throttleOptions } from '../const';
+import { getThrottleOptionsFromEnv } from 'src/throttler/getThrottleOptionsFromEnv';
 
 @Controller("storebot")
-@Throttle(throttleOptions)
+@Throttle(getThrottleOptionsFromEnv('KAKAO_CHATBOT'))
 @UseGuards(
   KakaoChatbotStorebotGuard,
   KakaoChatbotThrottlerGuard

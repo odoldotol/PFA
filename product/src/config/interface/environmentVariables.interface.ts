@@ -87,8 +87,14 @@ export interface ThrottleEnvironmentVariables {
   [ThrottleEnvKey.TTL_GLOBAL_SHORT]: number;
   [ThrottleEnvKey.LIMIT_GLOBAL_SHORT]: number;
 
+  [ThrottleEnvKey.TTL_GLOBAL_MEDIUM]: number;
+  [ThrottleEnvKey.LIMIT_GLOBAL_MEDIUM]: number;
+
   [ThrottleEnvKey.TTL_GLOBAL_LONG]: number;
   [ThrottleEnvKey.LIMIT_GLOBAL_LONG]: number;
+
+  [ThrottleEnvKey.TTL_GLOBAL_CUT]: number;
+  [ThrottleEnvKey.LIMIT_GLOBAL_CUT]: number;
 
   [ThrottleEnvKey.TTL_KAKAO_CHATBOT_SHORT]: number;
   [ThrottleEnvKey.LIMIT_KAKAO_CHATBOT_SHORT]: number;

@@ -9,7 +9,8 @@ import {
   UseGuards,
   UseInterceptors,
   UsePipes,
-  ValidationPipe
+  ValidationPipe,
+  Version
 } from '@nestjs/common';
 import { Throttle } from '@nestjs/throttler';
 import { Response } from "express";
@@ -33,6 +34,8 @@ import {
   NotFoundExceptionFilter,
   ForbiddenExceptionFilter,
   NotFriendExceptionFilter,
+  ThrottlerExceptionFilter,
+  InquireTimeoutExceptionFilter,
 } from './filter';
 import {
   AssetSubscriptionDto,
@@ -42,15 +45,14 @@ import {
 } from './dto';
 import { SkillResponse } from './skillResponse/v2';
 import { InvalidTickerException } from 'src/common/exception';
-import {
-  apiMetadata,
-  throttleOptions
-} from './const';
+import { apiMetadata } from './const';
+import { getThrottleOptionsFromEnv } from 'src/throttler/getThrottleOptionsFromEnv';
 
 // Todo: 아예 앤드포인트가 잘못되어 NotFound 일때 챗봇 응답이 없다
+// => 당연하자나;
 
 @Controller(apiMetadata.prefix)
-@Throttle(throttleOptions)
+@Throttle(getThrottleOptionsFromEnv('KAKAO_CHATBOT'))
 @UseGuards(
   KakaoChatbotGuard,
   KakaoChatbotThrottlerGuard,
@@ -58,6 +60,7 @@ import {
 @UseInterceptors(TimeoutInterceptor)
 @UseFilters(
   UnexpectedExceptionFilter, // 순서 주의 - 순서에 따라 달라질 수 있는거 나쁜 구성일까?
+  ThrottlerExceptionFilter,
   TimeoutExceptionFilter,
   BadRequestExceptionFilter,
   ForbiddenExceptionFilter,
@@ -86,6 +89,26 @@ export class KakaoChatbotController {
     @Body() body: InquireAssetDto
   ): Promise<SkillResponse> {
     return this.kakaoChatbotSrv.inquireAsset(body);
+  }
+
+  /**
+   * - 더 엄격한 쓰로틀링 적용  
+   * (KakaoChatbotThrottlerGuard 는 다시 적용하지 않아도 되겠지?)  
+   * 웹검색 이용하는 것만 따로 쓰로틀 거는것이 필요함.
+   */
+  @Post(apiMetadata.routes.inquireAsset_v2.path)
+  @Version("2")
+  @HttpCode(HttpStatus.OK)
+  @Throttle(getThrottleOptionsFromEnv('KAKAO_CHATBOT_INQUIRE'))
+  @UseFilters(
+    NotFoundExceptionFilter,
+    InquireTimeoutExceptionFilter,
+  )
+  @ApiOperation({ summary: '카카오챗봇스킬: asset/inquire' })
+  public inquireAsset_v2(
+    @Body() body: InquireAssetDto
+  ): Promise<SkillResponse> {
+    return this.kakaoChatbotSrv.inquireAsset_v2(body);
   }
 
   @Post(apiMetadata.routes.addAssetSubscription.path)

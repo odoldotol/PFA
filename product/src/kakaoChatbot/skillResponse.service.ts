@@ -22,6 +22,7 @@ import {
 } from "./skillResponse/v2";
 import {
   FinancialAssetCore,
+  InquireQuery,
   Ticker
 } from "src/common/interface";
 import { StorebotSurvey } from "./storebot.survey.test/storebotSurvey.schema"; // type
@@ -136,6 +137,42 @@ export class SkillResponseService {
       title,
       description,
       ticker,
+      reason,
+    }).build();
+  }
+
+  public throttlerError(): SkillResponse {
+    return this.singleSimpleText("어우, 힘들어요! 잠깐 쉬어야겠어요.");
+  }
+
+  /**
+   * @todo refac
+   */
+  public inquireTimeoutError(
+    query: InquireQuery,
+    reason: any,
+  ): SkillResponse {
+    const component = new TextCardBuilder()
+    .setDescription(`아, '${query}' 에 대해 찾는데 시간이 오래 걸리네요ㅠㅠ 거의 찾은것 같아요..!`)
+    .addButton(
+      "그래, 계속 찾아봐!",
+      ButtonAction.BLOCK,
+      this.kakaoChatbotConfigSrv.getBlockIdInquireAssetNoInput(),
+      { ticker: query }
+    ).addButton(
+      "그만, 다른것 찾아줘.",
+      ButtonAction.BLOCK,
+      this.kakaoChatbotConfigSrv.getBlockIdInquireAsset(),
+    ).buildComponent();
+
+    const template = new SkillTemplateBuilder()
+    .addComponent(component)
+    .build();
+
+    return new SkillResponseBuilder()
+    .addTemplate(template)
+    .addData({
+      query,
       reason,
     }).build();
   }
