@@ -222,15 +222,18 @@ item E
 <br>
 
 ## 개발
+```
+[V] Market - inquire asset, price 요청으로 NotFound 빨리 응답하기
+  (python, FastApi, yfinance 에 대한 무지로, 기대한 성능향상 없는 수정을 했음)
+  [] exists 성능 개선하기(다른 api 를 이용하던가)
+[] Inquire V2 구성
+[] OpenAI Api 구성 및 연동
 
-[V] Market - inquire asset, price 요청으로 NotFound 빨리 응답하기  
-[] Inquire V2 구성  
-[] OpenAI Api 구성 및 연동  
+[] 전체 로직 구현
+[] 챗봇 응답 구현
 
-[] 전체 로직 구현  
-[] 챗봇 응답 구현  
+[] 쓰로틀러
 
-[] 쓰로틀러  
-
-[] 웹검색 api 캐싱  
-[] 웹검색 api 일괄처리  
+[] 웹검색 api 캐싱
+[] 웹검색 api 일괄처리
+```

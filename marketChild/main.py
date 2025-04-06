@@ -240,11 +240,12 @@ def get_infos_by_tickers(tickers: List[str]) -> Infos:
   description="Yahoo Finance API Info",
   response_model=Info
 )
-def get_info_by_ticker(ticker: str) -> Info:
+async def get_info_by_ticker(ticker: str) -> Info:
   # print(ticker, os.getpid())
   ticker = uppercase_ticker_validation_pipe(ticker)
 
-  return get_info_by_yf_ticker(get_yf_ticker(ticker))
+  loop = asyncio.get_event_loop()
+  return await loop.run_in_executor(executor, get_info_by_yf_ticker, (get_yf_ticker(ticker)))
 
 @app.post(
   "/yf/price",
