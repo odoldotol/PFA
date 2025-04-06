@@ -227,7 +227,7 @@ button A - 다른 찾기
 [V] Market - inquire asset, price 요청으로 NotFound 빨리 응답하기
   (python, FastApi, yfinance 에 대한 무지로, 기대한 성능향상 없는 수정을 했음)
   [V] exists 성능 개선하기(다른 api 를 이용)
-[] Inquire V2 구성
+[V] Inquire V2 구성
   - 기존 Inquire 기반
   - 더 엄격해진 쓰로틀러
   - new 예외필터(쓰로틀러, 타임아웃)
