@@ -40,16 +40,7 @@ export class Market_FinancialAssetService {
   public async exists(
     ticker: Ticker
   ): Promise<boolean> {
-    try {
-      await X.lastValueFrom(await this.yfinanceApiSrv.fetchYfPrice(ticker));
-      return true;
-    } catch (e: any) {
-      if (e.statusCode === 404) {
-        return false;
-      } else {
-        throw e;
-      }
-    }
+    return X.lastValueFrom(await this.yfinanceApiSrv.exists(ticker));
   }
 
   public fetchYfInfosByEitherTickerArr(

@@ -17,6 +17,7 @@ import {
   ChildResponseYfPrices,
 } from './interface';
 import { 
+  YFINANCE_EXISTS_URN,
   YFINANCE_INFO_URN,
   YFINANCE_PRICE_URN,
 } from './const';
@@ -37,6 +38,16 @@ export class YfinanceApiService {
     private readonly httpService: HttpService,
     private readonly childApiSrv: ChildApiService,
   ) {}
+
+  public exists(
+    ticker: Ticker
+  ): Promise<Observable<boolean>> {
+    const req = () => this.httpService.post<boolean>(
+      YFINANCE_EXISTS_URN + "/" + ticker
+    );
+
+    return this.childApiSrv.withConcurrencyQueue(req);
+  }
 
   public fetchYfInfo(
     ticker: Ticker
