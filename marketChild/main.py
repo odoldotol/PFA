@@ -279,6 +279,34 @@ async def get_price_by_ticker(ticker: str) -> Price:
   return await loop.run_in_executor(executor, get_price_by_ticker_sync, ticker)
 
 @app.post(
+  "/yf/exists/{ticker}",
+  tags=["Asset"],
+  description="Yahoo Finance API Exists",
+  response_model=bool
+)
+async def exists(ticker: str) -> bool:
+  # print(ticker, os.getpid())
+  ticker = uppercase_ticker_validation_pipe(ticker)
+
+  loop = asyncio.get_event_loop()
+  return await loop.run_in_executor(executor, is_exists, ticker)
+
+def is_exists(ticker: str) -> bool:
+  """
+  그나마 isin 이 빠른것같음.
+  isin 으로 검사하는거나, 속도나, 에러처리 등 총체적으로 굉장히 맘에 안들지만 일단 패스!
+  """
+  Ticker = get_yf_ticker(ticker)
+  try:
+    Ticker.isin
+    return True
+  except Exception as e:
+    if e.args[0] == "'NoneType' object has no attribute 'update'":
+      return False
+    else:
+      raise e
+
+@app.post(
   "/ec/session/{ISO_Code}",
   tags=["Exchange Session"],
   description="Exchange Calendar API",
