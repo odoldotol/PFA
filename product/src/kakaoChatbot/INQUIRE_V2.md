@@ -225,7 +225,7 @@ item E
 ```
 [V] Market - inquire asset, price 요청으로 NotFound 빨리 응답하기
   (python, FastApi, yfinance 에 대한 무지로, 기대한 성능향상 없는 수정을 했음)
-  [] exists 성능 개선하기(다른 api 를 이용하던가)
+  [V] exists 성능 개선하기(다른 api 를 이용)
 [] Inquire V2 구성
 [] OpenAI Api 구성 및 연동
 
