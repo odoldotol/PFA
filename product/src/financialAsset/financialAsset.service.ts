@@ -1,6 +1,7 @@
 import {
   Injectable,
   Logger,
+  NotFoundException,
   OnModuleInit
 } from "@nestjs/common";
 import { FinancialAssetConfigService } from "src/config";
@@ -28,7 +29,11 @@ import {
 } from "rxjs";
 import * as X from "rxjs";
 import * as F from "@fxts/core";
+import * as E from "src/common/util/either";
 
+/**
+ * 전체적으로 캐싱 및 일괄처리 구현이 비효율적이고 불필요하게 복잡한 것 같음. YahooFinanceTickerService 구현 참고해볼것
+ */
 @Injectable()
 export class FinancialAssetService
   implements OnModuleInit
@@ -143,22 +148,32 @@ export class FinancialAssetService
   }
 
   /**
-   * @todo Notfound 무시 필요
+   * 전부 Notfound 일때만 throw
    */
   public async inquireMany(
     tickerArr: Ticker[],
   ): Promise<FinancialAssetCore[]> {
-    return F.pipe(
+    const assetArr = E.getRightArray(await F.pipe(
       tickerArr,
       F.toAsync,
-      F.map(this.inquire.bind(this)), // todo - (A), Notfound 처리
+      F.map(E.wrapAsync(this.inquire.bind(this))),
       F.concurrent(tickerArr.length),
       F.toArray,
-    );
+    ));
+
+    if (assetArr.length == 0) {
+      throw new NotFoundException({
+        message: "Could not find financial asset from market",
+        tickerArr,
+      });
+    }
+
+    return assetArr;
   }
 
   /**
-   * - 배치 프로세싱 + 캐싱
+   * - 배치 프로세싱 + 캐싱  
+   * <구현이 비효율적이고 불필요하게 복잡한 것 같음. YahooFinanceTickerService 구현 참고해볼것>
    * 
    * runningRenew 를 기다리는 것으로 renew 와의 동시성 제어.  
    * runningInquire 를 생성하여 일괄처리하고 renew 와의 동시성을 제어하는데에 이용.  
@@ -207,6 +222,9 @@ export class FinancialAssetService
     return this.financialAssetRepo.findOne(ticker);
   }
 
+  /**
+   * @todo 오래 걸리는 Notfound 를 다시 시도하지 않기위해 캐싱 필요
+   */
   public fetchFromMarket(
     ticker: Ticker
   ): Promise<FinancialAssetCore> {
@@ -263,7 +281,7 @@ export class FinancialAssetService
     obx: ReplaySubject<FinancialAssetCore>,
   ): Promise<void> {
     try {
-      let financialAssetRedisCache = await this.financialAssetRepo.findOne(ticker);
+      const financialAssetRedisCache = await this.financialAssetRepo.findOne(ticker);
       if ( // 캐시가 있고, 최신이면
         financialAssetRedisCache !== null &&
         await this.isUptodate(financialAssetRedisCache)

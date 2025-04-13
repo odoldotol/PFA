@@ -1,11 +1,30 @@
-import { Injectable } from "@nestjs/common";
+import {
+  Injectable,
+  Logger,
+  NotFoundException
+} from "@nestjs/common";
 import {
   InquireQuery,
   Ticker
 } from "src/common/interface";
+import {
+  InjectRedisRepository,
+  RedisRepository
+} from "src/database";
+import { ResponseRedisEntity } from "./redis.entity";
+import { ModelResponse } from "./interface";
 
 @Injectable()
 export class YahooFinanceTickerService {
+
+  private readonly logger = new Logger(YahooFinanceTickerService.name);
+
+  private readonly runningFetchMap = new Map<InquireQuery, Promise<Ticker[]>>();
+
+  constructor(
+    @InjectRedisRepository(ResponseRedisEntity)
+    private readonly responseRepo: RedisRepository<ModelResponse>,
+  ) {}
 
   /**
    * 영어 또는 숫자만 가지는지   
@@ -19,39 +38,90 @@ export class YahooFinanceTickerService {
     return /^[a-zA-Z0-9]{1,20}(\.[a-zA-Z]{2})?$/.test(query);
   }
 
-  /**
-   * Not Implemented
-   */
   public async readCache(
     query: InquireQuery
   ): Promise<Ticker[] | null> {
-    query.toUpperCase();
-    return null;
+    const cache = await this.responseRepo.findOne(query.toUpperCase());
+    if (cache == null) {
+      return null;
+    }
+
+    return this.parseModelResponse(cache.data, query);
   }
 
   /**
-   * Not Implemented
+   * 배치, 캐싱
    */
   public async fetchFromModel(
     query: InquireQuery
   ): Promise<Ticker[]> {
-    // exception 처리
-    query; //
-    return [];
+    if (this.runningFetchMap.has(query)) {
+      return this.runningFetchMap.get(query)!;
+    }
+
+    const modelResponsePm = this.fetchModelResponse(query);
+
+    this.runningFetchMap.set(query, modelResponsePm.then(res => this.parseModelResponse(res, query)));
+
+    this.responseRepo.createOne(query.toUpperCase(), await modelResponsePm)
+    .catch(err => this.logger.error(err))
+    .finally(() => this.runningFetchMap.delete(query));
+
+    return this.runningFetchMap.get(query)!;
+  }
+
+  public async inquire(
+    query: InquireQuery,
+  ): Promise<Ticker[]> {
+    const tickerArr = await this.readCache(query);
+    if (tickerArr == null) {
+      return this.fetchFromModel(query);
+    } else {
+      return tickerArr;
+    }
   }
 
   /**
    * Not Implemented
    */
-  public async inquire(
+  private async fetchModelResponse(
     query: InquireQuery
-  ): Promise<Ticker[]> {
-    const cache = await this.readCache(query);
-    if (cache !== null) {
-      return cache;
-    } else {
-      return this.fetchFromModel(query);
+  ): Promise<ModelResponse> {
+    query; //
+    return {
+      body: null,
+      exceptionCode: undefined,
     }
+  }
+
+  /**
+   * Exception, Notfound 처리 - throw
+   */
+  private parseModelResponse(
+    modelResponse: ModelResponse,
+    query: InquireQuery,
+  ): Ticker[] {
+    if (modelResponse.body == null) {
+      switch (modelResponse.exceptionCode) {
+        case 40:
+          throw new Error("YahooFinanceTickerService: Exception 40");
+        case 41:
+          throw new Error("YahooFinanceTickerService: Exception 41");
+        default:
+          throw new Error("YahooFinanceTickerService: Unknown Exception");
+      }
+    }
+
+    const tickerArr = modelResponse.body.map(v => v.ticker);
+
+    if (tickerArr.length == 0) {
+      throw new NotFoundException({
+        message: "Could not find any ticker from model response", 
+        query,
+      })
+    }
+
+    return tickerArr;
   }
 
 }
