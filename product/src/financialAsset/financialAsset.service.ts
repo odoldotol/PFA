@@ -186,6 +186,18 @@ export class FinancialAssetService
     return this.runningInquireMap.get(ticker)!
   }
 
+  public readCache(
+    ticker: Ticker
+  ): Promise<FinancialAssetCore | null> {
+    return this.financialAssetRepo.findOne(ticker);
+  }
+
+  public fetchFromMarket(
+    ticker: Ticker
+  ): Promise<FinancialAssetCore> {
+    return this.marketApiSrv.fetchFinancialAsset(ticker);
+  }
+
   /**
    * 실제 renew 작업. 이것의 호출을 미루는 것으로 동시성 제어.
    * 

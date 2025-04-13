@@ -222,6 +222,15 @@ export class SkillResponseService {
   }
 
   /**
+   * Not Implemented
+   */
+  public assetInquiry_v2(
+    assets: FinancialAssetCore[],
+  ): SkillResponse {
+    return this.subscribedAssetInquiry(assets); //
+  }
+
+  /**
    * Deprecated
    */
   public alreadySubscribedAsset(

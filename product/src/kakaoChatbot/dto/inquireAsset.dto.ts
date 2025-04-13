@@ -55,7 +55,7 @@ class InquireAssetActionDto
   @Type(() => InquireAssetActionClientExtraDto)
   @ValidateNested({ groups: ['ticker'] })
   @IsOptional({ groups: ['ticker'] })
-  @ApiProperty({ type: InquireAssetActionParamsDto })
+  @ApiProperty({ type: InquireAssetActionClientExtraDto })
   override readonly clientExtra!: InquireAssetActionClientExtraDto;
 }
 

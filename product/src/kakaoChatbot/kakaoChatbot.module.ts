@@ -3,11 +3,11 @@ import {
   Module,
   NestModule
 } from "@nestjs/common";
-import { MarketApiModule } from "src/marketApi";
 import {
   AssetSubscriptionModule,
   UserModule
 } from "src/database";
+import { TickerModule } from "src/ticker";
 import { FinancialAssetModule } from "src/financialAsset";
 import { KakaoChatbotController } from "./kakaoChatbot.controller";
 import { KakaoChatbotService } from "./kakaoChatbot.service";
@@ -38,7 +38,7 @@ import { MaintenanceMiddleware } from "./middleware";
 
 @Module({
   imports: [
-    MarketApiModule, //
+    TickerModule,
     FinancialAssetModule,
     UserModule,
     AssetSubscriptionModule,
