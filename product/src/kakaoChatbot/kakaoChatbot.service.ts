@@ -91,10 +91,10 @@ export class KakaoChatbotService {
     const tickerArrPm = this.yahooFinanceTickerSrv.fetchFromModel(query);
     try {
       const result2 = await Promise.any([fetchPm, tickerArrPm]);
-      if (Array.isArray(result2)) {
+      if (Array.isArray(result2)) { // fetchFromModel 이 먼저 성공
         const financialAssetArr = await this.financialAssetSrv.inquireMany(result2);
         return this.skillResponseSrv.assetInquiry_v2(financialAssetArr); //
-      } else {
+      } else { // fetchFromMarket 이 먼저 성공
         return this.skillResponseSrv.assetInquiry(
           result2,
           await this.isSubscribed(
@@ -104,7 +104,7 @@ export class KakaoChatbotService {
         );
       }
     } catch (error: any) {
-      if (error instanceof AggregateError) {
+      if (error instanceof AggregateError) { // 전부 실패
         throw error.errors[1];
       }
 
