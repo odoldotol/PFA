@@ -7,3 +7,4 @@ export * from "./retry";
 export * from "./object";
 export * from "./array";
 export * from "./number";
+export * from "./either";
