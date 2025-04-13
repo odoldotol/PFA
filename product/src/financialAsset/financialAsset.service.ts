@@ -143,6 +143,21 @@ export class FinancialAssetService
   }
 
   /**
+   * @todo Notfound 무시 필요
+   */
+  public async inquireMany(
+    tickerArr: Ticker[],
+  ): Promise<FinancialAssetCore[]> {
+    return F.pipe(
+      tickerArr,
+      F.toAsync,
+      F.map(this.inquire.bind(this)), // todo - (A), Notfound 처리
+      F.concurrent(tickerArr.length),
+      F.toArray,
+    );
+  }
+
+  /**
    * - 배치 프로세싱 + 캐싱
    * 
    * runningRenew 를 기다리는 것으로 renew 와의 동시성 제어.  

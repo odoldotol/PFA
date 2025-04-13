@@ -142,7 +142,7 @@ HTTP IO(위 (4), (5)에 해당)는 불필요한 IO 가 발생할 지라도 몇�
          응답(OK)               t(ms) 기다림
                                (B) 병열수행
                                (4) 또는 (B) 중 먼저 성공적으로 응답 할 수 있는 것을 응답
-                               둘다 실패할때까지 기다리고 응답하는 것이 최악의 경우가 됨
+                               둘다 실패할때까지 기다리고 응답하는 것이 최악의 경우가 됨((B)의 예외를 던짐)
 ```
 
 #### (A) 티커로 찾기
@@ -295,6 +295,14 @@ button A - 다른 찾기
   [] 세부 함수 구현
 
 [] 챗봇 응답 구현
+  [] 정상 응답
+  [] 예외 처리
+    - Notfound
+    - InvalidQuery(BadRequest)
+    - BadQuery(BadRequest)
+    - TimeSensitiveQuery(BadRequest)
+
+[] 최소한의 통합 E2E test
 
 [] 쓰로틀러 설정
 

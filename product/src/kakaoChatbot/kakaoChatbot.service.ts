@@ -44,7 +44,6 @@ export class KakaoChatbotService {
     const userId = await this.authSrv.getUserId(skillPayload);
     const query = this.getQueryToInqire(skillPayload);
 
-    // 중복 제거
     switch (query) {
       case chatbotListMenuButtons.inquireSubscribedAsset.title:
         return this.inquireSubscribedAsset(skillPayload, userId);
@@ -52,81 +51,64 @@ export class KakaoChatbotService {
         return this.skillResponseSrv.more();
     }
 
-    if (this.yahooFinanceTickerSrv.isStyle(query)) {
-      const yahooFinanceTickerStyleQuery = query.toUpperCase();
-      const financialAsset = await this.financialAssetSrv.readCache(yahooFinanceTickerStyleQuery);
-      if (financialAsset === null) {
-        const tickerArr = await this.yahooFinanceTickerSrv.readCache(query);
-        if (tickerArr === null) {
-          const fetchPm = this.financialAssetSrv.fetchFromMarket(yahooFinanceTickerStyleQuery);
-          const delay =  F.delay(1000); // delay ms
-          try {
-            const result1 = await Promise.race([fetchPm, delay]);
-            if (typeof result1 == 'object') {
-              const isSubscribed = await this.assetSubscriptionSrv.readOneAcivate(
-                userId,
-                yahooFinanceTickerStyleQuery
-              ).then(r => r !== null && r.activate);
-              return this.skillResponseSrv.assetInquiry(result1, isSubscribed);
-            }
-          } catch (error) {
-            // Notfound 는 패스하고 그외 에러는 로깅?
-          }
-
-          const tickerArrPm = this.yahooFinanceTickerSrv.fetchFromModel(query);
-
-          try {
-            const result2 = await Promise.any([fetchPm, tickerArrPm]);
-            if (Array.isArray(result2)) {
-              const financialAssetArr = await F.pipe(
-                result2,
-                F.toAsync,
-                F.map(this.financialAssetSrv.inquire.bind(this)), // todo - (A), Notfound 처리
-                F.concurrent(result2.length),
-                F.toArray,
-              );
-              return this.skillResponseSrv.assetInquiry_v2(financialAssetArr); //
-
-            } else {
-              const isSubscribed = await this.assetSubscriptionSrv.readOneAcivate(
-                userId,
-                yahooFinanceTickerStyleQuery
-              ).then(r => r !== null && r.activate);
-              return this.skillResponseSrv.assetInquiry(result2, isSubscribed);
-            }
-          } catch (error) {
-            // fetchPm 의 Notfound 는 패스하고 그외 에러는 로깅?
-            return this.skillResponseSrv.assetInquiry_v2([]); // tickerArrPm 의 exception 에 때라서 최종 응답
-          }
-
-        } else {
-          const financialAssetArr = await F.pipe(
-            tickerArr,
-            F.toAsync,
-            F.map(this.financialAssetSrv.inquire.bind(this)), // todo - (A), Notfound 처리
-            F.concurrent(tickerArr.length),
-            F.toArray,
-          );
-          return this.skillResponseSrv.assetInquiry_v2(financialAssetArr); // 
-        }
-      } else {
-        const isSubscribed = await this.assetSubscriptionSrv.readOneAcivate(
-          userId,
-          yahooFinanceTickerStyleQuery
-        ).then(r => r !== null && r.activate);
-
-        return this.skillResponseSrv.assetInquiry(financialAsset, isSubscribed);
-      }
-    } else {
+    if (this.yahooFinanceTickerSrv.isStyle(query) == false) { // query 가 티커타입이 아님
       const tickerArr = await this.yahooFinanceTickerSrv.inquire(query);
-      const financialAssetArr = await F.pipe(
-        tickerArr,
-        F.toAsync,
-        F.map(this.financialAssetSrv.inquire.bind(this)), // todo - (A), Notfound 처리
-        F.concurrent(tickerArr.length),
-        F.toArray,
-      );
+      const financialAssetArr = await this.financialAssetSrv.inquireMany(tickerArr);
       return this.skillResponseSrv.assetInquiry_v2(financialAssetArr); //
+    }
+
+    const tickerStyleQuery = query.toUpperCase();
+    const financialAsset = await this.financialAssetSrv.readCache(tickerStyleQuery);
+    if (financialAsset != null) { // 캐시에서 query 로 Asset 을 찾음
+      return this.skillResponseSrv.assetInquiry(
+        financialAsset,
+        await this.isSubscribed(
+          userId,
+          financialAsset
+        )
+      );
+    }
+
+    const tickerArr = await this.yahooFinanceTickerSrv.readCache(query);
+    if (tickerArr != null) { // 캐시에서 query 로 티커배열을 찾음
+      const financialAssetArr = await this.financialAssetSrv.inquireMany(tickerArr);
+      return this.skillResponseSrv.assetInquiry_v2(financialAssetArr); //
+    }
+
+    const fetchPm = this.financialAssetSrv.fetchFromMarket(tickerStyleQuery);
+    const delay =  F.delay(1000); // delay ms
+    const result1 = await Promise.race([fetchPm, delay]);
+    if (typeof result1 == 'object') { // 정해진 시간 내에 fetchPm 가 완료됨
+      return this.skillResponseSrv.assetInquiry(
+        result1,
+        await this.isSubscribed(
+          userId,
+          result1
+        )
+      );
+    }
+
+    const tickerArrPm = this.yahooFinanceTickerSrv.fetchFromModel(query);
+    try {
+      const result2 = await Promise.any([fetchPm, tickerArrPm]);
+      if (Array.isArray(result2)) {
+        const financialAssetArr = await this.financialAssetSrv.inquireMany(result2);
+        return this.skillResponseSrv.assetInquiry_v2(financialAssetArr); //
+      } else {
+        return this.skillResponseSrv.assetInquiry(
+          result2,
+          await this.isSubscribed(
+            userId,
+            result2
+          )
+        );
+      }
+    } catch (error: any) {
+      if (error instanceof AggregateError) {
+        throw error.errors[1];
+      }
+
+      throw error;
     }
   }
 
@@ -148,12 +130,13 @@ export class KakaoChatbotService {
 
     const asset = await this.financialAssetSrv.inquire(ticker);
 
-    const isSubscribed = await this.assetSubscriptionSrv.readOneAcivate(
-      userId,
-      ticker
-    ).then(r => r !== null && r.activate);
-
-    return this.skillResponseSrv.assetInquiry(asset, isSubscribed);
+    return this.skillResponseSrv.assetInquiry(
+      asset,
+      await this.isSubscribed(
+        userId,
+        asset
+      )
+    );
   }
 
   /**
@@ -245,6 +228,16 @@ export class KakaoChatbotService {
     }
 
     return this.skillResponseSrv.subscribedAssetInquiry(assets, cursor);
+  }
+
+  private async isSubscribed(
+    userId: number,
+    asset: FinancialAssetCore
+  ): Promise<boolean> {
+    return this.assetSubscriptionSrv.readOneAcivate(
+      userId,
+      asset.symbol
+    ).then(r => r !== null && r.activate);
   }
 
   private getAssetsFromClientExtra(
