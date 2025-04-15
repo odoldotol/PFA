@@ -294,7 +294,7 @@ button A - 다른 찾기
   [V] 세부 로직 구성
 
 [] 챗봇 응답 구현
-  [] 정상 응답
+  [V] 정상 응답
   [] 예외 처리
     - Notfound
     - InvalidQuery(BadRequest)

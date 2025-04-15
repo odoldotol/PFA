@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, NotFoundException } from "@nestjs/common";
 import { KakaoChatbotConfigService } from "src/config";
 import { TextService } from "./text.service";
 import {
@@ -222,12 +222,43 @@ export class SkillResponseService {
   }
 
   /**
-   * Not Implemented
+   * @todo assets 으로 리스트카드 만드는것 subscribedAssetInquiry 와 함께 중복제거 하기
    */
   public assetInquiry_v2(
     assets: FinancialAssetCore[],
+    query: InquireQuery,
   ): SkillResponse {
-    return this.subscribedAssetInquiry(assets); //
+    if (assets.length == 0) { // 이미 앞에서 걸러서 진입 불가능해야 함.
+      throw new NotFoundException("There are no assets");
+    }
+
+    const component = assets.reduce((builder, asset) => {
+      const itemBuilder = new ListItemBuilder(joinBlank(
+        asset.symbol,
+        joinBlank(
+          `(${this.textSrv.getChangeRateStr(asset)})`,
+          getMoneyStr(asset.regularMarketLastClose, asset.currency),
+        )
+      ));
+
+      const name = asset.shortName || asset.longName;
+      if (name !== null) {
+        itemBuilder.setDescription(name);
+      }
+
+      itemBuilder
+      .setBlockAction(this.kakaoChatbotConfigSrv.getBlockIdInquireAssetNoInput())
+      .addExtraData({
+        ticker: asset.symbol
+      });
+
+      return builder.addItem(itemBuilder.build());
+    }, new ListCardBuilder(query) as ValidListCardBuilder)
+    .buildComponent();
+
+    return new SkillResponseBuilder()
+    .addTemplate(new SkillTemplateBuilder().addComponent(component).build())
+    .build();
   }
 
   /**
