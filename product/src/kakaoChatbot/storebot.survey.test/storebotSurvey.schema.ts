@@ -30,6 +30,12 @@ export class StorebotSurvey {
   userId!: number;
 
   @Prop({
+    required: false,
+    type: Number,
+  })
+  subjectId?: number;
+
+  @Prop({
     required: true,
     type: Array<AnswerSheet>,
     default: [],

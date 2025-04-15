@@ -1,3 +1,5 @@
+import { readFileSync } from "fs";
+import * as path from "path";
 import {
   Injectable,
   Logger,
@@ -11,17 +13,32 @@ import {
   InjectRedisRepository,
   RedisRepository
 } from "src/database";
+import OpenAI from "openai";
+import { OpenAIConfigService } from "src/config";
 import { ResponseRedisEntity } from "./redis.entity";
 import { ModelResponse } from "./interface";
 
+/**
+ * @todo OpenAI 분리
+ */
 @Injectable()
 export class YahooFinanceTickerService {
 
   private readonly logger = new Logger(YahooFinanceTickerService.name);
 
+  private readonly openai = new OpenAI({
+    apiKey: this.openaiConfigSrv.getApiKey(),
+  });
+
+  private readonly responseCreateParams = JSON.parse(readFileSync(
+    path.resolve(__dirname, "..", "openai", "createParams/params.json"),
+    "utf-8"
+  ));
+
   private readonly runningFetchMap = new Map<InquireQuery, Promise<Ticker[]>>();
 
   constructor(
+    private readonly openaiConfigSrv: OpenAIConfigService,
     @InjectRedisRepository(ResponseRedisEntity)
     private readonly responseRepo: RedisRepository<ModelResponse>,
   ) {}
@@ -36,6 +53,17 @@ export class YahooFinanceTickerService {
     query: InquireQuery
   ): boolean {;
     return /^[a-zA-Z0-9]{1,20}(\.[a-zA-Z]{2})?$/.test(query);
+  }
+
+  public async inquire(
+    query: InquireQuery,
+  ): Promise<Ticker[]> {
+    const tickerArr = await this.readCache(query);
+    if (tickerArr == null) {
+      return this.fetchFromModel(query);
+    } else {
+      return tickerArr;
+    }
   }
 
   public async readCache(
@@ -70,28 +98,22 @@ export class YahooFinanceTickerService {
     return this.runningFetchMap.get(query)!;
   }
 
-  public async inquire(
-    query: InquireQuery,
-  ): Promise<Ticker[]> {
-    const tickerArr = await this.readCache(query);
-    if (tickerArr == null) {
-      return this.fetchFromModel(query);
-    } else {
-      return tickerArr;
-    }
-  }
-
-  /**
-   * Not Implemented
-   */
   private async fetchModelResponse(
     query: InquireQuery
   ): Promise<ModelResponse> {
-    query; //
-    return {
-      body: null,
-      exceptionCode: undefined,
-    }
+    const body = this.responseCreateParams.input.push({
+      "role": "user",
+      "content": [
+        {
+          "type": "input_text",
+          "text": query,
+        }
+      ]
+    });
+
+    return this.openai.responses.create(body)
+    .then(res => JSON.parse(res.output_text))
+    .then(this.validateModelResponse.bind(this));
   }
 
   /**
@@ -122,6 +144,30 @@ export class YahooFinanceTickerService {
     }
 
     return tickerArr;
+  }
+
+  private validateModelResponse(
+    modelResponse: ModelResponse,
+  ): ModelResponse {
+    const {
+      body,
+      exceptionCode,
+    } = modelResponse;
+ 
+    if (
+      (Array.isArray(body) || body == null) &&
+      (typeof exceptionCode == "number" || exceptionCode == null)
+      &&
+      (body == null || body.every(v =>
+        typeof v.ticker == "string" && typeof v.confidence == "number"
+      ))
+      &&
+      (exceptionCode == null || [40, 41].includes(exceptionCode))
+    ) {
+      return modelResponse;
+    } else {
+      throw new Error("Invalid Model Response");
+    }
   }
 
 }

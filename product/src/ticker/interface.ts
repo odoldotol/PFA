@@ -2,12 +2,12 @@ import { Ticker } from "src/common/interface";
 
 export type ModelResponse = {
   body: ModelResponseTicker[] | null;
-  exceptionCode: ModelResponseExceptionCode | undefined;
+  exceptionCode: ModelResponseExceptionCode | null;
 };
 
-export type ModelResponseTicker = {
+type ModelResponseTicker = {
   ticker: Ticker;
   confidence: number; //
 };
 
-export type ModelResponseExceptionCode = 40 | 41;
+type ModelResponseExceptionCode = 40 | 41;

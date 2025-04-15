@@ -193,3 +193,6 @@ dist
 
 # migrations
 /migrations
+
+# openai
+src/openai/createParams
