@@ -14,6 +14,10 @@ import {
   RedisRepository
 } from "src/database";
 import OpenAI from "openai";
+import {
+  BadIntentQueryException,
+  TimeSensitiveQueryException
+} from "src/kakaoChatbot/exception";
 import { OpenAIConfigService } from "src/config";
 import { ResponseRedisEntity } from "./redis.entity";
 import { ModelResponse } from "./interface";
@@ -126,11 +130,11 @@ export class YahooFinanceTickerService {
     if (modelResponse.body == null) {
       switch (modelResponse.exceptionCode) {
         case 40:
-          throw new Error("YahooFinanceTickerService: Exception 40");
+          throw new BadIntentQueryException(query);
         case 41:
-          throw new Error("YahooFinanceTickerService: Exception 41");
+          throw new TimeSensitiveQueryException(query);
         default:
-          throw new Error("YahooFinanceTickerService: Unknown Exception");
+          throw new Error("Invalid ExceptionCode in ModelResponse.");
       }
     }
 

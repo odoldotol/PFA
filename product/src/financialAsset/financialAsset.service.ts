@@ -1,7 +1,6 @@
 import {
   Injectable,
   Logger,
-  NotFoundException,
   OnModuleInit
 } from "@nestjs/common";
 import { FinancialAssetConfigService } from "src/config";
@@ -147,9 +146,6 @@ export class FinancialAssetService
     }
   }
 
-  /**
-   * 전부 Notfound 일때만 throw
-   */
   public async inquireMany(
     tickerArr: Ticker[],
   ): Promise<FinancialAssetCore[]> {
@@ -160,13 +156,6 @@ export class FinancialAssetService
       F.concurrent(tickerArr.length),
       F.toArray,
     ));
-
-    if (assetArr.length == 0) {
-      throw new NotFoundException({
-        message: "Could not find financial asset from market",
-        tickerArr,
-      });
-    }
 
     return assetArr;
   }

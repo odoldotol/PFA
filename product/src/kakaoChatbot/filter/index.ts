@@ -7,3 +7,6 @@ export * from './forbiddenException.filter';
 export * from './notFriendException.filter';
 export * from './throttlerException.filter';
 export * from './timeoutException.inquire.filter';
+export * from './tooLongQueryException.filter';
+export * from './badIntentQueryException.filter';
+export * from './timeSeneitiveQueryException.filter';

@@ -293,13 +293,25 @@ button A - 다른 찾기
   [V] 전체 로직 구성
   [V] 세부 로직 구성
 
-[] 챗봇 응답 구현
+[] 검색어 파싱
+  [V] 공백 - 맨앞 공백 제거, 맨뒤 공백제거, 사이 공백 1개로 제한, 줄바꿈을 공백으로
+
+[V] 챗봇 응답 구현
   [V] 정상 응답
-  [] 예외 처리
-    - Notfound
-    - InvalidQuery(BadRequest)
-    - BadQuery(BadRequest)
-    - TimeSensitiveQuery(BadRequest)
+  [V] 예외 처리
+    [V] Notfound
+    [V] InvalidQuery(BadRequest)
+      - 무의미하거나 오타 등 유효하지 않다고 판단(길이0, 영문숫자한글 없음, 한글 모음이나 자음 있음)
+      - Too Long(영문 숫자 특수문자는 1:1, 한글은 1:4 => 총 40?)
+    [V] BadIntentQuery(BadRequest)
+    [V] TimeSensitiveQuery(BadRequest)
+    [V] Timeout
+
+[] 폴백블록을 Inquire_v2 로 운용하기
+  [] 유저 발화 DTO
+  [] 찾아보기 시나리오 제거
+
+[] reportInquireWords
 
 [] 최소한의 통합 E2E test
 

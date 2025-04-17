@@ -36,15 +36,23 @@ import {
   NotFriendExceptionFilter,
   ThrottlerExceptionFilter,
   InquireTimeoutExceptionFilter,
+  BadIntentQueryExceptionFilter,
+  TimeSensitiveQueryExceptionFilter,
+  TooLongQueryExceptionFilter,
 } from './filter';
 import {
   AssetSubscriptionDto,
   InquireAssetDto,
+  InquireAssetV2Dto,
   ReportTickerDto,
   SkillPayloadDto,
 } from './dto';
 import { SkillResponse } from './skillResponse/v2';
 import { InvalidTickerException } from 'src/common/exception';
+import {
+  InvalidQueryException,
+  TooLongQueryException
+} from './exception';
 import { apiMetadata } from './const';
 import { getThrottleOptionsFromEnv } from 'src/throttler/getThrottleOptionsFromEnv';
 
@@ -103,10 +111,22 @@ export class KakaoChatbotController {
   @UseFilters(
     NotFoundExceptionFilter,
     InquireTimeoutExceptionFilter,
+    BadIntentQueryExceptionFilter,
+    TimeSensitiveQueryExceptionFilter,
+    TooLongQueryExceptionFilter,
   )
+  @UsePipes(new ValidationPipe({
+    transform: true,
+    groups: ['query'],
+    exceptionFactory: () => new InvalidQueryException()
+  }))
+  @UsePipes(new ValidationPipe({
+    groups: ['query_long'],
+    exceptionFactory: () => new TooLongQueryException()
+  }))
   @ApiOperation({ summary: '카카오챗봇스킬: asset/inquire' })
   public inquireAsset_v2(
-    @Body() body: InquireAssetDto
+    @Body() body: InquireAssetV2Dto
   ): Promise<SkillResponse> {
     return this.kakaoChatbotSrv.inquireAsset_v2(body);
   }

@@ -1,4 +1,7 @@
-import { Injectable, NotFoundException } from "@nestjs/common";
+import {
+  Injectable,
+  NotFoundException
+} from "@nestjs/common";
 import { KakaoChatbotConfigService } from "src/config";
 import { TextService } from "./text.service";
 import {
@@ -18,6 +21,7 @@ import {
   TextCardBuilder,
   ThumbnailBuilder,
   ValidListCardBuilder,
+  ValidTextCardBuilder,
   // ValidSkillTemplateBuilder,
 } from "./skillResponse/v2";
 import {
@@ -94,55 +98,109 @@ export class SkillResponseService {
     });
   }
 
-  /**
-   * @todo refac
-   */
   public notFoundTickerAssetInquiry(
-    ticker: Ticker,
     reason: any,
+    inquireWords?: Ticker | InquireQuery,
   ): SkillResponse {
     const {
       title,
       description
-    } = this.textSrv.notFoundTickerAssetInquiryCard(ticker);
+    } = this.textSrv.notFoundTickerAssetInquiryCard(inquireWords);
 
-    const component = new TextCardBuilder()
+    const validTextCardBuilder = new TextCardBuilder()
     .setTitle(title)
-    .setDescription(description)
-    .addButton(
-      "다시 찾기",
-      ButtonAction.BLOCK,
-      this.kakaoChatbotConfigSrv.getBlockIdInquireAsset(),
-      {
-        failedTicker: ticker,
-        reason,
-      }
-    ).addButton(
-      "신고하기",
-      ButtonAction.BLOCK,
-      this.kakaoChatbotConfigSrv.getBlockIdReport(),
-      {
-        ticker,
-        reason,
-      }
-    ).buildComponent();
+    .setDescription(description);
+
+    return this.errorWithReportButton(
+      reason,
+      validTextCardBuilder,
+      inquireWords
+    );
+  }
+
+  public badIntentQueryError(
+    reason: any,
+    inquireWords: InquireQuery,
+  ): SkillResponse {
+    const {
+      title,
+      description
+    } = this.textSrv.badIntentQueryErrorCard(inquireWords);
+    const validTextCardBuilder = new TextCardBuilder()
+    .setTitle(title)
+    .setDescription(description);
+
+    return this.errorWithReportButton(
+      reason,
+      validTextCardBuilder,
+      inquireWords
+    );
+  }
+
+  public timeSensitiveQueryError(
+    reason: any,
+    inquireWords: InquireQuery,
+  ): SkillResponse {
+    const {
+      title,
+      description
+    } = this.textSrv.timeSensitiveQueryErrorCard(inquireWords);
+    const validTextCardBuilder = new TextCardBuilder()
+    .setTitle(title)
+    .setDescription(description);
+
+    return this.errorWithReportButton(
+      reason,
+      validTextCardBuilder,
+      inquireWords
+    );
+  }
+
+  private errorWithReportButton(
+    reason: any,
+    validTextCardBuilder: ValidTextCardBuilder,
+    inquireWords?: Ticker | InquireQuery,
+  ): SkillResponse {
+    if (inquireWords) {
+      validTextCardBuilder
+      // .addButton(
+      //   "다시 찾기",
+      //   ButtonAction.BLOCK,
+      //   this.kakaoChatbotConfigSrv.getBlockIdInquireAsset(),
+      //   {
+      //     failedInquireWords: inquireWords,
+      //     reason,
+      //   }
+      // )
+      .addButton(
+        "너가 무능해서 못찾는거야!",
+        ButtonAction.BLOCK,
+        this.kakaoChatbotConfigSrv.getBlockIdReport(),
+        {
+          inquireWords,
+          reason,
+        }
+      )
+    }
 
     const template = new SkillTemplateBuilder()
-    .addComponent(component)
+    .addComponent(validTextCardBuilder.buildComponent())
     .build();
 
     return new SkillResponseBuilder()
     .addTemplate(template)
     .addData({
-      title,
-      description,
-      ticker,
+      inquireWords,
       reason,
     }).build();
   }
 
   public throttlerError(): SkillResponse {
     return this.singleSimpleText("어우, 힘들어요! 잠깐 쉬어야겠어요.");
+  }
+
+  public invalidQueryError(): SkillResponse {
+    return this.singleSimpleText("질문이 잘못된것 같아요.");
   }
 
   /**
@@ -153,7 +211,7 @@ export class SkillResponseService {
     reason: any,
   ): SkillResponse {
     const component = new TextCardBuilder()
-    .setDescription(`아, '${query}' 에 대해 찾는데 시간이 오래 걸리네요ㅠㅠ 거의 찾은것 같아요..!`)
+    .setDescription(`'${query}' 에 대해 찾는데 시간이 너무 오래 걸려요ㅠㅠ\n그렇지만 거의 찾은것 같아요..!`)
     .addButton(
       "그래, 계속 찾아봐!",
       ButtonAction.BLOCK,
@@ -175,6 +233,10 @@ export class SkillResponseService {
       query,
       reason,
     }).build();
+  }
+
+  public tooLongQueryError(): SkillResponse {
+    return this.singleSimpleText("검색어가 너무 길어요... 조금 짧게 물어봐 주세요.");
   }
 
   /**
@@ -228,8 +290,11 @@ export class SkillResponseService {
     assets: FinancialAssetCore[],
     query: InquireQuery,
   ): SkillResponse {
-    if (assets.length == 0) { // 이미 앞에서 걸러서 진입 불가능해야 함.
-      throw new NotFoundException("There are no assets");
+    if (assets.length == 0) {
+      throw new NotFoundException({
+        message: "Could not find any financial asset.",
+        query,
+      });
     }
 
     const component = assets.reduce((builder, asset) => {

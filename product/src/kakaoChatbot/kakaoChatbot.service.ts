@@ -39,7 +39,7 @@ export class KakaoChatbotService {
   ) {}
 
   public async inquireAsset_v2(
-    skillPayload: InquireAssetDto
+    skillPayload: InquireAssetV2Dto
   ): Promise<SkillResponse> {
     const userId = await this.authSrv.getUserId(skillPayload);
     const query = this.getQueryToInqire(skillPayload);
@@ -272,9 +272,12 @@ export class KakaoChatbotService {
   private getTickerToInqire(
     skillPayload: InquireAssetDto
   ): Ticker {
-    const result = skillPayload.action.params?.ticker || skillPayload.action.clientExtra?.ticker;
+    const result
+    = skillPayload.action.params?.ticker
+    || skillPayload.action.clientExtra?.ticker
+    || skillPayload.userRequest.utterance;
 
-    if (result === undefined) {
+    if (result === undefined || result === '') {
       throw new Error('Ticker is not defined');
     }
 
@@ -284,9 +287,12 @@ export class KakaoChatbotService {
   private getQueryToInqire(
     skillPayload: InquireAssetV2Dto
   ): InquireQuery {
-    const result = skillPayload.action.params?.query || skillPayload.action.clientExtra?.query;
+    const result
+    = skillPayload.action.params?.query
+    || skillPayload.action.clientExtra?.query
+    || skillPayload.userRequest.utterance;
 
-    if (result === undefined) {
+    if (result === undefined || result === '') {
       throw new Error('Query is not defined');
     }
 

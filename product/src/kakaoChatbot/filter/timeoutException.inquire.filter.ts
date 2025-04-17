@@ -25,7 +25,9 @@ export class InquireTimeoutExceptionFilter
     exception: RequestTimeoutException,
     request: Request
   ): SkillResponse {
-    const query = (request.body as SkillPayload).action.params['query'];
+    const query
+    = (request.body as SkillPayload).action.params['query'] ||
+      (request.body as SkillPayload).action.clientExtra['query'];
     if (query === undefined) {
       return super.getBody(exception, request);
     }

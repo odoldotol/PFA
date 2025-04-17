@@ -1,6 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import {
   FinancialAssetCore,
+  InquireQuery,
   // MarketDate,
   Ticker
 } from "src/common/interface";
@@ -38,11 +39,29 @@ export class TextService {
   }
 
   public notFoundTickerAssetInquiryCard(
-    ticker: Ticker
+    arg?: Ticker | InquireQuery
   ) {
     return {
-      title: `${ticker} 에 대한 정보를 찾을 수 없었어요.`,
-      description: `혹시 잘못 입력하셨으면 아래 다시 찾기 버튼으로 다시 시도해 보세요.\n만약 올바르게 입력하셨어도 제가 찾지 못한 거라면, 아래 신고하기 버튼으로 제게 알려주세요!`,
+      title: arg == undefined ? `아무것도 찾지 못했어요.` : `'${arg}' 에 대해 찾지 못했어요.`,
+      description: `혹시 잘못 검색하셨나요? 더 좋은 질문으로 다시 물어봐 주세요.`,
+    };
+  }
+
+  public badIntentQueryErrorCard(
+    arg: InquireQuery
+  ) {
+    return {
+      title: `'${arg}' 는 검색의도가 아닌 것 같아요.`,
+      description: `혹시 잘못 검색하셨나요? 다시 물어봐 주세요.`,
+    };
+  }
+
+  public timeSensitiveQueryErrorCard(
+    arg: InquireQuery
+  ) {
+    return {
+      title: `'${arg}' 는 시간에 민감한 질문 같아요.`,
+      description: `시간에 민감한 질문에는 정확한 답변을 드릴 수 없으니 다른 질문으로 다시 물어봐 주세요.`,
     };
   }
 
@@ -93,7 +112,7 @@ export class TextService {
   }
 
   public reported(): string {
-    return "신고해주셔서 감사해요!";
+    return "그렇군요... 당신의 의견을 반영할게요. 저는 항상 더 발전된 서비스를 위해 노력할게요!";
   }
 
   // private getMonthSlashDayStr(marketDate: MarketDate): string {

@@ -21,8 +21,8 @@ export class NotFoundExceptionFilter
     exception: NotFoundException
   ): SkillResponse {
     return this.skillResponseSrv.notFoundTickerAssetInquiry(
-      (exception.getResponse() as any).ticker, // Todo: 리팩터링 after 리팩터링(market - product 로 이어지는 부분)
-      exception
+      exception,
+      (exception.getResponse() as any).ticker || (exception.getResponse() as any).query // Todo: 리팩터링 after 리팩터링(market - product 로 이어지는 부분)
     )
   }
 
