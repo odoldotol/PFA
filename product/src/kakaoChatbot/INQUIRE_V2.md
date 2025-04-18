@@ -315,6 +315,8 @@ button A - 다른 찾기
 
 [V] reportInquireWords
 
+[] MarketApi - NotFound 캐싱
+
 [] 최소한의 통합 E2E test
 
 [] 쓰로틀러 설정
