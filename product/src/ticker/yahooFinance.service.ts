@@ -36,7 +36,7 @@ export class YahooFinanceTickerService {
     apiKey: this.openaiConfigSrv.getApiKey(),
   });
 
-  private readonly responseCreateParams: any;
+  private readonly responseCreateParamsJson: string;
 
   private readonly runningFetchMap = new Map<InquireQuery, Promise<Ticker[]>>();
 
@@ -47,19 +47,19 @@ export class YahooFinanceTickerService {
     private readonly responseRepo: RedisRepository<ModelResponse>,
   ) {
     try {
-      this.responseCreateParams = JSON.parse(readFileSync(
+      this.responseCreateParamsJson = readFileSync(
         "src/../openai_create_params.json",
         "utf-8"
-      ));
+      );
     } catch (err) {
       if (this.appConfigSrv.isProduction()) {
         throw err;
       }
 
-      this.responseCreateParams = JSON.parse(readFileSync(
+      this.responseCreateParamsJson = readFileSync(
         "src/../openai_create_params.sample.json",
         "utf-8"
-      ));
+      );
     }
   }
 
@@ -111,9 +111,11 @@ export class YahooFinanceTickerService {
 
     this.runningFetchMap.set(query, modelResponsePm.then(res => this.parseModelResponse(res, query)));
 
-    this.responseRepo.createOne(query.toUpperCase(), await modelResponsePm)
-    .catch(err => this.logger.error(err))
-    .finally(() => this.runningFetchMap.delete(query));
+    modelResponsePm.then(
+      res => this.responseRepo.createOne(query.toUpperCase(), res)
+      .catch(err => this.logger.error(err)) //
+      .finally(() => this.runningFetchMap.delete(query))
+    ).catch(err => this.logger.error(err));
 
     return this.runningFetchMap.get(query)!;
   }
@@ -121,7 +123,8 @@ export class YahooFinanceTickerService {
   private async fetchModelResponse(
     query: InquireQuery
   ): Promise<ModelResponse> {
-    const body = this.responseCreateParams.input.push({
+    const body = JSON.parse(this.responseCreateParamsJson);
+    body.input.push({
       "role": "user",
       "content": [
         {

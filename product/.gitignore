@@ -196,3 +196,4 @@ dist
 
 # openai
 src/openai/createParams
+openai_create_params.json
