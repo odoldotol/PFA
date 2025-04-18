@@ -99,11 +99,6 @@ export class KakaoChatbotController {
     return this.kakaoChatbotSrv.inquireAsset(body);
   }
 
-  /**
-   * - 더 엄격한 쓰로틀링 적용  
-   * (KakaoChatbotThrottlerGuard 는 다시 적용하지 않아도 되겠지?)  
-   * 웹검색 이용하는 것만 따로 쓰로틀 거는것이 필요함.
-   */
   @Post(apiMetadata.routes.inquireAsset_v2.path)
   @Version("2")
   @HttpCode(HttpStatus.OK)
@@ -115,16 +110,18 @@ export class KakaoChatbotController {
     TimeSensitiveQueryExceptionFilter,
     TooLongQueryExceptionFilter,
   )
-  @UsePipes(new ValidationPipe({
-    transform: true,
-    groups: ['query'],
-    exceptionFactory: () => new InvalidQueryException()
-  }))
-  @UsePipes(new ValidationPipe({
-    groups: ['query_long'],
-    exceptionFactory: () => new TooLongQueryException()
-  }))
-  @ApiOperation({ summary: '카카오챗봇스킬: asset/inquire' })
+  @UsePipes(
+    new ValidationPipe({
+      transform: true,
+      groups: ['query'],
+      exceptionFactory: () => new InvalidQueryException()
+    }),
+    new ValidationPipe({
+      groups: ['query_long'],
+      exceptionFactory: () => new TooLongQueryException()
+    })
+  )
+  @ApiOperation({ summary: '카카오챗봇스킬: asset/inquire V2' })
   public inquireAsset_v2(
     @Body() body: InquireAssetV2Dto
   ): Promise<SkillResponse> {

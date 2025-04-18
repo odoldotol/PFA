@@ -163,15 +163,6 @@ export class SkillResponseService {
   ): SkillResponse {
     if (inquireWords) {
       validTextCardBuilder
-      // .addButton(
-      //   "다시 찾기",
-      //   ButtonAction.BLOCK,
-      //   this.kakaoChatbotConfigSrv.getBlockIdInquireAsset(),
-      //   {
-      //     failedInquireWords: inquireWords,
-      //     reason,
-      //   }
-      // )
       .addButton(
         "너가 무능해서 못찾는거야!",
         ButtonAction.BLOCK,
@@ -215,12 +206,8 @@ export class SkillResponseService {
     .addButton(
       "그래, 계속 찾아봐!",
       ButtonAction.BLOCK,
-      this.kakaoChatbotConfigSrv.getBlockIdInquireAssetNoInput(),
-      { ticker: query }
-    ).addButton(
-      "그만, 다른것 찾아줘.",
-      ButtonAction.BLOCK,
-      this.kakaoChatbotConfigSrv.getBlockIdInquireAsset(),
+      this.kakaoChatbotConfigSrv.getBlockIdInquireAssetV2NoInput(),
+      { query }
     ).buildComponent();
 
     const template = new SkillTemplateBuilder()
@@ -263,10 +250,6 @@ export class SkillResponseService {
       {
         ticker: asset.symbol,
       }
-    ).addButton(
-      "다른 찾기",
-      ButtonAction.BLOCK,
-      this.kakaoChatbotConfigSrv.getBlockIdInquireAsset(),
     ).buildComponent();
 
     const template = new SkillTemplateBuilder()
@@ -375,11 +358,7 @@ export class SkillResponseService {
       .addComponent(
         new TextCardBuilder()
         .setDescription(this.textSrv.noSubscribedAsset())
-        .addButton(
-          "찾아보기",
-          ButtonAction.BLOCK,
-          this.kakaoChatbotConfigSrv.getBlockIdInquireAsset(),
-        ).buildComponent()
+        .buildComponent()
       ).build()
     ).build();
   }

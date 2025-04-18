@@ -6,9 +6,11 @@ import {
 import {
   IsNotEmptyObject,
   IsOptional,
+  IsString,
   ValidateNested
 } from "class-validator";
 import { SkillPayloadDto } from "./skillPayload.dto";
+import { UserRequestDto } from "./userRequest.dto";
 import { ActionDto } from "./action.dto";
 import {
   ActionParams,
@@ -60,9 +62,26 @@ class InquireAssetV2ActionDto
   override readonly clientExtra!: InquireAssetV2ActionClientExtraDto;
 }
 
+class InquireAssetV2UserRequestDto
+  extends UserRequestDto
+{
+  @IsString({ groups: ['query'] })
+  @Transform(parseBlank, { toClassOnly: true })
+  @IsValidQuery({ groups: ['query'] })
+  @IsSafeLengthQuery({ groups: ['query_long'] })
+  @ApiProperty()
+  override readonly utterance!: string;
+}
+
 export class InquireAssetV2Dto
   extends SkillPayloadDto
 {
+  @IsNotEmptyObject()
+  @Type(() => InquireAssetV2UserRequestDto)
+  @ValidateNested()
+  @ApiProperty({ type: InquireAssetV2UserRequestDto })
+  override readonly userRequest!: InquireAssetV2UserRequestDto;
+
   @IsNotEmptyObject()
   @Type(() => InquireAssetV2ActionDto)
   @ValidateNested({ groups: ['query'] })

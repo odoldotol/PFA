@@ -9,6 +9,7 @@ import {
   DEFAULT_KAKAO_CHATBOT_ID_STOREBOT,
   DEFAULT_KAKAO_CHATBOT_BLOCK_ID_INQUIRE_SUBSCRIBED_ASSET,
   DEFAULT_KAKAO_CHATBOT_BLOCK_ID_INQUIRE_ASSET_NO_INPUT,
+  DEFAULT_KAKAO_CHATBOT_BLOCK_ID_INQUIRE_ASSET_V2_NO_INPUT,
   DEFAULT_KAKAO_CHATBOT_BLOCK_ID_HELP,
   DEFAULT_KAKAO_CHATBOT_BLOCK_ID_INTRODUCE,
   DEFAULT_KAKAO_CHATBOT_BLOCK_ID_SPONSOR,
@@ -29,6 +30,7 @@ export class KakaoChatbotConfigService {
   private readonly BLOCK_ID_CANCEL_ASSET_SUBSCRIPTION: string;
   private readonly BLOCK_ID_INQUIRE_SUBSCRIBED_ASSET: string;
   private readonly BLOCK_ID_INQUIRE_ASSET_NO_INPUT: string;
+  private readonly BLOCK_ID_INQUIRE_ASSET_V2_NO_INPUT: string;
   private readonly BLOCK_ID_HELP: string;
   private readonly BLOCK_ID_INTRODUCE: string;
   private readonly BLOCK_ID_SPONSOR: string
@@ -56,6 +58,7 @@ export class KakaoChatbotConfigService {
     const blockIdCancelAssetSubscription = this.readBlockIdCancelAssetSubscription();
     const blockIdInquireSubscribedAsset = this.readBlockIdInquireSubscribedAsset();
     const blockIdInquireAssetNoInput = this.readBlockIdInquireAssetNoInput();
+    const blockIdInquireAssetV2NoInput = this.readBlockIdInquireAssetV2NoInput();
     const blockIdHelp = this.readBlockIdHelp();
     const blockIdIntroduce = this.readBlockIdIntroduce();
     const blockIdSponsor = this.readBlockIdSponsor();
@@ -87,6 +90,7 @@ export class KakaoChatbotConfigService {
         blockIdCancelAssetSubscription == undefined ||
         blockIdInquireSubscribedAsset == undefined ||
         blockIdInquireAssetNoInput == undefined ||
+        blockIdInquireAssetV2NoInput == undefined ||
         blockIdHelp == undefined ||
         blockIdIntroduce == undefined ||
         blockIdSponsor == undefined ||
@@ -109,6 +113,7 @@ export class KakaoChatbotConfigService {
     this.BLOCK_ID_CANCEL_ASSET_SUBSCRIPTION = blockIdCancelAssetSubscription ?? DEFAULT_KAKAO_CHATBOT_BLOCK_ID_CANCEL_ASSET_SUBSCRIPTION;
     this.BLOCK_ID_INQUIRE_SUBSCRIBED_ASSET = blockIdInquireSubscribedAsset ?? DEFAULT_KAKAO_CHATBOT_BLOCK_ID_INQUIRE_SUBSCRIBED_ASSET;
     this.BLOCK_ID_INQUIRE_ASSET_NO_INPUT = blockIdInquireAssetNoInput ?? DEFAULT_KAKAO_CHATBOT_BLOCK_ID_INQUIRE_ASSET_NO_INPUT;
+    this.BLOCK_ID_INQUIRE_ASSET_V2_NO_INPUT = blockIdInquireAssetV2NoInput ?? DEFAULT_KAKAO_CHATBOT_BLOCK_ID_INQUIRE_ASSET_V2_NO_INPUT;
     this.BLOCK_ID_HELP = blockIdHelp ?? DEFAULT_KAKAO_CHATBOT_BLOCK_ID_HELP;
     this.BLOCK_ID_INTRODUCE = blockIdIntroduce ?? DEFAULT_KAKAO_CHATBOT_BLOCK_ID_INTRODUCE;
     this.BLOCK_ID_SPONSOR = blockIdSponsor ?? DEFAULT_KAKAO_CHATBOT_BLOCK_ID_SPONSOR;
@@ -150,6 +155,10 @@ export class KakaoChatbotConfigService {
 
   public getBlockIdInquireAssetNoInput(): string {
     return this.BLOCK_ID_INQUIRE_ASSET_NO_INPUT;
+  }
+
+  public getBlockIdInquireAssetV2NoInput(): string {
+    return this.BLOCK_ID_INQUIRE_ASSET_V2_NO_INPUT;
   }
 
   public getBlockIdHelp(): string {
@@ -209,6 +218,13 @@ export class KakaoChatbotConfigService {
   private readBlockIdInquireAssetNoInput(): string | undefined {
     return this.configSrv.get(
       KakaoChatbotEnvKey.BLOCK_ID_INQUIRE_ASSET_NO_INPUT,
+      { infer: true }
+    );
+  }
+
+  private readBlockIdInquireAssetV2NoInput(): string | undefined {
+    return this.configSrv.get(
+      KakaoChatbotEnvKey.BLOCK_ID_INQUIRE_ASSET_V2_NO_INPUT,
       { infer: true }
     );
   }
