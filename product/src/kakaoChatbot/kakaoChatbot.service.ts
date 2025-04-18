@@ -274,8 +274,8 @@ export class KakaoChatbotService {
   ): Ticker {
     const result
     = skillPayload.action.params?.ticker
-    || skillPayload.action.clientExtra?.ticker
-    || skillPayload.userRequest.utterance;
+    || skillPayload.action.clientExtra?.ticker;
+    // || skillPayload.userRequest.utterance;
 
     if (result === undefined || result === '') {
       throw new Error('Ticker is not defined');
