@@ -9,6 +9,8 @@ RUN npm run build:prod
 
 COPY ./env/.env.product .
 COPY ./cert/aws-rds.pem .
+COPY ./cert/openai.key .
+COPY ./private_data/openai_create_params.json .
 
 EXPOSE 7001
 

@@ -287,6 +287,7 @@ button A - 다른 찾기
     - 필요성 1 로 제한하여 개발하면 그 효과와 경제성이 당장은 충분히 합리적이라는 직관적인 판단이 섬.
     => 먼저, 필요성 1 로 제한하여 구성하고 이후에 필요에 따라 확장하자.
   [] 필요성 1 최소구성 및 연동
+  [] 환경 분리, env, key, prompt 관리
 
 [V] 전체 로직 구현
   [V] 객체(모듈 및 인스턴스) 구성
@@ -307,9 +308,10 @@ button A - 다른 찾기
     [V] TimeSensitiveQuery(BadRequest)
     [V] Timeout
 
-[] 폴백블록을 Inquire_v2 로 운용하기
-  [] 유저 발화 DTO
-  [] 찾아보기 시나리오 제거
+[V] 폴백블록을 Inquire_v2 로 운용하기
+  [V] 유저 발화 DTO
+  [V] 찾아보기 시나리오 제거
+  [V] 찾기 버튼 제거
 
 [] reportInquireWords
 

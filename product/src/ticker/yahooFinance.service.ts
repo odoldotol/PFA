@@ -1,5 +1,4 @@
 import { readFileSync } from "fs";
-import * as path from "path";
 import {
   Injectable,
   Logger,
@@ -18,7 +17,10 @@ import {
   BadIntentQueryException,
   TimeSensitiveQueryException
 } from "src/kakaoChatbot/exception";
-import { OpenAIConfigService } from "src/config";
+import {
+  AppConfigService,
+  OpenAIConfigService
+} from "src/config";
 import { ResponseRedisEntity } from "./redis.entity";
 import { ModelResponse } from "./interface";
 
@@ -34,18 +36,32 @@ export class YahooFinanceTickerService {
     apiKey: this.openaiConfigSrv.getApiKey(),
   });
 
-  private readonly responseCreateParams = JSON.parse(readFileSync(
-    path.resolve(__dirname, "..", "openai", "createParams/params.json"),
-    "utf-8"
-  ));
+  private readonly responseCreateParams: any;
 
   private readonly runningFetchMap = new Map<InquireQuery, Promise<Ticker[]>>();
 
   constructor(
+    private readonly appConfigSrv: AppConfigService,
     private readonly openaiConfigSrv: OpenAIConfigService,
     @InjectRedisRepository(ResponseRedisEntity)
     private readonly responseRepo: RedisRepository<ModelResponse>,
-  ) {}
+  ) {
+    try {
+      this.responseCreateParams = JSON.parse(readFileSync(
+        "src/../openai_create_params.json",
+        "utf-8"
+      ));
+    } catch (err) {
+      if (this.appConfigSrv.isProduction()) {
+        throw err;
+      }
+
+      this.responseCreateParams = JSON.parse(readFileSync(
+        "src/../openai_create_params.sample.json",
+        "utf-8"
+      ));
+    }
+  }
 
   /**
    * 영어 또는 숫자만 가지는지   

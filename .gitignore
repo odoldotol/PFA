@@ -78,8 +78,12 @@ Temporary Items
 
 # key
 *.pem
+*.key
 
 # environment variable files
 .env.market
 .env.product
 .env*BACKUP
+
+# private
+private_*/

@@ -1,0 +1,86 @@
+{
+  "model": "gpt-4o-mini-2024-07-18",
+  "input": [
+    {
+      "role": "system",
+      "content": [
+        {
+          "type": "input_text",
+          "text": ""
+        }
+      ]
+    }
+  ],
+  "text": {
+    "format": {
+      "type": "json_schema",
+      "name": "response_schema",
+      "strict": true,
+      "schema": {
+        "type": "object",
+        "properties": {
+          "body": {
+            "type": [
+              "array",
+              "null"
+            ],
+            "description": "",
+            "items": {
+              "$ref": "#/$defs/asset"
+            }
+          },
+          "exceptionCode": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/$defs/exception_code"
+              }
+            ],
+            "description": ""
+          }
+        },
+        "required": [
+          "body",
+          "exceptionCode"
+        ],
+        "additionalProperties": false,
+        "$defs": {
+          "asset": {
+            "type": "object",
+            "properties": {
+              "ticker": {
+                "type": "string",
+                "description": ""
+              },
+              "confidence": {
+                "type": "number",
+                "description": ""
+              }
+            },
+            "required": [
+              "ticker",
+              "confidence"
+            ],
+            "additionalProperties": false
+          },
+          "exception_code": {
+            "type": "integer",
+            "enum": [
+              40,
+              41
+            ],
+            "description": ""
+          }
+        }
+      }
+    }
+  },
+  "reasoning": {},
+  "tools": [],
+  "temperature": 1,
+  "max_output_tokens": 0,
+  "top_p": 1,
+  "store": true
+}
