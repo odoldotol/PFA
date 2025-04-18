@@ -1,6 +1,7 @@
 import {
   Injectable,
   InternalServerErrorException,
+  Logger,
   NotFoundException
 } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
@@ -9,6 +10,11 @@ import {
   firstValueFrom,
   map
 } from 'rxjs';
+import {
+  InjectRedisRepository,
+  RedisRepository
+} from 'src/database';
+import { NotFoundTickerRedisEntity } from './notFoundTicker.redis.entity';
 import {
   GET_ALL_EXCHANGES_PATH,
   INQUIRE_ASSET_PATH,
@@ -25,10 +31,14 @@ import { joinSlash } from 'src/common/util';
 @Injectable()
 export class MarketApiService {
 
+  private readonly logger = new Logger(MarketApiService.name);
+
   private readonly runningFetchFinancialAsset = new Map<Ticker, Promise<FinancialAssetCore>>();
 
   constructor(
-    private httpService: HttpService
+    private httpService: HttpService,
+    @InjectRedisRepository(NotFoundTickerRedisEntity)
+    private readonly notFoundTickerRepo: RedisRepository<object>,
   ) {}
 
   public fetchAllExchanges() {
@@ -47,7 +57,12 @@ export class MarketApiService {
    * - 배치 프로세싱
    * @todo 프로젝트 전체 에러 처리 리팩터링
    */
-  public fetchFinancialAsset(ticker: Ticker): Promise<FinancialAssetCore> {
+  public async fetchFinancialAsset(ticker: Ticker): Promise<FinancialAssetCore> {
+    const notFoundTickerCache = await this.notFoundTickerRepo.findOne(ticker);
+    if (notFoundTickerCache) {
+      throw new NotFoundException(notFoundTickerCache.data);
+    }
+
     if (this.runningFetchFinancialAsset.has(ticker)) {
       return this.runningFetchFinancialAsset.get(ticker)!;
     }
@@ -61,18 +76,27 @@ export class MarketApiService {
           } else {
             switch (err.response.status) {
               case 404:
+                this.notFoundTickerRepo.createOne(ticker, err.response.data)
+                .catch(err => this.logger.error(err))
+                .finally(() => this.runningFetchFinancialAsset.delete(ticker));
                 throw new NotFoundException(err.response.data);
               default:
+                this.runningFetchFinancialAsset.delete(ticker);
                 throw new InternalServerErrorException(err.response.data);
             }
           }
         }),
         map(res => res.data)
       )
-    ).finally(() => this.runningFetchFinancialAsset.delete(ticker));
+    )
+    .then(res => {
+      this.runningFetchFinancialAsset.delete(ticker);
+      return res;
+    })
 
     this.runningFetchFinancialAsset.set(ticker, fetchFinancialAsset);
 
     return fetchFinancialAsset;
   }
+
 }
