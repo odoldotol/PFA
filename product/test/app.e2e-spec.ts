@@ -406,12 +406,12 @@ describe('Product E2E', () => {
       });
     });
 
-    const reportTickerPath = KAKAO_CHATBOT_API_METADATA.routes.reportTicker.path;
-    describe(reportTickerPath, () => {
+    const reportInquireWordsPath = KAKAO_CHATBOT_API_METADATA.routes.reportInquireWords.path;
+    describe(reportInquireWordsPath, () => {
       const url = joinSlash(
         "",
         KAKAO_CHATBOT_API_METADATA.prefix,
-        reportTickerPath
+        reportInquireWordsPath
       );
 
       describe('bad request', () => {
@@ -431,7 +431,7 @@ describe('Product E2E', () => {
           .post(url)
           .send(F.pipe(
             mockSkillPayload(mockBotUserKey1),
-            putTickerInClientExtra(mockAppleTicker)
+            putInquireWordsInClientExtra(mockAppleTicker)
           ))
           .expect(HttpStatus.OK)
           .expect(({body}) => {
@@ -446,7 +446,7 @@ describe('Product E2E', () => {
         .post(url)
         .send(F.pipe(
           mockSkillPayload(mockBotUserKey1),
-          putTickerInClientExtra(mockAppleTicker),
+          putInquireWordsInClientExtra(mockAppleTicker),
           putReasonInClientExtra({})
         ))
         .expect(HttpStatus.OK)
@@ -507,6 +507,14 @@ describe('Product E2E', () => {
       data: SkillPayloadDto,
     ): SkillPayloadDto => {
       data.action.clientExtra['ticker'] = ticker;
+      return data;
+    });
+
+    const putInquireWordsInClientExtra = F.curry((
+      inquireWords: string,
+      data: SkillPayloadDto,
+    ): SkillPayloadDto => {
+      data.action.clientExtra['inquireWords'] = inquireWords;
       return data;
     });
 

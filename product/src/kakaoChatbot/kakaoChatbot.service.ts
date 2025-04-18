@@ -13,7 +13,7 @@ import {
   AssetSubscriptionDto,
   InquireAssetDto,
   InquireAssetV2Dto,
-  ReportTickerDto,
+  ReportInquireWordsDto,
   SkillPayloadDto,
 } from './dto';
 import { SkillResponse } from './skillResponse/v2';
@@ -255,15 +255,15 @@ export class KakaoChatbotService {
     }
   }
 
-  public async reportTicker(
-    skillPayload: ReportTickerDto
+  public async reportInquireWords(
+    skillPayload: ReportInquireWordsDto
   ): Promise<SkillResponse> {
     const userId = await this.authSrv.getUserId(skillPayload);
-    const ticker = this.getTickerFromClientExtra(skillPayload);
+    const inquireWords = this.getInquireWordsFromClientExtra(skillPayload);
     const reason = skillPayload.action.clientExtra.reason;
 
     this.logger.warn(
-      `Report: ${ticker}\nuserId: ${userId}\nreason: ${reason.message}\n${reason.stack}`
+      `Report: ${inquireWords}\nuserId: ${userId}\nreason: ${reason.message}\n${reason.stack}`
     );
 
     return this.skillResponseSrv.tickerReported();
@@ -303,6 +303,12 @@ export class KakaoChatbotService {
     skillPayload: AssetSubscriptionDto
   ): Ticker {
     return skillPayload.action.clientExtra.ticker;
+  }
+
+  private getInquireWordsFromClientExtra(
+    skillPayload: ReportInquireWordsDto
+  ): Ticker {
+    return skillPayload.action.clientExtra.inquireWords;
   }
 
 }

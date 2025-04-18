@@ -313,7 +313,7 @@ button A - 다른 찾기
   [V] 찾아보기 시나리오 제거
   [V] 찾기 버튼 제거
 
-[] reportInquireWords
+[V] reportInquireWords
 
 [] 최소한의 통합 E2E test
 

@@ -44,7 +44,7 @@ import {
   AssetSubscriptionDto,
   InquireAssetDto,
   InquireAssetV2Dto,
-  ReportTickerDto,
+  ReportInquireWordsDto,
   SkillPayloadDto,
 } from './dto';
 import { SkillResponse } from './skillResponse/v2';
@@ -166,13 +166,13 @@ export class KakaoChatbotController {
     return this.kakaoChatbotSrv.inquireSubscribedAsset(body);
   }
 
-  @Post(apiMetadata.routes.reportTicker.path)
+  @Post(apiMetadata.routes.reportInquireWords.path)
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: '카카오챗봇스킬: report/ticker' })
-  public reportTicker(
-    @Body() body: ReportTickerDto
+  @ApiOperation({ summary: '카카오챗봇스킬: report/inquire-words' })
+  public reportInquireWords(
+    @Body() body: ReportInquireWordsDto
   ): Promise<SkillResponse> {
-    return this.kakaoChatbotSrv.reportTicker(body);
+    return this.kakaoChatbotSrv.reportInquireWords(body);
   }
 
 }

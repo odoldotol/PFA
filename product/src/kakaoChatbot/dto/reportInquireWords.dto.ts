@@ -3,23 +3,22 @@ import { Type } from 'class-transformer';
 import {
   IsDefined,
   IsNotEmptyObject,
-  IsUppercase,
   ValidateNested
 } from "class-validator";
-import { IsYahooFinanceTicker } from "../decorator/validation";
 import { SkillPayloadDto } from "./skillPayload.dto";
 import { ActionDto } from "./action.dto";
 import { ClientExtra } from "../interface/skillPayload.interface";
-import { Ticker } from "src/common/interface";
+import {
+  InquireQuery,
+  Ticker
+} from "src/common/interface";
 
-class ReportTickerActionClientExtraDto
+class ReportInquireWordsActionClientExtraDto
   implements ClientExtra
 {
-  @IsUppercase()
-  @IsYahooFinanceTicker()
   @IsDefined()
   @ApiProperty()
-  readonly ticker!: Ticker; // 서버를 거친 신뢰할수있는 ticker
+  readonly inquireWords!: Ticker | InquireQuery; // 서버를 거친 InquireWords
 
   @IsDefined()
   @ApiProperty()
@@ -28,24 +27,24 @@ class ReportTickerActionClientExtraDto
   readonly [k: string]: string;
 }
 
-class ReportTickerActionDto
+class ReportInquireWordsActionDto
   extends ActionDto
 {
-  @Type(() => ReportTickerActionClientExtraDto)
+  @Type(() => ReportInquireWordsActionClientExtraDto)
   @ValidateNested()
   @IsNotEmptyObject()
-  @ApiProperty({ type: ReportTickerActionClientExtraDto })
-  override readonly clientExtra!: ReportTickerActionClientExtraDto;
+  @ApiProperty({ type: ReportInquireWordsActionClientExtraDto })
+  override readonly clientExtra!: ReportInquireWordsActionClientExtraDto;
 }
 
-export class ReportTickerDto
+export class ReportInquireWordsDto
   extends SkillPayloadDto
 {
-  @Type(() => ReportTickerActionDto)
+  @Type(() => ReportInquireWordsActionDto)
   @ValidateNested()
   @IsNotEmptyObject()
-  @ApiProperty({ type: ReportTickerActionDto })
-  override readonly action!: ReportTickerActionDto;
+  @ApiProperty({ type: ReportInquireWordsActionDto })
+  override readonly action!: ReportInquireWordsActionDto;
 
   /** contexts
    * 이를 이용하고 있진 않지만,

@@ -19,8 +19,8 @@ export const apiMetadata: Router<RouteName> = {
     inquireSubscribedAsset: {
       path: 'asset/subscriptions/inquire',
     },
-    reportTicker: {
-      path: 'report/ticker',
+    reportInquireWords: {
+      path: 'report/inquire-words',
     },
   },
 };
