@@ -39,6 +39,7 @@ import {
   BadIntentQueryExceptionFilter,
   TimeSensitiveQueryExceptionFilter,
   TooLongQueryExceptionFilter,
+  InvalidQueryExceptionFilter,
 } from './filter';
 import {
   AssetSubscriptionDto,
@@ -109,6 +110,7 @@ export class KakaoChatbotController {
     BadIntentQueryExceptionFilter,
     TimeSensitiveQueryExceptionFilter,
     TooLongQueryExceptionFilter,
+    InvalidQueryExceptionFilter,
   )
   @UsePipes(
     new ValidationPipe({

@@ -27,6 +27,7 @@ class InquireAssetV2ActionClientExtraDto
   implements ClientExtra
 {
   @IsOptional({ groups: ['query'] })
+  @Transform(parseBlank, { toClassOnly: true })
   @ApiProperty()
   readonly query?: InquireQuery; // 서버를 거친 InquireQuery
 
@@ -78,13 +79,13 @@ export class InquireAssetV2Dto
 {
   @IsNotEmptyObject()
   @Type(() => InquireAssetV2UserRequestDto)
-  @ValidateNested()
+  @ValidateNested({ groups: ['query', 'query_long'] })
   @ApiProperty({ type: InquireAssetV2UserRequestDto })
   override readonly userRequest!: InquireAssetV2UserRequestDto;
 
   @IsNotEmptyObject()
   @Type(() => InquireAssetV2ActionDto)
-  @ValidateNested({ groups: ['query'] })
+  @ValidateNested({ groups: ['query', 'query_long'] })
   @ApiProperty({ type: InquireAssetV2ActionDto })
   override readonly action!: InquireAssetV2ActionDto;
 }

@@ -10,3 +10,4 @@ export * from './timeoutException.inquire.filter';
 export * from './tooLongQueryException.filter';
 export * from './badIntentQueryException.filter';
 export * from './timeSeneitiveQueryException.filter';
+export * from './invalidQueryException.filter';
