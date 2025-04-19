@@ -144,6 +144,7 @@ HTTP IO(위 (4), (5)에 해당)는 불필요한 IO 가 발생할 지라도 몇�
                                                   (4) (B) 중 먼저 성공하는 것으로 응답
                                                   둘다 실패하면 (B)의 실패로 예외던짐
 ```
+[Inquire_V2 구현 링크](https://github.com/odoldotol/PFA/blob/08a29488884a65337721e344017206dce3f190c2/product/src/kakaoChatbot/kakaoChatbot.service.ts#L44)
 
 #### (A) 티커로 찾기
 
