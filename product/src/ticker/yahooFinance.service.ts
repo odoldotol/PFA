@@ -125,11 +125,13 @@ export class YahooFinanceTickerService {
   ): Promise<ModelResponse> {
     const body = JSON.parse(this.responseCreateParamsJson);
     body.input.push({
-      "role": "user",
-      "content": [
+      role: "user",
+      content: [
         {
-          "type": "input_text",
-          "text": query,
+          type: "input_text",
+          text: {
+            query
+          },
         }
       ]
     });
