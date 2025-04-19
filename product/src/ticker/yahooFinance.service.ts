@@ -129,9 +129,9 @@ export class YahooFinanceTickerService {
       content: [
         {
           type: "input_text",
-          text: {
+          text: JSON.stringify({
             query
-          },
+          })
         }
       ]
     });
