@@ -38,6 +38,9 @@ export class KakaoChatbotService {
     private readonly skillResponseSrv: SkillResponseService,
   ) {}
 
+  /**
+   * @todo refac
+   */
   public async inquireAsset_v2(
     skillPayload: InquireAssetV2Dto
   ): Promise<SkillResponse> {
@@ -51,7 +54,11 @@ export class KakaoChatbotService {
         return this.skillResponseSrv.more();
     }
 
-    if (this.yahooFinanceTickerSrv.isStyle(query) == false) { // query 가 티커타입이 아님
+    /* query 가 티커스타일이 아니면
+    모델에서 티커를 찾고
+    티커로 asset 을 찾아 스킬응답을 만들고 리턴.
+     */
+    if (this.yahooFinanceTickerSrv.isStyle(query) == false) {
       const tickerArr = await this.yahooFinanceTickerSrv.inquire(query);
       const financialAssetArr = await this.financialAssetSrv.inquireMany(tickerArr);
       if (financialAssetArr.length == 1) {
@@ -60,14 +67,31 @@ export class KakaoChatbotService {
       return this.skillResponseSrv.assetInquiry_v2(financialAssetArr, query);
     }
 
+    /* query 가 티커스타일이면
+    query 가 유효한 티커일 가능성과 아닐 가능성 두가지를 고려해야함.
+
+    먼저 asset 캐시와 모델응답 캐시를 찾아본다.
+    asset 캐시에서 찾았다면 그것으로 스킬응답을 만들어서 리턴.
+    모델응답 캐시에서 티커를 찾았다면 그 티커로 asset 을 찾아서 스킬응답 만들어서 리턴.
+
+    두 캐시 모두에서 찾지 못했다면
+    Market 에서 query 로 asset 을 찾아본다.
+    일정시간이 지나도 Market 에서 응답이 없다면 (NotFound 일 가능성이 큼)
+    더이상 기다리지 않고 모델에 query 를 던져서 티커를 찾아본다.
+    Market 과 모델 둘중에서 먼저 오는 정상 응답으로 스킬응답을 만들어서 리턴.
+    둘다 실패했다면 모델응답을 베이스로 실패를 던진다.
+     */
+
+    // asset 캐시에서 query 로 Asset 을 찾기
     const tickerStyleQuery = query.toUpperCase();
     const financialAsset = await this.financialAssetSrv.readCache(tickerStyleQuery);
-    if (financialAsset != null) { // 캐시에서 query 로 Asset 을 찾음
+    if (financialAsset != null) {
       return this.responseAssetInquiry(financialAsset, userId);
     }
 
+    // 모델응답 캐시에서 query 로 티커배열을 찾기
     const tickerArr = await this.yahooFinanceTickerSrv.readCache(query);
-    if (tickerArr != null) { // 캐시에서 query 로 티커배열을 찾음
+    if (tickerArr != null) {
       const financialAssetArr = await this.financialAssetSrv.inquireMany(tickerArr);
       if (financialAssetArr.length == 1) {
         return this.responseAssetInquiry(financialAssetArr[0]!, userId);
@@ -75,23 +99,25 @@ export class KakaoChatbotService {
       return this.skillResponseSrv.assetInquiry_v2(financialAssetArr, query);
     }
 
+    // Market 에서 query 로 asset 찾고 일정시간 기다리기
     const fetchPm = this.financialAssetSrv.fetchFromMarket(tickerStyleQuery);
-    const delay =  F.delay(1000); // delay ms
+    const delay =  F.delay(1000); // todo - env
     const result1 = await Promise.race([fetchPm, delay]);
-    if (typeof result1 == 'object') { // 정해진 시간 내에 fetchPm 가 완료됨
+    if (typeof result1 == 'object') {
       return this.responseAssetInquiry(result1, userId);
     }
 
+    // 모델에 query 로 티커배열을 찾아보고 Market 과 모델중 먼저 오는 정상응답, 또는 모두 실패를 기다리기
     const tickerArrPm = this.yahooFinanceTickerSrv.fetchFromModel(query);
     try {
       const result2 = await Promise.any([fetchPm, tickerArrPm]);
-      if (Array.isArray(result2)) { // fetchFromModel 이 먼저 성공
+      if (Array.isArray(result2)) {
         const financialAssetArr = await this.financialAssetSrv.inquireMany(result2);
         if (financialAssetArr.length == 1) {
           return this.responseAssetInquiry(financialAssetArr[0]!, userId);
         }
         return this.skillResponseSrv.assetInquiry_v2(financialAssetArr, query);
-      } else { // fetchFromMarket 이 먼저 성공
+      } else {
         return this.responseAssetInquiry(result2, userId);
       }
     } catch (error: any) {
