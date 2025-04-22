@@ -112,7 +112,7 @@ export class TextService {
   }
 
   public reported(): string {
-    return "그렇군요. 당신의 의견을 반영하고 개선할게요. 저는 항상 더 발전된 서비스를 위해 노력할게요!";
+    return "감사해요. 항상 더 발전된 서비스를 위해 노력할게요!";
   }
 
   // private getMonthSlashDayStr(marketDate: MarketDate): string {

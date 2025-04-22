@@ -164,7 +164,7 @@ export class SkillResponseService {
     if (inquireWords) {
       validTextCardBuilder
       .addButton(
-        "네가 이해를 못 하네.",
+        "신고하기",
         ButtonAction.BLOCK,
         this.kakaoChatbotConfigSrv.getBlockIdReport(),
         {
