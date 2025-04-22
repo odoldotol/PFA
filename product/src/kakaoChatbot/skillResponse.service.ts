@@ -164,7 +164,7 @@ export class SkillResponseService {
     if (inquireWords) {
       validTextCardBuilder
       .addButton(
-        "너가 무능해서 못찾는거야!",
+        "내 질문은 정상이고 네가 문제인 것 같아.",
         ButtonAction.BLOCK,
         this.kakaoChatbotConfigSrv.getBlockIdReport(),
         {
@@ -187,11 +187,11 @@ export class SkillResponseService {
   }
 
   public throttlerError(): SkillResponse {
-    return this.singleSimpleText("어우, 힘들어요! 잠깐 쉬어야겠어요.");
+    return this.singleSimpleText("죄송해요, 저는 지쳐버렸어요. 잠깐 쉬어야겠어요.");
   }
 
   public invalidQueryError(): SkillResponse {
-    return this.singleSimpleText("질문이 잘못된것 같아요.");
+    return this.singleSimpleText("질문이 잘못된 것 같아요.");
   }
 
   /**
@@ -202,9 +202,9 @@ export class SkillResponseService {
     reason: any,
   ): SkillResponse {
     const component = new TextCardBuilder()
-    .setDescription(`'${query}' 에 대해 찾는데 시간이 너무 오래 걸려요ㅠㅠ\n그렇지만 거의 찾은것 같아요..!`)
+    .setDescription(`'${query}' 에 대해 거의 다 찾았어요!`)
     .addButton(
-      "그래, 계속 찾아봐!",
+      "그래, 계속 찾아줘!",
       ButtonAction.BLOCK,
       this.kakaoChatbotConfigSrv.getBlockIdInquireAssetV2NoInput(),
       { query }
@@ -223,7 +223,7 @@ export class SkillResponseService {
   }
 
   public tooLongQueryError(): SkillResponse {
-    return this.singleSimpleText("검색어가 너무 길어요... 조금 짧게 물어봐 주세요.");
+    return this.singleSimpleText("질문이 너무 길어요... 조금 짧게 물어봐 주세요.");
   }
 
   /**

@@ -10,7 +10,7 @@ import { YahooFinanceTickerService } from "./yahooFinance.service";
     RedisModule.forFeature([
       {
         entity: ResponseRedisEntity,
-        ttl: 60 * 60 * 24 // todo
+        ttl: 60 * 60 * 6 // todo
       },
     ]),
   ],

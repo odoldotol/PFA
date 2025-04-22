@@ -51,7 +51,7 @@ export class TextService {
     arg: InquireQuery
   ) {
     return {
-      title: `'${arg}' 는 검색의도가 아닌 것 같아요.`,
+      title: `'${arg}' 에 대해 고민했는데요. 질문이 아니거나 저의 역할에 맞지 않는 것 같아요.`,
       description: `혹시 잘못 검색하셨나요? 다시 물어봐 주세요.`,
     };
   }
@@ -60,7 +60,7 @@ export class TextService {
     arg: InquireQuery
   ) {
     return {
-      title: `'${arg}' 는 시간에 민감한 질문 같아요.`,
+      title: `'${arg}' 에 대해 고민했는데요. 질문이 시간에 민감한 것 같아요.`,
       description: `시간에 민감한 질문에는 정확한 답변을 드릴 수 없으니 다른 질문으로 다시 물어봐 주세요.`,
     };
   }
@@ -112,7 +112,7 @@ export class TextService {
   }
 
   public reported(): string {
-    return "그렇군요... 당신의 의견을 반영할게요. 저는 항상 더 발전된 서비스를 위해 노력할게요!";
+    return "그렇군요. 당신의 의견을 반영하고 개선할게요. 저는 항상 더 발전된 서비스를 위해 노력할게요!";
   }
 
   // private getMonthSlashDayStr(marketDate: MarketDate): string {
