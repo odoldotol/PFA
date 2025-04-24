@@ -105,7 +105,7 @@ export class SkillResponseService {
     const {
       title,
       description
-    } = this.textSrv.notFoundTickerAssetInquiryCard(inquireWords);
+    } = this.textSrv.notFoundTickerAssetInquiryCard();
 
     const validTextCardBuilder = new TextCardBuilder()
     .setTitle(title)
@@ -125,7 +125,7 @@ export class SkillResponseService {
     const {
       title,
       description
-    } = this.textSrv.badIntentQueryErrorCard(inquireWords);
+    } = this.textSrv.badIntentQueryErrorCard();
     const validTextCardBuilder = new TextCardBuilder()
     .setTitle(title)
     .setDescription(description);
@@ -144,7 +144,7 @@ export class SkillResponseService {
     const {
       title,
       description
-    } = this.textSrv.timeSensitiveQueryErrorCard(inquireWords);
+    } = this.textSrv.timeSensitiveQueryErrorCard();
     const validTextCardBuilder = new TextCardBuilder()
     .setTitle(title)
     .setDescription(description);

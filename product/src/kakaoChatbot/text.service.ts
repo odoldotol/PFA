@@ -1,8 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import {
   FinancialAssetCore,
-  InquireQuery,
-  // MarketDate,
   Ticker
 } from "src/common/interface";
 import {
@@ -38,29 +36,23 @@ export class TextService {
     return "저와 친구가 아니네요...\n친구추가 후에 이용해 주세요.";
   }
 
-  public notFoundTickerAssetInquiryCard(
-    arg?: Ticker | InquireQuery
-  ) {
+  public notFoundTickerAssetInquiryCard() {
     return {
-      title: arg == undefined ? `아무것도 찾지 못했어요.` : `'${arg}' 에 대해 찾지 못했어요.`,
+      title: `아무것도 찾지 못했어요.`,
       description: `혹시 잘못 검색하셨나요? 더 좋은 질문으로 다시 물어봐 주세요.`,
     };
   }
 
-  public badIntentQueryErrorCard(
-    arg: InquireQuery
-  ) {
+  public badIntentQueryErrorCard() {
     return {
-      title: `'${arg}' 에 대해 고민했는데요. 질문이 아니거나 저의 역할에 맞지 않는 것 같아요.`,
+      title: `질문이 아니거나 저의 역할에 맞지 않는 것 같아요.`,
       description: `혹시 잘못 검색하셨나요? 다시 물어봐 주세요.`,
     };
   }
 
-  public timeSensitiveQueryErrorCard(
-    arg: InquireQuery
-  ) {
+  public timeSensitiveQueryErrorCard() {
     return {
-      title: `'${arg}' 에 대해 고민했는데요. 질문이 시간에 민감한 것 같아요.`,
+      title: `질문이 시간에 민감한 것 같아요.`,
       description: `시간에 민감한 질문에는 정확한 답변을 드릴 수 없으니 다른 질문으로 다시 물어봐 주세요.`,
     };
   }
