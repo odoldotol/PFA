@@ -11,6 +11,7 @@ COPY ./env/.env.product .
 COPY ./cert/aws-rds.pem .
 COPY ./cert/openai.key .
 COPY ./private_data/openai_create_params.json .
+COPY ./private_data/storebot.text.json .
 
 EXPOSE 7001
 
