@@ -1,5 +1,6 @@
 import asyncio
 from concurrent.futures import ThreadPoolExecutor
+from curl_cffi import requests
 from enum import Enum
 import logging
 import resource
@@ -214,7 +215,7 @@ def get_infos_by_tickers(tickers: List[str]) -> Infos:
   # print(tickers, os.getpid())
   tickers = uppercase_ticker_validation_pipe(tickers)
 
-  yf_tickers = yf.Tickers(' '.join(tickers))
+  yf_tickers = yf.Tickers(' '.join(tickers), session=get_yf_session())
 
   result: Infos = {
     "infos": [],
@@ -351,6 +352,9 @@ def get_info_by_yf_ticker(yf_ticker: yf.Ticker) -> Info:
 
   result["metadata"] = yf_ticker.history_metadata
 
+  # metadata 에서 tradingPeriods 를 제거
+  result["metadata"].pop("tradingPeriods", None)
+
   return result
 
 def get_price_if_exist(yf_ticker: yf.Ticker) -> Price:
@@ -400,7 +404,10 @@ def get_price_if_exist(yf_ticker: yf.Ticker) -> Price:
 
 def get_yf_ticker(ticker: str) -> yf.Ticker:
   # start_time_test("Ticker-" + ticker)
-  return yf.Ticker(ticker)
+  return yf.Ticker(ticker, session=get_yf_session())
+
+def get_yf_session() -> requests.Session:
+  return requests.Session(impersonate="chrome")
 
 def is_empty(price_chart: DataFrame) -> bool:
   return price_chart.empty

@@ -9,6 +9,7 @@ exchange-calendars = "*"
 fastapi = "*"
 uvicorn = "*"
 python-dotenv = "*"
+curl-cffi = "*"
 
 [dev-packages]
 
