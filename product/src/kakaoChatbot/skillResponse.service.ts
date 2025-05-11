@@ -564,7 +564,7 @@ export class SkillResponseService {
         .setTitle(this.storebotTextSrv.scheduleAlarm())
         .setDescription(this.storebotTextSrv.introductionDetail())
         .addButton(
-          "카톡 받기",
+          this.storebotTextSrv.scheduleAlarmButtonLabel(),
           ButtonAction.BLOCK,
           this.kakaoChatbotConfigSrv.getBlockIdScheduleLaunchAlarm(),
         ).buildComponent()
@@ -590,7 +590,7 @@ export class SkillResponseService {
         .setTitle(this.storebotTextSrv.needToAddFriend())
         .setDescription(this.storebotTextSrv.retryScheduleLaunchAlarmAfterAddFriend())
         .addButton(
-          "카톡 받기",
+          this.storebotTextSrv.scheduleAlarmButtonLabel(),
           ButtonAction.BLOCK,
           this.kakaoChatbotConfigSrv.getBlockIdScheduleLaunchAlarm(),
         ).buildComponent()

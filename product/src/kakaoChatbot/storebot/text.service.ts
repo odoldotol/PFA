@@ -15,6 +15,8 @@ export class StorebotTextService
 
   public introductionDetail(): string { return this.data.introductionDetail; }
 
+  public scheduleAlarmButtonLabel(): string { return this.data.scheduleAlarmButtonLabel; }
+
   public launchAlarmScheduled(): string { return this.data.launchAlarmScheduled; }
 
   public needToAddFriend(): string { return this.data.needToAddFriend; }
