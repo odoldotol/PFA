@@ -101,7 +101,7 @@ export class KakaoChatbotService {
 
     // Market 에서 query 로 asset 찾고 일정시간 기다리기
     const fetchPm = this.financialAssetSrv.fetchFromMarket(tickerStyleQuery);
-    const delay =  F.delay(1000); // todo - env
+    const delay = F.delay(1000); // todo - env
     const result1 = await Promise.race([fetchPm, delay]);
     if (typeof result1 == 'object') {
       return this.responseAssetInquiry(result1, userId);

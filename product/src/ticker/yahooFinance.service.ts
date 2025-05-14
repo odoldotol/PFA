@@ -71,7 +71,7 @@ export class YahooFinanceTickerService {
    */
   public isStyle(
     query: InquireQuery
-  ): boolean {;
+  ): boolean {
     return /^[a-zA-Z0-9]{1,20}(\.[a-zA-Z]{2})?$/.test(query);
   }
 
@@ -103,19 +103,17 @@ export class YahooFinanceTickerService {
   public async fetchFromModel(
     query: InquireQuery
   ): Promise<Ticker[]> {
-    if (this.runningFetchMap.has(query)) {
-      return this.runningFetchMap.get(query)!;
+    if (this.runningFetchMap.has(query) == false) {
+      const modelResponsePm = this.fetchModelResponse(query);
+
+      this.runningFetchMap.set(query, modelResponsePm.then(res => this.parseModelResponse(res, query)));
+
+      modelResponsePm.then(
+        res => this.responseRepo.createOne(query.toUpperCase(), res)
+        .catch(err => this.logger.error(err)) //
+        .finally(() => this.runningFetchMap.delete(query))
+      ).catch(err => this.logger.error(err));
     }
-
-    const modelResponsePm = this.fetchModelResponse(query);
-
-    this.runningFetchMap.set(query, modelResponsePm.then(res => this.parseModelResponse(res, query)));
-
-    modelResponsePm.then(
-      res => this.responseRepo.createOne(query.toUpperCase(), res)
-      .catch(err => this.logger.error(err)) //
-      .finally(() => this.runningFetchMap.delete(query))
-    ).catch(err => this.logger.error(err));
 
     return this.runningFetchMap.get(query)!;
   }
