@@ -1,3 +1,5 @@
 캐싱 및 배치 프로세싱 모듈화(AOP) - product/nestjs-aop 문서 참고
 
 mock
+
+Redis test 환경 분리하기 - 로컬 서버 실황과 테스트가 db 를 공유하고 있음

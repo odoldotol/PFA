@@ -26,3 +26,22 @@
 - OpenTelemetry JS SDK 2.x 는 Node.js ^18.19.0 || >=20.6.0 버전에서만 동작함.
   프로젝트는 도커 이미지, keymetrics/pm2:18-alpine 을 사용하고 Node.js 18.12.1 임.
   저 이미지를 사용하는것이 언젠가 부채가 될거라 생각하긴 했는데 이참에 node:xx.xx.xx-alpine3.xx 로 바꿀까?
+  => Node.js 18.20.8 로 마이그레이션 하자.
+
+
+
+
+# 구현 프로세스
+
+[V] Node.js 버전 18.20.8 으로 마이그레이션
+  [V] dockerfile
+  [V] test
+    [V] check_node_version read TargetVersion from engines.json in root
+    [V] fix errors caused by version
+
+  - 테스트에서 몇가지 에러 발견한것 빠른 수정!
+  [V] fix test errors
+    [V] make simple and syncronous e2e cases
+    [V] redis env issue -> todo
+    [V] Due to abandoned asynchronous operations, Jest exited a few seconds after the test run had completed.
+    -> Doc. Inquire_V2 경쟁하는 프로미스들

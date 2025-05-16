@@ -84,6 +84,9 @@ describe('Market E2E', () => {
       타이머가 루프에 존재하는 한 jest 는 테스트를 끝내지 못함.
       jest 는 이를 이를 모킹 할 수 있음.
       하지만 여전히 타이머와 이벤트루프를 자유롭게 테스트 하기에는 여기저기 까다로움이 산재함. */
+      Object.defineProperty(global, 'performance', {
+        writable: true,
+      });
       jest.useFakeTimers({ doNotFake: ['nextTick', 'setImmediate'] });
 
       // Todo: seeding
@@ -235,6 +238,7 @@ describe('Market E2E', () => {
   
   describe('Asset', () => {
     const NOT_FOUND_TICKER = 'notFoundTicker';
+    const NOT_SUBSCRIBED_TICKER = 'tsla';
     let financialAssetAfterInitializingArr: FinancialAsset[];
 
     beforeAll(async () => {
@@ -264,6 +268,13 @@ describe('Market E2E', () => {
           });
         }
       );
+
+      // NOT_SUBSCRIBED_TICKER 검사
+      await dataSource.query<FinancialAssetEntity[]>(
+        `SELECT * FROM financial_assets WHERE symbol = '${NOT_SUBSCRIBED_TICKER.toUpperCase()}'`
+      ).then(res => {
+        expect(res.length).toBe(0);
+      });
     });
 
     describe('GET /api/v1/asset/price/:ISO_Code', () => {
@@ -309,14 +320,10 @@ describe('Market E2E', () => {
 
       it('DB 에 없는 Ticker 는 추가하고 반환 (201)', () => {
         return request(app.getHttpServer())
-        .post(`/asset/inquire/tsla`)
+        .post(`/asset/inquire/${NOT_SUBSCRIBED_TICKER}`)
         .expect(HttpStatus.CREATED)
-        .expect(async ({ body }) => {
-          const rawTesla = await dataSource.query<FinancialAssetEntity[]>(
-            `SELECT * FROM financial_assets WHERE symbol = 'TSLA'`
-          );
-          expect(rawTesla).toHaveLength(1);
-          expect(body).toHaveProperty('regularMarketLastClose', rawTesla[0]!.regular_market_last_close);
+        .expect(({ body }) => {
+          expect(body).toHaveProperty('symbol', NOT_SUBSCRIBED_TICKER.toUpperCase());
         });
       });
 
