@@ -410,7 +410,11 @@ def get_yf_ticker(ticker: str) -> yf.Ticker:
   return yf.Ticker(ticker, session=get_yf_session())
 
 def get_yf_session() -> requests.Session:
-  return requests.Session(impersonate="chrome")
+  """
+  세션 설정이 필요할떄 None 대신 세션을 리턴시키세요.
+  """
+  return None
+  # return requests.Session(impersonate="chrome")
 
 def is_empty(price_chart: DataFrame) -> bool:
   return price_chart.empty
