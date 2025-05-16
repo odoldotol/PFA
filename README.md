@@ -22,7 +22,7 @@
 <br>
 
 ## Stack
-NodeJS (18.12.1) / Typescript / NestJS <br>
+NodeJS (18.20.8) / Typescript / NestJS <br>
 PostgreSQL (RDS, 15.*) / typeorm <br>
 MongoDB Atlas / mongoose <br>
 ~~cache-manager~~ / Redis (7.2) / node-redis <br>
