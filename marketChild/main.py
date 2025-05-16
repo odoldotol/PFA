@@ -302,13 +302,13 @@ def is_exists(ticker: str) -> bool:
     Ticker.isin
     return True
   
-  # 에러가 자주 변경되는 우려가 있음... isin 으로 검사하는것 좋지 못함. 일단 에러면 무조건 false 처리해보겠음.
+  # 에러가 자주 변경되는 우려가 있음... isin 으로 검사하는것 좋지 못함.
   except Exception as e:
-    # if e.args[0] == "'NoneType' object has no attribute 'update'" or \
-    #    e.args[0] == "HTTP Error 404: ":
+    if e.args[0] == "'NoneType' object has no attribute 'update'" or \
+       e.args[0] == "HTTP Error 404: ":
       return False
-    # else:
-    #   raise e
+    else:
+      raise e
 
 @app.post(
   "/ec/session/{ISO_Code}",

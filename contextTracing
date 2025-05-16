@@ -45,3 +45,6 @@
     [V] redis env issue -> todo
     [V] Due to abandoned asynchronous operations, Jest exited a few seconds after the test run had completed.
     -> Doc. Inquire_V2 경쟁하는 프로미스들
+
+  - 직전 픽스한 마켓차일드서버 exists 에서 다시 문제 발견.
+  [V] fix MarketChild exists - 주의 관찰 및 개선 필요함
