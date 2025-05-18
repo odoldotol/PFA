@@ -24,6 +24,7 @@ import {
 } from 'src/common/interface';
 import { chatbotListMenuButtons } from './const';
 import * as F from '@fxts/core';
+import { getTraceId } from 'src/openTelemetry';
 
 @Injectable()
 export class KakaoChatbotService {
@@ -46,6 +47,9 @@ export class KakaoChatbotService {
   ): Promise<SkillResponse> {
     const userId = await this.authSrv.getUserId(skillPayload);
     const query = this.getQueryToInqire(skillPayload);
+
+    // temp
+    this.logger.verbose(`${getTraceId()} | ${userId} | ${query}`);
 
     switch (query) {
       case chatbotListMenuButtons.inquireSubscribedAsset.title:

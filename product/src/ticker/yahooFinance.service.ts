@@ -23,6 +23,7 @@ import {
 } from "src/config";
 import { ResponseRedisEntity } from "./redis.entity";
 import { ModelResponse } from "./interface";
+import { getTraceId } from "src/openTelemetry";
 
 /**
  * @todo OpenAI 분리
@@ -135,7 +136,12 @@ export class YahooFinanceTickerService {
     });
 
     return this.openai.responses.create(body)
-    .then(res => JSON.parse(res.output_text))
+    .then(res => {
+      // temp
+      this.logger.verbose(`${getTraceId()} | ${res.id}`);
+
+      return JSON.parse(res.output_text);
+    })
     .then(this.validateModelResponse.bind(this));
   }
 

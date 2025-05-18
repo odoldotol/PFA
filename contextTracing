@@ -85,7 +85,7 @@
   [V] fix MarketChild exists - 주의 관찰 및 개선 필요함
 
 
-[] OpenTelemetry 이용해서 Context 추적가능하게 로깅하기 (어디까지나 임시조치임. 전문 계측 도구를 통해 분석하는게 바람직할것임.)
+[V] OpenTelemetry 이용해서 Context 추적가능하게 로깅하기 (어디까지나 임시조치임. 전문 계측 도구를 통해 분석하는게 바람직할것임.)
   [V] OpenTelemetry 를 서버에 적용
     [V] Fix - MarketChild 로 Trace Context 전파 잘 되도록
       => 차일드 컨텍스트 전파 잘된다 확인.
@@ -97,4 +97,9 @@
   [V] HttpLogger 에 trace_id 포함하기
     (MarketChild 는 uvicorn.access 로거를 메인 로거로 쓰고있는데 이거 엉망이구만! 일단 대충 미들웨어로 로거 하나 더 달아줌)
 
-  [] 언제 어떤 작업에서든 trace_id 를 포함해서 로깅할 수 있도록 하기
+  [V] 언제 어떤 작업에서든 trace_id 를 포함해서 로깅할 수 있도록 하기
+  [V] 필요한 부분 로깅하기, CustomConsoleSpanExporter 비활성하기
+
+[] openAI 에도 SDK 사용해서 트레이싱 세팅할 수 있다. 세팅하고 Product > YahooFinanceTickerService 에서 req_id 로깅하는 부분 지우기.
+
+[] 계측 도구 exporter 로 연결해서 사용해보기?

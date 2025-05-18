@@ -8,10 +8,7 @@ import {
   Response,
   NextFunction
 } from 'express';
-import {
-  trace,
-  context
-} from '@opentelemetry/api';
+import { getTraceId } from 'src/openTelemetry';
 
 @Injectable()
 export class HttpLoggerMiddleware
@@ -39,7 +36,7 @@ export class HttpLoggerMiddleware
     const
     { method, originalUrl } = req,
     { statusCode } = res,
-    traceId = trace.getSpan(context.active())?.spanContext().traceId;
+    traceId = getTraceId();
 
     if (
       originalUrl === '/health' &&
