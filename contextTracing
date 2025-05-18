@@ -94,6 +94,7 @@
   
     => Inquire_V2 에서 3 서버 모두 컨텍스트 전파 잘된다. 확인.
 
-  [] HttpLogger 에 trace_id 포함하기
+  [V] HttpLogger 에 trace_id 포함하기
+    (MarketChild 는 uvicorn.access 로거를 메인 로거로 쓰고있는데 이거 엉망이구만! 일단 대충 미들웨어로 로거 하나 더 달아줌)
 
   [] 언제 어떤 작업에서든 trace_id 를 포함해서 로깅할 수 있도록 하기

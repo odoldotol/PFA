@@ -8,6 +8,10 @@ import {
   Response,
   NextFunction
 } from 'express';
+import {
+  trace,
+  context
+} from '@opentelemetry/api';
 
 @Injectable()
 export class HttpLoggerMiddleware
@@ -34,7 +38,8 @@ export class HttpLoggerMiddleware
   ): void {
     const
     { method, originalUrl } = req,
-    { statusCode } = res;
+    { statusCode } = res,
+    traceId = trace.getSpan(context.active())?.spanContext().traceId;
 
     if (
       originalUrl === '/health' &&
@@ -47,7 +52,7 @@ export class HttpLoggerMiddleware
     const responseTime = Date.now();
     const duration = responseTime - reqTime;
 
-    this.logger.log(`${statusCode} | ${(duration + 'ms').padStart(7)} | ${method.padStart(7)} | ${originalUrl}`);
+    this.logger.log(`${statusCode} | ${(duration + 'ms').padStart(7)} | ${(traceId || 'N/A').padEnd(32)} | ${method.padStart(7)} | ${originalUrl}`);
   }
 
 }
