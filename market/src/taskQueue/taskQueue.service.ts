@@ -8,9 +8,11 @@ import {
   Observable,
   Subject
 } from 'rxjs';
+import { context as otContext } from '@opentelemetry/api';
 
 /**
  * @todo 컨슈머의 수를 동적으로 조절할 수 있도록 하기.
+ * @todo 컨텍스트 관리가 어려운 구현임. 임시로 opentelemetry 컨텍스트는 이어지도록 조치해두었음.
  */
 export class TaskQueueService {
 
@@ -158,44 +160,50 @@ export class TaskQueueService {
    * 
    * - Observable 은 옵저버역할을 할 Subject 에 의해 구독되며 Subject 가 최대한 빠르게 runTaskResolver 에 넘겨짐.
    * - 동기적인 Observable 을 처리할 수 있도록 Observable 에 대한 구독은 setImmediate 을 통해 충분히 미뤄짐. (Promise.resolve().then 으로 처리하여도 충분할 수 있음)
+   * 
+   * #### Opentelemetry 컨텍스트 를 유지하기 위한 조치 (otContext.with 부분)
    */
   private wrapTask<T>(
     task: Task<T>,
     runTaskResolver: (value: T | Observable<T>) => void,
     runTaskRejecter: (error: any) => void
   ): TaskWrapper {
+    const currentCtx = otContext.active();
+
     return async () => {
-      let taskReturn: ReturnType<Task<T>>;
-      try {
-        taskReturn = task();
-      } catch (error) {
-        runTaskRejecter(error);
-        return;
-      }
+      await otContext.with(currentCtx, async () => {
+        let taskReturn: ReturnType<Task<T>>;
+        try {
+          taskReturn = task();
+        } catch (error) {
+          runTaskRejecter(error);
+          return;
+        }
 
-      if (taskReturn instanceof Promise) {
-        await taskReturn.then(runTaskResolver, runTaskRejecter);
-      } else if (taskReturn instanceof Observable) {
-        const observerSubject = new Subject<T>();
-        runTaskResolver(observerSubject); // 일단 runTask 리졸버에 옵저버를 넘기고 기다리기.
+        if (taskReturn instanceof Promise) {
+          await taskReturn.then(runTaskResolver, runTaskRejecter);
+        } else if (taskReturn instanceof Observable) {
+          const observerSubject = new Subject<T>();
+          runTaskResolver(observerSubject); // 일단 runTask 리졸버에 옵저버를 넘기고 기다리기.
 
-        // 옵저버 Observable 의 완료, 즉 이 Task 의 완료를 기다릴 Done Promise.
-        const done = new Promise<void>(resolve => {
-          observerSubject.subscribe({
-            complete: resolve,
-            error: resolve,
+          // 옵저버 Observable 의 완료, 즉 이 Task 의 완료를 기다릴 Done Promise.
+          const done = new Promise<void>(resolve => {
+            observerSubject.subscribe({
+              complete: resolve,
+              error: resolve,
+            });
           });
-        });
 
-        // 동기 Observable 도 처리할 수 있도록,
-        // setImmediate 에 넘겨서 microTaskQueue 의 모든 해결된 Promise 처리 이후에 충분히 미룬 후 처리하도록. (Promise.resolve().then 으로 처리하여도 충분할 수 있음)
-        // taskReturn 이 동기적인 Observable 이라도 외부애서 observerSubject 로 구독할 수 있어짐.
-        setImmediate(() => (taskReturn as Observable<T>).subscribe(observerSubject)); // 타입 단언 없으면 jest 가 타입 유추를 못함, 해결하고 타입단언 지우기.
-        await done;
-      } else {
-        taskReturn satisfies never;
-        runTaskRejecter(new Error('Task must return a Promise or an Observable'));
-      }
+          // 동기 Observable 도 처리할 수 있도록,
+          // setImmediate 에 넘겨서 microTaskQueue 의 모든 해결된 Promise 처리 이후에 충분히 미룬 후 처리하도록. (Promise.resolve().then 으로 처리하여도 충분할 수 있음)
+          // taskReturn 이 동기적인 Observable 이라도 외부애서 observerSubject 로 구독할 수 있어짐.
+          setImmediate(() => (taskReturn as Observable<T>).subscribe(observerSubject)); // 타입 단언 없으면 jest 가 타입 유추를 못함, 해결하고 타입단언 지우기.
+          await done;
+        } else {
+          taskReturn satisfies never;
+          runTaskRejecter(new Error('Task must return a Promise or an Observable'));
+        }
+      });
     };
   }
 

@@ -16,6 +16,7 @@ import yfinance as yf
 import exchange_calendars as xcals
 from datetime import datetime
 import warnings
+from instrumentation import FastAPIInstrumentor
 # from time_test import start_time_test, end_time_test
 
 # Todo: 디자인패턴, 모듈화, ...
@@ -155,6 +156,8 @@ app = FastAPI(
   description="Yahoo Finance API, Exchange Calendar API",
 )
 
+FastAPIInstrumentor.instrument_app(app)
+
 def uppercase_ticker_validation_pipe(
   ticker: Union[str, List[str]]
 ) -> Union[str, List[str]]:
@@ -194,6 +197,27 @@ async def unexpected_exception_handler(request: Request, exc: Exception):
     "iso_code": request.path_params['ISO_Code'] if 'ISO_Code' in request.path_params else None,
     }
   )
+
+logging.basicConfig(
+  level=logging.INFO,
+  format="%(asctime)s [%(levelname)s] %(name)s: %(message)s"
+)
+
+http_logger = logging.getLogger("[HttpLogger]")
+
+@app.middleware("http")
+async def log_http(request: Request, call_next):
+  traceparent = request.headers.get("traceparent")
+  trace_id = traceparent.split("-")[1] if traceparent else None
+
+  try:
+    response = await call_next(request)
+  except Exception as e:
+    http_logger.info(f"{str(e)} | {trace_id} | {request.method} | {request.url}")
+    raise e
+
+  http_logger.info(f"{response.status_code} | {trace_id} | {request.method} | {request.url}")
+  return response
 
 @app.get(
   "/health",

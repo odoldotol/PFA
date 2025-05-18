@@ -28,6 +28,41 @@
   저 이미지를 사용하는것이 언젠가 부채가 될거라 생각하긴 했는데 이참에 node:xx.xx.xx-alpine3.xx 로 바꿀까?
   => Node.js 18.20.8 로 마이그레이션 하자.
 
+- https://www.w3.org/TR/trace-context/
+- https://opentelemetry.io/docs/
+- https://github.com/open-telemetry/opentelemetry-js
+- https://github.com/open-telemetry/opentelemetry-python
+
+- 3 서버들(Product, Market, MarketChild)에 일단 간단히 적용하고 한번 보자.
+  - dnslookup, tcp, tls 등 모든것이 찍히는게 흥미롭네.
+  - MarketChild 쪽에서 컨텍스트가 안 이어지는문제 발견.
+    - 왜 그런지 보기 전에, trace-context 와 opentelemetry 에 대해 필요한 기본 사항을 이해해야해! (W3C 표준과 Opentelemetry 관련한 위 공식문서 참고함)
+      => W3C Trace Context 표준과 Opentelemetry 로 이를 구현하는것 간단 정리.
+        - HTTP 요청 헤더에 traceparent 가 필수.
+          - traceparent 는 version, trace-id, parent-id, trace-flags 를 가짐.
+          - parent-id 는 부모 Span 의 id(span-id) 를 의미함.
+        - 요청 받으면 가장먼저 (nest 미들웨어보다 먼저) traceparent 파싱해서 Trace Context 구성함.
+          - 이떄, 만약 헤더에 traceparent 없어도 Trace Context 구성함. (새로 만들거나) (당연히, 이미 받은 요청 헤더에 traceparent 를 추가하는건 아님)
+        - 다른 작업을 할때마다 Trace Context 를 전파함. (HTTP 요청 할떄는 요청 헤더에 traceparent 만들어서 넣음)
+        - 전체 Context 는 하나의 trace_id 를 가지며 하나의 Trace Context 로 묶이고 모든 작업은 span_id 를 가지고 span_id 는 부모를 가지며 트리구조로 구성.
+          - 처음에 루트 스팬이 만들어짐.
+          - AsyncLocalStorage 안에는 trace_id 와 span_id 를 보관. (부모 span_id 등은 보관할 필요없음)
+          - Trace Context 를 전파하는 하는 것의 의미는, 한쪽에서 현재 trace_id 와 span_id 를 전파하고 전파받은쪽은 받은 Trace Context 와 Span 을 부모로 새로운 하위 Span 을 만드는 것임.
+        
+        - 각 Span 의 생명주기는 잘 관리 되어야함. 특히 반드시 적잘한 타이밍에 span.end() 를 호출해야함.
+          - 혹시 응답을 기다리지 않고 버려지는 작업이더라도. (예시: span.setStatus({ code: CANCELLED }) 이후 span.end() 등으로)
+        - 동일 Trace Context 에 속한 모든 작업들은 각각 Span 으로 잘 연결될 수 있어야함.
+          - 여러 작업을 병열로 진행할땐 각 작업들이 동일한 부모 Span 을 갖도록 잘 관리되어야함. (context.with() 또는 AsyncLocalStorage 기반에서)
+        
+      => Trace Context 전파와 각 Span 의 생명주기 관리가 올바르게 되야 분산된 모든 작업(Span)이 하나의 Context 로 연계될 수 있음.
+        => MarketChild 서버로 전파할 스팬들이 하나의 Trace Context 로 묶이는지 확인해야함. (아... 테스크 큐(동시성큐와 워커큐)에서 문제가 있겠다는 직감)
+          => 테스크큐 구현에서 Context 가 이어질 수 없는 문제가 있음을 확인함.
+          => context.with 로 쉽게 연결가능. (테스크큐 구현이 좋지 못한것 같음. 실행컨텍스트 관리가 어려운 구현임. 따로 점검필요함을 코드에 코맨트 해두기)
+    
+      => 커스텀 콘솔스팬익스포터 만들어서 디버그 해보자. (어디까지나 임시조치이다. 다른 계측 도구 써야함)
+
+=> http 로깅할때 trace_id 달아주고 각 작업에서 trace_id 와 확인하고픈 data 만 간단히 로깅하면 목표를 달성 하겠군!
+  (이런식으로 직접 서버에 로깅 하는것은 어디까지나 임시조치임. exporter 계측 도구를 연결해서 관측하는게 바람직할것임. 그 전 단계로서 일단 필요한기능을 하는 임시적 도구를 만들어 써보자는거지.)
 
 
 
@@ -48,3 +83,17 @@
 
   - 직전 픽스한 마켓차일드서버 exists 에서 다시 문제 발견.
   [V] fix MarketChild exists - 주의 관찰 및 개선 필요함
+
+
+[] OpenTelemetry 이용해서 Context 추적가능하게 로깅하기 (어디까지나 임시조치임. 전문 계측 도구를 통해 분석하는게 바람직할것임.)
+  [V] OpenTelemetry 를 서버에 적용
+    [V] Fix - MarketChild 로 Trace Context 전파 잘 되도록
+      => 차일드 컨텍스트 전파 잘된다 확인.
+    
+    [V] CustomConsoleSpanExporter
+  
+    => Inquire_V2 에서 3 서버 모두 컨텍스트 전파 잘된다. 확인.
+
+  [] HttpLogger 에 trace_id 포함하기
+
+  [] 언제 어떤 작업에서든 trace_id 를 포함해서 로깅할 수 있도록 하기

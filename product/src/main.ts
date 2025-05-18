@@ -6,6 +6,7 @@ import { versioningOptions } from './config';
 import helmet from 'helmet';
 import setupSwagger from './setupSwagger';
 import addTerminator from './addTerminator';
+import 'src/openTelemetry';
 
 const bootstrap = async () => {
   const app = await NestFactory.create(AppModule);
