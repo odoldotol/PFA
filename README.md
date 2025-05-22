@@ -6,7 +6,7 @@
 # Level 1
 
 ### Product
-- [KakaoTalk Chatbot Channel Link](http://pf.kakao.com/_jxbgxmxj)
+- [KakaoTalk Chatbot](http://pf.kakao.com/_jxbgxmxj/chat)
 
 <br>
 
@@ -24,16 +24,17 @@
 ## Stack
 NodeJS (18.20.8) / Typescript / NestJS <br>
 PostgreSQL (RDS, 15.*) / typeorm <br>
-MongoDB Atlas / mongoose <br>
+~~MongoDB Atlas / mongoose~~ <br>
 ~~cache-manager~~ / Redis (7.2) / node-redis <br>
+openai <br>
 fxts / rxjs <br>
-jest <br>
+jest / swagger / opentelemetry <br>
 ~~child_process~~ / ~~cron~~ <br>
 
 AWS EC2 / Nginx (1.24.0) <br>
 Docker / pm2 (will be deprecated) <br>
 
-Python (3.8) / Fastapi (0.111.0) / uvicorn <br>
+Python (3.8) / Fastapi / uvicorn <br>
 yfinance / exchange_calendars <br>
 
 ---
@@ -66,9 +67,9 @@ $ sh scripts/pfa:start
 
 &nbsp;The scope of serviceable assets and exchanges in this app is expandable and sustainable throughout multiple lifecycles of the app.
 
->&nbsp;At the start, the app does not follow any exchanges, which means there is no update schedule for any exchange. Also, the app does not possess any information about any assets.
+~~>&nbsp;At the start, the app does not follow any exchanges, which means there is no update schedule for any exchange. Also, the app does not possess any information about any assets.~~
 
-The initial service scope of this app is 0.
+~~The initial service scope of this app is 0.~~
 
 <br>
 
@@ -85,11 +86,11 @@ The Market-Child is just a server dependent on the market server. <br>
 ---
 <br>
 
->&nbsp;When something is queried, the app fetches data about that asset from the market and creates it. It also identifies the exchange to which the asset belongs and starts following it. This implies having an update schedule for that exchange and updating data according to the exchange's session on a daily basis.
+>&nbsp;When something is queried, the app fetches data about that asset from the market and creates it. ~~It also identifies the exchange to which the asset belongs and starts following it. This implies having an update schedule for that exchange and updating data according to the exchange's session on a daily basis.~~
 
 The service scope expands through queries.
 
->&nbsp;From now on, even if the app loses the update schedule for all exchanges due to being shut down, it can independently generate schedules for the exchanges it is following.
+~~>&nbsp;From now on, even if the app loses the update schedule for all exchanges due to being shut down, it can independently generate schedules for the exchanges it is following.~~
 
 >&nbsp;Upon relaunching the app, during the initialization phase before listening, it explores the sessions of exchanges and creates schedules. It also update assets belonging to each exchange if necessary.
 
@@ -204,6 +205,7 @@ $ sh scripts/pfa:down:all
 ### RDS Certificate
 ```
 cert/aws-rds.pem
+cert/openai.key
 ```
 
 ### Compose .env files
@@ -211,6 +213,13 @@ cert/aws-rds.pem
 env/.env.market.guide.production
 env/.env.product.guide.production
 ```
+
+### Private data files
+```
+private_data/openai_create_params.json
+private_data/storebot.text.json
+```
+
 #### Then,
 ```shell
 $ sh scripts/pfa:start:prod
@@ -264,3 +273,53 @@ $ sh scripts/cwagent:restart
 
 ![market-instance-dia](https://storage.googleapis.com/odoldotol-image-store/market-instance-dia.png)
 <span style="float:right;">[should be updated]</span>
+
+
+<br>
+<br>
+
+## Other topics
+
+<br>
+
+API Benchmark (external document)
+
+[INQUIRE_V2](./product/src/kakaoChatbot/INQUIRE_V2.md)
+
+[Context Tracing](./contextTracing)
+
+<br><br>
+
+Resource control and [TaskQueue](./market/src/taskQueue/taskQueue.service.ts)
+
+[Redis Repository Pattern](./product/src/database/redis/redis.module.ts)
+
+[Exchanges](./market/src/market/exchange/class/exchange.ts)
+
+<br>
+
+FP, Iterable, [Either](./market/src/common/class/either.ts)
+
+[KakaoSkillResponse](./product/src/kakaoChatbot/skillResponse/v2/skillResponse.ts)
+
+<br><br>
+
+[Nestjs-aop](./product/nestjs-aop)
+
+<br><br>
+
+---
+---
+
+<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
+
+---
+---
+
+<br><br><br><br><br>
+
+챗봇  
+[간편주문](http://pf.kakao.com/_kPGxfn/chat)  
+[스토어봇](http://pf.kakao.com/_USmRn/chat)
+
+<br><br><br><br>
