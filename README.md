@@ -202,7 +202,7 @@ $ sh scripts/pfa:down:all
 # Deploy
 ![deploy-dia](https://storage.googleapis.com/odoldotol-image-store/deploy-dia.png)
 
-### RDS Certificate
+### Certificate
 ```
 cert/aws-rds.pem
 cert/openai.key
