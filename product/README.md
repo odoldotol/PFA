@@ -1,22 +1,9 @@
 # Product
 
-도커가 설치되어 있어야 합니다.
-- 이미지 빌드
+## Dev
+Port 5433 should be available.
 ```shell
-$ docker build . -t pfa-product
+$ npm run start:dev
 ```
-- 컨테이너 실행
-```shell
-$ docker run -p 7001:7001 --name product pfa-product
-```
----
+
 ### API Doc http://localhost:7001/docs
-
----
-
-<br>
-
-## Test
-```shell
-$ sh scripts/test
-```

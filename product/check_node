@@ -1,0 +1,7 @@
+const semver = require('semver');
+const { engines } = require('./package.json');
+
+if (!semver.satisfies(process.version, engines.node)) {
+  console.error(`ERROR: Node ${engines.node} required, but found ${process.version}`);
+  process.exit(1);
+}
