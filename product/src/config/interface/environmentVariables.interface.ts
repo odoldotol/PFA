@@ -4,7 +4,7 @@ import {
   FinancialAssetEnvKey,
   KakaoChatbotEnvKey,
   MarketApiEnvKey,
-  OpenAIEnvKey,
+  // OpenAIEnvKey,
   Pm2EnvKey,
   PostgresEnvKey,
   RedisEnvKey,
@@ -106,6 +106,4 @@ export interface ThrottleEnvironmentVariables {
   [ThrottleEnvKey.LIMIT_KAKAO_CHATBOT_LONG]: number;
 }
 
-export interface OpenAIEnvironmentVariables {
-  [OpenAIEnvKey.API_KEY]: string;
-}
+export interface OpenAIEnvironmentVariables {}

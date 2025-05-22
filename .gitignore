@@ -76,9 +76,8 @@ Temporary Items
 
 # End of https://www.toptal.com/developers/gitignore/api/macos,visualstudiocode,git
 
-# key
-*.pem
-*.key
+# cert
+cert/
 
 # environment variable files
 .env.market

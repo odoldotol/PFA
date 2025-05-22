@@ -78,6 +78,4 @@ export enum ThrottleEnvKey {
   LIMIT_KAKAO_CHATBOT_LONG = 'THROTTLE_LIMIT_KAKAO_CHATBOT_LONG',
 }
 
-export enum OpenAIEnvKey {
-  API_KEY = 'OPENAI_API_KEY',
-}
+export enum OpenAIEnvKey {}

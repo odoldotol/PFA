@@ -19,7 +19,7 @@ import {
 } from "src/kakaoChatbot/exception";
 import {
   AppConfigService,
-  OpenAIConfigService
+  // OpenAIConfigService
 } from "src/config";
 import { ResponseRedisEntity } from "./redis.entity";
 import { ModelResponse } from "./interface";
@@ -34,7 +34,7 @@ export class YahooFinanceTickerService {
   private readonly logger = new Logger(YahooFinanceTickerService.name);
 
   private readonly openai = new OpenAI({
-    apiKey: this.openaiConfigSrv.getApiKey(),
+    apiKey: readFileSync("src/../openai.key", "utf-8"),
   });
 
   private readonly responseCreateParamsJson: string;
@@ -43,7 +43,7 @@ export class YahooFinanceTickerService {
 
   constructor(
     private readonly appConfigSrv: AppConfigService,
-    private readonly openaiConfigSrv: OpenAIConfigService,
+    // private readonly openaiConfigSrv: OpenAIConfigService,
     @InjectRedisRepository(ResponseRedisEntity)
     private readonly responseRepo: RedisRepository<ModelResponse>,
   ) {
