@@ -26,42 +26,51 @@ import { ModelResponse } from "./interface";
 import { getTraceId } from "src/openTelemetry";
 
 /**
- * @todo OpenAI 분리
+ * @todo OpenAI 분리 - 환경, OpenAI 구성, 모델응답바디 구성, 응답 생성.
  */
 @Injectable()
 export class YahooFinanceTickerService {
 
   private readonly logger = new Logger(YahooFinanceTickerService.name);
 
-  private readonly openai = new OpenAI({
-    apiKey: readFileSync("src/../openai.key", "utf-8"),
-  });
-
+  private readonly openai: OpenAI;
   private readonly responseCreateParamsJson: string;
 
   private readonly runningFetchMap = new Map<InquireQuery, Promise<Ticker[]>>();
 
   constructor(
-    private readonly appConfigSrv: AppConfigService,
+    appConfigSrv: AppConfigService,
     // private readonly openaiConfigSrv: OpenAIConfigService,
     @InjectRedisRepository(ResponseRedisEntity)
     private readonly responseRepo: RedisRepository<ModelResponse>,
   ) {
+    let openaiApiKey: string;
+    let responseCreateParamsJson: string;
+
     try {
-      this.responseCreateParamsJson = readFileSync(
+      openaiApiKey = readFileSync(
+        "src/../openai.key",
+        "utf-8"
+      );
+
+      responseCreateParamsJson = readFileSync(
         "src/../openai_create_params.json",
         "utf-8"
       );
     } catch (err) {
-      if (this.appConfigSrv.isProduction()) {
+      if (appConfigSrv.isProduction()) {
         throw err;
       }
 
-      this.responseCreateParamsJson = readFileSync(
+      openaiApiKey = "OPENAI_API_KEY";
+      responseCreateParamsJson = readFileSync(
         "src/../openai_create_params.sample.json",
         "utf-8"
       );
     }
+
+    this.openai = new OpenAI({ apiKey: openaiApiKey });
+    this.responseCreateParamsJson = responseCreateParamsJson;
   }
 
   /**
@@ -122,8 +131,15 @@ export class YahooFinanceTickerService {
   private async fetchModelResponse(
     query: InquireQuery
   ): Promise<ModelResponse> {
-    const body = JSON.parse(this.responseCreateParamsJson);
-    body.input.push({
+    const body // JSON.parse 로 매번 새 객체를 만듦.
+    : OpenAI.Responses.ResponseCreateParamsNonStreaming
+    = JSON.parse(this.responseCreateParamsJson);
+
+    if (Array.isArray(body.input) == false) {
+      throw new Error("Unexpected input type. Expected array");
+    }
+
+    (body.input as OpenAI.Responses.ResponseInput).push({ // 타입 단언 없으면 jest 가 타입 유추를 못함, 해결하고 타입단언 지우기.
       role: "user",
       content: [
         {
