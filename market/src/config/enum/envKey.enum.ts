@@ -1,6 +1,7 @@
 export enum AppEnvKey {
   PORT = 'PORT',
-  DOCKER_ENV = 'RACK_ENV'
+  DOCKER_ENV = 'RACK_ENV',
+  DISABLE_MARKET_UPDATE = 'DISABLE_MARKET_UPDATE',
 }
 
 export enum MongodbEnvKey {

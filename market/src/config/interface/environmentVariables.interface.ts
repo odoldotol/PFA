@@ -24,6 +24,7 @@ export interface EnvironmentVariables
 export interface AppEnvironmentVariables {
   [AppEnvKey.PORT]: number;
   [AppEnvKey.DOCKER_ENV]: DockerEnv;
+  [AppEnvKey.DISABLE_MARKET_UPDATE]: number;
 }
 
 export interface MongodbEnvironmentVariables {

@@ -3,6 +3,7 @@ import {
   Logger,
   OnApplicationBootstrap
 } from "@nestjs/common";
+import { AppConfigService } from "src/config";
 import { ExchangeService } from "src/exchange";
 import { AccessorService } from "src/asset";
 import { Database_UpdaterService } from "src/database";
@@ -21,6 +22,7 @@ export class UpdaterService
   private readonly logger = new Logger(UpdaterService.name);
 
   constructor(
+    private readonly appConfigSrv: AppConfigService,
     private readonly exchangeSrv: ExchangeService,
     private readonly accessorSrv: AccessorService,
     private readonly database_updaterSrv: Database_UpdaterService,
@@ -61,6 +63,12 @@ export class UpdaterService
     exchange: Market_Exchange
   ): Promise<Either<any, FulfilledYfPrice>[]> {
     const { isoCode } = exchange;
+
+    if (this.appConfigSrv.isMarketUpdateDisabled()) {
+      this.logger.log(`${isoCode} : Update disabled`);
+      return [];
+    }
+
     this.logger.log(`${isoCode} : Update Run`);
     const startTime = new Date();
     
