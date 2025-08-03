@@ -1,3 +1,5 @@
+// 여긴 좀 github 에 올리기 불필요하며 프라이빗한데?
+
 module.exports = {
   apps : [
     {
@@ -9,7 +11,7 @@ module.exports = {
       kill_timeout: 20000, // 20초
       max_restarts: 50,
       restart_delay: 500,
-      max_memory_restart: '200M',
+      max_memory_restart: '350M',
 
       env: {
         PORT: 7001,
@@ -26,7 +28,7 @@ module.exports = {
       kill_timeout: 20000, // 20초
       max_restarts: 50,
       restart_delay: 500,
-      max_memory_restart: '200M',
+      max_memory_restart: '350M',
 
       env: {
         PORT: 7001,
