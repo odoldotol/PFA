@@ -1,0 +1,8 @@
+{
+  "name": "stress",
+  "scripts": {},
+  "devDependencies": {
+    "autocannon": "^8.0.0",
+    "k6": "^0.0.0"
+  }
+}
