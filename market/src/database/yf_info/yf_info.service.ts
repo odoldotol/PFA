@@ -2,7 +2,7 @@ import { Injectable } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
 import { Model } from "mongoose";
 import { Yf_info, Yf_infoDocument } from "./yf_info.schema";
-import Either, * as E from "src/common/class/either";
+import Either, * as E from "@odoldotol/either";
 
 // temp
 type MongooseInsertManyError<T = any> = {

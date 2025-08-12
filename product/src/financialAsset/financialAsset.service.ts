@@ -28,7 +28,7 @@ import {
 } from "rxjs";
 import * as X from "rxjs";
 import * as F from "@fxts/core";
-import * as E from "src/common/util/either";
+import * as E from "@odoldotol/either";
 
 /**
  * 전체적으로 캐싱 및 일괄처리 구현이 비효율적이고 불필요하게 복잡한 것 같음. YahooFinanceTickerService 구현 참고해볼것
@@ -149,7 +149,7 @@ export class FinancialAssetService
   public async inquireMany(
     tickerArr: Ticker[],
   ): Promise<FinancialAssetCore[]> {
-    const assetArr = E.getRightArray(await F.pipe(
+    const assetArr = E.flatRightFilter(await F.pipe(
       tickerArr,
       F.toAsync,
       F.map(E.wrapAsync(this.inquire.bind(this))),

@@ -6,7 +6,7 @@ import { Database_FinancialAssetService } from "src/database/financialAsset/fina
 import { mockSamsungElec } from "src/mock";
 import { SubscribeAssetsResponse } from "../response/subscribeAssets.response";
 import { YfInfo } from "src/common/interface";
-import Either, * as E from "src/common/class/either";
+import Either, * as E from "@odoldotol/either";
 
 describe('SubscriberService', () => {
   let service: SubscriberService;

@@ -9,7 +9,7 @@ import {
 import { AccessorService } from "./accessor.service";
 import { SubscriberService } from "./subscriber.service";
 import { SubscribeAssetsResponse } from "../response/subscribeAssets.response";
-import Either from "src/common/class/either";
+import Either from "@odoldotol/either";
 import { Ticker } from "src/common/interface";
 import { mockApple, mockSamsungElec } from "src/mock";
 
@@ -65,14 +65,14 @@ describe('AccessorService', () => {
       .mockImplementation(async (
         eitherTickerArr: readonly Either<any, string>[]
       ): Promise<SubscribeAssetsResponse> => {
-        if (eitherTickerArr[0]!.right === mockSamsungElec.symbol) {
+        if (eitherTickerArr[0]!.getRight() === mockSamsungElec.symbol) {
           return new SubscribeAssetsResponse(
             [], Either.right([]), Either.right([mockSamsungElec])
           );
         } else {
           return new SubscribeAssetsResponse([{
             statusCode: 404,
-            ticker: eitherTickerArr[0]!.right
+            ticker: eitherTickerArr[0]!.getRight()
           }], Either.right([]), Either.right([]));
         }
       });

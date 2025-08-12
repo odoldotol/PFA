@@ -8,7 +8,7 @@ import {
 import { Log_priceUpdate } from "../log_priceUpdate/log_priceUpdate.schema";
 import { ExchangeCore, FulfilledYfPrice } from "src/common/interface";
 import { Launcher } from "src/common/enum";
-import Either, * as E from "src/common/class/either";
+import Either, * as E from "@odoldotol/either";
 
 @Injectable()
 export class Database_UpdaterService {
@@ -28,7 +28,7 @@ export class Database_UpdaterService {
     exchange: ExchangeCore,
   ): Promise<Either<any, FulfilledYfPrice>[]> {
     const updateRes = await this.updateTx(
-      E.getRightArray(updateEitherArr),
+      E.flatRightFilter(updateEitherArr),
       exchange
     );
 
@@ -36,10 +36,10 @@ export class Database_UpdaterService {
     // financialAssetSrv.updatePriceMany 에서 부터 성공 실패를 Either 로 반환하도록 해야한다.
     const symbolToUpdateResEleMap = new Map(updateRes.map(e => [e.symbol, e]));
     const turnLeftIfUpdateFailed = (either: Either<any, FulfilledYfPrice>) => {
-      if (either.isRight() && symbolToUpdateResEleMap.get(either.right.symbol) === undefined)
+      if (either.isRight() && symbolToUpdateResEleMap.get(either.getRight().symbol) === undefined)
       return Either.left<any, FulfilledYfPrice>({
         message: 'updatePriceMany failure',
-        data: either.right
+        data: either.getRight()
       });
       else return either;
     };

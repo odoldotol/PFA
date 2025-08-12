@@ -20,7 +20,7 @@ import {
   YfInfo,
   YfPrice
 } from 'src/common/interface';
-import Either, * as E from 'src/common/class/either';
+import Either, * as E from '@odoldotol/either';
 import * as X from 'rxjs';
 import * as F from '@fxts/core';
 
@@ -55,7 +55,7 @@ export class Market_FinancialAssetService {
       return F.pipe(
         eitherTickerArr,
         F.toAsync,
-        F.map(E.wrapAsyncFlatMap(fetchYfInfo)),
+        F.map(E.flatMapAsync(E.wrapAsync(fetchYfInfo))),
         F.concurrent(eitherTickerArr.length),
         F.toArray
       );
@@ -116,7 +116,7 @@ export class Market_FinancialAssetService {
         tickerArr,
         F.toAsync,
         F.map(E.wrapAsync(fetchYfPrice)),
-        F.map(E.wrapFlatMap(fulfillYfPrice)),
+        F.map(E.flatMap(E.wrap(fulfillYfPrice))),
         F.concurrent(tickerArr.length),
         F.toArray
       );
@@ -126,7 +126,7 @@ export class Market_FinancialAssetService {
       return X.lastValueFrom(
         (await this.yfinanceApiSrv.fetchYfPriceArr(tickerArr))
         .pipe(
-          X.map(yfPriceEitherArr => yfPriceEitherArr.map(E.wrapFlatMap(fulfillYfPrice)))
+          X.map(yfPriceEitherArr => yfPriceEitherArr.map(E.flatMap(E.wrap(fulfillYfPrice))))
         )
       ).catch(e => {
         throw new InternalServerErrorException(e);

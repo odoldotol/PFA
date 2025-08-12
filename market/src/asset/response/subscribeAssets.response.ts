@@ -1,5 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger";
-import Either from "src/common/class/either";
+import Either from "@odoldotol/either";
 import {
   FinancialAssetCore,
   YfInfo
@@ -28,12 +28,12 @@ export class SubscribeAssetsResponse {
       general: generalFailures,
     };
     this.yfInfo = yfInfoCreationRes.isLeft()
-      ? yfInfoCreationRes.left
-      : yfInfoCreationRes.right;
+      ? yfInfoCreationRes.getLeft()
+      : yfInfoCreationRes.getRight();
 
     finAssetCreationRes.isRight()
-      ? (this.assets = finAssetCreationRes.right)
-      : (this.failure.query = finAssetCreationRes.left);
+      ? (this.assets = finAssetCreationRes.getRight())
+      : (this.failure.query = finAssetCreationRes.getLeft());
   }
 
 }

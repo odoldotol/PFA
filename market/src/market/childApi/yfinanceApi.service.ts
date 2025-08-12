@@ -23,7 +23,7 @@ import {
 } from './const';
 import { Observable } from 'rxjs';
 import * as X from 'rxjs';
-import Either, * as E from 'src/common/class/either';
+import Either, * as E from '@odoldotol/either';
 import {
   isHttpResponse4XX,
   retryUntilResolvedOrTimeout

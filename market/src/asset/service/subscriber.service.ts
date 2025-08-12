@@ -14,7 +14,7 @@ import {
 } from "src/common/interface";
 import { SubscribeAssetsResponse } from "../response";
 import { dedupStrIter } from "src/common/util";
-import Either, * as E from "src/common/class/either";
+import Either, * as E from "@odoldotol/either";
 import * as F from "@fxts/core";
 
 @Injectable()
@@ -44,17 +44,17 @@ export class SubscriberService {
     const eitherYfInfoArr
     = await this.market_financialAssetSrv.fetchYfInfosByEitherTickerArr(eitherTickerArr);
 
-    const yfInfoArr = E.getRightArray(eitherYfInfoArr);
+    const yfInfoArr = E.flatRightFilter(eitherYfInfoArr);
     const yfInfoCreationRes = await this.yfinanceInfoSrv.insertMany(yfInfoArr);
 
     const fulfilledYfInfoArr = yfInfoArr.map(E.wrap(this.market_financialAssetSrv.fulfillYfInfo.bind(this.market_financialAssetSrv)));
 
-    const financialAssetCreationRes = await this.createFinancialAssets(E.getRightArray(fulfilledYfInfoArr));
+    const financialAssetCreationRes = await this.createFinancialAssets(E.flatRightFilter(fulfilledYfInfoArr));
 
     return new SubscribeAssetsResponse(
       [
-        ...E.getLeftArray(eitherYfInfoArr),
-        ...E.getLeftArray(fulfilledYfInfoArr)
+        ...E.flatLeftFilter(eitherYfInfoArr),
+        ...E.flatLeftFilter(fulfilledYfInfoArr)
       ],
       yfInfoCreationRes,
       financialAssetCreationRes

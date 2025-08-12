@@ -14,7 +14,7 @@ import {
   FulfilledYfPrice,
   Ticker
 } from "src/common/interface";
-import Either from "src/common/class/either";
+import Either from "@odoldotol/either";
 import * as F from "@fxts/core";
 
 @Injectable()
