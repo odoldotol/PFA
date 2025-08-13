@@ -9,7 +9,7 @@ import { HEALTH_PATH } from 'src/http';
 import { GlobalThrottlerGuard } from 'src/common/guard';
 
 @Controller()
-@UseGuards(GlobalThrottlerGuard) // disable throttler -> @UseGuards({ canActivate: () => true })
+@UseGuards(GlobalThrottlerGuard)
 export class AppController {
 
   @Get(HEALTH_PATH)

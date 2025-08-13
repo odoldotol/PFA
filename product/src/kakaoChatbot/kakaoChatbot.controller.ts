@@ -23,7 +23,7 @@ import { KakaoChatbotService } from './kakaoChatbot.service';
 import {
   FriendOnlyGuard,
   KakaoChatbotGuard,
-  KakaoChatbotThrottlerGuard
+  // KakaoChatbotThrottlerGuard
 } from './guard';
 import { TimeoutInterceptor } from './interceptor';
 import {
@@ -61,10 +61,10 @@ import { getThrottleOptionsFromEnv } from 'src/throttler/getThrottleOptionsFromE
 // => 당연하자나;
 
 @Controller(apiMetadata.prefix)
-@Throttle(getThrottleOptionsFromEnv('KAKAO_CHATBOT'))
+// @Throttle(getThrottleOptionsFromEnv('KAKAO_CHATBOT'))
 @UseGuards(
   KakaoChatbotGuard,
-  KakaoChatbotThrottlerGuard,
+  // KakaoChatbotThrottlerGuard,
 )
 @UseInterceptors(TimeoutInterceptor)
 @UseFilters(
