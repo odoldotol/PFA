@@ -15,3 +15,7 @@ Api Metadata 중앙화
   - product/ redis renew []
   - market/ inquire []
   - market/ postgres renew []
+
+Logger
+
+Market, Product 단일 앱으로 통합시키기
