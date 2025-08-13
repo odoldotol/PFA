@@ -5,19 +5,21 @@ import { check } from 'k6';
 
 const bot_user_key_max = 100000;
 
-const vus = 5;
+const vus = 10; //
+const duration = '360s'; //
 
 const bot_user_key_range = Math.floor(bot_user_key_max / vus);
 
 export const options = {
   vus,
-  duration: '300s',
+  duration,
 };
 
 export default function () {
-  const bot_user_key = (__VU - 1) * bot_user_key_range + __ITER + 1;
+  const bot_user_key = (__VU - 1) * bot_user_key_range + __ITER + 1; //
 
-  const url = 'http://localhost/api/v1/kakao-chatbot/asset/subscriptions/inquire';
+  // const url = 'http://localhost/api/v1/kakao-chatbot/asset/subscriptions/inquire';
+  const url = 'http://localhost:7001/api/v1/kakao-chatbot/asset/subscriptions/inquire';
   const payload = JSON.stringify({
     intent: {},
     userRequest: {
@@ -40,7 +42,7 @@ export default function () {
       params: {}
     },
     bot: {
-      id: "KAKAO_CHATBOT_ID"
+      id: "KAKAO_CHATBOT_ID" //
     },
     action: {
       clientExtra: {}
@@ -53,7 +55,7 @@ export default function () {
   const params = {
     headers: {
       'Content-Type': 'application/json',
-      'host': 'product.localhost',
+      // 'host': 'product.localhost', //
     },
   };
 

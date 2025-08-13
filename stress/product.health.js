@@ -9,9 +9,9 @@ export const options = {
 };
 
 export default function () {
-  const res = http.get('http://localhost/health', {
+  const res = http.get('http://localhost:7001/health', {
     headers: {
-      'host': 'product',
+      // 'host': 'product',
     },
   });
 
