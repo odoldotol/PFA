@@ -1,6 +1,5 @@
 import {
   Injectable,
-  Logger,
   NestMiddleware
 } from '@nestjs/common';
 import {
@@ -8,13 +7,14 @@ import {
   Response,
   NextFunction
 } from 'express';
+import { ConsoleLogger } from 'src/logger';
 import { getTraceId } from 'src/openTelemetry';
 
 @Injectable()
 export class HttpLoggerMiddleware
   implements NestMiddleware
 {
-  private readonly logger = new Logger('HttpLogger');
+  private readonly logger = new ConsoleLogger("HttpLogger");
 
   use(
     req: Request,

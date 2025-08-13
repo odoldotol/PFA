@@ -4,6 +4,7 @@ import {
   NestModule,
 } from '@nestjs/common';
 import { ConfigModule } from 'src/config';
+// import { LoggerModule } from 'src/logger';
 import { Pm2Module } from 'src/pm2/pm2.module';
 import {
   RedisModule,
@@ -23,6 +24,7 @@ import {
 @Module({
   imports: [
     ConfigModule,
+    // LoggerModule,
     Pm2Module,
     RedisModule,
     PostgresModule,
