@@ -9,7 +9,7 @@ module.exports = {
       kill_timeout: 60000, // 1분
       max_restarts: 50,
       restart_delay: 500,
-      max_memory_restart: '300M',
+      max_memory_restart: '200M',
 
       env: {
         PORT: 6001,
@@ -26,7 +26,7 @@ module.exports = {
       kill_timeout: 60000, // 1분
       max_restarts: 50,
       restart_delay: 500,
-      max_memory_restart: '300M',
+      max_memory_restart: '200M',
 
       env: {
         PORT: 6001,
