@@ -1,4 +1,7 @@
-전체적인 에러 포멧과 처리 통일하기
+[] Market, Product 단일 앱으로 통합시키기
+[] express -> fastify
+
+[] 전체적인 에러 포멧과 처리 통일하기
 
 Asynchronous context tracking
 
@@ -17,5 +20,3 @@ Api Metadata 중앙화
   - market/ postgres renew []
 
 Logger
-
-Market, Product 단일 앱으로 통합시키기
