@@ -12,7 +12,7 @@ import { Market_Exchange } from "src/market";
 import { Log_priceUpdate } from "src/database/log_priceUpdate/log_priceUpdate.schema";
 import { FulfilledYfPrice } from "src/common/interface";
 import { Launcher } from "src/common/enum";
-import Either, * as E from 'src/common/class/either';
+import Either, * as E from '@odoldotol/either';
 import * as F from "@fxts/core";
 
 @Injectable()
@@ -81,7 +81,7 @@ export class UpdaterService
     ).then(res => {
       this.logger.log(`${isoCode} : Update End`);
 
-      const success = E.getRightArray(res);
+      const success = E.flatRightFilter(res);
 
       // Todo: Refac ------------------------------------------
       if (0 < res.length) {
@@ -91,7 +91,7 @@ export class UpdaterService
           isStandard: true,
           key: exchange.isoCode,
           success,
-          failure: E.getLeftArray(res),
+          failure: E.flatLeftFilter(res),
           startTime: startTime.toISOString(),
           endTime: (endTime = new Date()).toISOString(),
           duration: endTime.getTime() - startTime.getTime()
