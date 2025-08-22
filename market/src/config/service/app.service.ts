@@ -22,7 +22,12 @@ export class AppConfigService
     super();
 
     if (this.IS_MARKET_UPDATE_DISABLED) {
-      this.logger.warn("Market update is disabled.");
+      let i = 0;
+      while (i < 5) {
+        this.logger.warn("Market update is disabled.");
+        console.log("Market update is disabled.");
+        i++;
+      }
     }
   }
 

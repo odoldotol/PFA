@@ -2,12 +2,18 @@ export * from './logger.module';
 
 import { ConsoleLogger } from './console';
 
-const DefaultLogger = ConsoleLogger;
+class SilentLogger {
+  log() {}
+  error() {}
+  warn() {}
+  debug() {}
+  verbose() {}
+  setContext() {}
+}
 
-export {
-  DefaultLogger,
-  // ConsoleLogger,
-};
+const isTestEnvironment = process.env["NODE_ENV"] === 'test' || process.env["JEST_WORKER_ID"] !== undefined;
+
+export const DefaultLogger = isTestEnvironment ? SilentLogger : ConsoleLogger;
 
 /**
  * 주입된 로거를 사용하는것이 메모리상 이득이 있겠지만 컨텍스트 분리, 사용편의상 상속을 사용했다.  
