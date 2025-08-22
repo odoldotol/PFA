@@ -1,6 +1,5 @@
 import {
-  Injectable,
-  Logger
+  Injectable
 } from '@nestjs/common';
 import { TempConfigService } from 'src/config';
 import { HttpService } from '@nestjs/axios';
@@ -17,17 +16,20 @@ import {
   isHttpResponse4XX,
   joinSlash
 } from 'src/common/util';
+import { Loggable } from "src/logger";
 
 @Injectable()
-export class ProductApiService {
-
-  private readonly logger = new Logger(ProductApiService.name);
+export class ProductApiService
+  extends Loggable
+{
   private readonly TEMP_KEY = this.tempConfigSrv.getKey();
 
   constructor(
     private readonly tempConfigSrv: TempConfigService,
     private readonly httpService: HttpService,
-  ) {}
+  ) {
+    super();
+  }
 
   public async renewFinancialAssetExchange(
     exchange: ExchangeCore,

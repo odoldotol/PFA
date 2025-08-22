@@ -1,4 +1,4 @@
-import { Injectable, Logger } from "@nestjs/common";
+import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import {
   DataSource,
@@ -15,12 +15,13 @@ import {
   MarketDate,
   Ticker
 } from "src/common/interface";
+import { Loggable } from "src/logger";
 // import { writeFile } from "fs";
 
 @Injectable()
-export class Database_FinancialAssetService {
-
-  private readonly logger = new Logger(Database_FinancialAssetService.name);
+export class Database_FinancialAssetService
+  extends Loggable
+{
   private readonly tableName = this.finAssetsRepo.metadata.tableName;
 
   constructor(
@@ -28,7 +29,9 @@ export class Database_FinancialAssetService {
     private readonly finAssetsRepo: Repository<FinancialAssetEntity>,
     private readonly dataSource: DataSource,
     private readonly exchangeSrv: Database_ExchangeService
-  ) {}
+  ) {
+    super();
+  }
 
   public createMany(
     values: readonly FinancialAssetCore[]

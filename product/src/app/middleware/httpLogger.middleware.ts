@@ -7,14 +7,18 @@ import {
   Response,
   NextFunction
 } from 'express';
-import { ConsoleLogger } from 'src/logger';
+import { Loggable } from 'src/logger';
 import { getTraceId } from 'src/openTelemetry';
 
 @Injectable()
 export class HttpLoggerMiddleware
+  extends Loggable
   implements NestMiddleware
 {
-  private readonly logger = new ConsoleLogger("HttpLogger");
+  constructor() {
+    super();
+    this.logger.setContext("HttpLogger");
+  }
 
   use(
     req: Request,

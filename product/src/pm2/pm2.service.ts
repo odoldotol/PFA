@@ -1,24 +1,26 @@
 import {
   Injectable,
-  Logger,
   OnModuleInit
 } from "@nestjs/common";
 import { Pm2ConfigService } from "src/config";
+import { Loggable } from "src/logger";
 import * as pm2 from "pm2";
 import * as F from "@fxts/core";
 
 @Injectable()
 export class Pm2Service
+  extends Loggable
   implements OnModuleInit
 {
-  private readonly logger = new Logger(Pm2Service.name);
   private PM2_ID!: number;
   private msgBus: any;
   private isOld: boolean = false;
 
   constructor(
     private readonly pm2ConfigSrv: Pm2ConfigService,
-  ) {}
+  ) {
+    super();
+  }
 
   async onModuleInit() {
     if (this.pm2ConfigSrv.isRunByPm2()) {

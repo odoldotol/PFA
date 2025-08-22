@@ -1,6 +1,5 @@
 import {
   Catch,
-  Logger,
   RequestTimeoutException,
 } from '@nestjs/common';
 import { Request } from 'express';
@@ -13,8 +12,6 @@ import { SkillPayload } from '../interface/skillPayload.interface';
 export class InquireTimeoutExceptionFilter
   extends SkillExceptionFilter<RequestTimeoutException>
 {
-  protected override readonly logger = new Logger(InquireTimeoutExceptionFilter.name);
-
   constructor(
     skillResponseSrv: SkillResponseService
   ) {

@@ -1,6 +1,5 @@
 import {
-  Catch,
-  Logger
+  Catch
 } from "@nestjs/common";
 import { ThrottlerException } from "@nestjs/throttler";
 import { SkillExceptionFilter } from "./skillException.filter";
@@ -11,8 +10,6 @@ import { SkillResponse } from "../skillResponse/v2";
 export class ThrottlerExceptionFilter
   extends SkillExceptionFilter<ThrottlerException>
 {
-  protected override readonly logger = new Logger(ThrottlerExceptionFilter.name);
-
   constructor(
     skillResponseSrv: SkillResponseService
   ) {

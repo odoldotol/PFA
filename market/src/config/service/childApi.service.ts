@@ -1,6 +1,5 @@
 import {
-  Injectable,
-  Logger
+  Injectable
 } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import {
@@ -11,18 +10,20 @@ import {
 } from "../const";
 import { ChildApiEnvKey, PriceRequestStrategy } from "../enum";
 import { ChildApiEnvironmentVariables } from "../interface";
+import { Loggable } from "src/logger";
 
 @Injectable()
-export class ChildApiConfigService {
-
-  private readonly logger = new Logger(ChildApiConfigService.name);
-
+export class ChildApiConfigService
+  extends Loggable
+{
   private readonly LOCAL_BASE_URL = 'http://127.0.0.1:8001';
   private readonly PRICE_REQUEST_STRATEGY: PriceRequestStrategy;
 
   constructor(
     private readonly configSrv: ConfigService<ChildApiEnvironmentVariables>,
   ) {
+    super();
+
     this.PRICE_REQUEST_STRATEGY = this.getPriceRequestStrategy();
   }
 

@@ -1,20 +1,22 @@
-import { Injectable, Logger } from "@nestjs/common";
+import { Injectable } from "@nestjs/common";
 import { Database_ExchangeService } from "src/database";
 import { Market_ExchangeService } from "src/market";
 import { Market_Exchange } from "src/market/exchange/class";
 import { ExchangeCore, UpdateEventListener } from "src/common/interface";
 import { MarketEvent } from "src/common/enum";
+import { Loggable } from "src/logger";
 import * as F from "@fxts/core";
 
 @Injectable()
-export class ExchangeService {
-
-  private readonly logger = new Logger(ExchangeService.name);
-
+export class ExchangeService
+  extends Loggable
+{
   constructor(
     private readonly database_exchangeSrv: Database_ExchangeService,
     private readonly market_exchangeSrv: Market_ExchangeService,
-  ) {}
+  ) {
+    super();
+  }
 
   public getAllExchanges() {
     return this.database_exchangeSrv.readAll();

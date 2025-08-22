@@ -1,7 +1,6 @@
 import {
   Injectable,
   InternalServerErrorException,
-  Logger,
   NotFoundException
 } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
@@ -14,6 +13,7 @@ import {
   InjectRedisRepository,
   RedisRepository
 } from 'src/database';
+import { Loggable } from 'src/logger';
 import { NotFoundTickerRedisEntity } from './notFoundTicker.redis.entity';
 import {
   GET_ALL_EXCHANGES_PATH,
@@ -29,17 +29,18 @@ import {
 import { joinSlash } from 'src/common/util';
 
 @Injectable()
-export class MarketApiService {
-
-  private readonly logger = new Logger(MarketApiService.name);
-
+export class MarketApiService
+  extends Loggable
+{
   private readonly runningFetchFinancialAsset = new Map<Ticker, Promise<FinancialAssetCore>>();
 
   constructor(
     private httpService: HttpService,
     @InjectRedisRepository(NotFoundTickerRedisEntity)
     private readonly notFoundTickerRepo: RedisRepository<object>,
-  ) {}
+  ) {
+    super();
+  }
 
   public fetchAllExchanges() {
     return firstValueFrom(this.httpService.get(GET_ALL_EXCHANGES_PATH).pipe(

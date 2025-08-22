@@ -1,6 +1,5 @@
 import {
-  Catch,
-  Logger
+  Catch
 } from '@nestjs/common';
 import { TooLongQueryException } from '../exception';
 import { SkillResponseService } from '../skillResponse.service';
@@ -11,8 +10,6 @@ import { SkillResponse } from '../skillResponse/v2';
 export class TooLongQueryExceptionFilter
   extends SkillExceptionFilter<TooLongQueryException>
 {
-  protected override readonly logger = new Logger(TooLongQueryExceptionFilter.name);
-
   constructor(
     skillResponseSrv: SkillResponseService
   ) {

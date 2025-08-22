@@ -1,6 +1,5 @@
 import {
   Injectable,
-  Logger,
 } from '@nestjs/common';
 import { AxiosResponse } from 'axios';
 import {
@@ -11,19 +10,21 @@ import {
   CHILD_WORKERS_QUEUE
 } from './const';
 import { Observable } from 'rxjs';
+import { Loggable } from "src/logger";
 import * as X from 'rxjs';
 import * as F from "@fxts/core";
 
 @Injectable()
-export class ChildApiService {
-
-  private readonly logger = new Logger(ChildApiService.name);
-
+export class ChildApiService
+  extends Loggable
+{
   constructor(
     private readonly concurrencyQueueSrv: TaskQueueService,
     @InjectTaskQueue(CHILD_WORKERS_QUEUE)
     private readonly workersQueueSrv: TaskQueueService
   ) {
+    super();
+
     this.logger.verbose("ConcurrencyQueue Concurrency: " + `${concurrencyQueueSrv.getConcurrency()}`);
     this.logger.verbose("WorkersQueue Concurrency: " + `${workersQueueSrv.getConcurrency()}`);
   }

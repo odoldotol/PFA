@@ -3,8 +3,8 @@ import {
   Catch,
   ExceptionFilter,
   HttpStatus,
-  Logger,
 } from "@nestjs/common";
+import { Loggable } from "src/logger";
 import { SkillResponseService } from "../skillResponse.service";
 import {
   Response,
@@ -15,14 +15,16 @@ import * as F from '@fxts/core';
 
 @Catch()
 export abstract class SkillExceptionFilter<T = any>
+  extends Loggable
   implements ExceptionFilter<T>
 {
-  protected readonly logger = new Logger(SkillExceptionFilter.name);
   private logFlag = false;
 
   constructor(
     protected readonly skillResponseSrv: SkillResponseService,
-  ) {}
+  ) {
+    super();
+  }
 
   catch(
     exception: T,

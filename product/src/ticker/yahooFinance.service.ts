@@ -1,7 +1,6 @@
 import { readFileSync } from "fs";
 import {
   Injectable,
-  Logger,
   NotFoundException
 } from "@nestjs/common";
 import {
@@ -12,6 +11,7 @@ import {
   InjectRedisRepository,
   RedisRepository
 } from "src/database";
+import { Loggable } from "src/logger";
 import OpenAI from "openai";
 import {
   BadIntentQueryException,
@@ -29,10 +29,9 @@ import { getTraceId } from "src/openTelemetry";
  * @todo OpenAI 분리 - 환경, OpenAI 구성, 모델응답바디 구성, 응답 생성.
  */
 @Injectable()
-export class YahooFinanceTickerService {
-
-  private readonly logger = new Logger(YahooFinanceTickerService.name);
-
+export class YahooFinanceTickerService
+  extends Loggable
+{
   private readonly openai: OpenAI;
   private readonly responseCreateParamsJson: string;
 
@@ -44,6 +43,7 @@ export class YahooFinanceTickerService {
     @InjectRedisRepository(ResponseRedisEntity)
     private readonly responseRepo: RedisRepository<ModelResponse>,
   ) {
+    super();
     let openaiApiKey: string;
     let responseCreateParamsJson: string;
 

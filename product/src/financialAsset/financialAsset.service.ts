@@ -1,6 +1,5 @@
 import {
   Injectable,
-  Logger,
   OnModuleInit
 } from "@nestjs/common";
 import { FinancialAssetConfigService } from "src/config";
@@ -29,15 +28,16 @@ import {
 import * as X from "rxjs";
 import * as F from "@fxts/core";
 import * as E from "@odoldotol/either";
+import { Loggable } from "src/logger";
 
 /**
  * 전체적으로 캐싱 및 일괄처리 구현이 비효율적이고 불필요하게 복잡한 것 같음. YahooFinanceTickerService 구현 참고해볼것
  */
 @Injectable()
 export class FinancialAssetService
+  extends Loggable
   implements OnModuleInit
 {
-  private readonly logger = new Logger(FinancialAssetService.name);
 
   /**
    * 각 financialAsset 의 count 가 이 값보다 크거나 같아야 renewal 이 일어남.
@@ -58,7 +58,9 @@ export class FinancialAssetService
     @InjectRedisRepository(MarketDateRedisEntity)
     private readonly marketDateRepo: RedisRepository<MarketDate>,
     private readonly marketApiSrv: MarketApiService,
-  ) {}
+  ) {
+    super();
+  }
 
   async onModuleInit(): Promise<void> {
     await F.pipe(

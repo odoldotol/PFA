@@ -1,4 +1,4 @@
-import { Injectable, Logger } from "@nestjs/common";
+import { Injectable } from "@nestjs/common";
 import { InjectRepository } from '@nestjs/typeorm';
 import {
   DataSource,
@@ -13,18 +13,21 @@ import {
   ExchangeIsoCode,
   MarketDate
 } from "src/common/interface";
+import { Loggable } from "src/logger";
 
 @Injectable()
-export class Database_ExchangeService {
-  
-  private readonly logger = new Logger(Database_ExchangeService.name);
+export class Database_ExchangeService
+  extends Loggable
+{  
   private readonly tableName = this.exchangesRepo.metadata.tableName;
 
   constructor(
     @InjectRepository(ExchangeEntity)
     private readonly exchangesRepo: Repository<ExchangeEntity>,
     private readonly dataSource: DataSource
-  ) {}
+  ) {
+    super();
+  }
 
   public async createOne(value: ExchangeCore): Promise<Exchange> {
     return (await this.dataSource.query<ExchangeEntity[]>(

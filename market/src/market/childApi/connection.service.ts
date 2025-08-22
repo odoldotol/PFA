@@ -1,15 +1,20 @@
-import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
+import { Injectable, OnModuleInit } from "@nestjs/common";
 import { HealthService } from 'src/http';
 import { buildLoggerContext } from 'src/common/util';
+import { Loggable } from "src/logger";
 
 @Injectable()
-export class ConnectionService implements OnModuleInit {
-
-  private readonly logger = new Logger(buildLoggerContext("ChildApi", ConnectionService.name));
-
+export class ConnectionService
+  extends Loggable
+  implements OnModuleInit
+{
   constructor(
     private readonly healthSrv: HealthService,
-  ) {}
+  ) {
+    super();
+
+    this.logger.setContext(buildLoggerContext("ChildApi", ConnectionService.name));
+  }
 
   async onModuleInit() {
     await this.checkHealth();

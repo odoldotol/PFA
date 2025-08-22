@@ -1,8 +1,8 @@
 import {
-  Injectable,
-  Logger
+  Injectable
 } from "@nestjs/common";
 import { Document } from "mongoose";
+import { Loggable } from "src/logger";
 import { StorebotSurveyRepository } from "./storebotSurvey.repository";
 import { SkillResponseService } from "../skillResponse.service";
 import { SkillResponse } from "../skillResponse/v2";
@@ -23,15 +23,16 @@ import {
 } from "./question.const";
 
 @Injectable()
-export class StorebotSurveyTestService {
-
-  private readonly logger = new Logger(StorebotSurveyTestService.name);
-
+export class StorebotSurveyTestService
+  extends Loggable
+{
   constructor(
     private readonly surveyRepo: StorebotSurveyRepository,
     private readonly skillResponseSrv: SkillResponseService,
     private readonly authSrv: AuthService,
-  ) {}
+  ) {
+    super();
+  }
 
   /**
    * 유저, 서베이 생성가능.

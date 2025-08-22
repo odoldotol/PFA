@@ -1,6 +1,5 @@
 import {
   Inject,
-  Logger,
 } from '@nestjs/common';
 import { MODULE_OPTIONS_TOKEN } from './taskQueue.module-definition';
 import { TaskQueueModuleOptions } from './interface';
@@ -9,15 +8,15 @@ import {
   Subject
 } from 'rxjs';
 import { context as otContext } from '@opentelemetry/api';
+import { Loggable } from "src/logger";
 
 /**
  * @todo 컨슈머의 수를 동적으로 조절할 수 있도록 하기.
  * @todo 컨텍스트 관리가 어려운 구현임. 임시로 opentelemetry 컨텍스트는 이어지도록 조치해두었음.
  */
-export class TaskQueueService {
-
-  private readonly logger = new Logger(TaskQueueService.name);
-
+export class TaskQueueService
+  extends Loggable
+{
   // Todo: 내장 Array 말고 Queue 를 구현해서 사용하기?
   private readonly taskQueue: TaskWrapper[] = [];
   private readonly consumerQueue: GetNextTaskWrapperResolver[] = [];
@@ -29,6 +28,8 @@ export class TaskQueueService {
     @Inject(MODULE_OPTIONS_TOKEN)
     private readonly options: TaskQueueModuleOptions
   ) {
+    super();
+
     this.start();
   }
 

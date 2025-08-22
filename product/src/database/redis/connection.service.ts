@@ -1,19 +1,21 @@
-import { Inject, Logger } from '@nestjs/common';
+import { Inject } from '@nestjs/common';
 import { createClient } from 'redis';
 import EventEmitter from 'events';
 import { MODULE_OPTIONS_TOKEN } from './redis.module-definition';
 import { RedisModuleOptions } from './interface';
+import { Loggable } from 'src/logger';
 import { buildLoggerContext } from 'src/common/util';
 
-export class ConnectionService {
-
-  private readonly logger
-  = new Logger(buildLoggerContext("Redis", ConnectionService.name));
-
+export class ConnectionService
+  extends Loggable
+{
   constructor (
     @Inject(MODULE_OPTIONS_TOKEN)
     private readonly options: RedisModuleOptions,
-  ) {}
+  ) {
+    super();
+    this.logger.setContext(buildLoggerContext("Redis", ConnectionService.name));
+  }
 
   public async connect() {
 

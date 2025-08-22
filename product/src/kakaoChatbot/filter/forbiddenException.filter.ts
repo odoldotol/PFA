@@ -1,7 +1,6 @@
 import {
   Catch,
-  ForbiddenException,
-  Logger
+  ForbiddenException
 } from '@nestjs/common';
 import { SkillResponseService } from '../skillResponse.service';
 import { SkillExceptionFilter } from './skillException.filter';
@@ -10,8 +9,6 @@ import { SkillExceptionFilter } from './skillException.filter';
 export class ForbiddenExceptionFilter
   extends SkillExceptionFilter<ForbiddenException>
 {
-  protected override readonly logger = new Logger(ForbiddenExceptionFilter.name);
-
   constructor(
     skillResponseSrv: SkillResponseService
   ) {

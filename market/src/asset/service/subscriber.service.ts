@@ -1,4 +1,4 @@
-import { Injectable, Logger } from "@nestjs/common";
+import { Injectable } from "@nestjs/common";
 import {
   YfinanceInfoService,
   Database_FinancialAssetService
@@ -14,19 +14,21 @@ import {
 } from "src/common/interface";
 import { SubscribeAssetsResponse } from "../response";
 import { dedupStrIter } from "src/common/util";
+import { Loggable } from "src/logger";
 import Either, * as E from "@odoldotol/either";
 import * as F from "@fxts/core";
 
 @Injectable()
-export class SubscriberService {
-
-  private readonly logger = new Logger(SubscriberService.name);
-
+export class SubscriberService
+  extends Loggable
+{
   constructor(
     private readonly market_financialAssetSrv: Market_FinancialAssetService,
     private readonly yfinanceInfoSrv: YfinanceInfoService,
     private readonly database_financialAssetSrv: Database_FinancialAssetService,
-  ) {}
+  ) {
+    super();
+  }
 
   public async subscribeAssets(
     tickerArr: readonly Ticker[]

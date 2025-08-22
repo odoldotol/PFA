@@ -1,7 +1,6 @@
 import {
   Catch,
-  BadRequestException,
-  Logger
+  BadRequestException
 } from '@nestjs/common';
 import { SkillResponseService } from '../skillResponse.service';
 import { SkillExceptionFilter } from './skillException.filter';
@@ -10,8 +9,6 @@ import { SkillExceptionFilter } from './skillException.filter';
 export class BadRequestExceptionFilter
   extends SkillExceptionFilter<BadRequestException>
 {
-  protected override readonly logger = new Logger(BadRequestExceptionFilter.name);
-
   constructor(
     skillResponseSrv: SkillResponseService
   ) {

@@ -2,12 +2,12 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from 'src/app';
 import { AppConfigService } from './config';
 import { Pm2Service } from './pm2/pm2.service';
-import { ConsoleLogger } from './logger';
 import { versioningOptions } from './config';
 import helmet from 'helmet';
 import setupSwagger from './setupSwagger';
-import addTerminator from './addTerminator';
+import { Terminator } from './terminator';
 import 'src/openTelemetry';
+import { DefaultLogger } from './logger';
 
 const bootstrap = async () => {
   const app = await NestFactory.create(AppModule, { bufferLogs: true });
@@ -21,13 +21,13 @@ const bootstrap = async () => {
   
   setupSwagger(app);
 
-  app.useLogger(new ConsoleLogger());
+  app.useLogger(app.get(DefaultLogger));
 
   await app.listen(app.get(AppConfigService).getPort());
 
   app.get(Pm2Service).sendReady();
 
-  addTerminator(app);
+  Terminator.add(app);
 };
 
 bootstrap();

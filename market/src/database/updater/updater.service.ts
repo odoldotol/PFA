@@ -1,4 +1,4 @@
-import { Injectable, Logger } from "@nestjs/common";
+import { Injectable } from "@nestjs/common";
 import { DataSource } from "typeorm";
 import {
   Database_FinancialAssetService,
@@ -8,19 +8,21 @@ import {
 import { Log_priceUpdate } from "../log_priceUpdate/log_priceUpdate.schema";
 import { ExchangeCore, FulfilledYfPrice } from "src/common/interface";
 import { Launcher } from "src/common/enum";
+import { Loggable } from "src/logger";
 import Either, * as E from "@odoldotol/either";
 
 @Injectable()
-export class Database_UpdaterService {
-
-  private readonly logger = new Logger(Database_UpdaterService.name);
-
+export class Database_UpdaterService
+  extends Loggable
+{
   constructor(
     private readonly financialAssetSrv: Database_FinancialAssetService,
     private readonly exchangeSrv: Database_ExchangeService,
     private readonly dataSource: DataSource,
     private readonly logPriceUpdateSrv: LogPriceUpdateService
-  ) {}
+  ) {
+    super();
+  }
 
   // Todo: Refac
   public async update(

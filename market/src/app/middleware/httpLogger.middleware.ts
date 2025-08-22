@@ -1,20 +1,24 @@
 import {
   Injectable,
-  Logger,
-  NestMiddleware
+  NestMiddleware,
 } from '@nestjs/common';
 import {
   Request,
   Response,
   NextFunction
 } from 'express';
+import { Loggable } from "src/logger";
 import { getTraceId } from 'src/openTelemetry';
 
 @Injectable()
 export class HttpLoggerMiddleware
+  extends Loggable
   implements NestMiddleware
 {
-  private readonly logger = new Logger('HttpLogger');
+  constructor() {
+    super();
+    this.logger.setContext('HttpLogger');
+  }
 
   use(
     req: Request,

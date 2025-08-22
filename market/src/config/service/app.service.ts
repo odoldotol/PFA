@@ -1,6 +1,5 @@
 import {
-  Injectable,
-  Logger
+  Injectable
 } from "@nestjs/common";
 import { ConfigService } from '@nestjs/config';
 import { DEFAULT_PORT } from "../const";
@@ -9,16 +8,19 @@ import {
   DockerEnv
 } from "../enum";
 import { AppEnvironmentVariables } from "../interface";
+import { Loggable } from "src/logger";
 
 @Injectable()
-export class AppConfigService {
-  private readonly logger = new Logger(AppConfigService.name);
-
+export class AppConfigService
+  extends Loggable
+{
   private readonly IS_MARKET_UPDATE_DISABLED = Number(this.configSrv.get(AppEnvKey.DISABLE_MARKET_UPDATE, { infer: true })) === 1;
 
   constructor(
     private readonly configSrv: ConfigService<AppEnvironmentVariables>,
   ) {
+    super();
+
     if (this.IS_MARKET_UPDATE_DISABLED) {
       this.logger.warn("Market update is disabled.");
     }

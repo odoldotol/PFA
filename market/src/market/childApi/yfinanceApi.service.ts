@@ -1,6 +1,5 @@
 import {
   Injectable,
-  Logger,
 } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { ChildApiService } from './childApi.service';
@@ -22,6 +21,7 @@ import {
   YFINANCE_PRICE_URN,
 } from './const';
 import { Observable } from 'rxjs';
+import { Loggable } from "src/logger";
 import * as X from 'rxjs';
 import Either, * as E from '@odoldotol/either';
 import {
@@ -30,14 +30,15 @@ import {
 } from 'src/common/util';
 
 @Injectable()
-export class YfinanceApiService {
-
-  private readonly logger = new Logger(YfinanceApiService.name);
-
+export class YfinanceApiService
+  extends Loggable
+{
   constructor(
     private readonly httpService: HttpService,
     private readonly childApiSrv: ChildApiService,
-  ) {}
+  ) {
+    super();
+  }
 
   public exists(
     ticker: Ticker

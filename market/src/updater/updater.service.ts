@@ -1,6 +1,5 @@
 import {
   Injectable,
-  Logger,
   OnApplicationBootstrap
 } from "@nestjs/common";
 import { AppConfigService } from "src/config";
@@ -12,22 +11,24 @@ import { Market_Exchange } from "src/market";
 import { Log_priceUpdate } from "src/database/log_priceUpdate/log_priceUpdate.schema";
 import { FulfilledYfPrice } from "src/common/interface";
 import { Launcher } from "src/common/enum";
+import { Loggable } from "src/logger";
 import Either, * as E from '@odoldotol/either';
 import * as F from "@fxts/core";
 
 @Injectable()
 export class UpdaterService
+  extends Loggable
   implements OnApplicationBootstrap
 {
-  private readonly logger = new Logger(UpdaterService.name);
-
   constructor(
     private readonly appConfigSrv: AppConfigService,
     private readonly exchangeSrv: ExchangeService,
     private readonly accessorSrv: AccessorService,
     private readonly database_updaterSrv: Database_UpdaterService,
     private readonly productApiSrv: ProductApiService,
-  ) {}
+  ) {
+    super();
+  }
 
   async onApplicationBootstrap() {
     try {

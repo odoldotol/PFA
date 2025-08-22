@@ -1,10 +1,10 @@
 import {
-  Injectable,
-  Logger
+  Injectable
 } from '@nestjs/common';
 import {
   AssetSubscriptionService,
 } from 'src/database';
+import { Loggable } from 'src/logger';
 import { YahooFinanceTickerService } from 'src/ticker';
 import { FinancialAssetService } from 'src/financialAsset';
 import { AuthService } from './auth.service';
@@ -27,17 +27,18 @@ import * as F from '@fxts/core';
 import { getTraceId } from 'src/openTelemetry';
 
 @Injectable()
-export class KakaoChatbotService {
-
-  private readonly logger = new Logger(KakaoChatbotService.name);
-
+export class KakaoChatbotService
+  extends Loggable
+{
   constructor(
     private readonly yahooFinanceTickerSrv: YahooFinanceTickerService,
     private readonly financialAssetSrv: FinancialAssetService,
     private readonly authSrv: AuthService,
     private readonly assetSubscriptionSrv: AssetSubscriptionService,
     private readonly skillResponseSrv: SkillResponseService,
-  ) {}
+  ) {
+    super();
+  }
 
   /**
    * @todo refac
