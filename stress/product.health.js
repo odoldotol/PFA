@@ -4,18 +4,23 @@ import http from 'k6/http';
 import { check } from 'k6';
 
 export const options = {
-  vus: 1, // virtual users (= connections)
-  duration: '1s',
+  vus: 100,
+  duration: '30s',
 };
 
 export default function () {
-  const res = http.get('http://localhost:7001/health', {
+  // const res = http.get('http://localhost:7001/health', {
+  const res = http.get('https://product.lapiki-invest.com/health', {
     headers: {
-      // 'host': 'product',
+      'Content-Type': 'application/json',
+      'host': 'product.lapiki-invest.com', //
+      'x-maintenance': 'true',
     },
   });
 
   check(res, {
-    'status is 200': (r) => r.status === 200,
+    'status is 200': (r) => {
+      return r.status === 200
+    },
   });
 }
