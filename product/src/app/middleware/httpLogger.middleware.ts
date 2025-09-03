@@ -16,8 +16,7 @@ export class HttpLoggerMiddleware
   implements NestMiddleware
 {
   constructor() {
-    super();
-    this.logger.setContext("HttpLogger");
+    super("HttpLogger");
   }
 
   use(

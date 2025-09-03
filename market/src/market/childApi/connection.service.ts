@@ -11,9 +11,7 @@ export class ConnectionService
   constructor(
     private readonly healthSrv: HealthService,
   ) {
-    super();
-
-    this.logger.setContext(buildLoggerContext("ChildApi", ConnectionService.name));
+    super(buildLoggerContext("ChildApi", ConnectionService.name));
   }
 
   async onModuleInit() {

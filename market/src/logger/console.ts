@@ -1,7 +1,7 @@
 import {
   Injectable,
   ConsoleLogger as NestConsoleLogger
-} from "@nestjs/common";
+} from '@nestjs/common';
 
 @Injectable()
 export class ConsoleLogger

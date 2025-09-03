@@ -1,3 +1,7 @@
 TooManyRequestError 응답
 
 text 를 분리하기. (응답 text 수정이 코드수정으로 이어지지 않도록)
+
+subscriptions 캐싱하기
+  Redis List 쓰고 0 에 timestamp, 1 부터 항목들 캐싱
+  유저별 구독의 lastModifiedTimestamp 기록하고 List[0] 과 비교해서 캐시 유효성 판단 

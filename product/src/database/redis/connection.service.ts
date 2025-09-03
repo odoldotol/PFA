@@ -13,8 +13,7 @@ export class ConnectionService
     @Inject(MODULE_OPTIONS_TOKEN)
     private readonly options: RedisModuleOptions,
   ) {
-    super();
-    this.logger.setContext(buildLoggerContext("Redis", ConnectionService.name));
+    super(buildLoggerContext("Redis", ConnectionService.name));
   }
 
   public async connect() {
