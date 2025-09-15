@@ -51,7 +51,7 @@ export class YahooFinanceTickerService
       openaiApiKey = readFileSync(
         "src/../openai.key",
         "utf-8"
-      );
+      ).trim();
 
       responseCreateParamsJson = readFileSync(
         "src/../openai_create_params.json",
