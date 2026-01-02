@@ -35,8 +35,7 @@ export class UpdaterService
       await this.synchronizeAllExchangesWithMarket();
       this.exchangeSrv.registerUpdaterAllExchanges(this.updater.bind(this));
     } catch (e: any) {
-      this.logger.error(e, e.stack);
-      this.logger.verbose("Failed to initialize");
+      console.error(e, e.stack);
       process.exit(1);
     }
   }

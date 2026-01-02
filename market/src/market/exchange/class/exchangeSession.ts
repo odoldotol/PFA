@@ -1,4 +1,4 @@
-import { InternalServerErrorException, OnModuleInit } from "@nestjs/common";
+import { InternalServerErrorException, Logger, OnModuleInit } from "@nestjs/common";
 import { ExchangeSessionApiService } from "src/market/childApi";
 import { ExchangeIsoCode } from "src/common/interface";
 import { ExchangeSession } from "src/market/interface";
@@ -16,14 +16,13 @@ import {
   isHttpResponse4XX,
   retryUntilResolvedOrTimeout
 } from "src/common/util";
-import { DefaultLogger } from "src/logger";
 import * as F from '@fxts/core';
 import * as X from 'rxjs';
 
 export class Market_ExchangeSession
   implements OnModuleInit, ExchangeSession
 {
-  private readonly logger = new DefaultLogger(
+  private readonly logger = new Logger(
     buildLoggerContext(Market_ExchangeSession, this.isoCode)
   );
 

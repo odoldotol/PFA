@@ -1,4 +1,4 @@
-import { OnApplicationBootstrap } from "@nestjs/common";
+import { Logger, OnApplicationBootstrap } from "@nestjs/common";
 import { EventEmitter } from "stream";
 import { Market_ExchangeConfig } from "./exchangeConfig";
 import { Market_ExchangeSession } from "./exchangeSession";
@@ -19,7 +19,6 @@ import {
   getISOYmdStr,
   getLogStyleStr
 } from "src/common/util";
-import { DefaultLogger } from "src/logger";
 
 /**
  * @todo 닫지 않는 마켓의 경우, 단순하게 업데이트 이벤트만 정해진 시간에 방출하자
@@ -28,7 +27,7 @@ export class Market_Exchange
   extends EventEmitter
   implements OnApplicationBootstrap, ExchangeCore
 {
-  protected readonly logger = new DefaultLogger(
+  protected readonly logger = new Logger(
     buildLoggerContext(Market_Exchange, this.isoCode)
   );
 
