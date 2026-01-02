@@ -14,7 +14,7 @@ from pydantic import BaseModel
 import os
 import yfinance as yf
 import exchange_calendars as xcals
-from datetime import datetime
+from datetime import datetime, timezone
 import warnings
 from instrumentation import FastAPIInstrumentor
 # from time_test import start_time_test, end_time_test
@@ -96,7 +96,7 @@ def calculate_rlimit_nofile_soft(
   else:
     amount = threadpool_maxworkers
     multiple = (amount + 4000) / (amount + 1000)
-  return min_start + (multiple * amount)
+  return int(min_start + (multiple * amount))
 
 rlimit_nofile_soft = calculate_rlimit_nofile_soft(
   CONCURRENCY,
@@ -345,11 +345,12 @@ def get_session_by_ISOcode(ISO_Code: str) -> Session:
   ISO_Code = uppercase_ticker_validation_pipe(ISO_Code)
 
   cd = xcals.get_calendar(ISO_Code)
+  now = datetime.now(timezone.utc)
   return {
-    "previous_open": cd.previous_open(datetime.utcnow()).isoformat(),
-    "previous_close": cd.previous_close(datetime.utcnow()).isoformat(),
-    "next_open": cd.next_open(datetime.utcnow()).isoformat(),
-    "next_close": cd.next_close(datetime.utcnow()).isoformat(),
+    "previous_open": cd.previous_open(now).isoformat(),
+    "previous_close": cd.previous_close(now).isoformat(),
+    "next_open": cd.next_open(now).isoformat(),
+    "next_close": cd.next_close(now).isoformat(),
   }
 
 def get_price_by_ticker_sync(ticker: str) -> Price:
