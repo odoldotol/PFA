@@ -39,12 +39,12 @@ export const CONFIG_EXCHANGES2 = {
     "ISO_TimezoneName":"America/New_York",
     "yahooFinance_update_margin": 59000,
   },
-  "XSHG": {
-    "market":"Shanghai Stock Exchange",
-    "country":"China",
-    "exchange_website":"http://www.sse.com.cn/",
-    "ISO_TimezoneName":"Asia/Shanghai"
-  },
+  // "XSHG": {
+  //   "market":"Shanghai Stock Exchange",
+  //   "country":"China",
+  //   "exchange_website":"http://www.sse.com.cn/",
+  //   "ISO_TimezoneName":"Asia/Shanghai"
+  // },
   "XTKS": {
     "market":"Tokyo Stock Exchange",
     "country":"Japan",
