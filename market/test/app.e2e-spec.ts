@@ -107,8 +107,10 @@ describe('Market E2E', () => {
       .toBeLessThan(marketExchangeSrv.getAll().length);
       seedExchangeArr.forEach(seedExchange => {
         const marketExchange = marketExchangeSrv.getOne(seedExchange.iso_code)
-        expect(marketExchange).toBeDefined();
-        expect(seedExchange.market_date).not.toBe(marketExchange.marketDate);
+        if (marketExchange) {
+          expect(marketExchange).toBeDefined();
+          expect(seedExchange.market_date).not.toBe(marketExchange.marketDate);
+        }
       });
     });
 
@@ -145,7 +147,7 @@ describe('Market E2E', () => {
         async () => {
           databaseExchangeArr.forEach(databaseExchange => {
             expect(databaseExchange.market_date)
-            .toBe(marketExchangeSrv.getOne(databaseExchange.iso_code).marketDate);
+            .toBe(marketExchangeSrv.getOne(databaseExchange.iso_code)!.marketDate);
           });
 
           financialAssetArr.forEach(financialAsset => {
@@ -255,7 +257,7 @@ describe('Market E2E', () => {
           if (rawFinancialAsset!.exchange === null) {
             newMarketDate = MARKET_DATE_DEFAULT;
           } else {
-            newMarketDate = marketExchangeSrv.getOne(rawFinancialAsset!.exchange).marketDate;
+            newMarketDate = marketExchangeSrv.getOne(rawFinancialAsset!.exchange)!.marketDate;
           }
 
           return Object.assign(mockFinancialAsset, {

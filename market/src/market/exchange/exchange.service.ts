@@ -18,11 +18,11 @@ export class Market_ExchangeService {
     ]));
   }
 
-  public getOne(isoCode: ExchangeIsoCode): Market_Exchange;
-  public getOne(coreExchange: ExchangeCore): Market_Exchange;
-  public getOne(arg: ExchangeIsoCode | ExchangeCore): Market_Exchange {
+  public getOne(isoCode: ExchangeIsoCode): Market_Exchange | undefined;
+  public getOne(coreExchange: ExchangeCore): Market_Exchange | undefined;
+  public getOne(arg: ExchangeIsoCode | ExchangeCore): Market_Exchange | undefined {
     const isoCode = typeof arg === "string" ? arg : arg.isoCode;
-    return this.exchangeMap.get(isoCode)!;
+    return this.exchangeMap.get(isoCode);
   }
 
   public getAll() {

@@ -41,13 +41,19 @@ export class ExchangeService
     );
   }
 
-  public getOutofdateExchanges(): Promise<Market_Exchange[]> {
-    return F.pipe(
-      this.database_exchangeSrv.readAll(),
-      F.filter(this.isOutofdateExchange.bind(this)),
-      F.map(this.market_exchangeSrv.getOne.bind(this.market_exchangeSrv)),
-      F.toArray
-    );
+  public async getOutofdateExchanges(): Promise<Market_Exchange[]> {
+    const result: Market_Exchange[] = [];
+
+    const allExchanges = await this.database_exchangeSrv.readAll();
+
+    for (const exchange of allExchanges) {
+      const marketExchange = this.market_exchangeSrv.getOne(exchange);
+      if (marketExchange !== undefined && exchange.marketDate != marketExchange.marketDate) {
+        result.push(marketExchange);
+      }
+    }
+
+    return result;
   }
 
   private registerUpdater(
@@ -72,10 +78,5 @@ export class ExchangeService
 
   private logNewExchange(exchange: Market_Exchange): void {
     this.logger.verbose(`New Exchange Created: ${exchange.isoCode}`);
-  }
-
-  private isOutofdateExchange(exchange: ExchangeCore): boolean {
-    const marketExchange = this.market_exchangeSrv.getOne(exchange.isoCode);
-    return exchange.marketDate != marketExchange.marketDate;
   }
 }

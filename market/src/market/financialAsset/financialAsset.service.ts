@@ -104,7 +104,7 @@ export class Market_FinancialAssetService {
   ): Promise<Either<any, FulfilledYfPrice>[]> {
     await this.childApiConnectionSrv.checkHealth();
 
-    const fulfillYfPrice = this.fulfillYfPrice.bind(this, this.exchangeSrv.getOne(isoCode));
+    const fulfillYfPrice = this.fulfillYfPrice.bind(this, this.exchangeSrv.getOne(isoCode) ?? null);
 
     if (this.childApiConfigSrv.isPriceRequestStrategySingle()) { // 티커당 1 요청
 
