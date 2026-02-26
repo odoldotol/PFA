@@ -281,9 +281,11 @@ async def get_info_by_ticker(ticker: str) -> Info:
 async def get_price_by_tickers(tickers: List[str]) -> List[PriceOrError]:
   async def fetch_price(ticker):
     try:
-        return await get_price_by_ticker(ticker)
+      return await get_price_by_ticker(ticker)
     except HTTPException as e:
-        return e.detail
+      return e.detail
+    except Exception as e:
+      return {"error": type(e).__name__, "detail": str(e), "ticker": ticker}
 
   tasks = [fetch_price(ticker) for ticker in tickers]
   results = await asyncio.gather(*tasks)
@@ -447,5 +449,7 @@ def is_empty(price_chart: DataFrame) -> bool:
 def is_nan(num: any) -> bool:
   return type(num) == float and num != num
 
-def nan_to_none(num: any) -> any:
-  return None if is_nan(num) else num
+def nan_to_none(num) -> any:
+  if isinstance(num, float) and (math.isnan(num) or math.isinf(num)):
+    return None
+  return num
