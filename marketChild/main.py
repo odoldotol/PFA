@@ -12,6 +12,7 @@ from fastapi.responses import JSONResponse
 from pandas import DataFrame
 from pydantic import BaseModel
 import os
+import math
 import yfinance as yf
 import exchange_calendars as xcals
 from datetime import datetime, timezone
